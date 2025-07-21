@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTelegram } from '../../hooks/useTelegram';
 
@@ -21,34 +21,58 @@ const steps = [
   },
 ];
 
-const phoneMock = (
-  <div style={{width: '220px', height: '48px', background: '#eee', borderRadius: '6px 6px 0 0', margin: '0 auto', marginBottom: 12, display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: 14}}>
-    <span style={{flex: 1}}>12:48</span>
-    <span style={{flex: 2, textAlign: 'center'}}>Title<br/>Bot</span>
-    <span style={{flex: 1, textAlign: 'right'}}>●</span>
-  </div>
-);
-
 export const Welcome: React.FC = () => {
   const [step, setStep] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const [direction, setDirection] = useState<'right' | null>(null);
   const navigate = useNavigate();
   const { tg } = useTelegram();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (localStorage.getItem('onboardingComplete')) {
-      navigate('/home', { replace: true });
-    }
-    // Hide Telegram BackButton on onboarding
+    // Always show onboarding for testing, so skip localStorage check
     if (tg?.BackButton) tg.BackButton.hide();
-  }, [navigate, tg]);
+  }, [tg]);
+
+  // Touch/Swipe logic
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    let startX = 0;
+    let endX = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      endX = e.changedTouches[0].clientX;
+      if (endX - startX > 60 && step > 0) {
+        setDirection(null); // No left swipe
+        setStep(s => s - 1);
+      } else if (startX - endX > 60 && step < steps.length - 1) {
+        handleNext();
+      }
+    };
+    container.addEventListener('touchstart', onTouchStart);
+    container.addEventListener('touchend', onTouchEnd);
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [step]);
 
   const handleNext = () => {
     if (step < steps.length - 1) {
-      setStep(s => s + 1);
+      setDirection('right');
+      setAnimating(true);
+      setTimeout(() => {
+        setStep(s => s + 1);
+        setAnimating(false);
+        setDirection(null);
+      }, 300);
     } else {
-      localStorage.setItem('onboardingComplete', '1');
+      // localStorage.setItem('onboardingComplete', '1'); // Skip for testing
       if (tg?.close) {
-        tg.close(); // Try to close WebApp (if in Telegram)
+        tg.close();
       } else {
         navigate('/home', { replace: true });
       }
@@ -56,32 +80,41 @@ export const Welcome: React.FC = () => {
   };
 
   return (
-    <div style={{padding: 24, minHeight: '100vh', background: '#fff'}}>
-      <div style={{display: 'flex', justifyContent: 'center', gap: 32, marginBottom: 32}}>
-        {steps.map((s, i) => (
-          <div key={i} style={{width: 260, textAlign: 'center'}}>
-            {phoneMock}
-            <div style={{fontWeight: 600, marginBottom: 8, marginTop: 8}}>{s.title}</div>
-            <div style={{fontSize: 15, color: '#444', marginBottom: 16}}>{s.desc}</div>
-            <div style={{height: 32}}></div>
-          </div>
-        ))}
+    <div ref={containerRef} style={{padding: 24, minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+      <div style={{position: 'relative', width: 320, height: 220, marginBottom: 40, overflow: 'hidden'}}>
+        <div
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            top: 0,
+            left: 0,
+            transition: animating ? 'transform 0.3s cubic-bezier(.4,0,.2,1)' : 'none',
+            transform: animating && direction === 'right' ? 'translateX(-100%)' : 'translateX(0)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fff',
+            borderRadius: 12,
+            boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+          }}
+        >
+          <div style={{fontWeight: 700, fontSize: 22, marginBottom: 12, textAlign: 'center'}}>{steps[step].title}</div>
+          <div style={{fontSize: 16, color: '#444', textAlign: 'center'}}>{steps[step].desc}</div>
+        </div>
       </div>
-      <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 32}}>
+      <div style={{display: 'flex', gap: 8, marginBottom: 24}}>
         {steps.map((_, i) => (
-          <div key={i} style={{width: 60, textAlign: 'center'}}>
-            <div style={{margin: '0 auto', width: 40, height: 8, borderRadius: 4, background: i === step ? '#2e7d32' : '#e0e0e0', marginBottom: 12}}></div>
-            {i === step && (
-              <button
-                style={{width: '100%', background: '#2e7d32', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 0', fontSize: 16, fontWeight: 500, cursor: 'pointer'}}
-                onClick={handleNext}
-              >
-                {step === steps.length - 1 ? 'Start' : 'Next'}
-              </button>
-            )}
-          </div>
+          <div key={i} style={{width: 12, height: 12, borderRadius: '50%', background: i === step ? '#2e7d32' : '#e0e0e0'}}></div>
         ))}
       </div>
+      <button
+        style={{width: 260, background: '#2e7d32', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 0', fontSize: 18, fontWeight: 600, cursor: 'pointer', marginTop: 8}}
+        onClick={handleNext}
+      >
+        {step === steps.length - 1 ? 'Start' : 'Next'}
+      </button>
     </div>
   );
 };
