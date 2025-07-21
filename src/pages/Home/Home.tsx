@@ -1,8 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTelegram } from '../../hooks/useTelegram';
 
 export const Home: React.FC = () => {
   const { user } = useTelegram();
+  const [city, setCity] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!city && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.requestLocation === 'function') {
+      window.Telegram.WebApp.requestLocation((location: { latitude: number; longitude: number }) => {
+        if (location) {
+          const { latitude, longitude } = location;
+          fetch(`/api/get-city?lat=${latitude}&lon=${longitude}`)
+            .then(res => res.json())
+            .then(data => {
+              if (typeof data === 'string') setCity(data);
+              else if (data && data.city) setCity(data.city);
+            });
+        }
+      });
+    }
+  }, [city]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', background: '#fafafa' }}>
@@ -20,7 +37,7 @@ export const Home: React.FC = () => {
           fontSize: 17,
           fontWeight: 500,
           color: '#222',
-          maxWidth: 240
+          maxWidth: 260
         }}>
           <img
             src={user.photo_url}
@@ -28,7 +45,7 @@ export const Home: React.FC = () => {
             style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', marginRight: 10 }}
           />
           <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {user.first_name}{user.last_name ? ` ${user.last_name}` : ''}
+            {user.first_name}{user.last_name ? ` ${user.last_name}` : ''}{city ? `, ${city}` : ''}
           </span>
         </div>
       )}
