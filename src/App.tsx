@@ -1,7 +1,7 @@
 import { useTelegram } from "./hooks/useTelegram";
 import { Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
-import { Welcome } from "./pages/Welcome";
+import { Home } from "./pages/Home/Home";
+import { Welcome } from "./pages/Welcome/Welcome";
 
 function App() {
   const { tg } = useTelegram();
