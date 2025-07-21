@@ -71,11 +71,7 @@ export const Welcome: React.FC = () => {
       }, 300);
     } else {
       // localStorage.setItem('onboardingComplete', '1'); // Skip for testing
-      if (tg?.close) {
-        tg.close();
-      } else {
-        navigate('/home', { replace: true });
-      }
+      navigate('/home', { replace: true });
     }
   };
 
