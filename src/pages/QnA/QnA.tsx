@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeButton } from '../../components/HomeButton';
+import { PageWrapper } from '../../shared/PageWrapper';
 
 export const QnA: React.FC = () => {
-  return <>
-    <HomeButton />
-    <div>Q&A Halal or Haram</div>
-  </>;
+  return (
+    <PageWrapper showBackButton={true}>
+      <div>Q&A Halal or Haram</div>
+    </PageWrapper>
+  );
 }; 

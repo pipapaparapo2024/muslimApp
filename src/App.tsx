@@ -2,8 +2,14 @@ import { useTelegram } from "./hooks/useTelegram";
 import { Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home/Home";
 import { Welcome } from "./pages/Welcome/Welcome";
+import { Friends } from "./pages/Friends/Friends";
+import { QnA } from "./pages/QnA/QnA";
+import { Scanner } from "./pages/Scanner/Scanner";
+import { Settings } from "./pages/Settings/Settings";
+import { SurahList } from "./pages/Quran/SurahList";
+import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 
-function App() {
+export const App: React.FC = () => {
   const { tg } = useTelegram();
 
   return (
@@ -11,9 +17,14 @@ function App() {
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/qna" element={<QnA />} />
+        <Route path="/scanner" element={<Scanner />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/quran" element={<SurahList />} />
+        <Route path="/qibla" element={<QiblaCompassPage />} />
       </Routes>
     </div>
   );
 }
 
-export default App;

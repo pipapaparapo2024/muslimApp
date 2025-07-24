@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTelegram } from '../../hooks/useTelegram';
+import styles from './Welcome.module.css';
 
 const steps = [
   {
@@ -23,18 +24,19 @@ const steps = [
 
 export const Welcome: React.FC = () => {
   const [step, setStep] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const [direction, setDirection] = useState<'right' | null>(null);
+  const [fade, setFade] = useState(false);
   const navigate = useNavigate();
   const { tg } = useTelegram();
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Only show Welcome if onboardingComplete is not set
   useEffect(() => {
-    // Always show onboarding for testing, so skip localStorage check
+    if (localStorage.getItem('onboardingComplete')) {
+      navigate('/home', { replace: true });
+    }
     if (tg?.BackButton) tg.BackButton.hide();
-  }, [tg]);
+  }, [navigate, tg]);
 
-  // Touch/Swipe logic
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -46,7 +48,6 @@ export const Welcome: React.FC = () => {
     const onTouchEnd = (e: TouchEvent) => {
       endX = e.changedTouches[0].clientX;
       if (endX - startX > 60 && step > 0) {
-        setDirection(null); // No left swipe
         setStep(s => s - 1);
       } else if (startX - endX > 60 && step < steps.length - 1) {
         handleNext();
@@ -60,57 +61,63 @@ export const Welcome: React.FC = () => {
     };
   }, [step]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    setFade(true);
+    await new Promise(resolve => setTimeout(resolve, 200));
     if (step < steps.length - 1) {
-      setDirection('right');
-      setAnimating(true);
-      setTimeout(() => {
-        setStep(s => s + 1);
-        setAnimating(false);
-        setDirection(null);
-      }, 300);
+      setStep(s => s + 1);
+      setFade(false);
     } else {
-      // localStorage.setItem('onboardingComplete', '1'); // Skip for testing
+      localStorage.setItem('onboardingComplete', '1');
       navigate('/home', { replace: true });
     }
   };
 
+  // If onboardingComplete, don't render anything (redirect will happen)
+  if (localStorage.getItem('onboardingComplete')) return null;
+
   return (
-    <div ref={containerRef} style={{padding: 24, minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{position: 'relative', width: 320, height: 220, marginBottom: 40, overflow: 'hidden'}}>
+    <div ref={containerRef} className={styles.welcomeRoot}>
+      <div className={styles.welcomeStep}>
         <div
+          className={styles.welcomeTitle}
           style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: 0,
-            left: 0,
-            transition: animating ? 'transform 0.3s cubic-bezier(.4,0,.2,1)' : 'none',
-            transform: animating && direction === 'right' ? 'translateX(-100%)' : 'translateX(0)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#fff',
-            borderRadius: 12,
-            boxShadow: '0 2px 16px rgba(0,0,0,0.04)'
+            opacity: fade ? 0 : 1,
+            transform: fade ? 'translateY(20px)' : 'translateY(0)',
           }}
         >
-          <div style={{fontWeight: 700, fontSize: 22, marginBottom: 12, textAlign: 'center'}}>{steps[step].title}</div>
-          <div style={{fontSize: 16, color: '#444', textAlign: 'center'}}>{steps[step].desc}</div>
+          {steps[step].title}
+        </div>
+        <div
+          className={styles.welcomeDesc}
+          style={{
+            opacity: fade ? 0 : 1,
+            transform: fade ? 'translateY(20px)' : 'translateY(0)',
+          }}
+        >
+          {steps[step].desc}
         </div>
       </div>
-      <div style={{display: 'flex', gap: 8, marginBottom: 24}}>
-        {steps.map((_, i) => (
-          <div key={i} style={{width: 12, height: 12, borderRadius: '50%', background: i === step ? '#2e7d32' : '#e0e0e0'}}></div>
-        ))}
+      <div className={styles.welcomeBottom}>
+        <div className={styles.welcomePagination}>
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={
+                i === step
+                  ? `${styles.welcomeDot} ${styles.welcomeDotActive}`
+                  : styles.welcomeDot
+              }
+            ></div>
+          ))}
+        </div>
+        <button
+          className={styles.welcomeButton}
+          onClick={handleNext}
+        >
+          {step === steps.length - 1 ? 'Start' : 'Next'}
+        </button>
       </div>
-      <button
-        style={{width: 260, background: '#2e7d32', color: '#fff', border: 'none', borderRadius: 12, padding: '14px 0', fontSize: 18, fontWeight: 600, cursor: 'pointer', marginTop: 8}}
-        onClick={handleNext}
-      >
-        {step === steps.length - 1 ? 'Start' : 'Next'}
-      </button>
     </div>
   );
 };

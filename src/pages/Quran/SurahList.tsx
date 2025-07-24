@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeButton } from '../../components/HomeButton';
+import { PageWrapper } from '../../shared/PageWrapper';
 
 export const SurahList: React.FC = () => {
-  return <>
-    <HomeButton />
-    <div>Список сур</div>
-  </>;
+  return (
+    <PageWrapper showBackButton>
+      <div>Список сур</div>
+    </PageWrapper>
+  );
 }; 

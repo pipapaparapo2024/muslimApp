@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeButton } from '../../components/HomeButton';
+import { PageWrapper } from '../../shared/PageWrapper';
 
 export const Friends: React.FC = () => {
-  return <>
-    <HomeButton />
-    <div>Friends List</div>
-  </>;
+  return (
+    <PageWrapper showBackButton title="Friends">
+      <div>Friends List</div>
+    </PageWrapper>
+  );
 }; 

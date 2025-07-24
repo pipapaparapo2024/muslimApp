@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeButton } from '../../components/HomeButton';
+import { PageWrapper } from '../../shared/PageWrapper';
 
 export const Scanner: React.FC = () => {
-  return <>
-    <HomeButton />
-    <div>Product Scanner</div>
-  </>;
+  return (
+    <PageWrapper showBackButton title="Product Scanner">
+      <div>Product Scanner</div>
+    </PageWrapper>
+  );
 };

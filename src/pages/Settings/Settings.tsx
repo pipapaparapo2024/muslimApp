@@ -1,9 +1,10 @@
 import React from 'react';
-import { HomeButton } from '../../components/HomeButton';
+import { PageWrapper } from '../../shared/PageWrapper';
 
 export const Settings: React.FC = () => {
-  return <>
-    <HomeButton />
-    <div>Settings</div>
-  </>;
+  return (
+    <PageWrapper showBackButton title="Settings">
+      <div>Settings</div>
+    </PageWrapper>
+  );
 };
