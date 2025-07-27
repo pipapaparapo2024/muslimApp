@@ -1,25 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styles from './QiblaCompass.module.css';
-
+import { useNavigate } from 'react-router-dom';
+import { useQiblaCompassStore } from './QiblaCompassStore';
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
 
 interface QiblaCompassProps {
   size?: number;
   showAngle?: boolean;
+  sunRadius?: number;
+  onClick?:()=>void;
 }
 
-export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngle = false }) => {
-  const [heading, setHeading] = useState<number | null>(null);
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
-  const [isLocationReady, setIsLocationReady] = useState(false);
-  const [isOrientationReady, setIsOrientationReady] = useState(false);
-  const [permissionRequested, setPermissionRequested] = useState(false);
+export const QiblaCompass: React.FC<QiblaCompassProps> = ({ sunRadius = 40, size = 180, showAngle = false}) => {
+  const {
+    heading, setHeading,
+    coords, setCoords,
+    isLocationReady, setIsLocationReady,
+    isOrientationReady, setIsOrientationReady,
+    permissionRequested, setPermissionRequested
+  } = useQiblaCompassStore();
+  const navigate = useNavigate();
 
   // Получение геолокации
   useEffect(() => {
+    const savedLat = localStorage.getItem('user_lat');
+    const savedLon = localStorage.getItem('user_lon');
+    if (savedLat && savedLon) {
+      setCoords({ lat: Number(savedLat), lon: Number(savedLon) });
+      setIsLocationReady(true);
+      return;
+    }
     let isMounted = true;
-
     const getLocation = () => {
       const handleLocationSuccess = (latitude: number, longitude: number) => {
         if (isMounted) {
@@ -28,16 +40,16 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
             lon: longitude
           });
           setIsLocationReady(true);
+          localStorage.setItem('user_lat', String(latitude));
+          localStorage.setItem('user_lon', String(longitude));
         }
       };
-
       const handleLocationError = (error: GeolocationPositionError) => {
         console.error('Geolocation error:', error);
         if (isMounted) {
           setIsLocationReady(true);
         }
       };
-
       if (window.Telegram?.WebApp?.requestLocation) {
         window.Telegram.WebApp.requestLocation((location: { latitude: number; longitude: number } | null) => {
           if (location) {
@@ -56,13 +68,11 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
         );
       }
     };
-
     getLocation();
-
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [setCoords, setIsLocationReady]);
 
   // Запрос разрешения на ориентацию
   useEffect(() => {
@@ -76,7 +86,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
             setPermissionRequested(true);
           }
         } else {
-          // Для устройств, где не нужно запрашивать разрешение
           setPermissionRequested(true);
         }
       } catch (error) {
@@ -84,27 +93,23 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
         setPermissionRequested(true);
       }
     };
-
     requestOrientationPermission();
-  }, []);
+  }, [setPermissionRequested]);
 
   // Установка слушателя ориентации после получения разрешения
   useEffect(() => {
     if (!permissionRequested) return;
-
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (event.alpha !== null) {
         setHeading(event.alpha);
       }
     };
-
     window.addEventListener('deviceorientation', handleOrientation, true);
     setIsOrientationReady(true);
-
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation, true);
     };
-  }, [permissionRequested]);
+  }, [permissionRequested, setHeading, setIsOrientationReady]);
 
   // Расчет направления на Каабу
   const calculateQiblaDirection = () => {
@@ -133,7 +138,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
   const center = size / 2;
   const radius = center - 10;
   const kaabaRadius = radius;
-  const sunRadius = radius - 40;
+  {sunRadius?sunRadius:sunRadius = radius - 30;}
 
   // Позиция солнца (фиксированная относительно времени)
   const now = new Date();
@@ -165,7 +170,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({ size = 180, showAngl
   const kaabaY = center + kaabaRadius * Math.sin(kaabaAngleRad);
 
   return (
-    <div
+    <div onClick={() => navigate('/qibla')}
       className={styles.compassWrapper}
       style={{ width: size, height: size, position: 'relative' }}
     >

@@ -1,0 +1,67 @@
+.friendsContainer {
+  padding: 16px 0 0 0;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  padding: 20px 20px 16px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardDesc {
+  font-size: 15px;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.inviteBtn, .rewardBtn {
+  background: #17823a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.progressBarContainer {
+  width: 100%;
+  height: 10px;
+  background: #eee;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: #222;
+  border-radius: 8px;
+  transition: width 0.3s;
+}
+
+.progressLabel {
+  font-size: 14px;
+  color: #222;
+  text-align: right;
+  margin-bottom: 0;
+} 

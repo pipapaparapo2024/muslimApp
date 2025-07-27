@@ -5,37 +5,43 @@ import { useNavigate } from 'react-router-dom';
 interface PageProps {
   children: React.ReactNode;
   showBackButton?: boolean;
+  title?: string;
 }
 
-export const PageWrapper: React.FC<PageProps> = ({ children, showBackButton = false }) => {
+export const PageWrapper: React.FC<PageProps> = ({ children, showBackButton = false}) => {
   const { tg } = useTelegram();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Устанавливаем цвет заголовка
     tg.setHeaderColor('#ffffff');
-    tg.MainButton.hide();
-
+    
     if (showBackButton) {
       tg.BackButton.show();
-      tg.BackButton.onClick(() => {
+      const handleBack = () => {
         navigate('/home');
-      });
+      };
+      tg.BackButton.onClick(handleBack);
+      
+      return () => {
+        tg.BackButton.offClick(handleBack);
+      };
     } else {
       tg.BackButton.hide();
     }
 
+    // Очистка при размонтировании
     return () => {
-      tg.BackButton.offClick(() => navigate('/home'));
+      // tg.MainButton.hide(); // Закомментировано, так как MainButton может не использоваться
     };
   }, [showBackButton, navigate, tg]);
 
   return (
     <div style={{
-      paddingTop: 16,
       minHeight: '100vh',
       backgroundColor: '#f8f8f8'
     }}>
       {children}
     </div>
   );
-}; 
+};

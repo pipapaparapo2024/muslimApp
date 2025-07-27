@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { QiblaMap } from '../QiblaCompass/QiblaMap';
 import { QiblaCompass } from '../QiblaCompass/QiblaCompass';
 import styles from './QiblaCompassPage.module.css';
 import { PageWrapper } from '../../../shared/PageWrapper';
-
-const CompassIcon = (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="currentColor" strokeWidth="2" /><g><circle cx="11" cy="11" r="4" stroke="currentColor" strokeWidth="1.5" fill="none" /><path d="M11 7.5L13 13.5L11 11.5L9 13.5L11 7.5Z" fill="none" stroke="currentColor" strokeWidth="1.5" /></g><path d="M7 19c2-1 6-1 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+import { useQiblaCompassPageStore } from './QiblaCompassPageStore';
+export const CompassIcon = (
+  < svg width="22" height="22" viewBox="0 0 22 22" fill="none" > <circle cx="11" cy="11" r="10" stroke="currentColor" strokeWidth="2" /> <g><circle cx="11" cy="11" r="4" stroke="currentColor" strokeWidth="1.5" fill="none" /> <path d="M11 7.5L13 13.5L11 11.5L9 13.5L11 7.5Z" fill="none" stroke="currentColor" strokeWidth="1.5" /> </g><path d="M7 19c2-1 6-1 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> </svg>
 );
-const MapIcon = (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 17c2-1 6-1 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><rect x="2" y="5" width="5" height="12" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /><rect x="8.5" y="3" width="5" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /><rect x="15" y="7" width="5" height="10" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
+export const MapIcon = (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" > <path d="M3 17c2-1 6-1 8 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /> <rect x="2" y="5" width="5" height="12" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /> <rect x="8.5" y="3" width="5" height="16" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /> <rect x="15" y="7" width="5" height="10" rx="2" stroke="currentColor" strokeWidth="2" fill="none" /> </svg>
 );
 
 function useQiblaAngle() {
-  const [angle, setAngle] = useState(0);
+  const [angle, setAngle] = React.useState(0);
   React.useEffect(() => {
     let geoWatchId: number | null = null;
     let lastLat = 0;
@@ -53,7 +53,7 @@ function useQiblaAngle() {
 }
 
 export const QiblaCompassPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'compass' | 'map'>('compass');
+  const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const angle = useQiblaAngle();
 
   return (
@@ -78,10 +78,10 @@ export const QiblaCompassPage: React.FC = () => {
         <div className={styles.tabContent}>
           {activeTab === 'compass' ? (
             <>
-              <div className={styles.bigCompass}><QiblaCompass size={360} showAngle={true} /></div>
+              <div className={styles.bigCompass}><QiblaCompass sunRadius={110} size={360} showAngle={true} /></div>
             </>
           ) : (
-            <div className={styles.bigMap}><QiblaMap /></div>
+            <div className={styles.bigMap}><QiblaMap fullscreen={true} /></div>
           )}
         </div>
       </div>
