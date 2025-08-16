@@ -1,76 +1,62 @@
-.prayerTimesContainer {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
-  padding: 20px 18px 18px 18px;
-  margin-bottom: 24px;
-  max-width: 420px;
-}
-
 .headerRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 2px;
+  gap: var(--numbers-8);
+  margin-bottom: var(--numbers-2);
 }
 
 .title {
-  font-size: 14px;
+  font-size: var(--numbers-14);
   font-weight: 700;
-  margin-right: 6px;
+  margin-right: var(--numbers-6);
+  font-family: var(--typography-heading);
+  color: var(--text);
 }
 
 .editIcon {
-  width: 18px;
-  height: 18px;
+  width: var(--numbers-18);
+  height: var(--numbers-18);
   opacity: 0.5;
   cursor: pointer;
+  color: var(--color-icon-secondary);
 }
 
 .subtitle {
-  color: #888;
-  font-size: 1rem;
-  margin-bottom: 18px;
+  color: var(--color-text-secondary);
+  font-size: var(--numbers-14);
+  margin-bottom: var(--numbers-18);
+  text-align: left;
+  font-family: var(--typography-body);
 }
 
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--numbers-4); /* 3px → 4px (closest available) */
 }
 
 .prayerCard {
-  background: #f5f5f5;
-  border-radius: 14px;
-  padding: 12px 18px 10px 18px;
-  min-width: 90px;
+  background: var(--color-background-secondary);
+  border-radius: var(--roundings-small); /* 14px ≈ 12px */
+  width: 76px; /* Specific component size */
+  height: 50px; /* Specific component size */
   text-align: center;
-  font-size: 1.1rem;
+  font-size: var(--numbers-14);
   font-weight: 500;
-  color: #222;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
+  color: var(--color-text-primary);
+  font-family: var(--typography-body);
 }
 
-.nextBadge {
-  position: absolute;
-  top: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1bbf5c;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 12px;
-  padding: 2px 12px;
-  z-index: 2;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+.prayerTime {
+  color: var(--color-text-secondary);
 }
 
 .disabled {
-  color: #bbb;
-  background: #f2f2f2;
-} 
+  color: var(--color-icon-tetriary);
+  background: var(--color-background-tetriary);
+}

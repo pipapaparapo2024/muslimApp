@@ -1,33 +1,22 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './MenuBlocks.module.css';
-import { useMenuBlocksStore } from './MenuBlocksStore';
-
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./MenuBlocks.module.css";
+import { menuItems } from "../../Home/MenuBlocks/MenuBlocksStore";
 export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
-  const { menuItems, isFriendsWelcomeShown } = useMenuBlocksStore();
-
-  const handleNavigation = (path: string, itemId: string) => {
-    if (itemId === 'friends') {
-      // Для пункта "Friends" используем условную навигацию
-      const targetPath = isFriendsWelcomeShown ? '/friends' : '/friends-welcome';
-      navigate(targetPath);
-    } else {
+  const handleNavigation = (path: string) => {
       navigate(path);
     }
-  };
 
   return (
     <div className={styles.menu}>
       {menuItems.map((item) => (
-        <div 
+        <div
           key={item.id}
-          className={styles.menuItem} 
-          onClick={() => handleNavigation(item.path, item.id)}
+          className={styles.menuItem}
+          onClick={() => handleNavigation(item.path)}
         >
-          <span className={styles.menuIcon} role="img" aria-label={item.id}>
-            {item.icon}
-          </span>
+          <img src={item.icon} alt={item.title} className={styles.iconImage} />
           <div className={styles.menuText}>
             <div className={styles.menuTitle}>{item.title}</div>
             <div className={styles.menuDesc}>{item.description}</div>

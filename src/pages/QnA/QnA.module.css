@@ -1,0 +1,108 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--numbers-20);
+}
+
+.button {
+  background-color: var(--bg-surface);
+  border: none;
+  color: var(--text);
+  border-radius: var(--roundings-small);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  padding: var(--numbers-13) var(--numbers-24);
+  font-size: var(--numbers-16);
+  cursor: pointer;
+}
+
+.button:hover {
+  transition: transform 0.3s;
+  transform: scale(1.02);
+}
+
+.illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--numbers-20) 0;
+}
+.illustration img {
+  width: 200px;
+  height: auto;
+}
+
+.guidance {
+  text-align: center;
+  margin-top: var(--numbers-20);
+}
+
+.guidance span {
+  font-size: var(--numbers-20);
+  color: var(--text);
+  font-weight: 700;
+  margin-bottom: var(--numbers-5);
+}
+.guidance p {
+  font-size: var(--numbers-14);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  background: var(--bg-surface);
+  padding: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--numbers-20);
+}
+
+.input {
+  border: none;
+  width: 100%;
+  padding: var(--numbers-16);
+  font-size: var(--numbers-16);
+  background: var(--color-background-tetriary);
+  border-radius: var(--roundings-medium);
+  box-sizing: border-box;
+  margin-bottom: var(--numbers-12);
+  outline: none;
+}
+
+.submitButton {
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-12) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+}
+.submitButton img {
+  color: var(--bg-surface);
+}
+
+.submitButton:hover {
+  background-color: var(--colors-green-800);
+}
+
+.input:disabled {
+  background-color: var(--color-background-secondary);
+  color: #aaa;
+  cursor: not-allowed;
+}

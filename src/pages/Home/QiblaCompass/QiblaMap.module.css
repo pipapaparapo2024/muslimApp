@@ -1,10 +1,10 @@
 .mapContainer {
   width: 195px;
-  height: 140px;
-  border-radius: 16px;
+  height: 120px;
+  border-radius: var(--roundings-medium);
   overflow: hidden;
-  background: #f8f8f8;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+  background: var(--color-background-secondary); 
+  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07); 
   position: relative;
 }
 
@@ -17,8 +17,8 @@
   left: 0;
   z-index: 0;
   overflow: hidden;
-  background: #f8f8f8;
   margin: 0;
   box-shadow: none;
-}
+  transition: none;
 
+}

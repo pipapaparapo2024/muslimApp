@@ -1,58 +1,108 @@
 .root {
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background: #fff;
   display: flex;
+  min-height: 95vh;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   position: relative;
-  padding: 40px 0 0 0;
+  padding: var(--numbers-20) 0 0 0;
   box-sizing: border-box;
 }
 
 .header {
   width: 100%;
-  margin-bottom: 32px;
   display: flex;
+  max-width: 320px;
+  gap: var(--numbers-4);
   flex-direction: column;
   align-items: center;
-  padding: 0 24px;
   box-sizing: border-box;
 }
 
 .title {
-  font-weight: 700;
-  font-size: 22px;
+  font-weight: 500;
+  font-size: var(--numbers-20);
   text-align: center;
-  margin-bottom: 12px;
   width: 100%;
+  color: var(--text);
 }
 
 .subtitle {
-  font-size: 16px;
-  color: #444;
+  font-size: var(--numbers-14);
+  color: var(--color-text-secondary);
   text-align: center;
-  width: 100%;
 }
 
-.inviteButton {
+.welcomeBottom {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  width: 90%;
-  max-width: 360px;
-  margin: 0 auto 32px auto;
-  background: #17823a;
-  color: #fff;
+  padding: 0 0 var(--numbers-36) 0; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inviteButton {
+  padding-bottom: 100px;
+  width: 100%;
+  border-radius: var(--roundings-medium);
+  display: block;
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed); /* #fff */
   border: none;
-  border-radius: 16px;
-  padding: 18px 0;
-  font-size: 18px;
+  padding: var(--numbers-18) 0; /* 18px */
+  font-size: var(--numbers-16);
   font-weight: 600;
   cursor: pointer;
-  display: block;
+}
+
+.inviteButton:hover {
+  background-color: var(--colors-green-800);
+}
+
+.friendsImageWrapper {
+  padding: 0 0 100px 0; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.friendsImage {
+  max-width: 320px;
+  max-height: 420px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Loader styles */
+.loaderContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--bg-app);
+}
+
+.loaderSpinner {
+  width: var(--numbers-50);
+  height: var(--numbers-50);
+  border: var(--numbers-5) solid var(--colors-green-700);
+  border-bottom-color: transparent;
+  border-radius: var(--roundings-rounded);
+  animation: rotation 1s linear infinite;
+  margin-bottom: var(--numbers-16);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

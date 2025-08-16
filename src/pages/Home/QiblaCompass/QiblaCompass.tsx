@@ -1,290 +1,202 @@
-import React, { useEffect } from 'react';
-import styles from './QiblaCompass.module.css';
-import { useNavigate } from 'react-router-dom';
-import { useQiblaCompassStore } from './QiblaCompassStore';
-const KAABA_LAT = 21.4225;
-const KAABA_LON = 39.8262;
+// src/components/QiblaCompass.tsx
+import React, { useEffect, useState, useRef } from "react";
+import styles from "./QiblaCompass.module.css";
+import { useGeoStore } from "../GeoStore";
+import { ArrowUp } from "lucide-react";
+import arrowUp from '../../../assets/icons/navigationArrowMaps.svg'
+import kaaba from '../../../assets/icons/kaaba.svg'
 
-interface QiblaCompassProps {
-  size?: number;
-  showAngle?: boolean;
-  sunRadius?: number;
-  onClick?:()=>void;
-}
+const KAABA_COORDS = {
+  lat: 21.422487,
+  lon: 39.826206
+};
 
-export const QiblaCompass: React.FC<QiblaCompassProps> = ({ sunRadius = 40, size = 180, showAngle = false}) => {
-  const {
-    heading, setHeading,
-    coords, setCoords,
-    isLocationReady, setIsLocationReady,
-    isOrientationReady, setIsOrientationReady,
-    permissionRequested, setPermissionRequested
-  } = useQiblaCompassStore();
-  const navigate = useNavigate();
+export const QiblaCompass: React.FC = () => {
+  const { coords } = useGeoStore();
+  const [heading, setHeading] = useState<number | null>(null);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [qiblaDirection, setQiblaDirection] = useState<number>(0);
+  const [isCalibrated, setIsCalibrated] = useState(false);
+  const orientationHandler = useRef<(event: DeviceOrientationEvent) => void>();
 
-  // Получение геолокации
+  // Calculate Qibla direction
   useEffect(() => {
-    const savedLat = localStorage.getItem('user_lat');
-    const savedLon = localStorage.getItem('user_lon');
-    if (savedLat && savedLon) {
-      setCoords({ lat: Number(savedLat), lon: Number(savedLon) });
-      setIsLocationReady(true);
+    if (!coords) {
+      console.log("Coordinates not available");
       return;
     }
-    let isMounted = true;
-    const getLocation = () => {
-      const handleLocationSuccess = (latitude: number, longitude: number) => {
-        if (isMounted) {
-          setCoords({
-            lat: latitude,
-            lon: longitude
-          });
-          setIsLocationReady(true);
-          localStorage.setItem('user_lat', String(latitude));
-          localStorage.setItem('user_lon', String(longitude));
-        }
-      };
-      const handleLocationError = (error: GeolocationPositionError) => {
-        console.error('Geolocation error:', error);
-        if (isMounted) {
-          setIsLocationReady(true);
-        }
-      };
-      if (window.Telegram?.WebApp?.requestLocation) {
-        window.Telegram.WebApp.requestLocation((location: { latitude: number; longitude: number } | null) => {
-          if (location) {
-            handleLocationSuccess(location.latitude, location.longitude);
-          } else {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => handleLocationSuccess(pos.coords.latitude, pos.coords.longitude),
-              handleLocationError
-            );
-          }
-        });
-      } else {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => handleLocationSuccess(pos.coords.latitude, pos.coords.longitude),
-          handleLocationError
-        );
-      }
-    };
-    getLocation();
-    return () => {
-      isMounted = false;
-    };
-  }, [setCoords, setIsLocationReady]);
 
-  // Запрос разрешения на ориентацию
-  useEffect(() => {
-    const requestOrientationPermission = async () => {
-      try {
-        // @ts-ignore
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-          // @ts-ignore
-          const permission = await DeviceOrientationEvent.requestPermission();
-          if (permission === 'granted') {
-            setPermissionRequested(true);
-          }
-        } else {
-          setPermissionRequested(true);
-        }
-      } catch (error) {
-        console.error('Error requesting device orientation permission:', error);
-        setPermissionRequested(true);
-      }
-    };
-    requestOrientationPermission();
-  }, [setPermissionRequested]);
+    console.log("Calculating Qibla direction for coords:", coords);
+    const calculateDirection = () => {
+      const userLatRad = (coords.lat * Math.PI) / 180;
+      const userLonRad = (coords.lon * Math.PI) / 180;
+      const kaabaLatRad = (KAABA_COORDS.lat * Math.PI) / 180;
+      const kaabaLonRad = (KAABA_COORDS.lon * Math.PI) / 180;
 
-  // Установка слушателя ориентации после получения разрешения
+      const deltaLon = kaabaLonRad - userLonRad;
+
+      const y = Math.sin(deltaLon) * Math.cos(kaabaLatRad);
+      const x =
+        Math.cos(userLatRad) * Math.sin(kaabaLatRad) -
+        Math.sin(userLatRad) * Math.cos(kaabaLatRad) * Math.cos(deltaLon);
+
+      let direction = Math.atan2(y, x) * (180 / Math.PI);
+      direction = (direction + 360) % 360;
+
+      console.log("Calculated Qibla direction:", direction);
+      setQiblaDirection(direction);
+    };
+
+    calculateDirection();
+  }, [coords]);
+
+  // Handle device orientation
   useEffect(() => {
-    if (!permissionRequested) return;
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.alpha !== null) {
-        setHeading(event.alpha);
+      console.log("Orientation event:", event);
+      
+      if (event.alpha === null && event.webkitCompassHeading === undefined) {
+        console.log("No orientation data available");
+        return;
       }
+
+      let newHeading;
+      
+      // iOS with compass heading
+      if (event.webkitCompassHeading !== undefined) {
+        newHeading = event.webkitCompassHeading;
+      } 
+      // Android and others
+      else {
+        newHeading = (event.alpha + 360) % 360;
+      }
+
+      console.log("New heading:", newHeading);
+      setHeading(newHeading);
+      setIsCalibrated(true);
     };
-    window.addEventListener('deviceorientation', handleOrientation, true);
-    setIsOrientationReady(true);
+
+    orientationHandler.current = handleOrientation;
+
+    if (permissionGranted) {
+      console.log("Adding orientation event listener");
+      window.addEventListener("deviceorientation", handleOrientation, true);
+    }
+
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation, true);
+      console.log("Removing orientation event listener");
+      window.removeEventListener("deviceorientation", handleOrientation, true);
     };
-  }, [permissionRequested, setHeading, setIsOrientationReady]);
+  }, [permissionGranted]);
 
-  // Расчет направления на Каабу
-  const calculateQiblaDirection = () => {
-    if (!coords) return 0;
-
-    const toRad = (deg: number) => deg * (Math.PI / 180);
-    const toDeg = (rad: number) => rad * (180 / Math.PI);
-
-    const phiK = toRad(KAABA_LAT);
-    const lambdaK = toRad(KAABA_LON);
-    const phi = toRad(coords.lat);
-    const lambda = toRad(coords.lon);
-
-    const y = Math.sin(lambdaK - lambda);
-    const x = Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda);
-    let theta = Math.atan2(y, x);
-    theta = toDeg(theta);
-
-    return theta;
+  // Request permission for device orientation
+  const requestPermission = async () => {
+    console.log("Requesting device orientation permission");
+    try {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
+        console.log("iOS permission flow");
+        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        if (permission === "granted") {
+          console.log("Permission granted on iOS");
+          setPermissionGranted(true);
+        }
+      } else {
+        console.log("Non-iOS device, permission not required");
+        setPermissionGranted(true);
+      }
+    } catch (error) {
+      console.error("Error requesting permission:", error);
+    }
   };
 
-  const qiblaTrueAngle = calculateQiblaDirection();
-  const qiblaDisplayAngle = heading !== null ? (qiblaTrueAngle - heading + 360) % 360 : 0;
+  // Calculate compass rotation with smooth transitions
+  const getCompassRotation = () => {
+    if (heading === null) {
+      console.log("No heading, showing Qibla direction:", qiblaDirection);
+      return qiblaDirection;
+    }
+    
+    let rotation = (qiblaDirection - heading + 360) % 360;
+    
+    // Корректировка для плавного перехода через 0°
+    if (rotation > 180) {
+      rotation = rotation - 360;
+    }
 
-  // Размеры
-  const center = size / 2;
-  const radius = center - 10;
-  const kaabaRadius = radius;
-  {sunRadius?sunRadius:sunRadius = radius - 30;}
+    console.log("Calculated rotation:", rotation);
+    return rotation;
+  };
 
-  // Позиция солнца (фиксированная относительно времени)
-  const now = new Date();
-  const hour = now.getHours() + now.getMinutes() / 60;
-  const sunAngle = ((hour % 12) / 12) * 360;
-  const sunAngleRad = ((sunAngle - 90) * Math.PI) / 180;
-  const sunX = center + sunRadius * Math.cos(sunAngleRad);
-  const sunY = center + sunRadius * Math.sin(sunAngleRad);
-
-  // Проверяем готовность всех данных
-  const isReady = isLocationReady && isOrientationReady;
-
-  // Угол вращения внешнего круга
-  const rotationAngle = heading !== null ? -heading : 0;
-
-  // Расчет позиций для сектора и Каабы (относительно внешнего круга)
-  const sectorAngle = 30;
-  const sectorStartRad = ((qiblaTrueAngle - sectorAngle / 2 - 90) * Math.PI) / 180;
-  const sectorEndRad = ((qiblaTrueAngle + sectorAngle / 2 - 90) * Math.PI) / 180;
-  const sectorStartX = center + radius * Math.cos(sectorStartRad);
-  const sectorStartY = center + radius * Math.sin(sectorStartRad);
-  const sectorEndX = center + radius * Math.cos(sectorEndRad);
-  const sectorEndY = center + radius * Math.sin(sectorEndRad);
-  const sectorPath = `M ${center} ${center} L ${sectorStartX} ${sectorStartY} A ${radius} ${radius} 0 0 1 ${sectorEndX} ${sectorEndY} Z`;
-
-  // Позиция Каабы (на внешнем круге)
-  const kaabaAngleRad = ((qiblaTrueAngle - 90) * Math.PI) / 180;
-  const kaabaX = center + kaabaRadius * Math.cos(kaabaAngleRad);
-  const kaabaY = center + kaabaRadius * Math.sin(kaabaAngleRad);
+  // Debug info
+  useEffect(() => {
+    console.log("Current state:", {
+      coords,
+      heading,
+      permissionGranted,
+      qiblaDirection,
+      isCalibrated
+    });
+  }, [coords, heading, permissionGranted, qiblaDirection, isCalibrated]);
 
   return (
-    <div onClick={() => navigate('/qibla')}
-      className={styles.compassWrapper}
-      style={{ width: size, height: size, position: 'relative' }}
-    >
-      {/* Внешний круг - вращается */}
-      <div
-        style={{
-          width: size,
-          height: size,
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          transform: `rotate(${rotationAngle}deg)`,
-          transformOrigin: 'center center',
-          transition: 'none'
-        }}
-      >
-        {/* SVG с кругами, сектором и Каабой */}
-        <svg width={size} height={size} style={{ position: 'absolute', left: 0, top: 0 }}>
-          <circle cx={center} cy={center} r={radius} fill="#fff" stroke="#17823a" strokeWidth="3" />
-          <circle cx={center} cy={center} r={sunRadius} fill="none" stroke="#e5e5e5" strokeWidth="2" />
-          {/* Сектор (луч света) - на внешнем круге */}
-          {isReady && <path d={sectorPath} fill="#17823a22" />}
-          {/* Кааба - на внешнем круге */}
-          {isReady && (
-            <foreignObject
-              x={kaabaX - size * 0.065}
-              y={kaabaY - size * 0.08}
-              width={size * 0.13}
-              height={size * 0.13}
+    <div className={styles.compassContainer}>
+      <div className={styles.compassBackground}>
+        <div className={styles.compassDegreeMarkers}>
+          {Array.from({ length: 36 }).map((_, i) => (
+            <div
+              key={i}
+              className={styles.degreeMarker}
+              style={{ transform: `rotate(${i * 10}deg)` }}
             >
-              <div style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: '#fff',
-                borderRadius: '50%',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-                fontSize: size * 0.09
-              }}>
-                <span>🕋</span>
-              </div>
-            </foreignObject>
-          )}
-        </svg>
-      </div>
+              {i % 9 === 0 && (
+                <span className={styles.degreeNumber}>{i * 10}</span>
+              )}
+            </div>
+          ))}
+        </div>
 
-      {/* Солнце - фиксированное на среднем круге */}
-      <div
-        style={{
-          position: 'absolute',
-          left: sunX,
-          top: sunY,
-          transform: 'translate(-50%, -50%)',
-          fontSize: size * 0.11,
-          background: '#fff',
-          borderRadius: '50%',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-          border: 'none',
-          padding: 0,
-          zIndex: 2
-        }}
-      >
-        <span style={{ fontSize: size * 0.11, lineHeight: 1 }}>☀️</span>
-      </div>
-
-      {/* Стрелка - всегда по центру */}
-      <div
-        style={{
-          left: center,
-          top: center,
-          position: 'absolute',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 4
-        }}
-      >
-        <svg
-          width={size * 0.22}
-          height={size * 0.22}
-          viewBox="0 0 44 44"
+        <div
+          className={styles.compassArrow}
+          style={{ 
+            transform: `rotate(${getCompassRotation()}deg)`,
+            transition: isCalibrated ? 'transform 0.1s linear' : 'none'
+          }}
         >
-          <circle cx="22" cy="22" r="20" fill="#17823a" />
-          <polygon points="22,12 28,32 22,26 16,32" fill="#fff" />
-        </svg>
+          <ArrowUp size={48} color="#e74c3c" />
+          <div className={styles.kaabaIndicator}>Кибла</div>
+        </div>
+
+        <div className={styles.compassCenterPoint} />
       </div>
 
-      {/* Угол */}
-      {showAngle && isReady && (
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: size + 40,
-          transform: 'translateX(-50%)',
-          color: '#17823a',
-          fontWeight: 700,
-          fontSize: 28,
-          textAlign: 'center'
-        }}>
-          {qiblaDisplayAngle.toFixed(1)}
-          <div style={{ color: '#888', fontWeight: 400, fontSize: 16 }}>Qibla angle</div>
+      {!permissionGranted && (
+        <button 
+          className={styles.permissionButton} 
+          onClick={requestPermission}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#3498db',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            fontSize: '16px',
+            margin: '20px'
+          }}
+        >
+          Разрешить доступ к компасу
+        </button>
+      )}
+
+      {!isCalibrated && permissionGranted && (
+        <div className={styles.calibrationMessage}>
+          Держите устройство горизонтально для калибровки
         </div>
       )}
 
-      {/* Индикатор загрузки */}
-      {!isReady && (
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          zIndex: 5
-        }}>
+      {coords && (
+        <div className={styles.coordinatesInfo}>
+          <p>Направление на Каабу: {qiblaDirection.toFixed(1)}°</p>
+          {heading !== null && <p>Текущий азимут: {heading.toFixed(1)}°</p>}
         </div>
       )}
     </div>

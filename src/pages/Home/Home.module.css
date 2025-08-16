@@ -1,115 +1,118 @@
 .homeRoot {
   position: relative;
   min-height: 100vh;
-  background: #fafafa;
 }
 
-.userInfo {
-  position: absolute;
-  top: 16px;
-  left: 16px;
+/* Шапка с городом и кнопкой */
+.header {
   display: flex;
+  justify-content: space-between;
+  margin: var(--numbers-10) var(--numbers-10) 0 var(--numbers-10);
+  border-radius: var(--roundings-medium);
   align-items: center;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 7px 10px;
-  font-size: 17px;
-  font-weight: 500;
-  color: #222;
-  min-width: 0;
-  max-width: 220px;
+  padding-bottom: var(--numbers-16);
+  max-width: 380px;
+  margin: 0 auto;
+  color: var(--text);
 }
 
-.userAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 25%;
-  object-fit: cover;
-  margin-right: 8px;
+.prayerTimesQiblaContainer {
+  display: flex;
+  margin: 0 auto;
+  max-width: 360px;
+  flex-direction: column;
+  gap: var(--numbers-10);
+  padding: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
+  background-color: var(--bg-surface);
 }
 
-.userName {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 16px;
+.qiblaRow {
+  display: flex;
+  gap: var(--numbers-5);
+  margin-top: var(--numbers-5);
 }
 
-.geoLoading {
-  margin-left: 8px;
-}
-
-.homeContent {
-  padding-top: 80px;
-  text-align: center;
-}
-
-.menu {
-  margin: 40px auto 0 auto;
-  max-width: 420px;
-  width: 100%;
+.locationInfo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 0 14px;
-  box-sizing: border-box;
 }
 
-.menuItem {
+.cityName {
+  font-size: var(--numbers-16);
+  font-weight: 500;
+}
+
+.currentDate {
+  font-size: var(--numbers-12);
+  color: var(--text);
+}
+
+.qiblaSection h3 {
+  font-weight: 700;
+  font-size: var(--numbers-16);
+  color: var(--color-text-primary);
+  text-align: left;
+  margin-bottom: var(--numbers-4);
+}
+
+.qiblaSection p {
+  font-size: var(--numbers-14);
+  color: var(--color-text-secondary);
+  text-align: left;
+  margin-bottom: var(--numbers-10);
+}
+
+.buyPremiumButton {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 12px 14px;
+  gap: var(--numbers-4);
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-18);
+  font-size: var(--numbers-16);
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
-.menuItem:hover {
-  background: #f3f7fa;
+
+.buyPremiumButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
-.menuIcon {
-  font-size: 28px;
-  margin-right: 16px;
+
+.buyPremiumButton:active {
+  transform: translateY(0);
 }
-.menuText {
-  flex: 1;
-  text-align: left;
+
+.premiumIcon {
+  width: var(--numbers-16);
+  height: var(--numbers-16);
 }
-.menuTitle {
-  font-weight: 600;
-  font-size: 17px;
-  margin-bottom: 2px;
+
+.titleFaceKaaba {
+  font-weight: 700;
+  font-size: var(--numbers-16);
+  margin: var(--numbers-16) 0 var(--numbers-4);
 }
-.menuDesc {
-  font-size: 14px;
-  color: #666;
-}
-.menuArrow {
-  font-size: 22px;
-  color: #bbb;
-  margin-left: 12px;
+
+.diskFaceKaaba {
+  color: var(--colors-stone-600);
+  margin-bottom: var(--numbers-16);
+  font-size: var(--numbers-14);
 }
 
 .qiblaBlock {
-  background: #fff;
-  border-radius: 22px;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.07);
-  padding: 0 18px 0px 18px;
-  margin: 0 auto 10px auto;
-  max-width: 356px;
-  min-width: 320px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  text-align: left;
 }
 
 .qiblaBlockRow {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
-} 
+  gap: var(--numbers-8);
+  padding-top: var(--numbers-10);
+}

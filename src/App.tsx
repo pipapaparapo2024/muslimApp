@@ -1,34 +1,70 @@
-import { useTelegram } from "./hooks/useTelegram";
-import { Routes, Route, useNavigate } from "react-router-dom";
+// App.tsx
+import { Routes, Route } from "react-router-dom";
+import { useFriendsStore } from "./pages/Friends/FriendsStore";
+import { useTheme } from "./hooks/useTheme";
+// Pages
 import { Home } from "./pages/Home/Home";
 import { Welcome } from "./pages/Welcome/Welcome";
 import { Friends } from "./pages/Friends/Friends";
 import { QnA } from "./pages/QnA/QnA";
 import { Scanner } from "./pages/Scanner/Scanner";
 import { Settings } from "./pages/Settings/Settings";
-import { SurahList } from "./pages/Quran/SurahList";
+import { SurahList } from "./pages/Quran/SurahList/SurahList";
 import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
-import React from "react";
+import { useEffect } from "react";
+// Settings subpages
+import { Region } from "./pages/Settings/appSettings/Region";
+import { DataTime } from "./pages/Settings/appSettings/DataTime";
+import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
+import { SettingPlayerTimes } from "./pages/Settings/appSettings/SettingPlayerTimes/SettingPlayerTimes";
 
+import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 
 export const App: React.FC = () => {
-  const { tg } = useTelegram();
+  const { invitedCount, fetchProgress } = useFriendsStore();
+  const { isThemeReady } = useTheme();
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+    // Загружаем данные о друзьях при монтировании
+    fetchProgress();
+  }, [fetchProgress]);
 
+  if (!isThemeReady) {
+    return <div style={{ height: "100vh", background: "#fff" }} />;
+  }
   return (
-    <div className={tg.colorScheme === "dark" ? "dark-theme" : "light-theme"}>
+    <div>
       <Routes>
-        <Route path="/" element={<Welcome />} />
-        <Route path="/home" element={<Home />} />
+        <Route
+          path="/welcome-friends"
+          element={invitedCount > 0 ? <Friends /> : <WelcomeFriends />}
+        />
         <Route path="/friends" element={<Friends />} />
-        <Route path="/friends-welcome" element={<WelcomeFriends />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Welcome />} />
         <Route path="/qna" element={<QnA />} />
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/region" element={<Region />} />
+        <Route path="/settings/language" element={<ModalLanguage />} />
+        <Route path="/settings/date-time" element={<DataTime />} />
+        <Route path="/settings/prayer-times" element={<SettingPlayerTimes />} />
+        <Route path="/settings/theme" element={<ModalTheme />} />
+        <Route
+          path="/privacy-policy"
+          element={<div>Privacy Policy Page</div>}
+        />
+        <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
+        <Route path="/contact-us" element={<div>Contact Us Page</div>} />
         <Route path="/quran" element={<SurahList />} />
         <Route path="/qibla" element={<QiblaCompassPage />} />
+        <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </div>
   );
-}
-
+};

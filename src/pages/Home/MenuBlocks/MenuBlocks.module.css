@@ -1,47 +1,56 @@
-/* MenuBlocks styles */ 
+/* MenuBlocks styles */
 .menu {
-  margin: 10px auto 0 auto;
-  max-width: 420px;
+  margin: var(--numbers-6) auto 0 auto;
+  max-width: 395px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 0 14px;
+  gap: var(--numbers-6);
   box-sizing: border-box;
 }
 
 .menuItem {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 12px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 var(--numbers-1) var(--numbers-4) rgba(0, 0, 0, 0.04);
+  padding: var(--numbers-12) var(--numbers-13);
   cursor: pointer;
-  transition: background 0.15s;
 }
+
 .menuItem:hover {
-  background: #f3f7fa;
+  transition: transform 0.3s ease;
+  transform: scale(1.02);
 }
+
 .menuIcon {
-  font-size: 28px;
-  margin-right: 16px;
+  font-size: var(--numbers-28);
+  margin-right: var(--numbers-16);
 }
+
 .menuText {
   flex: 1;
   text-align: left;
 }
+
 .menuTitle {
   font-weight: 600;
-  font-size: 17px;
-  margin-bottom: 2px;
+  font-size: var(--numbers-16);
+  margin-bottom: var(--numbers-2);
 }
+
 .menuDesc {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--numbers-14);
+  color: var(--color-text-secondary);
 }
+
 .menuArrow {
-  font-size: 22px;
-  color: #bbb;
-  margin-left: 12px;
-} 
+  font-size: var(--numbers-60);
+  color: var(--color-icon-tetriary);
+  margin-left: var(--numbers-12);
+}
+
+.iconImage {
+  margin-right: var(--numbers-8);
+}

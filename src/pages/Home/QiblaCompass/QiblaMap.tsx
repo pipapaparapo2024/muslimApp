@@ -1,139 +1,151 @@
-import React, { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import styles from './QiblaMap.module.css';
-import 'leaflet/dist/leaflet.css';
-import { useQiblaCompassStore } from './QiblaCompassStore';
+import React, { useEffect, useRef } from "react";
+import L from "leaflet";
+import styles from "./QiblaMap.module.css";
+import "leaflet/dist/leaflet.css";
+import { useGeoStore } from "../GeoStore";
+import { useMapStore } from "./QiblaMapStore";
+import { useNavigate } from "react-router-dom";
+import navigationArrowMaps from "../../../assets/icons/navigationArrowMaps.svg";
+import mekka from "../../../assets/icons/kaaba.svg";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
 
 interface QiblaMapProps {
   fullscreen?: boolean;
+  onMapClick?: () => void;
 }
 
-export const QiblaMap: React.FC<QiblaMapProps> = ({ fullscreen = false }) => {
-  const {
-    coords, setCoords,
-    setTempCoords
-  } = useQiblaCompassStore();
+export const QiblaMap: React.FC<QiblaMapProps> = ({
+  fullscreen = false,
+  onMapClick,
+}) => {
+  const navigate = useNavigate();
+  const { coords } = useGeoStore();
+  const { setTempCoords } = useMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const kaabaMarkerRef = useRef<L.Marker | null>(null);
-  const lineRef = useRef<L.Polyline | null>(null);
+  const initializedRef = useRef(false);
 
-  useEffect(() => {
-    // Сначала пробуем взять координаты из localStorage
-    const savedLat = localStorage.getItem('user_lat');
-    const savedLon = localStorage.getItem('user_lon');
-    if (savedLat && savedLon) {
-      setCoords({ lat: Number(savedLat), lon: Number(savedLon) });
-      return;
-    }
-    // Если нет — запрашиваем
-    const getLocation = () => {
-      if (window.Telegram?.WebApp?.requestLocation) {
-        window.Telegram.WebApp.requestLocation((location: { latitude: number; longitude: number } | null) => {
-          if (location) {
-            setCoords({
-              lat: location.latitude,
-              lon: location.longitude
-            });
-            localStorage.setItem('user_lat', String(location.latitude));
-            localStorage.setItem('user_lon', String(location.longitude));
-          } else {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                setCoords({
-                  lat: pos.coords.latitude,
-                  lon: pos.coords.longitude
-                });
-                localStorage.setItem('user_lat', String(pos.coords.latitude));
-                localStorage.setItem('user_lon', String(pos.coords.longitude));
-              }
-            );
-          }
-        });
-      } else {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setCoords({
-              lat: pos.coords.latitude,
-              lon: pos.coords.longitude
-            });
-            localStorage.setItem('user_lat', String(pos.coords.latitude));
-            localStorage.setItem('user_lon', String(pos.coords.longitude));
-          }
-        );
-      }
-    };
-    getLocation();
-  }, [setCoords]);
+  const createLatLng = (lat: number, lng: number): L.LatLngExpression => [
+    lat,
+    lng,
+  ];
 
-  useEffect(() => {
-    if (!coords || !mapRef.current) return;
-    if (leafletMapRef.current) {
-      leafletMapRef.current = null;
+  const userIcon = new L.Icon({
+    iconUrl: navigationArrowMaps,
+    iconSize: [27, 27],
+    iconAnchor: [16, 16],
+  });
+
+  const kaabaIcon = new L.Icon({
+    iconUrl: mekka,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+  });
+
+  const updateMapElements = (lat: number, lon: number) => {
+    if (!leafletMapRef.current) return;
+
+    // Обновляем позицию пользователя
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng(createLatLng(lat, lon));
     }
 
-    // Создаем карту с OpenStreetMap
+    // Центрируем карту на пользователе
+    leafletMapRef.current.setView(
+      createLatLng(lat, lon),
+      leafletMapRef.current.getZoom()
+    );
+  };
+
+  useEffect(() => {
+    if (!mapRef.current || initializedRef.current) return;
+
+    const displayCoords = coords || { lat: 0, lon: 0 };
     const map = L.map(mapRef.current, {
       zoomControl: false,
       attributionControl: false,
-    }).setView([coords.lat, coords.lon], 14);
+      zoom: 10,
+      maxZoom: 19,
+      minZoom: 2,
+    }).setView(createLatLng(displayCoords.lat, displayCoords.lon), 10);
 
-    // Используем OpenStreetMap тайлы (бесплатно)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
     }).addTo(map);
 
-    // Добавляем маркер текущей локации
-    const userMarker = L.marker([coords.lat, coords.lon]).addTo(map)
-      .bindPopup('Your location')
-      .openPopup();
-    userMarkerRef.current = userMarker;
+    // Kaaba marker с кастомной иконкой
+    kaabaMarkerRef.current = L.marker(createLatLng(KAABA_LAT, KAABA_LON), {
+      icon: kaabaIcon,
+    }).addTo(map);
 
-    // Добавляем маркер Каабы
-    const kaabaMarker = L.marker([KAABA_LAT, KAABA_LON]).addTo(map)
-      .bindPopup('Kaaba, Mecca');
-    kaabaMarkerRef.current = kaabaMarker;
+    // User marker
+    userMarkerRef.current = L.marker(
+      createLatLng(displayCoords.lat, displayCoords.lon),
+      {
+        icon: userIcon,
+        draggable: true,
+      }
+    ).addTo(map);
 
-    // Добавляем линию направления на Каабу
-    const latlngs = [
-      [coords.lat, coords.lon],
-      [KAABA_LAT, KAABA_LON]
-    ];
-    const line = L.polyline(latlngs, { color: '#17823a', weight: 3 }).addTo(map);
-    lineRef.current = line;
+    // Handle map click
+    map.on("click", (e: L.LeafletMouseEvent) => {
+      const clickedCoords = {
+        lat: e.latlng.lat,
+        lon: e.latlng.lng,
+      };
+      setTempCoords(clickedCoords);
+      updateMapElements(clickedCoords.lat, clickedCoords.lon);
+    });
 
-    // В полноэкранном режиме добавляем обработчик кликов
-    if (fullscreen) {
-      map.on('click', (e: L.LeafletMouseEvent) => {
-        const clickedCoords = {
-          lat: e.latlng.lat,
-          lon: e.latlng.lng
-        };
-        setTempCoords(clickedCoords);
-        if (userMarkerRef.current) {
-          userMarkerRef.current.setLatLng([clickedCoords.lat, clickedCoords.lon]);
-          userMarkerRef.current.setPopupContent('Selected location');
-        }
-        if (lineRef.current) {
-          const newLatlngs = [
-            [clickedCoords.lat, clickedCoords.lon],
-            [KAABA_LAT, KAABA_LON]
-          ];
-          lineRef.current.setLatLngs(newLatlngs);
-        }
-      });
-    }
+    // Handle marker drag
+    userMarkerRef.current.on("dragend", (e) => {
+      const marker = e.target;
+      const newPos = marker.getLatLng();
+      const clickedCoords = {
+        lat: newPos.lat,
+        lon: newPos.lng,
+      };
+      setTempCoords(clickedCoords);
+      updateMapElements(clickedCoords.lat, clickedCoords.lon);
+    });
 
     leafletMapRef.current = map;
+    initializedRef.current = true;
 
     return () => {
-      map.remove();
+      if (leafletMapRef.current) {
+        leafletMapRef.current.off();
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+        userMarkerRef.current = null;
+        kaabaMarkerRef.current = null;
+        initializedRef.current = false;
+      }
     };
   }, [coords, fullscreen, setTempCoords]);
 
-  return <div ref={mapRef} className={fullscreen ? styles.fullscreen : styles.mapContainer} />;
+  useEffect(() => {
+    if (initializedRef.current && coords) {
+      updateMapElements(coords.lat, coords.lon);
+    }
+  }, [coords]);
+
+  return (
+    <div
+      onClick={() => {
+        if (fullscreen) return;
+        if (onMapClick) {
+          onMapClick();
+        } else {
+          navigate("/qibla");
+        }
+      }}
+      ref={mapRef}
+      className={fullscreen ? styles.fullscreen : styles.mapContainer}
+    />
+  );
 };

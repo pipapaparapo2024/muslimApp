@@ -1,43 +1,95 @@
-import React from 'react';
-import { PageWrapper } from '../../shared/PageWrapper';
-import styles from './WelcomeFriends.module.css';
-import { useNavigate } from 'react-router-dom';
-import { useMenuBlocksStore } from '../Home/MenuBlocks/MenuBlocksStore';
+import React, { useState, useEffect } from "react";
+import { PageWrapper } from "../../shared/PageWrapper";
+import styles from "./WelcomeFriends.module.css";
+import { useNavigate } from "react-router-dom";
+import friendsImage from "../../assets/image/Friiends.png";
 
-interface WelcomeFriendsProps {
-    onInvite?: () => void;
-}
-
-export const WelcomeFriends: React.FC<WelcomeFriendsProps> = ({ onInvite }) => {
-    const navigate = useNavigate();
-    const { setFriendsWelcomeShown } = useMenuBlocksStore();
-    
-    const handleInvite = () => {
-        // Сохраняем состояние в localStorage и store
-        localStorage.setItem('friendsWelcomeComplete', '1');
-        setFriendsWelcomeShown(true);
-        
-        if (onInvite) {
-            onInvite();
-        } else {
-            navigate('/friends', { replace: true });
-        }
+export const WelcomeFriends: React.FC = () => {
+  const navigate = useNavigate();
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    // Функция для предзагрузки одного изображения
+    const preloadImage = (src: string): Promise<void> => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve();
+        img.onerror = () => {
+          console.warn(`Failed to load image: ${src}`);
+          resolve(); // Не блокируем загрузку при ошибке
+        };
+      });
     };
 
+    // Массив всех изображений для предзагрузки
+    const imagesToLoad = [friendsImage];
+
+    // Загружаем все изображения
+    Promise.all(imagesToLoad.map(preloadImage))
+      .then(() => {
+        setIsLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Error during image preloading:", err);
+        setIsLoaded(true); // Всё равно показываем контент
+      });
+  }, []);
+
+  // Предзагрузка изображения
+  useEffect(() => {
+    const img = new Image();
+    img.src = friendsImage;
+    img.onload = () => setIsLoaded(true);
+    img.onerror = () => {
+      console.warn("Failed to load friends image, proceeding anyway.");
+      setIsLoaded(true);
+    };
+  }, []);
+
+  const handleInvite = () => {
+    // setFriendsWelcomeShown(true); // Помечаем приветствие как показанное
+    navigate("/friends"); // Переходим на страницу приглашения
+  };
+
+  // Лоадер
+  if (!isLoaded) {
     return (
-        <PageWrapper showBackButton>
-            <div className={styles.root}>
-                <div className={styles.header}>
-                    <div className={styles.title}>You haven't invited any friends yet</div>
-                    <div className={styles.subtitle}>
-                        Invite friends to earn rewards and unlock exclusive features — it's easy and rewarding.
-                    </div>
-                </div>
-                <div className={styles.imagePlaceholder} />
-                <button className={styles.inviteButton} onClick={handleInvite}>
-                    Invite Friends
-                </button>
-            </div>
-        </PageWrapper>
+      <PageWrapper showBackButton>
+        <div className={styles.loaderContainer}>
+          <div className={styles.loaderSpinner}></div>
+        </div>
+      </PageWrapper>
     );
+  }
+
+  // Основной контент
+  return (
+    <PageWrapper showBackButton>
+      <div className={styles.root}>
+        <div className={styles.header}>
+          <div className={styles.title}>
+            You haven't invited any friends yet
+          </div>
+          <div className={styles.subtitle}>
+            Invite friends to earn rewards and unlock exclusive features — it's
+            easy and rewarding.
+          </div>
+        </div>
+
+        <div className={styles.friendsImageWrapper}>
+          <img
+            src={friendsImage}
+            alt="Invite Friends"
+            className={styles.friendsImage}
+          />
+        </div>
+
+        <div className={styles.welcomeBottom}>
+          <button className={styles.inviteButton} onClick={() => handleInvite()}>
+            Invite Friends
+          </button>
+        </div>
+      </div>
+    </PageWrapper>
+  );
 };

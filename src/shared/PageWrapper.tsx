@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { useTelegram } from '../hooks/useTelegram';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from "react";
+// import { useTelegram } from "../api/useTelegram";
+import { useNavigate } from "react-router-dom";
 
 interface PageProps {
   children: React.ReactNode;
@@ -8,39 +8,58 @@ interface PageProps {
   title?: string;
 }
 
-export const PageWrapper: React.FC<PageProps> = ({ children, showBackButton = false}) => {
-  const { tg } = useTelegram();
+export const PageWrapper: React.FC<PageProps> = ({
+  children,
+  showBackButton = false,
+}) => {
   const navigate = useNavigate();
+  const tg = window.Telegram?.WebApp;
 
   useEffect(() => {
-    // Устанавливаем цвет заголовка
-    tg.setHeaderColor('#ffffff');
-    
+    console.log("Initializing PageWrapper, showBackButton:", showBackButton);
+    tg.ready();
+    tg.setHeaderColor("#ffffff");
+
+    // Инициализация кнопки настроек
+    if (tg.SettingsButton) {
+      tg.SettingsButton.show();
+      const handleSettings = () => navigate("/settings");
+      tg.SettingsButton.onClick(handleSettings);
+    }
+
+    // Инициализация кнопки "Назад"
     if (showBackButton) {
       tg.BackButton.show();
-      const handleBack = () => {
-        navigate('/home');
-      };
+      const handleBack = () => navigate("/home");
       tg.BackButton.onClick(handleBack);
-      
-      return () => {
-        tg.BackButton.offClick(handleBack);
-      };
     } else {
       tg.BackButton.hide();
     }
 
-    // Очистка при размонтировании
+    // Функция очистки
     return () => {
-      // tg.MainButton.hide(); // Закомментировано, так как MainButton может не использоваться
+      console.log("Cleaning up buttons");
+      if (tg.SettingsButton) {
+        tg.SettingsButton.offClick();
+        tg.SettingsButton.hide();
+      }
+      if (showBackButton) {
+        tg.BackButton.offClick();
+        tg.BackButton.hide();
+      }
     };
   }, [showBackButton, navigate, tg]);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f8f8f8'
-    }}>
+    <div
+      style={{
+        backgroundColor: "var(--bg-app)",
+        position: "relative",
+        margin: "0 auto",
+        padding: "16px 16px 0 16px",
+        maxWidth: "420px",
+      }}
+    >
       {children}
     </div>
   );
