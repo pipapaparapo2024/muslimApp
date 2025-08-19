@@ -1,0 +1,38 @@
+.container {
+  margin-bottom: var(--numbers-16);
+}
+.dateHeader {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: var(--numbers-8) 0;
+}
+.blockPromis {
+  padding: var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  margin-bottom: var(--numbers-4);
+}
+.questionPromis {
+  font-weight: 600;
+  color: var(--text);
+}
+.answerPromis {
+  font-weight: 400;
+  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--numbers-14);
+}
+.share {
+  background: var(--bg-app);
+  color: var(--text);
+  display: flex;
+  padding: var(--numbers-8);
+  border-radius: var(--roundings-small);
+  border: none;
+  gap: var(--numbers-4);
+  cursor: pointer;
+}
+.share:hover {
+  transition: transform 0.3s;
+  transform: scale(1.02);
+}

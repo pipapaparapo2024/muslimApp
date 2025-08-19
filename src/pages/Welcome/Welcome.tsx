@@ -4,10 +4,11 @@ import styles from "./Welcome.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 
 // Import images
-import prayerRemindersImage from "../../assets/image/player .png";
+import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 const steps = [
   {
@@ -38,7 +39,12 @@ export const Welcome: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-
+  if (window.Telegram?.WebApp) {
+    // Код для Telegram
+  } else {
+    // Код для локального запуска (например, заглушка)
+    console.log("Режим: локальный запуск");
+  }
   // Предзагрузка всех изображений
   useEffect(() => {
     let isMounted = true;
@@ -118,9 +124,9 @@ export const Welcome: React.FC = () => {
   // Лоадер с единым стилем
   if (!isLoaded) {
     return (
-      <div className={styles.loaderContainer}>
-        <div className={styles.loaderSpinner}></div>
-      </div>
+      <PageWrapper showBackButton={true}>
+        <LoadingSpinner />
+      </PageWrapper>
     );
   }
 
@@ -131,6 +137,7 @@ export const Welcome: React.FC = () => {
   return (
     <PageWrapper>
       <div ref={containerRef} className={styles.welcomeRoot}>
+        {/* Текст */}
         <div className={styles.welcomeStep}>
           <div
             className={styles.welcomeTitle}
@@ -152,18 +159,21 @@ export const Welcome: React.FC = () => {
           >
             {steps[step].desc}
           </div>
-          <div
-            className={styles.welcomeImage}
-            style={{
-              opacity: fade ? 0 : 1,
-              transform: fade ? "translateY(20px)" : "translateY(0)",
-              transition: "opacity 0.3s ease, transform 0.3s ease",
-            }}
-          >
-            <img src={steps[step].image} alt={steps[step].title} />
-          </div>
         </div>
 
+        {/* Картинка — между текстом и кнопкой */}
+        <div
+          className={styles.welcomeImage}
+          style={{
+            opacity: fade ? 0 : 1,
+            transform: fade ? "translateY(20px)" : "translateY(0)",
+            transition: "opacity 0.3s ease, transform 0.3s ease",
+          }}
+        >
+          <img src={steps[step].image} alt={steps[step].title} />
+        </div>
+
+        {/* Кнопка и пагинация внизу, в потоке */}
         <div className={styles.welcomeBottom}>
           <div className={styles.welcomePagination}>
             {steps.map((_, i) => (

@@ -45,10 +45,7 @@ export const Friends: React.FC = () => {
     <PageWrapper showBackButton>
       <div className={styles.friendsContainer}>
         <div className={styles.card}>
-          <div className={styles.cardTitle}>
-            🎁
-            Earn Rewards by Sharing
-          </div>
+          <div className={styles.cardTitle}>🎁 Earn Rewards by Sharing</div>
           <div className={styles.cardDesc}>
             Invite friends and get exclusive bonuses — the more you share, the
             more you gain.
@@ -61,8 +58,7 @@ export const Friends: React.FC = () => {
         <div className={styles.card}>
           <div className={styles.cardTitle}>Get Free Requests</div>
           <div className={styles.cardDesc}>
-            Earn free requests when invited friends take action
-            in the app.
+            Earn free requests when invited friends take action in the app.
           </div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
@@ -83,7 +79,7 @@ export const Friends: React.FC = () => {
             Unlock Premium for free when {premiumGoal} invited friends make a
             purchase.
           </div>
-         <div className={styles.progressSection}>
+          <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
                 className={styles.progressBar}
@@ -96,7 +92,7 @@ export const Friends: React.FC = () => {
             <div className={styles.progressLabel}>
               {premiumProgress}/{premiumGoal}
             </div>
-         </div>
+          </div>
           <button
             className={styles.rewardBtn}
             disabled={premiumProgress < premiumGoal}
@@ -108,6 +104,15 @@ export const Friends: React.FC = () => {
             Get Reward
           </button>
         </div>
+        {/* Информационное окно внизу, если нет приглашённых */}
+        {invitedCount === 0 && (
+          <div className={styles.emptyInvitations}>
+            <div className={styles.emptyTitle}>Your Invitations</div>
+            <div className={styles.emptyDesc}>
+              None of your invited friends have joined so far.
+            </div>
+          </div>
+        )}
       </div>
     </PageWrapper>
   );

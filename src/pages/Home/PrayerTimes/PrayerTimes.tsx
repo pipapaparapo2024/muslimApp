@@ -33,7 +33,7 @@ export const PrayerTimes: React.FC = () => {
       <div className={styles.headerRow}>
         <span className={styles.title}>Prayer Times</span>
         <span className={styles.editIcon}>
-          <Pen onClick={() => navigate("/settings/prayer-times")} />
+          <Pen size={16} onClick={() => navigate("/settings/prayer-times")} />
         </span>
       </div>
 

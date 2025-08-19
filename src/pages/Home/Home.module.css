@@ -71,6 +71,7 @@
   background: var(--color-background-semantic-solid-brand);
   color: var(--color-text-inversed);
   border: none;
+  white-space: nowrap;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-12) var(--numbers-18);
   font-size: var(--numbers-16);

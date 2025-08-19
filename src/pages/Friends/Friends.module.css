@@ -68,3 +68,19 @@
   margin-bottom: 0;
   font-family: var(--typography-body);
 }
+
+.emptyInvitations {
+  padding: var(--numbers-16) var(--numbers-20);
+}
+
+.emptyTitle {
+  font-size: var(--numbers-20);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.emptyDesc {
+  font-size: var(--numbers-14);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}

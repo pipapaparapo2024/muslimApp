@@ -52,5 +52,7 @@
 }
 
 .iconImage {
+  width: var(--numbers-36);
+  height: var(--numbers-36);
   margin-right: var(--numbers-8);
 }

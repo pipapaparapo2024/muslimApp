@@ -12,7 +12,7 @@
 .header {
   width: 100%;
   display: flex;
-  max-width: 320px;
+  max-width: 350px;
   gap: var(--numbers-4);
   flex-direction: column;
   align-items: center;
@@ -38,7 +38,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0 0 var(--numbers-36) 0; 
+  padding: 0 0 var(--numbers-36) 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,46 +63,16 @@
 }
 
 .friendsImageWrapper {
-  padding: 0 0 100px 0; 
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .friendsImage {
-  max-width: 320px;
-  max-height: 420px;
-  width: 100%;
+  max-height: 450px;
+  max-width: 100%;
   height: auto;
+  width: auto;
   object-fit: contain;
-}
-
-/* Loader styles */
-.loaderContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
-  background-color: var(--bg-app);
-}
-
-.loaderSpinner {
-  width: var(--numbers-50);
-  height: var(--numbers-50);
-  border: var(--numbers-5) solid var(--colors-green-700);
-  border-bottom-color: transparent;
-  border-radius: var(--roundings-rounded);
-  animation: rotation 1s linear infinite;
-  margin-bottom: var(--numbers-16);
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  padding-top: var(--numbers-32);
 }

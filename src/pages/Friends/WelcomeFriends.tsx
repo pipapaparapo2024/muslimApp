@@ -3,6 +3,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./WelcomeFriends.module.css";
 import { useNavigate } from "react-router-dom";
 import friendsImage from "../../assets/image/Friiends.png";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export const WelcomeFriends: React.FC = () => {
   const navigate = useNavigate();
@@ -47,22 +48,17 @@ export const WelcomeFriends: React.FC = () => {
   }, []);
 
   const handleInvite = () => {
-    // setFriendsWelcomeShown(true); // Помечаем приветствие как показанное
     navigate("/friends"); // Переходим на страницу приглашения
   };
 
-  // Лоадер
   if (!isLoaded) {
     return (
-      <PageWrapper showBackButton>
-        <div className={styles.loaderContainer}>
-          <div className={styles.loaderSpinner}></div>
-        </div>
+      <PageWrapper showBackButton={true}>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }
 
-  // Основной контент
   return (
     <PageWrapper showBackButton>
       <div className={styles.root}>
@@ -85,7 +81,10 @@ export const WelcomeFriends: React.FC = () => {
         </div>
 
         <div className={styles.welcomeBottom}>
-          <button className={styles.inviteButton} onClick={() => handleInvite()}>
+          <button
+            className={styles.inviteButton}
+            onClick={() => handleInvite()}
+          >
             Invite Friends
           </button>
         </div>

@@ -18,8 +18,10 @@ import { Region } from "./pages/Settings/appSettings/Region";
 import { DataTime } from "./pages/Settings/appSettings/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
 import { SettingPlayerTimes } from "./pages/Settings/appSettings/SettingPlayerTimes/SettingPlayerTimes";
-
+import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
+import { History } from "./pages/QnA/History/History";
+import { HistorySkanner } from "./pages/Scanner/historySkanner/HistorySkanner";
 
 export const App: React.FC = () => {
   const { invitedCount, fetchProgress } = useFriendsStore();
@@ -62,6 +64,10 @@ export const App: React.FC = () => {
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />
         <Route path="/quran" element={<SurahList />} />
+        <Route path="/quran/history" element={<History />} />
+        <Route path="/quran/historySkanner" element={<HistorySkanner />} />
+        {/* <Route path="/quran/history/:id" element={<HistoryDetail />} /> */}
+        <Route path="/quran/historyy" element={<HistoryDetail />} />
         <Route path="/qibla" element={<QiblaCompassPage />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>

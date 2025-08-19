@@ -68,14 +68,17 @@ export const BuyRequestsModal: React.FC<BuyPremiumModalProps> = ({
         </div>
 
         <div className={styles.priceBlocks}>
-          <div
-            className={`${styles.priceBlock} ${styles.tonBlock}`}
-            onClick={() => console.log("buy bitch")}
-          >
-            <div className={styles.priceIcon}>
+          <div className={`${styles.priceBlock} ${styles.tonBlock}`}>
+            <div
+              className={styles.priceIcon}
+              onClick={() => console.log("buy")}
+            >
               <img src={ton} alt="TON" width="24" height="24" />
             </div>
-            <div className={styles.priceValueTon}>
+            <div
+              className={styles.priceValueTon}
+              onClick={() => console.log("buy")}
+            >
               {prices.ton.toFixed(2)} TON
             </div>
           </div>

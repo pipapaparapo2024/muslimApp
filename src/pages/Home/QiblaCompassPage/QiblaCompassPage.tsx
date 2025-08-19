@@ -6,6 +6,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "./QiblaCompassPageStore";
 import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
+
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
@@ -24,8 +25,9 @@ export const QiblaCompassPage: React.FC = () => {
             }`}
             onClick={() => setActiveTab("compass")}
           >
-            <Compass strokeWidth={1.5} />
-            Compass
+            <div>
+              <Compass strokeWidth={1.5} /> Compass
+            </div>
           </button>
           <button
             className={`${styles.tabWide} ${
@@ -40,7 +42,7 @@ export const QiblaCompassPage: React.FC = () => {
         <div className={styles.tabContent}>
           {activeTab === "compass" ? (
             <div className={styles.bigCompass}>
-              <QiblaCompass sunRadius={50} size={300} />
+              <QiblaCompass showAngle={true} size={300} />
             </div>
           ) : (
             <div>

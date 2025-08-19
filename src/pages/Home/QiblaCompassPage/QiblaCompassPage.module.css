@@ -3,7 +3,7 @@
   gap: var(--numbers-4);
   justify-content: center;
   width: 100%;
-  margin-top: var(--numbers-20);
+  margin: var(--numbers-16) 0 var(--numbers-32) 0;
 }
 
 .tabWide {
@@ -20,7 +20,10 @@
   gap: var(--numbers-4);
   color: var(--colors-stone-950);
 }
-
+.tabWide div{
+  display: flex;
+  gap: 4px;
+}
 .tabWideActive {
   background-color: var(--colors-green-700); /* #17823a */
   color: var(--colors-white-1000); /* #fff */
