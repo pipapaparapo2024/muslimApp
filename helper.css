@@ -1,0 +1,39 @@
+/* PrayerTimes.module.css */
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.refreshIcon {
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+}
+
+.refreshIcon:hover {
+  color: #000;
+}
+
+.refreshIcon:active {
+  transform: rotate(180deg);
+  transition: transform 0.3s;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.nextBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #4CAF50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+}

@@ -1,6 +1,6 @@
 /* MenuBlocks styles */
 .menu {
-  margin: var(--numbers-6) auto 0 auto;
+  margin-top: var(--numbers-6);
   max-width: 395px;
   width: 100%;
   display: flex;

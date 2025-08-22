@@ -22,7 +22,7 @@
 }
 
 .modal {
-  background: var(--bg-surface);
+  background: var(--bg-app);
   color: var(--text);
   border-radius: var(--roundings-big); /* 22px */
   width: 100%;
@@ -73,7 +73,7 @@
 .options {
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-12);
+  gap: var(--numbers-4);
 }
 
 .option {

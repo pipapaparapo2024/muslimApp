@@ -44,7 +44,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--numbers-16);
 }
 
 .modalHeader h2 {
@@ -80,11 +79,12 @@
 }
 .option {
   background: var(--bg-surface);
-  border-radius: var(--roundings-small);
+  border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   border: 1px solid var(--color-stroke-primary);
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 }
 .option.selected {
   border-color: var(--color-background-semantic-solid-brand);
@@ -102,7 +102,7 @@
   cursor: pointer;
   display: flex;
   padding: var(--numbers-12);
-  border-radius: var(--roundings-small);
+  border-radius: var(--roundings-medium);
   gap: var(--numbers-8);
   align-items: center;
 }
@@ -115,12 +115,12 @@
   background-color: var(--colors-amber-100);
 }
 
-.priceIcon {
-  width: var(--numbers-24);
-  height: var(--numbers-24);
+
+.priceText{
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--numbers-4);
+  margin: 0 auto;
 }
 
 .priceIcon img {

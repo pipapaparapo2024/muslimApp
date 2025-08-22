@@ -1,6 +1,4 @@
-// src/pages/Home/Home.tsx
 import React, { useEffect } from "react";
-// import { useUserStore } from "../../api/useUserSlice";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -8,14 +6,11 @@ import { MenuBlocks } from "./MenuBlocks/MenuBlocks";
 import { PrayerTimes } from "./PrayerTimes/PrayerTimes";
 import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
-
 import { useGeoStore } from "./GeoStore";
-import { useCompassStore } from "./QiblaCompass/QiblaCompassStore";
 import { Header } from "../../components/Header";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  // const { user } = useUserStore();
   const {
     coords,
     city,
@@ -25,48 +20,46 @@ export const Home: React.FC = () => {
     isInitialized,
     fetchFromIpApi,
   } = useGeoStore();
-  const { fetchQibla } = useCompassStore();
+  
   useEffect(() => {
     // Ждём, пока persist загрузит данные
     if (isInitialized && !coords && !isLoading && !error) {
       fetchFromIpApi();
     }
   }, [isInitialized, coords, isLoading, error, fetchFromIpApi]);
-  // Запрос разрешений на сенсоры (для компаса)
+  
+  // Автоматический запрос разрешений на сенсоры
   useEffect(() => {
-    const permissionsRequested = localStorage.getItem(
-      "sensorPermissionsRequested"
-    );
+    const permissionsRequested = localStorage.getItem("sensorPermissionsRequested");
     if (permissionsRequested) return;
 
-    const handleFirstInteraction = () => {
-      if ((DeviceOrientationEvent as any)?.requestPermission) {
-        (DeviceOrientationEvent as any)
-          .requestPermission()
-          .catch(() => {})
-          .finally(() => {
-            localStorage.setItem("sensorPermissionsRequested", "1");
-          });
-      } else {
-        localStorage.setItem("sensorPermissionsRequested", "1");
-      }
+    const requestSensorPermissions = async () => {
+      try {
+        // Запрос разрешения на ориентацию (для iOS)
+        if ((DeviceOrientationEvent as any)?.requestPermission) {
+          try {
+            await (DeviceOrientationEvent as any).requestPermission();
+          } catch (error) {
+            console.warn("Orientation permission denied:", error);
+          }
+        }
 
-      document.removeEventListener("touchstart", handleFirstInteraction);
-      document.removeEventListener("click", handleFirstInteraction);
+        localStorage.setItem("sensorPermissionsRequested", "1");
+      } catch (error) {
+        console.error("Error requesting sensor permissions:", error);
+      }
     };
 
-    document.addEventListener("touchstart", handleFirstInteraction, {
-      once: true,
-    });
-    document.addEventListener("click", handleFirstInteraction, { once: true });
-  }, []);
+    // Запрашиваем разрешения только если пользователь взаимодействовал со страницей
+    const handleInteraction = () => {
+      requestSensorPermissions();
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
+    };
 
-  // Пересчитываем направление на Каабу
-  useEffect(() => {
-    if (coords) {
-      fetchQibla(coords);
-    }
-  }, [coords, fetchQibla]);
+    document.addEventListener('click', handleInteraction, { once: true });
+    document.addEventListener('touchstart', handleInteraction, { once: true });
+  }, []);
 
   // Telegram UI
   useEffect(() => {
@@ -113,10 +106,10 @@ export const Home: React.FC = () => {
                 Use the map to align yourself correctly for Salah.
               </div>
               <div className={styles.qiblaBlockRow}>
-                <div onClick={handleMapClick}>
-                  <QiblaMap />
+                <div onClick={handleMapClick} className={styles.mapContainer}>
+                  <QiblaMap onMapClick={handleMapClick} />
                 </div>
-                <div onClick={handleCompassClick}>
+                <div onClick={handleCompassClick} className={styles.compassContainer}>
                   <QiblaCompass />
                 </div>
               </div>

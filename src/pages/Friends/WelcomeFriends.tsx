@@ -5,9 +5,12 @@ import { useNavigate } from "react-router-dom";
 import friendsImage from "../../assets/image/Friiends.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
+const inviteLink = "https://ff6cd8e75312.ngrok-free.app"; // TODO: Replace with real invite link
+
 export const WelcomeFriends: React.FC = () => {
   const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
+  
   useEffect(() => {
     // Функция для предзагрузки одного изображения
     const preloadImage = (src: string): Promise<void> => {
@@ -36,19 +39,30 @@ export const WelcomeFriends: React.FC = () => {
       });
   }, []);
 
-  // Предзагрузка изображения
-  useEffect(() => {
-    const img = new Image();
-    img.src = friendsImage;
-    img.onload = () => setIsLoaded(true);
-    img.onerror = () => {
-      console.warn("Failed to load friends image, proceeding anyway.");
-      setIsLoaded(true);
-    };
-  }, []);
-
-  const handleInvite = () => {
-    navigate("/friends"); // Переходим на страницу приглашения
+  const handleInvite = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Join me on Muslim App!",
+          text: "Get rewards and unlock features by joining through my link!",
+          url: inviteLink,
+        });
+        // После успешной отправки переходим на страницу друзей
+        navigate("/friends");
+      } catch (err) {
+        console.log("Share canceled or failed:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(inviteLink);
+        alert("Link copied to clipboard!");
+        // После копирования переходим на страницу друзей
+        navigate("/friends");
+      } catch (err) {
+        console.error("Failed to copy: ", err);
+        alert("Failed to copy link. Please manually copy it.");
+      }
+    }
   };
 
   if (!isLoaded) {
@@ -83,7 +97,7 @@ export const WelcomeFriends: React.FC = () => {
         <div className={styles.welcomeBottom}>
           <button
             className={styles.inviteButton}
-            onClick={() => handleInvite()}
+            onClick={handleInvite}
           >
             Invite Friends
           </button>

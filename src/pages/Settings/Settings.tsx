@@ -7,6 +7,7 @@ import { ModalLanguage } from "../../components/modals/modalSettings/ModalLangua
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import {
   Calendar,
+  ChevronRight,
   Clock,
   Earth,
   FileText,
@@ -47,6 +48,7 @@ export const Settings: React.FC = () => {
               <div className={styles.title}>Region</div>
               <div className={styles.description}>Russia, Voronezh</div>
             </div>
+            <ChevronRight size={16} />
             <div className={styles.arrow}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"

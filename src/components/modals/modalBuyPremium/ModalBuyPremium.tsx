@@ -37,15 +37,15 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Buy premium</h2>
+          <h2>Go Premium</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
         </div>
 
         <p className={styles.modalDescription}>
-          Requests are used to access key features in the app. Purchase a pack
-          to continue using the tools without interruption.
+          Unlock all features with a single upgrade. Enjoy full access without
+          limits.
         </p>
 
         <div className={styles.options}>
@@ -72,11 +72,11 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             className={`${styles.priceBlock} ${styles.tonBlock}`}
             onClick={() => console.log("buy bitch")}
           >
-            <div className={styles.priceIcon}>
+            <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
-            </div>
-            <div className={styles.priceValueTon}>
-              {prices.ton.toFixed(2)} TON
+              <div className={styles.priceValueTon}>
+                {prices.ton.toFixed(2)}
+              </div>
             </div>
           </div>
 
@@ -84,10 +84,10 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             className={`${styles.priceBlock} ${styles.starsBlock}`}
             onClick={() => console.log("buy bitch")}
           >
-            <div className={styles.priceIcon}>
+            <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
+              <div className={styles.priceValueStar}>{prices.stars}</div>
             </div>
-            <div className={styles.priceValueStar}>{prices.stars} Stars</div>
           </div>
         </div>
       </div>

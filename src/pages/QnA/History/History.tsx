@@ -22,21 +22,20 @@ export const History: React.FC = () => {
   }, {} as Record<string, typeof history>);
 
   return (
-    <PageWrapper Navigate="/qna" showBackButton title="Product Scanner">
+    <PageWrapper navigateTo="/qna" showBackButton>
       {Object.entries(groupedHistory).map(([date, promises]) => (
         <div className={styles.container}>
           <div className={styles.dateHeader}>{date}</div>
           {promises.map((promis) => (
             <div
-              onClick={() => navigate('/quran/historyy')}
-              // onClick={() =>
-              //   navigate(`/quran/history/${promis.id}`, {
-              //     state: {
-              //       question: promis.question,
-              //       answer: promis.answer,
-              //     },
-              //   })
-              // }
+              onClick={() =>
+                navigate(`/quran/history/${promis.id}`, {
+                  state: {
+                    question: promis.question,
+                    answer: promis.answer,
+                  },
+                })
+              }
               className={styles.blockPromis}
             >
               <div className={styles.questionPromis}>{promis.question}</div>

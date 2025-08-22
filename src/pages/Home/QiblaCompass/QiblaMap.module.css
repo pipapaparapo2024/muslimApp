@@ -3,8 +3,8 @@
   height: 120px;
   border-radius: var(--roundings-medium);
   overflow: hidden;
-  background: var(--color-background-secondary); 
-  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07); 
+  background: var(--color-background-secondary);
+  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07);
   position: relative;
 }
 
@@ -20,5 +20,21 @@
   margin: 0;
   box-shadow: none;
   transition: none;
+}
+.userIcon {
+  background: none !important;
+  border: none !important;
+}
 
+.edgeIndicator {
+  opacity: 0.7;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+.rotatedIcon {
+  transition: transform 0.3s ease;
+}
+
+.custom-user-icon {
+  background: none !important;
+  border: none !important;
 }

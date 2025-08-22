@@ -44,11 +44,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--numbers-16);
 }
 
 .modalHeader h2 {
-  margin: 0;
   font-size: var(--numbers-20);
   font-weight: 600;
   color: var(--text);
@@ -80,7 +78,7 @@
 }
 .option {
   background: var(--bg-surface);
-  border-radius: var(--roundings-small);
+  border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   border: 1px solid var(--color-stroke-primary);
   cursor: pointer;
@@ -97,13 +95,20 @@
   gap: var(--numbers-4);
   padding: var(--numbers-12) 0;
   width: 100%;
+  justify-content: center;
 }
 
+.priceText{
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  margin: 0 auto;
+}
 .priceBlock {
   cursor: pointer;
   display: flex;
   padding: var(--numbers-12);
-  border-radius: var(--roundings-small);
+  border-radius: var(--roundings-medium);
   gap: var(--numbers-8);
   align-items: center;
 }
@@ -116,13 +121,6 @@
   background-color: var(--colors-amber-100);
 }
 
-.priceIcon {
-  width: var(--numbers-24);
-  height: var(--numbers-24);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .priceIcon img {
   width: 100%;

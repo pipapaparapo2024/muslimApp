@@ -2,14 +2,14 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./HistoryEmpty.module.css";
 import think from "../../../../assets/image/thinking.png";
 import React, { useEffect, useState } from "react";
-import { useQnAStore } from "../../../QnA/QnAStore";
+import { useQnAStore } from "../../QnAStore";
 import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 
 export const HistoryEmpty: React.FC = () => {
-  const { requestsLeft, hasPremium, isLoading, fetchUserData } = useQnAStore();
+  const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState(10);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -57,7 +57,7 @@ export const HistoryEmpty: React.FC = () => {
     );
   }
   return (
-    <PageWrapper Navigate="/qna" showBackButton title="Product Scanner">
+    <PageWrapper navigateTo="/qna" showBackButton title="Product Scanner">
       <div className={styles.contain}>
         <div className={styles.header}>
           <div className={styles.title}>Waiting for Your First Question</div>

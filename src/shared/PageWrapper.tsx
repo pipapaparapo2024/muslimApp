@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface PageProps {
@@ -28,14 +28,12 @@ export const PageWrapper: React.FC<PageProps> = ({
     tg.ready();
     tg.setHeaderColor("#ffffff");
 
-    // Инициализация кнопки настроек
     if (tg.SettingsButton) {
       tg.SettingsButton.show();
       const handleSettings = () => navigate("/settings");
       tg.SettingsButton.onClick(handleSettings);
     }
 
-    // Инициализация кнопки "Назад"
     if (showBackButton) {
       tg.BackButton.show();
       const handleBack = () => navigate(navigateTo);
@@ -44,7 +42,6 @@ export const PageWrapper: React.FC<PageProps> = ({
       tg.BackButton.hide();
     }
 
-    // Функция очистки
     return () => {
       console.log("Cleaning up buttons");
       if (tg.SettingsButton) {
@@ -58,19 +55,7 @@ export const PageWrapper: React.FC<PageProps> = ({
     };
   }, [showBackButton, navigate, tg, navigateTo]);
 
-  const containerStyle = styleHave ? {
-    backgroundColor: "var(--bg-app)",
-    position: "relative",
-    margin: "0 auto",
-    padding: "16px 16px 0 16px",
-    maxWidth: "360px",
-    width: "100%",
-    minHeight: "100vh",
-    boxSizing: "border-box"
-  } : {};
-
-  return (
-    <div style={{
+  const containerStyle: CSSProperties = styleHave ? {
     backgroundColor: "var(--bg-app)",
     position: "relative",
     margin: "0 auto",
@@ -79,7 +64,10 @@ export const PageWrapper: React.FC<PageProps> = ({
     width: "100%",
     minHeight: "100vh",
     boxSizing: "border-box"
-  }}>
+  } : {};
+
+  return (
+    <div style={containerStyle}>
       {children}
     </div>
   );

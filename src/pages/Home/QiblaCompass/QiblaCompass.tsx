@@ -17,30 +17,80 @@ const BASE_RING_GAP = 20;
 interface QiblaCompassProps {
   size?: number;
   showAngle?: boolean;
+  permissionGranted?: boolean;
 }
 
 export const QiblaCompass: React.FC<QiblaCompassProps> = ({
   size = 120,
   showAngle = false,
+  permissionGranted = false,
 }) => {
-  // Рассчитываем коэффициенты масштабирования
   const scale = size / BASE_SIZE;
-
-  // Размеры элементов, масштабируемые относительно базового размера
   const iconSize = Math.round(BASE_ICON_SIZE * scale);
   const arrowSize = Math.round(BASE_ARROW_SIZE * scale);
   const ringGap = Math.round(BASE_RING_GAP * scale);
 
   const [heading, setHeading] = useState<number | null>(null);
-  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(
-    null
-  );
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [isLocationReady, setIsLocationReady] = useState(false);
   const [isOrientationReady, setIsOrientationReady] = useState(false);
-  const [permissionRequested, setPermissionRequested] = useState(false);
-  const [permissionGranted, setPermissionGranted] = useState(false);
   const [isCalibrated, setIsCalibrated] = useState(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [localPermissionGranted, setLocalPermissionGranted] = useState(permissionGranted);
+
+  // Функция для запроса разрешений на датчики
+  const requestSensorPermissions = async () => {
+    try {
+      let granted = false;
+
+      // Запрос разрешения на ориентацию (для iOS)
+      if ((DeviceOrientationEvent as any)?.requestPermission) {
+        try {
+          const orientationPermission = await (DeviceOrientationEvent as any).requestPermission();
+          if (orientationPermission === "granted") {
+            granted = true;
+          }
+        } catch (error) {
+          console.warn("Orientation permission denied:", error);
+        }
+      }
+
+      // Для Android и других браузеров
+      if (!(DeviceOrientationEvent as any)?.requestPermission) {
+        granted = true;
+      }
+
+      if (granted) {
+        setLocalPermissionGranted(true);
+        localStorage.setItem("sensorPermissionGranted", "true");
+        
+        // Устанавливаем обработчик ориентации после получения разрешений
+        if (window.DeviceOrientationEvent) {
+          window.addEventListener("deviceorientation", handleOrientation, true);
+          setIsOrientationReady(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error requesting sensor permissions:", error);
+    }
+  };
+
+  // Автоматический запрос разрешений при монтировании компонента
+  useEffect(() => {
+    const savedPermission = localStorage.getItem("sensorPermissionGranted");
+    if (savedPermission === "true") {
+      setLocalPermissionGranted(true);
+      
+      // Устанавливаем обработчик если разрешения уже есть
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", handleOrientation, true);
+        setIsOrientationReady(true);
+      }
+    } else if (!permissionGranted) {
+      // Запрашиваем разрешения если их нет
+      requestSensorPermissions();
+    }
+  }, [permissionGranted]);
 
   // Получение геолокации
   useEffect(() => {
@@ -103,82 +153,35 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
       const now = new Date();
       const hours = now.getHours();
       const minutes = now.getMinutes();
-
-      // Переводим в 12-часовой формат
       const twelveHourFormat = hours % 12;
       const totalMinutes = twelveHourFormat * 60 + minutes;
-
       const angle = (totalMinutes / 720) * 360;
-
       setCurrentTime(angle);
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 60000); // Обновляем каждую минуту
+    const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Проверяем разрешение из localStorage
-  useEffect(() => {
-    const savedPermission = localStorage.getItem("compassPermission");
-    if (savedPermission === "granted") {
-      setPermissionGranted(true);
-      setPermissionRequested(true);
+  // Обработчик ориентации
+  const handleOrientation = (event: DeviceOrientationEvent) => {
+    if (event.alpha === null && event.webkitCompassHeading === undefined) {
+      return;
     }
-  }, []);
 
-  const requestPermission = async () => {
-    try {
-      if ((DeviceOrientationEvent as any).requestPermission) {
-        const permission = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        if (permission === "granted") {
-          setPermissionGranted(true);
-          setPermissionRequested(true);
-          localStorage.setItem("compassPermission", "granted");
-        }
-      } else {
-        setPermissionGranted(true);
-        setPermissionRequested(true);
-        localStorage.setItem("compassPermission", "granted");
-      }
-    } catch (error) {
-      console.error("Error requesting permission:", error);
+    let newHeading;
+    if (event.webkitCompassHeading !== undefined) {
+      newHeading = event.webkitCompassHeading;
+    } else {
+      newHeading = (event.alpha + 360) % 360;
     }
+
+    setHeading(newHeading);
+    setIsCalibrated(true);
   };
 
-  // Установка слушателя ориентации после получения разрешения
-  useEffect(() => {
-    if (!permissionRequested) return;
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.alpha === null && event.webkitCompassHeading === undefined) {
-        return;
-      }
-
-      let newHeading;
-      if (event.webkitCompassHeading !== undefined) {
-        newHeading = event.webkitCompassHeading;
-      } else {
-        newHeading = (event.alpha + 360) % 360;
-      }
-
-      setHeading(newHeading);
-      setIsCalibrated(true);
-    };
-
-    if (permissionGranted) {
-      window.addEventListener("deviceorientation", handleOrientation, true);
-      setIsOrientationReady(true);
-    }
-
-    return () => {
-      window.removeEventListener("deviceorientation", handleOrientation, true);
-    };
-  }, [permissionRequested, permissionGranted]);
-
-  // Расчет направления на Каабу (истинный угол от севера)
+  // Расчет направления на Каабу
   const calculateQiblaDirection = () => {
     if (!coords) return 0;
 
@@ -195,33 +198,31 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
       Math.sin(userLatRad) * Math.cos(kaabaLatRad) * Math.cos(deltaLon);
 
     let direction = Math.atan2(y, x) * (180 / Math.PI);
-    direction = (direction + 360) % 360;
+    direction = (direction + 349) % 360;
 
     return direction;
   };
 
   const qiblaTrueAngle = calculateQiblaDirection();
-
-  // Угол, где должна быть Кааба относительно текущего направления
   const kaabaRelativeAngle =
-    heading !== null ? (qiblaTrueAngle - heading + 350) % 360 : 0;
+    heading !== null ? (qiblaTrueAngle - heading + 360) % 360 : 0;
 
   // Основные размеры
   const center = size / 2;
   const outerRadius = center - 10;
   const middleRadius = outerRadius - ringGap;
 
-  // Позиция солнца (на внешнем кольце)
+  // Позиция солнца
   const sunAngleRad = ((currentTime - 90) * Math.PI) / 180;
   const sunX = center + middleRadius * Math.cos(sunAngleRad);
   const sunY = center + middleRadius * Math.sin(sunAngleRad);
 
-  // Позиция Каабы — теперь она двигается по внешнему кольцу
-  const kaabaAngleRad = ((kaabaRelativeAngle - 90) * Math.PI) / 180; // -90 чтобы 0° был вверху
+  // Позиция Каабы - исправлено направление
+  const kaabaAngleRad = ((kaabaRelativeAngle - 90) * Math.PI) / 180;
   const kaabaX = center + outerRadius * Math.cos(kaabaAngleRad);
   const kaabaY = center + outerRadius * Math.sin(kaabaAngleRad);
 
-  // Луч света — всегда вверх (относительно севера, т.е. 0°)
+  // Луч света
   const sectorAngle = 30;
   const sectorStartRad = ((-sectorAngle / 2 - 90) * Math.PI) / 180;
   const sectorEndRad = ((sectorAngle / 2 - 90) * Math.PI) / 180;
@@ -231,16 +232,19 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
   const sectorEndY = center + outerRadius * Math.sin(sectorEndRad);
   const sectorPath = `M ${center} ${center} L ${sectorStartX} ${sectorStartY} A ${outerRadius} ${outerRadius} 0 0 1 ${sectorEndX} ${sectorEndY} Z`;
 
-  // Готовность
-  const isReady = isLocationReady && isOrientationReady;
+  const isReady = isLocationReady && isOrientationReady && localPermissionGranted;
 
   return (
     <div style={{ width: size, height: size, position: "relative" }}>
-      {/* Внешний круг */}
       <svg
         width={size}
         height={size}
-        style={{ position: "absolute", left: 0, top: 0 }}
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          zIndex: 2,
+        }}
       >
         <circle
           cx={center}
@@ -249,7 +253,19 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           fill="var(--bg-surface)"
           stroke="#17823a"
           strokeWidth={2 * scale}
-          />
+        />
+        <circle
+          cx={center}
+          cy={center}
+          r={outerRadius+2.5}
+          fill="var(--bg-surface)"
+          stroke="#17823a"
+          strokeWidth={2 * scale}
+        />
+        <path
+          d={sectorPath}
+          fill="var(--color-background-semantic-dimmed-brand)"
+        />
         <circle
           cx={center}
           cy={center}
@@ -257,26 +273,10 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           fill="none"
           stroke="#e5e5e5"
           strokeWidth={2 * scale}
-          />
+        />
       </svg>
 
-      {/* Луч света — всегда вверх */}
-      {isReady && (
-        <svg
-          width={size}
-          height={size}
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            zIndex: 1,
-          }}
-        >
-          <path d={sectorPath} fill="var( --color-background-semantic-dimmed-brand)" />
-        </svg>
-      )}
-
-      {/* Солнце — на внутреннем кольце */}
+      {/* Солнце */}
       <div
         style={{
           position: "absolute",
@@ -291,7 +291,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           background: "#fff",
           borderRadius: "50%",
           boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
-          zIndex: 1,
+          zIndex: 3,
         }}
       >
         <img
@@ -304,37 +304,35 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
         />
       </div>
 
-      {/* Кааба — двигается по окружности */}
-      {isReady && (
-        <div
+      {/* Кааба */}
+      <div
+        style={{
+          position: "absolute",
+          left: kaabaX,
+          top: kaabaY,
+          width: `${iconSize}px`,
+          height: `${iconSize}px`,
+          transform: "translate(-50%, -50%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#fff",
+          borderRadius: "50%",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
+          zIndex: 4,
+        }}
+      >
+        <img
+          src={kaaba}
+          alt="Kaaba"
           style={{
-            position: "absolute",
-            left: kaabaX,
-            top: kaabaY,
-            width: `${iconSize}px`,
-            height: `${iconSize}px`,
-            transform: "translate(-50%, -50%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "#fff",
-            borderRadius: "50%",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
-            zIndex: 3,
+            width: "100%",
+            height: "100%",
           }}
-        >
-          <img
-            src={kaaba}
-            alt="Kaaba"
-            style={{
-              width: "100%",
-              height: "100%",
-            }}
-          />
-        </div>
-      )}
+        />
+      </div>
 
-      {/* Стрелка — всегда вверх (не вращается) */}
+      {/* Стрелка */}
       <div
         style={{
           left: center,
@@ -347,8 +345,8 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           background: "green",
           borderRadius: "50%",
           position: "absolute",
-          transform: "translate(-50%, -50%) rotate(0deg)", // Всегда вверх
-          zIndex: 4,
+          transform: "translate(-50%, -50%) rotate(0deg)",
+          zIndex: 5,
         }}
       >
         <img
@@ -373,6 +371,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
             fontWeight: 600,
             fontSize: "28px",
             textAlign: "center",
+            zIndex: 6,
           }}
         >
           {kaabaRelativeAngle.toFixed(1)}°
@@ -386,29 +385,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
             Qibla angle of your location
           </div>
         </div>
-      )}
-
-      {/* Кнопка разрешения */}
-      {!permissionGranted && (
-        <button
-          onClick={requestPermission}
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 5,
-            background: "#17823a",
-            color: "white",
-            border: "none",
-            borderRadius: `${20 * scale}px`,
-            padding: `${10 * scale}px ${20 * scale}px`,
-            fontSize: `${14 * scale}px`,
-            cursor: "pointer",
-          }}
-        >
-          Разрешить доступ к компасу
-        </button>
       )}
     </div>
   );

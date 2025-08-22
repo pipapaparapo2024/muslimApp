@@ -10,46 +10,58 @@ import { useLocation } from "react-router-dom";
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
+
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state, setActiveTab]);
+
   return (
     <PageWrapper showBackButton>
-      <div>
-        <div className={styles.tabsWideRow}>
-          <button
-            className={`${styles.tabWide} ${
-              activeTab === "compass" ? styles.tabWideActive : ""
-            }`}
-            onClick={() => setActiveTab("compass")}
-          >
-            <div>
-              <Compass strokeWidth={1.5} /> Compass
-            </div>
-          </button>
-          <button
-            className={`${styles.tabWide} ${
-              activeTab === "map" ? styles.tabWideActive : ""
-            }`}
-            onClick={() => setActiveTab("map")}
-          >
-            <Map strokeWidth={1.5} />
-            Map
-          </button>
-        </div>
-        <div className={styles.tabContent}>
-          {activeTab === "compass" ? (
+      <div className={styles.toggleGroup}>
+        <label className={styles.toggleItem}>
+          <input
+            type="radio"
+            name="tab"
+            checked={activeTab === "compass"}
+            onChange={() => setActiveTab("compass")}
+            className={styles.toggleInput}
+          />
+          <span className={styles.toggleSlider}>
+            <Compass size={16} strokeWidth={1.5} /> Compass
+          </span>
+        </label>
+
+        <label className={styles.toggleItem}>
+          <input
+            type="radio"
+            name="tab"
+            checked={activeTab === "map"}
+            onChange={() => setActiveTab("map")}
+            className={styles.toggleInput}
+          />
+          <span className={styles.toggleSliderMap}>
+            <Map size={16} strokeWidth={1.5} /> Map
+          </span>
+        </label>
+      </div>
+
+      <div className={styles.tabContent}>
+        {activeTab === "compass" ? (
+          <div className={styles.compassContainer}>
             <div className={styles.bigCompass}>
-              <QiblaCompass showAngle={true} size={300} />
+              <QiblaCompass
+                showAngle={true}
+                size={300}
+              />
             </div>
-          ) : (
-            <div>
-              <QiblaMap fullscreen={true} />
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div>
+            <QiblaMap fullscreen={true} />
+          </div>
+        )}
       </div>
     </PageWrapper>
   );

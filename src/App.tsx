@@ -1,4 +1,3 @@
-// App.tsx
 import { Routes, Route } from "react-router-dom";
 import { useFriendsStore } from "./pages/Friends/FriendsStore";
 import { useTheme } from "./hooks/useTheme";
@@ -22,20 +21,51 @@ import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
 import { HistorySkanner } from "./pages/Scanner/historySkanner/HistorySkanner";
+import { ShareStory } from "./pages/QnA/History/shareStory/ShareStory";
+import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импортируем из SDK
+
+// Настройка полноэкранного режима и предотвращение свайпа
+if (viewport.expand.isAvailable()) {
+  viewport.expand();
+}
+
+if (swipeBehavior.mount.isAvailable()) {
+  swipeBehavior.mount();
+  if (swipeBehavior.disableVertical.isAvailable()) {
+    swipeBehavior.disableVertical();
+  }
+}
 
 export const App: React.FC = () => {
-  const { invitedCount, fetchProgress } = useFriendsStore();
+  const { friends, fetchFriends } = useFriendsStore();
   const { isThemeReady } = useTheme();
+  const invitedCount = friends.filter(
+    (friend) =>
+      friend.status === "invited" ||
+      friend.status === "registered" ||
+      friend.status === "purchased"
+  ).length;
+
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
       tg.expand();
-    }
-    // Загружаем данные о друзьях при монтировании
-    fetchProgress();
-  }, [fetchProgress]);
 
+      // Дополнительная защита от свайпа через нативный API
+      if (typeof tg.enableClosingConfirmation === "function") {
+        tg.enableClosingConfirmation();
+      }
+      if (typeof tg.disableVerticalSwipes === "function") {
+        tg.disableVerticalSwipes();
+      }
+      if (typeof tg.disableSwipeToClose === "function") {
+        tg.disableSwipeToClose();
+      }
+    }
+
+    fetchFriends();
+  }, [fetchFriends]);
   if (!isThemeReady) {
     return <div style={{ height: "100vh", background: "#fff" }} />;
   }
@@ -49,26 +79,26 @@ export const App: React.FC = () => {
         <Route path="/friends" element={<Friends />} />
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Welcome />} />
-        <Route path="/qna" element={<QnA />} />
-        <Route path="/scanner" element={<Scanner />} />
+        <Route path="/quran" element={<SurahList />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/region" element={<Region />} />
         <Route path="/settings/language" element={<ModalLanguage />} />
         <Route path="/settings/date-time" element={<DataTime />} />
         <Route path="/settings/prayer-times" element={<SettingPlayerTimes />} />
         <Route path="/settings/theme" element={<ModalTheme />} />
+        <Route path="/qibla" element={<QiblaCompassPage />} />
         <Route
           path="/privacy-policy"
           element={<div>Privacy Policy Page</div>}
         />
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />
-        <Route path="/quran" element={<SurahList />} />
-        <Route path="/quran/history" element={<History />} />
-        <Route path="/quran/historySkanner" element={<HistorySkanner />} />
-        {/* <Route path="/quran/history/:id" element={<HistoryDetail />} /> */}
-        <Route path="/quran/historyy" element={<HistoryDetail />} />
-        <Route path="/qibla" element={<QiblaCompassPage />} />
+        <Route path="/scanner" element={<Scanner />} />
+        <Route path="/scanner/historySkanner" element={<HistorySkanner />} />
+        <Route path="/qna" element={<QnA />} />
+        <Route path="/qna/history" element={<History />} />
+        <Route path="/quran/history/:id" element={<HistoryDetail />} />
+        <Route path="/qna/shareHistory/:id" element={<ShareStory />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </div>

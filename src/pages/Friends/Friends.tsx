@@ -2,22 +2,37 @@ import React from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "./FriendsStore";
+import { Check, Wallet } from "lucide-react";
 
-const inviteLink = "https://ff6cd8e75312.ngrok-free.app"; // TODO: Replace with real invite link
+const inviteLink = "https://ff6cd8e75312.ngrok-free.app";
 
 export const Friends: React.FC = () => {
-  const { invitedCount, purchaseCount, fetchProgress } = useFriendsStore();
+  const { friends, loading, error, fetchFriends } = useFriendsStore();
 
   const requestsGoal = 10;
   const premiumGoal = 10;
 
   React.useEffect(() => {
-    fetchProgress();
-  }, [fetchProgress]);
+    fetchFriends();
+  }, [fetchFriends]);
 
-  // Приводим к числу, на случай, если undefined
-  const requestsProgress = invitedCount ?? 0;
-  const premiumProgress = purchaseCount ?? 0;
+  // Подсчитываем количество приглашенных и купивших друзей
+  const invitedCount = friends.filter(
+    (friend) =>
+      friend.status === "invited" ||
+      friend.status === "registered" ||
+      friend.status === "purchased"
+  ).length;
+  const purchasedCount = friends.filter(
+    (friend) => friend.status === "purchased"
+  ).length;
+
+  // Сортируем друзей: сначала purchased, потом invited
+  const sortedFriends = [...friends].sort((a, b) => {
+    if (a.status === "purchased" && b.status !== "purchased") return -1;
+    if (a.status !== "purchased" && b.status === "purchased") return 1;
+    return 0;
+  });
 
   const handleInvite = async () => {
     if (navigator.share) {
@@ -41,6 +56,9 @@ export const Friends: React.FC = () => {
     }
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <PageWrapper showBackButton>
       <div className={styles.friendsContainer}>
@@ -58,25 +76,37 @@ export const Friends: React.FC = () => {
         <div className={styles.card}>
           <div className={styles.cardTitle}>Get Free Requests</div>
           <div className={styles.cardDesc}>
-            Earn free requests when invited friends take action in the app.
+            Get free requests when your invited friends engage with the app.
           </div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
                 className={styles.progressBar}
-                style={{ width: `${(requestsProgress / requestsGoal) * 100}%` }}
+                style={{ width: `${(invitedCount / requestsGoal) * 100}%` }}
               />
             </div>
             <div className={styles.progressLabel}>
-              {requestsProgress}/{requestsGoal}
+              {invitedCount}/{requestsGoal}
             </div>
           </div>
+          {/* Кнопка получения награды за запросы */}
+          {invitedCount >= requestsGoal && (
+            <button
+              className={styles.rewardBtn}
+              onClick={() => {
+                // TODO: Логика получения награды за запросы
+                alert("Congratulations! You've earned free requests!");
+              }}
+            >
+              Get Reward
+            </button>
+          )}
         </div>
 
         <div className={styles.card}>
           <div className={styles.cardTitle}>Unlock Premium for Free</div>
           <div className={styles.cardDesc}>
-            Unlock Premium for free when {premiumGoal} invited friends make a
+            Access Premium for free when your invited friends complete a
             purchase.
           </div>
           <div className={styles.progressSection}>
@@ -84,35 +114,63 @@ export const Friends: React.FC = () => {
               <div
                 className={styles.progressBar}
                 style={{
-                  width: `${(premiumProgress / premiumGoal) * 100}%`,
-                  background: "#111",
+                  width: `${(purchasedCount / premiumGoal) * 100}%`,
                 }}
               />
             </div>
             <div className={styles.progressLabel}>
-              {premiumProgress}/{premiumGoal}
+              {purchasedCount}/{premiumGoal}
             </div>
           </div>
-          <button
-            className={styles.rewardBtn}
-            disabled={premiumProgress < premiumGoal}
-            onClick={() => {
-              // TODO: Логика получения премиум-награды
-              alert("Congratulations! You’ve unlocked Premium!");
-            }}
-          >
-            Get Reward
-          </button>
+          {/* Кнопка получения премиум-награды */}
+          {purchasedCount >= premiumGoal && (
+            <button
+              className={styles.rewardBtn}
+              onClick={() => {
+                // TODO: Логика получения премиум-награды
+                alert("Congratulations! You've unlocked Premium!");
+              }}
+            >
+              Get Reward
+            </button>
+          )}
         </div>
-        {/* Информационное окно внизу, если нет приглашённых */}
-        {invitedCount === 0 && (
-          <div className={styles.emptyInvitations}>
-            <div className={styles.emptyTitle}>Your Invitations</div>
+
+        {/* Список друзей */}
+        <div className={styles.emptyInvitations}>
+          <div className={styles.emptyTitle}>Your Invitations</div>
+          {sortedFriends.length === 0 ? (
             <div className={styles.emptyDesc}>
               None of your invited friends have joined so far.
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={styles.friendsList}>
+              {sortedFriends.map((friend) => (
+                <div key={friend.id} className={styles.friendItem}>
+                  <div className={styles.friendName}>{friend.name}</div>
+                  <div className={styles.friendStatus}>
+                    {friend.status === "invited" && (
+                      <div
+                        className={`${styles.accepted} ${styles.checkBlock}`}
+                      >
+                        <Check size={16} />
+                        Accepted
+                      </div>
+                    )}
+                    {friend.status === "purchased" && (
+                      <div
+                        className={`${styles.purchased} ${styles.checkBlock}`}
+                      >
+                        <Wallet size={16} />
+                        Purchased
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </PageWrapper>
   );

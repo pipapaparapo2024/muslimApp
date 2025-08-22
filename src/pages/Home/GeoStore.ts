@@ -76,7 +76,6 @@ export const useGeoStore = create<GeoState>()(
         set({ isLoading: true, error: null });
 
         try {
-          // ✅ УБЕРИ ПРОБЕЛЫ!
           const response = await axios.get<IpData>("https://api.my-ip.io/v2/ip.json");
           const data = response.data;
 

@@ -1,65 +1,78 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./HistoryDetail.module.css";
-import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
-import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { TableRequestsHistory } from "../../../../components/TableRequestsHistory/TableRequestsHistory";
+import { Copy, Plus, Upload } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useHistoryStore } from "../HistoryStore";
+
 export const HistoryDetail: React.FC = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const { history } = useHistoryStore();
+  const currentItem = history.find((item) => item.id === id);
 
-  useEffect(() => {
-    const preloadImage = (src: string): Promise<void> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-        img.onerror = () => {
-          console.warn(`Failed to load image: ${src}`);
-          resolve();
-        };
-      });
-    };
-
-    // Загружаем все изображения
-    preloadImage(message)
+  // Функция копирования текста
+  const handleCopy = (text: string) => {
+    navigator.clipboard
+      .writeText(text)
       .then(() => {
-        setIsLoaded(true);
+        // Можно использовать alert или более красивое уведомление
+        alert("✅ Текст скопирован в буфер обмена");
       })
       .catch((err) => {
-        console.error("Error during image preloading:", err);
-        setIsLoaded(true);
+        console.error("Ошибка при копировании: ", err);
+        alert("❌ Не удалось скопировать текст");
       });
-  }, []);
-
-  if (!isLoaded) {
+  };
+  const handleShare = () => {
+    if (!currentItem) return;
+    navigate(`/qna/shareHistory/${id}`);
+  };
+  if (!currentItem) {
     return (
-      <PageWrapper showBackButton={true}>
-        <LoadingSpinner />
+      <PageWrapper showBackButton={true} styleHave={true}>
+        <div>Запрос не найден</div>
       </PageWrapper>
     );
   }
-
   return (
-    <PageWrapper showBackButton={true} styleHave={false}>
+    <PageWrapper showBackButton={true} styleHave={true}>
       <div className={styles.container}>
-        <div className={styles.contentWrapper}>
-          <img src={message} className={styles.messageImage} />
-          <div className={styles.blockMessages}>
-            <div className={styles.blockMessageUser}>
-              <div className={styles.nickName}>You</div>
-              <div className={styles.text}>
-                Is it permissible to pray in regular clothes, not traditional
-                attire?
-              </div>
-            </div>
-            <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@MuslimBot</div>
-              <div className={styles.text}>
-                Yes, as long as the clothes are clean and cover the required parts
-                of the body, prayer in regular attire is valid.
-              </div>
+        <TableRequestsHistory />
+        <div className={styles.blockMessages}>
+          <div className={styles.blockMessageUser}>
+            <div className={styles.nickName}>You</div>
+            <div className={styles.text}>{currentItem.question}</div>
+          </div>
+          <div className={styles.blockMessageBot}>
+            <div className={styles.nickName}>@MuslimBot</div>
+            <div className={styles.text}>{currentItem.answer}</div>
+            <div
+              className={styles.copy}
+              onClick={() => handleCopy(currentItem.answer)}
+            >
+              <Copy size={20} strokeWidth={1.5} />
+              Copy
             </div>
           </div>
         </div>
+        <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
+          <button
+            type="submit"
+            className={styles.submitButton}
+            onClick={handleShare}
+          >
+            <Upload strokeWidth={1.5} /> Share
+          </button>
+          <button
+            type="submit"
+            className={styles.questionButton}
+            onClick={() => navigate("/qna")}
+          >
+            <Plus strokeWidth={1.5} /> New Question
+          </button>
+        </form>
       </div>
     </PageWrapper>
   );

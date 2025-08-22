@@ -1,4 +1,3 @@
-// src/shared/store/useQnAStore.ts
 import { create } from "zustand";
 import { quranApi } from "../../api/api";
 

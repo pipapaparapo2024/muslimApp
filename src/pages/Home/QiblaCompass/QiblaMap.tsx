@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";
 import "leaflet/dist/leaflet.css";
@@ -21,50 +21,190 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   onMapClick,
 }) => {
   const navigate = useNavigate();
-  const { coords } = useGeoStore();
+  const { coords: geoCoords } = useGeoStore();
   const { setTempCoords } = useMapStore();
   const mapRef = useRef<HTMLDivElement>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const kaabaMarkerRef = useRef<L.Marker | null>(null);
+  const directionLineRef = useRef<L.Polyline | null>(null);
+  const edgeKaabaMarkerRef = useRef<L.Marker | null>(null);
   const initializedRef = useRef(false);
+  const currentCoordsRef = useRef(geoCoords || { lat: 0, lon: 0 });
+  const [userHeading, setUserHeading] = useState<number>(0);
 
-  const createLatLng = (lat: number, lng: number): L.LatLngExpression => [
-    lat,
-    lng,
-  ];
+  // Стабильная утилита
+  const createLatLng = useCallback(
+    (lat: number, lng: number): L.LatLngExpression => [lat, lng],
+    []
+  );
 
-  const userIcon = new L.Icon({
-    iconUrl: navigationArrowMaps,
-    iconSize: [27, 27],
-    iconAnchor: [16, 16],
-  });
+  // Иконка пользователя с вращением
+  const createUserIcon = useCallback((heading: number) => {
+    return L.divIcon({
+      html: `<div style="transform: rotate(${heading}deg); width: 27px; height: 27px; display: flex; align-items: center; justify-content: center;">
+                  <img src="${navigationArrowMaps}" style="width: 100%; height: 100%;" />
+               </div>`,
+      className: "custom-user-icon",
+      iconSize: [27, 27],
+      iconAnchor: [13.5, 13.5],
+    });
+  }, []);
 
-  const kaabaIcon = new L.Icon({
-    iconUrl: mekka,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-  });
+  // Иконка Каабы с белым фоном
+  const createKaabaIcon = useCallback(() => {
+    return L.divIcon({
+      html: `<div style="
+        width: 32px; 
+        height: 32px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        border: 2px solid #fff;
+      ">
+        <img src="${mekka}" style="width: 32px; height: 32px;" />
+      </div>`,
+      className: "custom-kaaba-icon",
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+  }, []);
 
-  const updateMapElements = (lat: number, lon: number) => {
-    if (!leafletMapRef.current) return;
+  // Иконка Каабы на краю карты
+  const createEdgeKaabaIcon = useCallback(() => {
+    return L.divIcon({
+      html: `<div style="
+        width: 32px; 
+        height: 32px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        border: 2px solid #fff;
+      ">
+        <img src="${mekka}" style="width: 20px; height: 20px;" />
+      </div>`,
+      className: "custom-edge-kaaba-icon",
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    });
+  }, []);
 
-    // Обновляем позицию пользователя
-    if (userMarkerRef.current) {
-      userMarkerRef.current.setLatLng(createLatLng(lat, lon));
+  // Обновление вращения маркера пользователя
+  const updateUserMarkerRotation = useCallback(
+    (heading: number) => {
+      if (userMarkerRef.current) {
+        const newIcon = createUserIcon(heading);
+        userMarkerRef.current.setIcon(newIcon);
+      }
+    },
+    [createUserIcon]
+  );
+
+  // Обновление линии направления и иконки Каабы на краю
+  const updateDirectionLine = useCallback(() => {
+    if (!leafletMapRef.current || !userMarkerRef.current) return;
+
+    const userPos = userMarkerRef.current.getLatLng();
+    const lat = userPos.lat;
+    const lon = userPos.lng;
+
+    // Обновляем линию
+    if (directionLineRef.current) {
+      directionLineRef.current.setLatLngs([
+        [lat, lon],
+        [KAABA_LAT, KAABA_LON],
+      ]);
     }
 
-    // Центрируем карту на пользователе
-    leafletMapRef.current.setView(
-      createLatLng(lat, lon),
-      leafletMapRef.current.getZoom()
-    );
-  };
+    // Проверяем видимость Каабы для маркера на краю
+    const mapBounds = leafletMapRef.current.getBounds();
+    const kaabaVisible = mapBounds.contains([KAABA_LAT, KAABA_LON]);
 
+    if (edgeKaabaMarkerRef.current && !kaabaVisible) {
+      const map = leafletMapRef.current;
+      const kaabaPoint = map.latLngToContainerPoint([KAABA_LAT, KAABA_LON]);
+      const mapSize = map.getSize();
+      const halfWidth = mapSize.x / 2;
+      const halfHeight = mapSize.y / 2;
+      const dx = kaabaPoint.x - halfWidth;
+      const dy = kaabaPoint.y - halfHeight;
+
+      let borderX, borderY;
+
+      if (Math.abs(dx) / halfWidth > Math.abs(dy) / halfHeight) {
+        borderX = dx > 0 ? mapSize.x - 20 : 20;
+        borderY = halfHeight + ((borderX - halfWidth) * dy) / dx;
+      } else {
+        borderY = dy > 0 ? mapSize.y - 20 : 20;
+        borderX = halfWidth + ((borderY - halfHeight) * dx) / dy;
+      }
+
+      borderX = Math.max(20, Math.min(mapSize.x - 20, borderX));
+      borderY = Math.max(20, Math.min(mapSize.y - 20, borderY));
+
+      const borderPoint = map.containerPointToLatLng([borderX, borderY]);
+      edgeKaabaMarkerRef.current.setLatLng([borderPoint.lat, borderPoint.lng]);
+      edgeKaabaMarkerRef.current.setOpacity(1);
+    } else if (edgeKaabaMarkerRef.current) {
+      edgeKaabaMarkerRef.current.setOpacity(0);
+    }
+  }, []);
+
+  // Обновление элементов карты (позиция, вид, линия)
+  const updateMapElements = useCallback(
+    (lat: number, lon: number, updateView = true) => {
+      if (!leafletMapRef.current) return;
+
+      currentCoordsRef.current = { lat, lon };
+
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setLatLng(createLatLng(lat, lon));
+      }
+
+      updateDirectionLine();
+
+      if (updateView) {
+        leafletMapRef.current.setView(
+          createLatLng(lat, lon),
+          leafletMapRef.current.getZoom()
+        );
+      }
+    },
+    [createLatLng, updateDirectionLine]
+  );
+
+  // Обработчик ориентации
+  const handleOrientation = useCallback(
+    (event: DeviceOrientationEvent) => {
+      if (event.alpha === null && event.webkitCompassHeading === undefined)
+        return;
+
+      let newHeading: number;
+      if (event.webkitCompassHeading !== undefined) {
+        newHeading = event.webkitCompassHeading;
+      } else {
+        newHeading = (event.alpha + 360) % 360;
+      }
+
+      setUserHeading(newHeading);
+      updateUserMarkerRotation(newHeading);
+      localStorage.setItem("userHeading", newHeading.toString());
+    },
+    [updateUserMarkerRotation]
+  );
+
+  // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
 
-    const displayCoords = coords || { lat: 0, lon: 0 };
+    const displayCoords = geoCoords || { lat: 0, lon: 0 };
+
     const map = L.map(mapRef.current, {
       zoomControl: false,
       attributionControl: false,
@@ -77,62 +217,116 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       maxZoom: 19,
     }).addTo(map);
 
-    // Kaaba marker с кастомной иконкой
+    // Kaaba marker - всегда видимый
     kaabaMarkerRef.current = L.marker(createLatLng(KAABA_LAT, KAABA_LON), {
-      icon: kaabaIcon,
+      icon: createKaabaIcon(),
     }).addTo(map);
 
     // User marker
+    const initialHeading = parseFloat(
+      localStorage.getItem("userHeading") || "0"
+    );
     userMarkerRef.current = L.marker(
       createLatLng(displayCoords.lat, displayCoords.lon),
       {
-        icon: userIcon,
+        icon: createUserIcon(initialHeading),
         draggable: true,
       }
     ).addTo(map);
 
-    // Handle map click
-    map.on("click", (e: L.LeafletMouseEvent) => {
-      const clickedCoords = {
-        lat: e.latlng.lat,
-        lon: e.latlng.lng,
-      };
-      setTempCoords(clickedCoords);
-      updateMapElements(clickedCoords.lat, clickedCoords.lon);
-    });
+    // Direction line
+    directionLineRef.current = L.polyline(
+      [
+        [displayCoords.lat, displayCoords.lon],
+        [KAABA_LAT, KAABA_LON],
+      ],
+      {
+        color: "#17823a",
+        weight: 2,
+        dashArray: "5, 10",
+        opacity: 0.7,
+      }
+    ).addTo(map);
 
-    // Handle marker drag
-    userMarkerRef.current.on("dragend", (e) => {
-      const marker = e.target;
-      const newPos = marker.getLatLng();
-      const clickedCoords = {
-        lat: newPos.lat,
-        lon: newPos.lng,
-      };
-      setTempCoords(clickedCoords);
-      updateMapElements(clickedCoords.lat, clickedCoords.lon);
-    });
+    // Edge Kaaba marker (initially hidden)
+    edgeKaabaMarkerRef.current = L.marker(
+      createLatLng(displayCoords.lat, displayCoords.lon),
+      {
+        icon: createEdgeKaabaIcon(),
+        opacity: 0,
+      }
+    ).addTo(map);
 
+    // Устанавливаем ссылки перед вызовом updateDirectionLine
     leafletMapRef.current = map;
     initializedRef.current = true;
 
+    // Обновляем направление сразу после создания всех элементов
+    updateDirectionLine();
+
+    // Обновление при движении/зуме карты
+    const handleMapMove = () => {
+      updateDirectionLine();
+    };
+
+    map.on("moveend", handleMapMove);
+    map.on("zoomend", handleMapMove);
+    map.on("click", (e: L.LeafletMouseEvent) => {
+      const clickedCoords = { lat: e.latlng.lat, lon: e.latlng.lng };
+      setTempCoords(clickedCoords);
+      updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
+    });
+
+    userMarkerRef.current.on("dragend", () => {
+      const newPos = userMarkerRef.current!.getLatLng();
+      const clickedCoords = { lat: newPos.lat, lon: newPos.lng };
+      setTempCoords(clickedCoords);
+      updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
+    });
+
+    setUserHeading(initialHeading);
+
+    // Добавляем ориентацию
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", handleOrientation);
+    }
+
     return () => {
       if (leafletMapRef.current) {
-        leafletMapRef.current.off();
+        leafletMapRef.current.off("moveend", handleMapMove);
+        leafletMapRef.current.off("zoomend", handleMapMove);
+        leafletMapRef.current.off("click");
         leafletMapRef.current.remove();
-        leafletMapRef.current = null;
-        userMarkerRef.current = null;
-        kaabaMarkerRef.current = null;
-        initializedRef.current = false;
       }
-    };
-  }, [coords, fullscreen, setTempCoords]);
+      window.removeEventListener("deviceorientation", handleOrientation);
 
+      userMarkerRef.current = null;
+      kaabaMarkerRef.current = null;
+      directionLineRef.current = null;
+      edgeKaabaMarkerRef.current = null;
+      leafletMapRef.current = null;
+      initializedRef.current = false;
+    };
+  }, [createKaabaIcon, createEdgeKaabaIcon, createUserIcon, createLatLng, geoCoords, handleOrientation, setTempCoords, updateDirectionLine, updateMapElements]);
+
+  // === Обновление при изменении geoCoords ===
   useEffect(() => {
-    if (initializedRef.current && coords) {
-      updateMapElements(coords.lat, coords.lon);
+    if (
+      initializedRef.current &&
+      geoCoords &&
+      (geoCoords.lat !== currentCoordsRef.current.lat ||
+        geoCoords.lon !== currentCoordsRef.current.lon)
+    ) {
+      updateMapElements(geoCoords.lat, geoCoords.lon, false);
     }
-  }, [coords]);
+  }, [geoCoords, updateMapElements]);
+
+  // === Обновление вращения маркера ===
+  useEffect(() => {
+    if (initializedRef.current && userMarkerRef.current) {
+      updateUserMarkerRotation(userHeading);
+    }
+  }, [userHeading, updateUserMarkerRotation]);
 
   return (
     <div

@@ -37,7 +37,7 @@ export const BuyRequestsModal: React.FC<BuyPremiumModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Buy premium</h2>
+          <h2>Buy Requests</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
@@ -70,16 +70,16 @@ export const BuyRequestsModal: React.FC<BuyPremiumModalProps> = ({
         <div className={styles.priceBlocks}>
           <div className={`${styles.priceBlock} ${styles.tonBlock}`}>
             <div
-              className={styles.priceIcon}
+              className={styles.priceText}
               onClick={() => console.log("buy")}
             >
               <img src={ton} alt="TON" width="24" height="24" />
-            </div>
-            <div
-              className={styles.priceValueTon}
-              onClick={() => console.log("buy")}
-            >
-              {prices.ton.toFixed(2)} TON
+              <div
+                className={styles.priceValueTon}
+                onClick={() => console.log("buy")}
+              >
+                {prices.ton.toFixed(2)}
+              </div>
             </div>
           </div>
 
@@ -87,10 +87,10 @@ export const BuyRequestsModal: React.FC<BuyPremiumModalProps> = ({
             className={`${styles.priceBlock} ${styles.starsBlock}`}
             onClick={() => console.log("buy bitch")}
           >
-            <div className={styles.priceIcon}>
+            <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
+              <div className={styles.priceValueStar}>{prices.stars}</div>
             </div>
-            <div className={styles.priceValueStar}>{prices.stars} Stars</div>
           </div>
         </div>
       </div>
