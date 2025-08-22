@@ -6,11 +6,11 @@ import { quranApi } from "../../../api/api";
 interface SearchHistoryItem {
   id: string;
   query: string;
-  question:string;
+  question: string;
   timestamp: string;
   resultsCount?: number;
   source?: string;
-  answer:string;
+  answer: string;
 }
 
 interface SearchHistoryState {
@@ -32,10 +32,15 @@ interface SearchHistoryState {
   searchInHistory: (query: string) => Promise<void>;
 }
 
+// Интерфейс для ошибки API
+interface ApiErrorResponse {
+  message?: string;
+  error?: string;
+  details?: any;
+}
+
 export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
-  // history: [],
   history: [
-    // Тестовые данные для проверки
     {
       id: "1",
       query: "test1",
@@ -57,7 +62,7 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
       query: "test2",
       question: "Можно ли читать Коран без омовения?",
       answer: "Чтение Корана по памяти без омовения допускается, но прикасаться к Корану нужно с тахаратом.",
-      timestamp: new Date(Date.now() - 86400000).toISOString(), // Вчера
+      timestamp: new Date(Date.now() - 86400000).toISOString(),
       source: "test"
     }
   ],
@@ -66,7 +71,7 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
   pagination: {
     page: 1,
     limit: 10,
-    total: 0,
+    total: 3, // Исправлено на актуальное количество
   },
 
   // Получение истории запросов
@@ -92,15 +97,20 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         },
       });
     } catch (error) {
-      const err = error as AxiosError;
-      set({ error: err.response?.data?.message || err.message });
+      const err = error as AxiosError<ApiErrorResponse>;
+      set({ 
+        error: err.response?.data?.message || 
+               err.response?.data?.error || 
+               err.message || 
+               "Unknown error occurred" 
+      });
     } finally {
       set({ loading: false });
     }
   },
 
   // Добавление запроса в историю
-  addToHistory: async (query, metadata = {}) => {
+  addToHistory: async (query, metadata) => {
     if (!query.trim()) return;
 
     try {
@@ -108,7 +118,7 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
 
       const payload = {
         query,
-        ...metadata,
+        ...metadata, // metadata теперь может быть undefined
         timestamp: new Date().toISOString(),
       };
 
@@ -129,8 +139,13 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         },
       }));
     } catch (error) {
-      const err = error as AxiosError;
-      set({ error: err.response?.data?.message || err.message });
+      const err = error as AxiosError<ApiErrorResponse>;
+      set({ 
+        error: err.response?.data?.message || 
+               err.response?.data?.error || 
+               err.message || 
+               "Failed to add to history" 
+      });
     } finally {
       set({ loading: false });
     }
@@ -155,8 +170,13 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         },
       }));
     } catch (error) {
-      const err = error as AxiosError;
-      set({ error: err.response?.data?.message || err.message });
+      const err = error as AxiosError<ApiErrorResponse>;
+      set({ 
+        error: err.response?.data?.message || 
+               err.response?.data?.error || 
+               err.message || 
+               "Failed to remove from history" 
+      });
     } finally {
       set({ loading: false });
     }
@@ -182,8 +202,13 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         },
       });
     } catch (error) {
-      const err = error as AxiosError;
-      set({ error: err.response?.data?.message || err.message });
+      const err = error as AxiosError<ApiErrorResponse>;
+      set({ 
+        error: err.response?.data?.message || 
+               err.response?.data?.error || 
+               err.message || 
+               "Failed to clear history" 
+      });
     } finally {
       set({ loading: false });
     }
@@ -215,8 +240,13 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         },
       });
     } catch (error) {
-      const err = error as AxiosError;
-      set({ error: err.response?.data?.message || err.message });
+      const err = error as AxiosError<ApiErrorResponse>;
+      set({ 
+        error: err.response?.data?.message || 
+               err.response?.data?.error || 
+               err.message || 
+               "Search failed" 
+      });
     } finally {
       set({ loading: false });
     }

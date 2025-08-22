@@ -7,8 +7,8 @@ import { Check } from "lucide-react";
 interface BuyPremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedRequests: number;
-  onSelectRequests: (count: number) => void;
+  selectedRequests: string;
+  onSelectRequests: (count: string) => void;
 }
 
 const getPrices = (requests: string) => {

@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
     year: "numeric",
   });
   const [showModal, setShowModal] = useState(false);
-  const [selectedRequests, setSelectedRequests] = useState(10);
+  const [selectedRequests, setSelectedRequests] = useState("10");
 
   return (
     <div className={styles.header}>

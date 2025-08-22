@@ -10,7 +10,10 @@ import mekka from "../../../assets/icons/kaaba.svg";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
-
+interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
+}
 interface QiblaMapProps {
   fullscreen?: boolean;
   onMapClick?: () => void;
@@ -180,16 +183,26 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   );
 
   // Обработчик ориентации
+  // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
-      if (event.alpha === null && event.webkitCompassHeading === undefined)
-        return;
+      // Приводим к кастомному типу для iOS
+      const iosEvent = event as unknown as DeviceOrientationEventiOS;
+
+      // Проверяем доступность данных компаса
+      const hasStandardCompass = event.alpha !== null;
+      const hasWebKitCompass = iosEvent.webkitCompassHeading !== undefined;
+
+      if (!hasStandardCompass && !hasWebKitCompass) return;
 
       let newHeading: number;
-      if (event.webkitCompassHeading !== undefined) {
-        newHeading = event.webkitCompassHeading;
+
+      // Приоритет для webkitCompassHeading (более точный в iOS)
+      if (hasWebKitCompass) {
+        newHeading = iosEvent.webkitCompassHeading!;
       } else {
-        newHeading = (event.alpha + 360) % 360;
+        // Стандартный способ для Android и других устройств
+        newHeading = (event.alpha! + 360) % 360;
       }
 
       setUserHeading(newHeading);
@@ -198,7 +211,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     },
     [updateUserMarkerRotation]
   );
-
   // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
@@ -307,7 +319,17 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       leafletMapRef.current = null;
       initializedRef.current = false;
     };
-  }, [createKaabaIcon, createEdgeKaabaIcon, createUserIcon, createLatLng, geoCoords, handleOrientation, setTempCoords, updateDirectionLine, updateMapElements]);
+  }, [
+    createKaabaIcon,
+    createEdgeKaabaIcon,
+    createUserIcon,
+    createLatLng,
+    geoCoords,
+    handleOrientation,
+    setTempCoords,
+    updateDirectionLine,
+    updateMapElements,
+  ]);
 
   // === Обновление при изменении geoCoords ===
   useEffect(() => {

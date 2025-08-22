@@ -7,17 +7,17 @@ import { Check } from "lucide-react";
 interface BuyPremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedRequests: number;
-  onSelectRequests: (count: number) => void;
+  selectedRequests: string;
+  onSelectRequests: (count: string) => void;
 }
 
 const getPrices = (requests: string) => {
   switch (requests) {
-    case "1 week":
+    case "1 Week":
       return { ton: 3.45, stars: 2250 };
-    case "1 month":
+    case "1 Month":
       return { ton: 34.5, stars: 22500 };
-    case "1 year":
+    case "1 Year":
       return { ton: 345, stars: 225000 };
     default:
       return { ton: 0, stars: 0 };
@@ -49,7 +49,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         </p>
 
         <div className={styles.options}>
-          {["1 week", "1 month", "1 year"].map((option) => (
+          {["1 Week", "1 Month", "1 Year"].map((option) => (
             <div
               key={option}
               className={`${styles.option} ${

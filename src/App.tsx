@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { useFriendsStore } from "./pages/Friends/FriendsStore";
 import { useTheme } from "./hooks/useTheme";
-// Pages
+
 import { Home } from "./pages/Home/Home";
 import { Welcome } from "./pages/Welcome/Welcome";
 import { Friends } from "./pages/Friends/Friends";
@@ -12,7 +12,7 @@ import { SurahList } from "./pages/Quran/SurahList/SurahList";
 import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
-// Settings subpages
+
 import { Region } from "./pages/Settings/appSettings/Region";
 import { DataTime } from "./pages/Settings/appSettings/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
@@ -21,6 +21,7 @@ import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
 import { HistorySkanner } from "./pages/Scanner/historySkanner/HistorySkanner";
+
 import { ShareStory } from "./pages/QnA/History/shareStory/ShareStory";
 import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импортируем из SDK
 
@@ -42,7 +43,6 @@ export const App: React.FC = () => {
   const invitedCount = friends.filter(
     (friend) =>
       friend.status === "invited" ||
-      friend.status === "registered" ||
       friend.status === "purchased"
   ).length;
 

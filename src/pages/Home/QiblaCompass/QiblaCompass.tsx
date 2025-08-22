@@ -14,6 +14,12 @@ const BASE_ICON_SIZE = 20;
 const BASE_ARROW_SIZE = 24;
 const BASE_RING_GAP = 20;
 
+// Расширяем интерфейс для iOS свойств
+interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
+}
+
 interface QiblaCompassProps {
   size?: number;
   showAngle?: boolean;
@@ -34,7 +40,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [isLocationReady, setIsLocationReady] = useState(false);
   const [isOrientationReady, setIsOrientationReady] = useState(false);
-  const [isCalibrated, setIsCalibrated] = useState(false);
+  const [, setIsCalibrated] = useState(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [localPermissionGranted, setLocalPermissionGranted] = useState(permissionGranted);
 
@@ -44,9 +50,10 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
       let granted = false;
 
       // Запрос разрешения на ориентацию (для iOS)
-      if ((DeviceOrientationEvent as any)?.requestPermission) {
+      const deviceOrientationEvent = DeviceOrientationEvent as any;
+      if (deviceOrientationEvent?.requestPermission) {
         try {
-          const orientationPermission = await (DeviceOrientationEvent as any).requestPermission();
+          const orientationPermission = await deviceOrientationEvent.requestPermission();
           if (orientationPermission === "granted") {
             granted = true;
           }
@@ -56,7 +63,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
       }
 
       // Для Android и других браузеров
-      if (!(DeviceOrientationEvent as any)?.requestPermission) {
+      if (!deviceOrientationEvent?.requestPermission) {
         granted = true;
       }
 
@@ -164,17 +171,25 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Обработчик ориентации
+  // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = (event: DeviceOrientationEvent) => {
-    if (event.alpha === null && event.webkitCompassHeading === undefined) {
-      return;
-    }
+    // Приводим к кастомному типу для iOS
+    const iosEvent = event as unknown as DeviceOrientationEventiOS;
+    
+    // Проверяем доступность данных компаса
+    const hasStandardCompass = event.alpha !== null;
+    const hasWebKitCompass = iosEvent.webkitCompassHeading !== undefined;
+    
+    if (!hasStandardCompass && !hasWebKitCompass) return;
 
-    let newHeading;
-    if (event.webkitCompassHeading !== undefined) {
-      newHeading = event.webkitCompassHeading;
+    let newHeading: number;
+    
+    // Приоритет для webkitCompassHeading (более точный в iOS)
+    if (hasWebKitCompass) {
+      newHeading = iosEvent.webkitCompassHeading!;
     } else {
-      newHeading = (event.alpha + 360) % 360;
+      // Стандартный способ для Android и других устройств
+      newHeading = (event.alpha! + 360) % 360;
     }
 
     setHeading(newHeading);

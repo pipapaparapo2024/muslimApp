@@ -5,7 +5,7 @@ import {
   calculateOptionalPrayers,
 } from "../../../Home/PrayerTimes/PrayerCalculator";
 import { useGeoStore } from "../../../Home/GeoStore";
-
+import { formatTime } from "../../../Home/PrayerTimes/PrayerCalculator";
 export interface PrayerSetting {
   id: string;
   name: string;

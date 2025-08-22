@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
-import { quranApi } from "../../api/api";
+// import { quranApi } from "../../api/api";
 interface Friend {
   id: string;
   name: string;

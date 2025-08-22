@@ -1,4 +1,4 @@
-import React, { useEffect, type CSSProperties } from "react";
+import React, { useEffect, type CSSProperties, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface PageProps {
@@ -18,6 +18,15 @@ export const PageWrapper: React.FC<PageProps> = ({
   const navigate = useNavigate();
   const tg = window.Telegram?.WebApp;
 
+  // Сохраняем callback-функции с useCallback
+  const handleSettings = useCallback(() => {
+    navigate("/settings");
+  }, [navigate]);
+
+  const handleBack = useCallback(() => {
+    navigate(navigateTo);
+  }, [navigate, navigateTo]);
+
   useEffect(() => {
     if (!tg) {
       console.warn("Telegram WebApp not available");
@@ -30,13 +39,11 @@ export const PageWrapper: React.FC<PageProps> = ({
 
     if (tg.SettingsButton) {
       tg.SettingsButton.show();
-      const handleSettings = () => navigate("/settings");
       tg.SettingsButton.onClick(handleSettings);
     }
 
     if (showBackButton) {
       tg.BackButton.show();
-      const handleBack = () => navigate(navigateTo);
       tg.BackButton.onClick(handleBack);
     } else {
       tg.BackButton.hide();
@@ -45,15 +52,17 @@ export const PageWrapper: React.FC<PageProps> = ({
     return () => {
       console.log("Cleaning up buttons");
       if (tg.SettingsButton) {
-        tg.SettingsButton.offClick();
+        // Передаем ту же самую функцию для удаления
+        tg.SettingsButton.offClick(handleSettings);
         tg.SettingsButton.hide();
       }
       if (showBackButton) {
-        tg.BackButton.offClick();
+        // Передаем ту же самую функцию для удаления
+        tg.BackButton.offClick(handleBack);
         tg.BackButton.hide();
       }
     };
-  }, [showBackButton, navigate, tg, navigateTo]);
+  }, [showBackButton, navigate, tg, navigateTo, handleSettings, handleBack]);
 
   const containerStyle: CSSProperties = styleHave ? {
     backgroundColor: "var(--bg-app)",

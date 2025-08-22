@@ -17,9 +17,9 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, isLoading, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
-  const [selectedRequests, setSelectedRequests] = useState(10);
+  const [selectedRequests, setSelectedRequests] = useState("10");
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [, setImageError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const Scanner: React.FC = () => {
     img.onerror = () => {
       console.error("Failed to load scanner image:", scanner);
       setImageError(true);
-      setImageLoaded(true); // Чтобы не зависать в лоадинге
+      setImageLoaded(true); 
     };
   }, []);
 
@@ -60,7 +60,6 @@ export const Scanner: React.FC = () => {
   const showAskButton =
     hasPremium || (requestsLeft != null && requestsLeft > 0);
 
-  // Пока изображение не загружено — показываем лоадер
   if (!imageLoaded) {
     return (
       <PageWrapper showBackButton={true}>

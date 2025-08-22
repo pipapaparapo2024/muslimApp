@@ -11,12 +11,12 @@ export interface CalculatedPrayerTime {
 // Конфигурация расчета
 export interface PrayerCalculationConfig {
   calculationMethod?: any;
-  madhab?: Madhab;
+  madhab?: typeof Madhab;
   timeZone?: string;
 }
 
 // === ЕДИНЫЙ formatTime с поддержкой часового пояса и AM/PM ===
-const formatTime = (date: Date, timeZone: string): string => {
+export const formatTime = (date: Date, timeZone: string): string => {
   const dt = DateTime.fromJSDate(date).setZone(timeZone);
   const hour = dt.hour % 12 || 12; // 0 → 12, 13 → 1
   const minute = dt.minute.toString().padStart(2, "0");

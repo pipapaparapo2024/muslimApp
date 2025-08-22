@@ -20,7 +20,6 @@ export const Friends: React.FC = () => {
   const invitedCount = friends.filter(
     (friend) =>
       friend.status === "invited" ||
-      friend.status === "registered" ||
       friend.status === "purchased"
   ).length;
   const purchasedCount = friends.filter(

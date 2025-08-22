@@ -11,9 +11,9 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 export const HistoryEmpty: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
-  const [selectedRequests, setSelectedRequests] = useState(10);
+  const [selectedRequests, setSelectedRequests] = useState("10");
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [, setImageError] = useState(false);
   const navigate = useNavigate();
 
   // Загружаем данные пользователя

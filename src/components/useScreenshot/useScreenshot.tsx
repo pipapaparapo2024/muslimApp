@@ -1,4 +1,3 @@
-// shared/components/ScreenshotCreator/ScreenshotCreator.tsx
 import React, { useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import { quranApi } from '../../api/api';
@@ -11,14 +10,7 @@ interface Media {
   formats?: any;
 }
 
-interface UseScreenshotReturn {
-  imageRef: React.RefObject<HTMLDivElement>;
-  loading: boolean;
-  createScreenshot: () => Promise<string>;
-  shareToTelegramStory: (imageUrl: string) => void;
-}
-
-export const useScreenshot = (): UseScreenshotReturn => {
+export const useScreenshot = () => {
   const imageRef = useRef<HTMLDivElement>(null);
   const shareImageReady = useStoreScreenShot((store) => store.shareImageReady);
   const setShareImageReady = useStoreScreenShot((store) => store.setShareImageReady);
