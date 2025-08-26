@@ -7,6 +7,8 @@ const KAABA_COORDS = {
   lon: 39.826206,
 };
 
+
+
 // Базовые размеры
 const BASE_SIZE = 120;
 const BASE_ICON_SIZE = 20;
@@ -39,6 +41,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
     const handleOrientation = (event: DeviceOrientationEvent) => {
       const iosEvent = event as unknown as { webkitCompassHeading?: number };
       let newHeading: number | null = null;
+
 
       if (iosEvent.webkitCompassHeading !== undefined) {
         newHeading = iosEvent.webkitCompassHeading; // iOS
