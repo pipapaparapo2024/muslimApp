@@ -1,0 +1,130 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 95vh;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.button {
+  background-color: var(--bg-surface);
+  border: none;
+  color: var(--text);
+  border-radius: var(--roundings-medium);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  padding: var(--numbers-13) var(--numbers-24);
+  font-size: var(--numbers-16);
+  cursor: pointer;
+}
+
+.button:hover {
+  transform: scale(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Форма — фиксирована снизу */
+.form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 388px;
+  margin: 0 auto;
+  padding: var(--numbers-16) var(--numbers-16) var(--numbers-36)
+    var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input {
+  border: none;
+  width: 100%;
+  padding: var(--numbers-16);
+  font-size: var(--numbers-16);
+  background: var(--bg-app);
+  border-radius: var(--roundings-medium);
+  box-sizing: border-box;
+  margin-bottom: var(--numbers-4);
+  outline: none;
+}
+
+.submitButton {
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-16) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: var(--colors-green-800);
+}
+
+.input:disabled {
+  background-color: var(--color-background-secondary);
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Центральный контент — занимает всё оставшееся пространство */
+.content {
+  flex-direction: column;
+  justify-content: center; /* Центрируем по вертикали */
+  align-items: center; /* Центрируем по горизонтали */
+  text-align: center;
+  padding: 0 16px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.illustration img {
+  max-height: 300px;
+  padding: 55px 0;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+
+.halalCheck span {
+  font-size: var(--numbers-20);
+  color: var(--text);
+  font-weight: 700;
+  margin-bottom: var(--numbers-5);
+  display: block;
+}
+
+.halalCheck p {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  margin-top: 4px;
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.warning {
+  outline: none;
+  color: var(--desk-text);
+  justify-content: center;
+}

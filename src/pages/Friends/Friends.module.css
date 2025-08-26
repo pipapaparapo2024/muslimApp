@@ -1,0 +1,128 @@
+.friendsContainer {
+  gap: var(--numbers-4);
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-16);
+  flex-direction: column;
+}
+
+.progressSection {
+  display: flex;
+  font-weight: 600;
+  gap: var(--numbers-8);
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: var(--numbers-20);
+  font-weight: 600;
+  margin-bottom: var(--numbers-2);
+  display: flex;
+  align-items: center;
+  font-family: var(--typography-heading);
+  color: var(--text);
+}
+
+.cardDesc {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  margin-bottom: var(--numbers-8);
+  font-family: var(--typography-body);
+}
+
+.inviteBtn,
+.rewardBtn {
+  background: var(--colors-green-700); /* #15803D */
+  color: var(--colors-white-1000);
+  border: none;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-24);
+  font-size: var(--numbers-16);
+  cursor: pointer;
+  margin-top: var(--numbers-6);
+  font-family: var(--typography-body);
+}
+
+.progressBarContainer {
+  width: 100%;
+  height: var(--numbers-12); 
+  background: var(--color-background-secondary);
+  border-radius: var(--roundings-small);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: var(--progress-bar);
+  border-radius: var(--roundings-small);
+  transition: width 0.3s;
+}
+
+.progressLabel {
+  font-size: var(--numbers-16);
+  color: var(--text);
+  text-align: right;
+  margin-bottom: 0;
+  font-family: var(--typography-body);
+}
+
+.emptyTitle {
+  font-size: var(--numbers-20);
+  font-weight: 600;
+  color: var(--text);
+  margin-top: var(--numbers-16);
+}
+
+.emptyDesc {
+  font-size: var(--numbers-14);
+  font-weight: 400;
+  color: var(--desk-text);
+  line-height: 1.5;
+}
+
+.friendsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+  margin: var(--numbers-12) 0;
+}
+.friendItem {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  background: var(--bg-surface);
+  padding: var(--numbers-14) var(--numbers-16);
+  border-radius: var(--roundings-big);
+}
+.friendName {
+  color: var(--text);
+  font-weight: 600;
+  font-size: var(--numbers-16);
+}
+.friendStatus {
+  color: var(--text);
+  font-weight: 500;
+  font-size: var(--numbers-14);
+}
+.accepted {
+  border: 2px solid var(--bg-app);
+  background: var(--bg-surface);
+}
+
+.purchased {
+  background: var(--bg-app);
+}
+
+.checkBlock{
+  align-items: center;
+  color: var(--text);
+  border-radius: var(--roundings-small);
+  display: flex;
+  gap: var(--numbers-4);
+  padding: var(--numbers-8);
+}

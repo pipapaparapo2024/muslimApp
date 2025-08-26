@@ -1,0 +1,58 @@
+/* MenuBlocks styles */
+.menu {
+  margin-top: var(--numbers-6);
+  max-width: 395px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-6);
+  box-sizing: border-box;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 var(--numbers-1) var(--numbers-4) rgba(0, 0, 0, 0.04);
+  padding: var(--numbers-12) var(--numbers-13);
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  transition: transform 0.3s ease;
+  transform: scale(1.01);
+}
+
+.menuIcon {
+  font-size: var(--numbers-28);
+  margin-right: var(--numbers-16);
+}
+
+.menuText {
+  flex: 1;
+  text-align: left;
+}
+
+.menuTitle {
+  font-weight: 600;
+  font-size: var(--numbers-16);
+  margin-bottom: var(--numbers-2);
+}
+
+.menuDesc {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+}
+
+.menuArrow {
+  font-size: var(--numbers-60);
+  color: var(--color-icon-tetriary);
+  margin-left: var(--numbers-12);
+}
+
+.iconImage {
+  width: var(--numbers-36);
+  height: var(--numbers-36);
+  margin-right: var(--numbers-8);
+}

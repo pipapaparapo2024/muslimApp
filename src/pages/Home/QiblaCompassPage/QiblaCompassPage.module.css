@@ -1,0 +1,72 @@
+.toggleGroup {
+  display: flex;
+  justify-content: center;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-4);
+  gap: var(--numbers-4);
+  max-width: 318px;
+  margin: 0 auto var(--numbers-36) auto;
+  position: relative;
+  background: var(--bg-surface);
+  z-index: 2;
+}
+
+.toggleItem {
+  position: relative;
+  cursor: pointer;
+}
+
+.toggleInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  border-radius: var(--roundings-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-36);
+  font-weight: 500;
+  color: var(--colors-stone-700);
+}
+
+.toggleSliderMap {
+  border-radius: var(--roundings-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-48);
+  font-weight: 500;
+  color: var(--colors-stone-700);
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--colors-green-700);
+  color: var(--colors-white-1000);
+}
+.toggleInput:checked + .toggleSliderMap {
+  background-color: var(--colors-green-700);
+  color: var(--colors-white-1000);
+}
+
+.tabContent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.bigCompass {
+  margin-top: var(--numbers-120);
+}
+
+.bigMap {
+  width: 100%;
+  height: calc(100vh - var(--numbers-80));
+}

@@ -1,0 +1,53 @@
+.contain {
+  padding: 20px 0;
+  position: relative;
+  height: 90vh;
+  overflow: hidden;
+}
+.contain img {
+  max-height: 400px;
+  padding: 50px 0;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  display: block;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: var(--numbers-20);
+  font-weight: 600;
+  margin-bottom: var(--numbers-4);
+}
+
+.disk {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  padding: 0 var(--numbers-32);
+}
+
+.askButton {
+  position: absolute;
+  bottom: 25px;
+  width: 100%;
+  max-width: 388px;
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--numbers-4);
+  padding: var(--numbers-14);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+}
+.you {
+  cursor: pointer;
+}
+.askButton:hover {
+  background-color: var(--colors-green-800);
+}

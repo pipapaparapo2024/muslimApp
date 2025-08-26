@@ -1,0 +1,111 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+  opacity: 0;
+  backdrop-filter: blur(var(--numbers-2));
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background-color: var(--bg-surface);
+  color: var(--text);
+  border-radius: var(--roundings-big); /* 22px */
+  width: 100%;
+  max-width: 350px;
+  margin: 0px var(--numbers-8) var(--numbers-36) var(--numbers-8);
+  padding: var(--numbers-20);
+  transform: translateY(100%);
+  animation: slideUp 0.3s forwards;
+  animation-delay: 0.1s;
+}
+
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: var(--numbers-20);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: var(--numbers-24);
+  cursor: pointer;
+  color: var(--color-icon-secondary);
+  padding: var(--numbers-8);
+}
+
+.modalDescription {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  margin-bottom: var(--numbers-12);
+  line-height: 1.4;
+  font-family: var(--typography-body);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+}
+
+.option {
+  padding: var(--numbers-12);
+  background: var(--bg-app);
+  border-radius: var(--roundings-medium);
+  border: 2px solid var(--bg-app);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.option.selected {
+  border-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-background-semantic-solid-brand);
+}
+
+.optionText {
+  font-size: var(--numbers-16);
+  font-weight: 500;
+}
+
+.optionNameIcon {
+  gap: var(--numbers-8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.optionNameIcon div {
+  display: flex;
+  align-items: center;
+  align-self: stretch; /* Занимает всю высоту родителя */
+}

@@ -1,0 +1,78 @@
+.root {
+  display: flex;
+  min-height: 95vh;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  padding: var(--numbers-20) 0 0 0;
+  box-sizing: border-box;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  max-width: 350px;
+  gap: var(--numbers-4);
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.title {
+  font-weight: 500;
+  font-size: var(--numbers-20);
+  text-align: center;
+  width: 100%;
+  color: var(--text);
+}
+
+.subtitle {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  text-align: center;
+}
+
+.welcomeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 0 var(--numbers-36) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inviteButton {
+  padding-bottom: 100px;
+  width: 100%;
+  border-radius: var(--roundings-medium);
+  display: block;
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed); /* #fff */
+  border: none;
+  padding: var(--numbers-18) 0; /* 18px */
+  font-size: var(--numbers-16);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.inviteButton:hover {
+  background-color: var(--colors-green-800);
+}
+
+.friendsImageWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.friendsImage {
+  max-height: 450px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  padding-top: var(--numbers-32);
+}

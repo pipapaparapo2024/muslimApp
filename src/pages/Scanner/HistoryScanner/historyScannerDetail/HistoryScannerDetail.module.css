@@ -1,0 +1,99 @@
+.container {
+  flex-direction: column;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 95vh;
+  box-sizing: border-box;
+}
+.blockScan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+  margin-top: var(--numbers-16);
+  flex-grow: 1;
+}
+
+.blockInside {
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0
+    var(--roundings-medium);
+  background: var(--bg-surface);
+  padding: var(--numbers-8) var(--numbers-16);
+}
+
+.form {
+  padding: var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: var(--numbers-4);
+  flex-direction: column;
+  align-items: center;
+}
+
+.submitButton {
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-16) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.questionButton {
+  background-color: var(--bg-app);
+  color: var(--text);
+  font-weight: 500;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-16) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: var(--colors-green-800);
+}
+
+.accessBlock {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: var(--numbers-20);
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+}
+
+.scanTitle {
+  font-weight: 600;
+  font-size: var(--numbers-16);
+  color: var(--text);
+}
+.scanDesk {
+  font-weight: 400;
+  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  color: var(--desk-text);
+  font-size: var(--numbers-14);
+}
+.haram {
+  color: #ef4444;
+}
+.halal {
+  color: #15803d;
+}

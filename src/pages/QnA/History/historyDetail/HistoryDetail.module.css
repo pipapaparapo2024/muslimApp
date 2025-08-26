@@ -1,0 +1,111 @@
+.container {
+  flex-direction: column;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 95vh;
+  box-sizing: border-box;
+}
+.blockMessages {
+  flex-grow: 1;
+  display: flex;
+  padding-top: 150px;
+  flex-direction: column;
+  gap: var(--numbers-8);
+  margin-bottom: var(--numbers-20);
+}
+
+.blockMessageUser {
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0
+    var(--roundings-medium);
+  max-width: 280px;
+  margin-right: var(--numbers-16);
+  background: var(--bg-surface);
+  padding: var(--numbers-8) var(--numbers-16);
+  align-self: flex-end;
+  margin-left: auto;
+}
+
+.blockMessageBot {
+  margin-left: var(--numbers-16);
+  background: var(--bg-surface);
+  max-width: 280px;
+  border-radius: var(--roundings-medium) var(--roundings-medium)
+    var(--roundings-medium) 0;
+  padding: var(--numbers-8) var(--numbers-16);
+  align-self: flex-start;
+  margin-right: auto;
+}
+.copy {
+  color: var(--color-background-semantic-solid-brand);
+  display: flex;
+  font-size: var(--numbers-16);
+  font-weight: 500;
+  margin-top: var(--numbers-12);
+  gap: var(--numbers-4);
+  align-items: center;
+}
+
+.copy:hover{
+  text-decoration: underline;
+  transform: scale(1.01);
+  transition: transform 0.3s;
+}
+.nickName {
+  color: var(--desk-text);
+  font-weight: 400;
+  font-size: var(--numbers-14);
+  margin-bottom: var(--numbers-4);
+}
+
+.text {
+  color: var(--desk-text);
+}
+
+.form {
+  padding: var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: var(--numbers-4);
+  flex-direction: column;
+  align-items: center;
+}
+
+.submitButton {
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-16) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.questionButton {
+  background-color: var(--bg-app);
+  color: var(--text);
+  font-weight: 500;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  justify-content: center;
+  padding: var(--numbers-16) var(--numbers-20);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: var(--colors-green-800);
+}

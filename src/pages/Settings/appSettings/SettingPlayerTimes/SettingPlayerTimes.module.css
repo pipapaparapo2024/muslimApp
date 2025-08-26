@@ -1,0 +1,122 @@
+.title {
+  font-size: var(--numbers-20); /* 24px */
+  font-weight: 600;
+  color: var(--text);
+}
+
+.subtitle {
+  font-weight: 400;
+  font-size: var(--numbers-14); 
+  color: var(--desk-text); 
+  padding-bottom: var(--numbers-12);
+}
+
+.prayerList {
+  padding-bottom: var(--numbers-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4); /* 4px */
+  font-weight: 500;
+}
+
+.prayerItem {
+  background-color: var(--bg-surface);
+  border-radius: var(--roundings-medium); /* 14px → 1rem = 16px, близко */
+  padding: var(--numbers-16); /* 16px */
+}
+
+.prayerHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-8); 
+  margin-bottom: var(--numbers-16); 
+}
+.headerIconInfo{
+  display: flex;
+  align-items: center;
+}
+.prayerName {
+  font-size: var(--numbers-16); 
+  color: var(--text);
+  font-weight: 600;
+}
+
+.infoButton {
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--color-icon-secondary); /* #57534E → --colors-stone-600 */
+}
+
+.infoButton:hover {
+  background-color: var(
+    --color-background-tetriary
+  ); /* #eaeaea → --colors-stone-200 */
+}
+
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-10); /* 10px */
+}
+
+.toggleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toggleItem:first-child{
+  margin-bottom: 20px;
+}
+.toggleInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  position: relative;
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--colors-green-700); /* #2ecc71 → зелёный */
+}
+
+.toggleSlider::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-background-primary); /* #fff */
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggleInput:checked + .toggleSlider::before {
+  transform: translateX(20px);
+}
+
+.globalControls {
+  background-color: var(--bg-surface);
+  border-radius: var(--roundings-medium); /* 14px */
+  padding: var(--numbers-16); /* 16px */
+  margin-bottom: var(--numbers-4); /* 4px */
+  font-weight: 500;
+}
+.toggleItem input:disabled + .toggleSlider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleItem input:disabled ~ span:first-child {
+  opacity: 0.5;
+  color: var(--color-text-secondary);
+}

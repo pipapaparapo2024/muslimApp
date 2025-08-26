@@ -1,0 +1,124 @@
+.container {
+  background-image: url("../../../../assets/image/background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  min-height: 90vh;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--numbers-80);
+}
+
+.contentWrapper {
+  max-width: 390px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* Добавляем для позиционирования сообщений */
+}
+
+.container img {
+  max-height: 570px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  padding-top: var(--numbers-48);
+  position: relative;
+  z-index: 1;
+}
+
+.blockMessages {
+  position: absolute;
+  left: 50%; /* Центрируем блок */
+  transform: translateX(-50%); /* Корректируем положение */
+  top: auto;
+  bottom: -110px;
+  padding: var(--numbers-16);
+  z-index: 3; /* Увеличиваем z-index чтобы быть выше изображения */
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
+  width: 100%; /* Занимаем всю ширину */
+  max-width: 390px; /* Ограничиваем максимальную ширину */
+  box-sizing: border-box;
+}
+
+/* УБИРАЕМ transform у сообщений - это было неправильно */
+.blockMessageUser {
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0
+    var(--roundings-medium);
+  max-width: 280px;
+  background: var(--bg-surface);
+  padding: var(--numbers-8) var(--numbers-16);
+  align-self: flex-end; /* Сообщение пользователя справа */
+  margin-left: auto;
+}
+
+.blockMessageBot {
+  background: var(--bg-surface);
+  max-width: 280px;
+  border-radius: var(--roundings-medium) var(--roundings-medium)
+    var(--roundings-medium) 0;
+  padding: var(--numbers-8) var(--numbers-16);
+  align-self: flex-start; /* Сообщение бота слева */
+  margin-right: auto;
+}
+
+.nickName {
+  color: var(--text);
+  font-weight: 400;
+  font-size: var(--numbers-14);
+}
+
+.text {
+  color: var(--colors-stone-600);
+}
+
+.shareButton {
+  border: none;
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  font-weight: 600;
+  background: green;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  gap: var(--numbers-6);
+  align-items: center;
+  margin: var(--numbers-16) auto;
+  width: 100%;
+  color: white;
+  padding:var(--numbers-16);
+  cursor: pointer;
+  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+}
+
+.shareButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.shareButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.shareButtonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.shareButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}

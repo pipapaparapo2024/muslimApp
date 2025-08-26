@@ -1,0 +1,65 @@
+.container {
+  margin-bottom: var(--numbers-16);
+}
+.dateHeader {
+  font-weight: 600;
+  color: var(--desk-text);
+  margin: var(--numbers-8) 0;
+}
+.blockScan {
+  padding: var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  margin-bottom: var(--numbers-4);
+}
+.scanTitle {
+  font-weight: 600;
+  font-size: var(--numbers-16);
+  color: var(--text);
+}
+.scanDesk {
+  font-weight: 400;
+  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  color: var(--desk-text);
+  font-size: var(--numbers-14);
+}
+.share {
+  background: var(--bg-app);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  padding: var(--numbers-8);
+  border-radius: var(--roundings-small);
+  border: none;
+  font-weight: 500;
+  gap: var(--numbers-4);
+  cursor: pointer;
+}
+.share:hover {
+  transition: transform 0.3s;
+  transform: scale(1.02);
+}
+
+.blockUnderInfo {
+  display: flex;
+  gap: var(--numbers-4);
+}
+
+.accessBlock {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: var(--numbers-14);
+  gap: var(--numbers-4);
+  padding: var(--numbers-8);
+  border-radius: var(--roundings-small);
+}
+
+.haram {
+  background: #fee2e2;
+  color: #ef4444;
+}
+.halal {
+  color: #15803d;
+  background: #dcfce7;
+}

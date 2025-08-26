@@ -1,0 +1,144 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-radius: var(--roundings-medium);
+  align-items: center;
+  padding-bottom: var(--numbers-16);
+  margin: 0 auto;
+  color: var(--text);
+}
+
+.prayerTimesQiblaContainer {
+  display: flex;
+  margin: 0 auto;
+  max-width: 100%;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--numbers-10);
+  padding: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
+  background-color: var(--bg-surface);
+  box-sizing: border-box;
+}
+
+.buyPremiumButton {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+  border: none;
+  white-space: nowrap;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-18);
+  font-size: var(--numbers-16);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.premiumActiveButton {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  color: white;
+  border: none;
+  white-space: nowrap;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-18);
+  font-size: var(--numbers-16);
+  font-weight: 500;
+  cursor: default;
+  opacity: 0.9;
+}
+
+.premiumExpiredButton {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+  border: none;
+  white-space: nowrap;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-18);
+  font-size: var(--numbers-16);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.premiumExpiredButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 var(--numbers-4) var(--numbers-8) rgba(255, 107, 107, 0.3);
+}
+
+.buyPremiumButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.buyPremiumButton:active {
+  transform: translateY(0);
+}
+
+.premiumIcon {
+  width: var(--numbers-16);
+  height: var(--numbers-16);
+}
+
+.titleFaceKaaba {
+  font-weight: 700;
+  font-size: var(--numbers-16);
+  margin: var(--numbers-16) 0 var(--numbers-4);
+}
+
+.diskFaceKaaba {
+  color: var(--desk-text);
+  margin-bottom: var(--numbers-16);
+  font-size: var(--numbers-14);
+}
+
+.DaysLeftPrem {
+  background: var(--bg-surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  border: none;
+  white-space: nowrap;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-18);
+  font-size: var(--numbers-16);
+  font-weight: 500;
+  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.qiblaBlock {
+  text-align: left;
+}
+
+.qiblaBlockRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--numbers-14);
+}
+
+.mapContainer {
+  flex: 1;
+  height: 120px;
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07);
+}
+
+.compassContainer {
+  max-width: 48%;
+  border-radius: var(--roundings-medium);
+  overflow: hidden;
+  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07);
+  position: relative;
+}

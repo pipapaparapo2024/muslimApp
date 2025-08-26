@@ -1,0 +1,22 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.button {
+  background-color: var(--bg-surface);
+  border: none;
+  color: var(--text);
+  gap: var(--numbers-4);
+  border-radius: var(--roundings-medium);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  padding: var(--numbers-13) var(--numbers-24);
+  font-size: var(--numbers-16);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
