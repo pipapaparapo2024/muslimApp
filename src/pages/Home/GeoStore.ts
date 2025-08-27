@@ -24,6 +24,7 @@ interface IpData {
     network: string;
   };
 }
+
 interface GeoState {
   ipData: IpData | null;
   coords: { lat: number; lon: number } | null;
@@ -32,7 +33,7 @@ interface GeoState {
   timeZone: string | null;
   isLoading: boolean;
   error: string | null;
-  isInitialized: boolean; // 👈
+  isInitialized: boolean;
   hasRequestedGeo: boolean;
   fetchFromIpApi: () => Promise<void>;
   setIpData: (data: IpData) => void;
@@ -40,6 +41,7 @@ interface GeoState {
   setLoading: (loading: boolean) => void;
   setInitialized: () => void;
   setHasRequestedGeo: (requested: boolean) => void;
+  updateCoords: (coords: { lat: number; lon: number }) => void; // 👈 Добавленная функция
 }
 
 export const useGeoStore = create<GeoState>()(
@@ -54,8 +56,10 @@ export const useGeoStore = create<GeoState>()(
       error: null,
       isInitialized: false,
       hasRequestedGeo: false,
+
       setInitialized: () => set({ isInitialized: true }),
       setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
+      
       setIpData: (data) => {
         const city = data.city || data.region || data.country.name;
         set({
@@ -70,13 +74,17 @@ export const useGeoStore = create<GeoState>()(
       setError: (error) => set({ error }),
       setLoading: (loading) => set({ isLoading: loading }),
 
+      // 👇 Новая функция для обновления координат
+      updateCoords: (coords) => {
+        set({ coords, hasRequestedGeo: true });
+      },
+
       fetchFromIpApi: async () => {
         if (get().coords || get().hasRequestedGeo || get().isLoading) {
           return;
         }
-        if (get().coords) return;
 
-        set({ isLoading: true, error: null, hasRequestedGeo: true  });
+        set({ isLoading: true, error: null, hasRequestedGeo: true });
 
         try {
           const response = await axios.get<IpData>(
@@ -100,7 +108,6 @@ export const useGeoStore = create<GeoState>()(
     }),
     {
       name: "geo-storage",
-      // После восстановления из localStorage вызови setInitialized
       onRehydrateStorage: () => (state) => {
         state?.setInitialized();
       },
