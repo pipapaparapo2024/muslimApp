@@ -2,20 +2,14 @@ import React, { useEffect, useState } from "react";
 import styles from "../pages/Home/Home.module.css";
 import { BuyPremiumModal } from "./modals/modalBuyPremium/ModalBuyPremium";
 import { useQnAStore } from "../pages/QnA/QnAStore";
-
+import { useDataTimeStore } from "../pages/Settings/appSettings/dataTime/DataTimeStore";
 interface HeaderProps {
   city: string;
   country: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ country, city }) => {
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
+  const { formattedDate } = useDataTimeStore();
   const { hasPremium, premiumTimeLeft, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
@@ -58,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
         <div className={styles.cityName}>
           {country || "Unknown"}, {city || "Unknown"}
         </div>
-        <div className={styles.currentDate}>{currentDate}</div>
+        <div className={styles.formattedDate}>{formattedDate}</div>
       </div>
 
       <button

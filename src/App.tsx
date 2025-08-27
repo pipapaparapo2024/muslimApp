@@ -14,7 +14,7 @@ import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
 
 import { Region } from "./pages/Settings/appSettings/Region";
-import { DataTime } from "./pages/Settings/appSettings/DataTime";
+import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
 import { SettingPlayerTimes } from "./pages/Settings/appSettings/SettingPlayerTimes/SettingPlayerTimes";
 import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
@@ -94,8 +94,8 @@ export const App: React.FC = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/region" element={<Region />} />
         <Route path="/settings/language" element={<ModalLanguage />} />
-        <Route path="/settings/date-time" element={<DataTime />} />
-        <Route path="/settings/prayer-times" element={<SettingPlayerTimes />} />
+        <Route path="/settings/dateTime" element={<DataTime />} />
+        <Route path="/settings/prayerTimes" element={<SettingPlayerTimes />} />
         <Route path="/settings/theme" element={<ModalTheme />} />
         <Route path="/qibla" element={<QiblaCompassPage />} />
         <Route

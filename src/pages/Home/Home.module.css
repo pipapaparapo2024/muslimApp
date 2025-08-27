@@ -7,7 +7,11 @@
   margin: 0 auto;
   color: var(--text);
 }
-
+.formattedDate{
+  color: var(--desk-text);
+  font-size: var(--numbers-14);
+  margin-top: var(--numbers-4);
+}
 .prayerTimesQiblaContainer {
   display: flex;
   margin: 0 auto;

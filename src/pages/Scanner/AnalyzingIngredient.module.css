@@ -1,0 +1,25 @@
+.container {
+  padding: var(--numbers-20) 0;
+}
+
+.text {
+  max-width: 220px;
+  width: 100%;
+}
+
+.title {
+  font-size: var(--numbers-20);
+  color: var(--text);
+}
+
+.desk {
+  font-size: var(--numbers-14);
+  color: var(--desk);
+}
+.image img {
+  max-height: 400px;
+  padding: var(--numbers-36) 0;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}

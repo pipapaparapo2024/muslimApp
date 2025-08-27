@@ -98,7 +98,7 @@
 }
 
 .illustration img {
-  max-height: 300px;
+  max-height: 350px;
   padding: 55px 0;
   width: 100%;
   max-width: 220px;
@@ -127,4 +127,13 @@
   outline: none;
   color: var(--desk-text);
   justify-content: center;
+}
+
+.rescanButton{
+  display: flex;
+  gap: var(--numbers-4);
+  align-items: center;
+  background-color: #15803D;
+  color: white;
+  padding: var(--numbers-12) var(--numbers-16);
 }

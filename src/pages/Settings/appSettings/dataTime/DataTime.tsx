@@ -1,0 +1,111 @@
+import React from "react";
+import { PageWrapper } from "../../../../shared/PageWrapper";
+import styles from "./DataTime.module.css";
+import { Check, ChevronRight } from "lucide-react";
+import { useGeoStore } from "../../../Home/GeoStore";
+import { useDataTimeStore } from "./DataTimeStore";
+// Получаем текущую дату
+const today = new Date();
+const day = String(today.getDate()).padStart(2, "0");
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const year = today.getFullYear();
+const yearStr = String(year);
+
+// Список форматов даты
+const DATE_FORMATS = [
+  { key: "dd.MM.yyyy", value: `${day}.${month}.${year}` },
+  { key: "yyyy.MM.dd", value: `${year}.${month}.${day}` },
+  { key: "dd/MM/yyyy", value: `${day}/${month}/${year}` },
+  { key: "dd/M/yy", value: `${day}/${month}/${yearStr.slice(-2)}` },
+  { key: "M/dd/yy", value: `${month}/${day}/${yearStr.slice(-2)}` },
+  { key: "M/dd/yyyy", value: `${month}/${day}/${year}` },
+  { key: "yyyy/M/dd", value: `${year}/${month}/${day}` },
+  { key: "dd-MM-yyyy", value: `${day}-${month}-${year}` },
+  { key: "yyyy-MM-dd", value: `${year}-${month}-${day}` },
+];
+
+export const DataTime: React.FC = () => {
+  const { ipData } = useGeoStore();
+
+  // Zustand store
+  const {
+    is24Hour,
+    isAutoTime,
+    selectedDateFormat,
+    set24Hour,
+    setAutoTime,
+    setSelectedDateFormat,
+  } = useDataTimeStore();
+
+  const handleSelect = (formatKey: string) => {
+    setSelectedDateFormat(formatKey);
+  };
+
+  return (
+    <PageWrapper showBackButton>
+      {/* Time Format */}
+      <div className={styles.timeFormat}>
+        <div className={styles.titleTime}>Time Format</div>
+        <div className={styles.blockTime}>
+          {/* 24-Hour Time */}
+          <label className={styles.toggleItem}>
+            <span className={styles.showMain}>24-Hour Time</span>
+            <input
+              type="checkbox"
+              checked={is24Hour}
+              onChange={(e) => set24Hour(e.target.checked)}
+              className={styles.toggleInput}
+            />
+            <span className={styles.toggleSlider}></span>
+          </label>
+
+          {/* Set Automatically */}
+          <label className={styles.toggleItem}>
+            <span className={styles.showMain}>Set Automatically</span>
+            <input
+              type="checkbox"
+              checked={isAutoTime}
+              onChange={(e) => setAutoTime(e.target.checked)}
+              className={styles.toggleInput}
+            />
+            <span className={styles.toggleSlider}></span>
+          </label>
+
+          {/* Time zone */}
+          <div className={styles.toggleItem}>
+            <span className={styles.showMain}>Time zone</span>
+            <div className={styles.timeZone}>
+              <span className={styles.timeZoneValue}>{ipData?.timeZone}</span>
+              <ChevronRight size={20} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Date Format */}
+      <div className={styles.dateFormat}>
+        <div className={styles.titleTime}>Date Format</div>
+        <div className={styles.blockDate}>
+          {DATE_FORMATS.map((format) => (
+            <div
+              key={format.key}
+              className={`${styles.dateOption} ${
+                selectedDateFormat === format.key ? styles.selected : ""
+              }`}
+              onClick={() => handleSelect(format.key)}
+            >
+              <div
+                className={`${styles.dateText} ${
+                  selectedDateFormat === format.key ? styles.selectedDate : ""
+                }`}
+              >
+                {format.value}
+              </div>
+              {selectedDateFormat === format.key && <Check size={20} />}
+            </div>
+          ))}
+        </div>
+      </div>
+    </PageWrapper>
+  );
+};

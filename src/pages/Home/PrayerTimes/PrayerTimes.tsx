@@ -6,21 +6,7 @@ import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer"
 import { type PrayerSetting } from "../../Settings/appSettings/SettingPlayerTimes/SettingPlayerTimesStore";
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
-
-// Формат времени: 4:00 AM / 7:30 PM
-const formatTime = (date: Date): string => {
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    console.error("Invalid date passed to formatTime:", date);
-    return "—:— —";
-  }
-
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  const hour12 = hours % 12 || 12;
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-  return `${hour12}:${formattedMinutes} ${ampm}`;
-};
+import { useDataTimeStore } from "../../Settings/appSettings/dataTime/DataTimeStore";
 
 // Помогает конвертировать строку или Date в объект Date
 const toDate = (input: string | Date | undefined | null): Date | null => {
@@ -33,6 +19,29 @@ export const PrayerTimes: React.FC = () => {
   const prayers = usePrayerTimesStore((state) => state.prayers);
   const isLoading = usePrayerTimesStore((state) => state.isLoading);
   const lastUpdated = usePrayerTimesStore((state) => state.lastUpdated);
+  const is24Hour = useDataTimeStore();
+  // Обновляем функцию formatTime для поддержки обоих форматов
+  const formatTime = (date: Date): string => {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      console.error("Invalid date passed to formatTime:", date);
+      return "—:— —";
+    }
+
+    if (is24Hour) {
+      // 24-часовой формат: 14:30
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    } else {
+      // 12-часовой формат: 2:30 PM
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const ampm = hours >= 12 ? "PM" : "AM";
+      const hour12 = hours % 12 || 12;
+      const formattedMinutes = minutes.toString().padStart(2, "0");
+      return `${hour12}:${formattedMinutes} ${ampm}`;
+    }
+  };
   const calculatePrayerTimes = usePrayerTimesStore(
     (state) => state.calculatePrayerTimes
   );
@@ -59,16 +68,18 @@ export const PrayerTimes: React.FC = () => {
   }, []);
 
   // Разница в минутах до молитвы
-  const getMinutesUntilPrayer = (prayerTime: string | Date | undefined): number => {
+  const getMinutesUntilPrayer = (
+    prayerTime: string | Date | undefined
+  ): number => {
     const date = toDate(prayerTime);
     if (!date) return 999;
 
     const prayerTotal = date.getHours() * 60 + date.getMinutes();
     const currentTotal = now.getHours() * 60 + now.getMinutes();
 
-    return prayerTotal >= currentTotal 
-      ? prayerTotal - currentTotal 
-      : prayerTotal + (24 * 60) - currentTotal;
+    return prayerTotal >= currentTotal
+      ? prayerTotal - currentTotal
+      : prayerTotal + 24 * 60 - currentTotal;
   };
 
   // Проверяет, прошла ли уже молитва сегодня
@@ -85,14 +96,14 @@ export const PrayerTimes: React.FC = () => {
   // Сортируем молитвы: сначала будущие, потом прошедшие
   const sortedVisiblePrayers = useMemo(() => {
     const visiblePrayers = prayers.filter((p) => p.showOnMain);
-    
+
     return visiblePrayers.sort((a, b) => {
       const aPassed = isPrayerPassed(a.calculatedTime);
       const bPassed = isPrayerPassed(b.calculatedTime);
-      
+
       if (aPassed && !bPassed) return 1; // a прошедшая, b будущая → a после b
       if (!aPassed && bPassed) return -1; // a будущая, b прошедшая → a перед b
-      
+
       // Если оба будущие или оба прошедшие, сортируем по времени
       const aTime = toDate(a.calculatedTime)?.getTime() || 0;
       const bTime = toDate(b.calculatedTime)?.getTime() || 0;
@@ -108,7 +119,10 @@ export const PrayerTimes: React.FC = () => {
         return;
       }
 
-      if (lastUpdated && new Date(lastUpdated).getTime() + 24 * 60 * 60 * 1000 < Date.now()) {
+      if (
+        lastUpdated &&
+        new Date(lastUpdated).getTime() + 24 * 60 * 60 * 1000 < Date.now()
+      ) {
         await updatePrayerTimes();
       }
     };
@@ -150,7 +164,7 @@ export const PrayerTimes: React.FC = () => {
         <div className={styles.actions}>
           <Pen
             size={16}
-            onClick={() => navigate("/settings/prayer-times")}
+            onClick={() => navigate("/settings/prayerTimes")}
             className={styles.editIcon}
           />
         </div>
@@ -164,13 +178,17 @@ export const PrayerTimes: React.FC = () => {
           const minutesUntil = getMinutesUntilPrayer(prayer.calculatedTime);
           const isNear = minutesUntil <= 5 && minutesUntil > 0;
           const isPassed = isPrayerPassed(prayer.calculatedTime);
-          const time = prayer.calculatedTime ? formatTime(toDate(prayer.calculatedTime)!) : "—:— —";
+          const time = prayer.calculatedTime
+            ? formatTime(toDate(prayer.calculatedTime)!)
+            : "—:— —";
 
           return (
             <div
               key={prayer.id}
               onClick={() => handlePrayerClick(prayer)}
-              className={`${styles.prayerCard} ${isNear ? styles.nearPrayer : ""} ${isPassed ? styles.passedPrayer : ""}`}
+              className={`${styles.prayerCard} ${
+                isNear ? styles.nearPrayer : ""
+              } ${isPassed ? styles.passedPrayer : ""}`}
             >
               {isNear && (
                 <div className={styles.countdownBanner}>

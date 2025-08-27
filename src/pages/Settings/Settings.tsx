@@ -78,14 +78,13 @@ export const Settings: React.FC = () => {
           {/* Date & Time */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/settings/date-time")}
+            onClick={() => navigate("/settings/dateTime")}
           >
             <div className={styles.iconWrapper}>
               <Calendar strokeWidth={1.5} color={getIconColor()} />
             </div>
             <div className={styles.content}>
               <div className={styles.title}>Date & Time</div>
-              <div className={styles.description}>? Selected</div>
             </div>
             <div className={styles.description}>
               <ChevronRight size={20} />
@@ -95,7 +94,7 @@ export const Settings: React.FC = () => {
           {/* Prayer Times */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/settings/prayer-times")}
+            onClick={() => navigate("/settings/prayerTimes")}
           >
             <div className={styles.iconWrapper}>
               <Clock strokeWidth={1.5} color={getIconColor()} />
