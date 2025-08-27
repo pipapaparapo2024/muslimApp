@@ -158,7 +158,7 @@ export const Home: React.FC = () => {
 
   return (
     <PageWrapper>
-      проверка на работу 
+      Проверка на Работу 
       <Header
         city={city || "Unknown city"}
         country={country?.name || "Unknown country"}
