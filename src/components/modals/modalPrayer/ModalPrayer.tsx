@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ModalPrayer.module.css";
 import { useNavigate } from "react-router-dom";
-import { type PrayerSetting } from "../../../pages/Settings/appSettings/SettingPlayerTimes/SettingPlayerTimesStore";
+import { type PrayerSetting } from "../../../pages/Settings/appSettings/settingPlayerTimes/SettingPlayerTimesStore";
 import { Pen } from "lucide-react";
 interface ModalProps {
   isOpen: boolean;

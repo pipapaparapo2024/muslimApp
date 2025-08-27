@@ -4,8 +4,11 @@
   min-height: 95vh;
   box-sizing: border-box;
   overflow: auto;
+  margin: 0 -12px -12px -12px;
 }
-
+.table{
+  margin: 0 12px;
+}
 .header {
   display: flex;
   justify-content: space-between;
@@ -30,25 +33,6 @@
   transition: transform 0.3s ease;
 }
 
-/* Форма — фиксирована снизу */
-.form {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 388px;
-  margin: 0 auto;
-  padding: var(--numbers-16) var(--numbers-16) var(--numbers-36)
-    var(--numbers-16);
-  background: var(--bg-surface);
-  border-radius: var(--roundings-medium);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 .input {
   border: none;
   width: 100%;
@@ -60,7 +44,12 @@
   margin-bottom: var(--numbers-4);
   outline: none;
 }
-
+.scanButtonContainer {
+  padding: var(--numbers-16) var(--numbers-16) var(--numbers-40)
+    var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
+}
 .submitButton {
   background-color: var(--color-background-semantic-solid-brand);
   color: var(--color-text-inversed);
@@ -129,11 +118,11 @@
   justify-content: center;
 }
 
-.rescanButton{
+.rescanButton {
   display: flex;
   gap: var(--numbers-4);
   align-items: center;
-  background-color: #15803D;
+  background-color: #15803d;
   color: white;
   padding: var(--numbers-12) var(--numbers-16);
 }

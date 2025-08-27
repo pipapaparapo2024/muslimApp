@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./PrayerTimes.module.css";
-import { usePrayerTimesStore } from "../../Settings/appSettings/SettingPlayerTimes/SettingPlayerTimesStore";
+import { usePrayerTimesStore } from "../../Settings/appSettings/settingPlayerTimes/SettingPlayerTimesStore";
 import { useGeoStore } from "../../Home/GeoStore";
 import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer";
-import { type PrayerSetting } from "../../Settings/appSettings/SettingPlayerTimes/SettingPlayerTimesStore";
+import { type PrayerSetting } from "../../Settings/appSettings/settingPlayerTimes/SettingPlayerTimesStore";
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../Settings/appSettings/dataTime/DataTimeStore";

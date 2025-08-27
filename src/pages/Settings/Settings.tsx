@@ -3,7 +3,7 @@ import { useTheme } from "../../hooks/useTheme";
 import styles from "./Settings.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
-import { usePrayerTimesStore } from "./appSettings/SettingPlayerTimes/SettingPlayerTimesStore";
+import { usePrayerTimesStore } from "./appSettings/settingPlayerTimes/SettingPlayerTimesStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import {

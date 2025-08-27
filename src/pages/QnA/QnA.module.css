@@ -16,6 +16,8 @@
   border-radius: var(--roundings-medium);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
+  margin: -24px -12px;
   flex-direction: column;
   align-items: center;
 }
@@ -81,11 +83,11 @@
   object-fit: contain;
 }
 
-.guidance span{
+.guidance span {
   font-size: var(--numbers-20);
   font-weight: 600;
 }
-.guidance p{
+.guidance p {
   font-size: var(--numbers-14);
   color: var(--desk-text);
   margin-bottom: var(--numbers-16);

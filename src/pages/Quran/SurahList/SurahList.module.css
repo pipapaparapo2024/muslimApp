@@ -4,10 +4,8 @@
   gap: var(--numbers-14);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.07);
   border-radius: 14px;
-  border-radius: var(
-    --roundings-medium
-  ); /* 14px → ближе к --roundings-medium (1rem = 16px) */
-  margin-bottom: var(--numbers-20); /* 20px */
+  border-radius: 0 0 var(--roundings-medium) var(--roundings-medium);
+  margin: -12px;
   background-color: var(--bg-surface);
 }
 
@@ -25,36 +23,30 @@
 }
 
 .nameHoly {
-  font-size: var(--numbers-24); /* 20px */
+  font-size: var(--numbers-24);
   font-weight: bold;
 }
 
 .sahihInternational {
-  font-size: var(--numbers-16); /* 16px */
-  color: var(
-    --color-text-brand
-  ); /* #15803D → это --color-text-brand (зелёный) */
+  display: flex;
+  align-items: center;
+  font-size: var(--numbers-16);
+  color: var(--color-text-brand);
 }
 
 .diskHeader {
-  font-size: var(--numbers-14); /* 14px */
-  color: var(--desk-text); 
-  margin-bottom: var(--numbers-12); /* 12px */
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  margin-bottom: var(--numbers-12);
 }
 
 .searchContainer {
+  gap: var(--numbers-4);
   display: flex;
   align-items: center;
-  border: 1px solid var(--color-stroke-primary); /* #ddd → var(--color-stroke-primary) */
-  border-radius: var(--roundings-medium); /* 8px ≈ 0.5rem */
-  padding: var(--numbers-16) var(--numbers-12); /* 8px 12px */
-  background-color: var(--colors-stone-100);
-}
-
-.searchIcon {
-  width: 20px;
-  height: 20px;
-  margin-right: var(--numbers-8); /* 8px */
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-16) var(--numbers-12);
+  background-color: var(--bg-app);
 }
 
 .searchInput {
@@ -63,22 +55,22 @@
   outline: none;
   background: transparent;
   font-size: var(--numbers-16);
-  color: var(--color-text-primary);
-  font-family: var(--typography-body);
 }
-
+.searchInput::placeholder{
+  color: var(--desk-text);
+}
 .blockChapter {
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-4); /* 4px */
+  gap: var(--numbers-4);
 }
 
 .surahItem {
   display: flex;
   align-items: center;
   background-color: var(--color-background-secondary);
-  border-radius: var(--roundings-medium); /* 14px */
-  padding: var(--numbers-15); /* 15px — нет токена. Ближайший: --numbers-16 */
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-15);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8);
   cursor: pointer;
@@ -90,25 +82,25 @@
 }
 
 .surahNumber {
-  font-size: var(--numbers-18); /* 18px */
-  padding: var(--numbers-8) var(--numbers-12); /* 8px 12px */
-  background: var(--color-background-primary); /* var(--bg-app) */
-  border-radius: var(--roundings-small); /* для закругления */
+  font-size: var(--numbers-18);
+  padding: var(--numbers-8) var(--numbers-12);
+  background: var(--color-background-primary);
+  border-radius: var(--roundings-small);
   font-weight: bold;
   padding: 10px 14px;
   background: var(--bg-app);
 }
 
 .surahName {
-  font-size: var(--numbers-18); /* 18px */
+  font-size: var(--numbers-18);
   color: var(--color-text-primary);
   margin-bottom: var(--numbers-6);
   font-weight: bold;
 }
 
 .surahDescription {
-  font-size: var(--numbers-14); /* 14px */
-  color: var(--color-text-secondary); /* #666 */
+  font-size: var(--numbers-14);
+  color: var(--color-text-secondary);
   margin-bottom: var(--numbers-5);
   margin-bottom: var(--numbers-6);
 }
@@ -116,7 +108,7 @@
 .surahDetails {
   display: flex;
   align-items: center;
-  gap: var(--numbers-10); /* 10px */
+  gap: var(--numbers-10);
 }
 
 .ayahs {
@@ -127,7 +119,7 @@
 .revelationType {
   display: flex;
   align-items: center;
-  gap: var(--numbers-5); /* 5px */
+  gap: var(--numbers-5);
   font-size: var(--numbers-14);
   color: var(--color-text-secondary);
 }
@@ -135,7 +127,5 @@
 .revelationType .searchIcon {
   width: 16px;
   height: 16px;
-  color: var(
-    --color-background-semantic-solid-success
-  ); /* или --color-stroke-semantic-success */
+  color: var(--color-background-semantic-solid-success);
 }

@@ -1,0 +1,62 @@
+
+.blockChoose {
+  background: var(--bg-surface);
+  padding: var(--numbers-12) var(--numbers-16);
+  margin: -12px -12px 0 -12px;
+  border-radius: 0 0 var(--roundings-medium) var(--roundings-medium);
+}
+
+.title {
+  font-size: var(--numbers-20);
+  color: var(--text);
+}
+
+.description {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+}
+
+.searchWrapper {
+  margin-top: var(--numbers-12);
+  padding: var(--numbers-12);
+  background: var(--bg-app);
+  border: none;
+  display: flex;
+  border-radius: var(--roundings-medium);
+  gap: var(--numbers-4);
+  align-items: center;
+  margin-top: var(--numbers-12);
+}
+
+.searchInput {
+  font-size: var(--numbers-16);
+  color: var(--desk-text);
+  background: var(--bg-app);
+  border: none;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: var(--desk-text);
+}
+.regionsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+  margin-top: var(--numbers-8);
+}
+
+.regionItem {
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-16);
+  background: var(--bg-surface);
+  display: flex;
+  border: 2px solid var(--bg-surface);
+  justify-content: space-between;
+}
+
+
+.selected {
+  color: var(--color-background-semantic-solid-brand);
+  border-color: var(--color-background-semantic-solid-brand);
+}

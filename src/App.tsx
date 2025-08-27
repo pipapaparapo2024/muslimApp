@@ -13,10 +13,10 @@ import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
 
-import { Region } from "./pages/Settings/appSettings/Region";
+import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
-import { SettingPlayerTimes } from "./pages/Settings/appSettings/SettingPlayerTimes/SettingPlayerTimes";
+import { SettingPlayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPlayerTimes";
 import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";

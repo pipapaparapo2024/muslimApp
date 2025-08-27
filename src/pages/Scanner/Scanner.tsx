@@ -148,8 +148,9 @@ export const Scanner: React.FC = () => {
   return (
     <PageWrapper showBackButton>
       <div className={styles.container}>
-        <TableRequestsHistory text="/scanner/historyScanner" />
-
+        <div className={styles.table}>
+          <TableRequestsHistory text="/scanner/historyScanner" />
+        </div>
         {/* Скрытый input для камеры */}
         <input
           type="file"
@@ -169,7 +170,12 @@ export const Scanner: React.FC = () => {
           ) : capturedImage ? (
             <div className={styles.resultContainer}>
               <div className={styles.resultActions}>
-                <button className={styles.rescanButton} onClick={()=>{resetScan}}>
+                <button
+                  className={styles.rescanButton}
+                  onClick={() => {
+                    resetScan;
+                  }}
+                >
                   <Camera size={16} />
                   Scan Again
                 </button>

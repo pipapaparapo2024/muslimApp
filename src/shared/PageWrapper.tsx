@@ -68,7 +68,7 @@ export const PageWrapper: React.FC<PageProps> = ({
     backgroundColor: "var(--bg-app)",
     position: "relative",
     margin: "0 auto",
-    padding: "12px",
+    padding: "12px ",
     maxWidth: "420px",
     width: "100%",
     minHeight: "100vh",
