@@ -55,10 +55,10 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   return (
     <div className={styles.header}>
       <div className={styles.locationInfo}>
-        <span className={styles.cityName}>
+        <div className={styles.cityName}>
           {country || "Unknown"}, {city || "Unknown"}
-        </span>
-        <span className={styles.currentDate}>{currentDate}</span>
+        </div>
+        <div className={styles.currentDate}>{currentDate}</div>
       </div>
 
       <button

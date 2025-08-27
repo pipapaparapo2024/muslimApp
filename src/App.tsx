@@ -48,27 +48,37 @@ export const App: React.FC = () => {
   ).length;
 
   useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.expand();
+    const initializeApp = () => {
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        tg.ready();
+        tg.expand();
 
-      // Дополнительная защита от свайпа через нативный API
-      if (typeof tg.enableClosingConfirmation === "function") {
-        tg.enableClosingConfirmation();
+        // Дополнительная защита от свайпа
+        if (typeof tg.enableClosingConfirmation === "function") {
+          tg.enableClosingConfirmation();
+        }
+        if (typeof tg.disableVerticalSwipes === "function") {
+          tg.disableVerticalSwipes();
+        }
       }
-      if (typeof tg.disableVerticalSwipes === "function") {
-        tg.disableVerticalSwipes();
-      }
-      if (typeof tg.disableSwipeToClose === "function") {
-        tg.disableSwipeToClose();
-      }
-    }
+    };
 
+    initializeApp();
     fetchFriends();
   }, [fetchFriends]);
+
+  // Показываем пустой экран до полной инициализации темы
   if (!isThemeReady) {
-    return <div style={{ height: "100vh", background: "#fff" }} />;
+    return (
+      <div
+        style={{
+          height: "100vh",
+          background: "var(--bg-app)",
+          transition: "background-color 0.3s ease",
+        }}
+      />
+    );
   }
   return (
     <div>

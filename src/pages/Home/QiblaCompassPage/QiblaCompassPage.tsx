@@ -51,17 +51,15 @@ export const QiblaCompassPage: React.FC = () => {
 
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
-          <div className={styles.compassContainer}>
-            <div className={styles.bigCompass}>
-              <QiblaCompass
-                permissionGranted={
-                  localStorage.getItem(SENSOR_PERMISSION_STATUS) === "granted"
-                }
-                coords={coords}
-                showAngle={true}
-                size={300}
-              />
-            </div>
+          <div className={styles.bigCompass}>
+            <QiblaCompass
+              permissionGranted={
+                localStorage.getItem(SENSOR_PERMISSION_STATUS) === "granted"
+              }
+              coords={coords}
+              showAngle={true}
+              size={300}
+            />
           </div>
         ) : (
           <div>

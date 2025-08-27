@@ -8,6 +8,7 @@ import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { useTheme } from "../../hooks/useTheme";
 // import { useTelegram } from "../../api/useTelegram";
 const steps = [
   {
@@ -37,6 +38,8 @@ export const Welcome: React.FC = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
+  const [imagesLoaded, setImagesLoaded] = useState<string[]>([]);
+  const { isThemeReady } = useTheme(); // Добавьте этот хук
   const containerRef = useRef<HTMLDivElement>(null);
   // const {
   //   isAuthenticated,
@@ -50,40 +53,53 @@ export const Welcome: React.FC = () => {
   //     navigate("/home", { replace: true });
   //   }
   // }, [isAuthenticated, isAuthLoading, navigate]);
-  // Предзагрузка всех изображений
+  // Предзагрузка изображений
   useEffect(() => {
-    let isMounted = true;
+    const loadImages = async () => {
+      const loaded: string[] = [];
 
-    const preloadImages = () => {
-      const imagePromises = steps.map((step) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.src = step.image;
-          img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn(`Image failed to load: ${step.image}`);
-            resolve();
-          };
-        });
-      });
+      for (const step of steps) {
+        try {
+          await new Promise<void>((resolve, reject) => {
+            const img = new Image();
+            img.src = step.image;
+            img.onload = () => {
+              loaded.push(step.image);
+              resolve();
+            };
+            img.onerror = reject;
+            // Таймаут на случай проблем с загрузкой
+            setTimeout(resolve, 1000);
+          });
+        } catch (error) {
+          console.warn(`Failed to load image: ${step.image}`, error);
+        }
+      }
 
-      Promise.all(imagePromises)
-        .then(() => {
-          if (isMounted) setIsLoaded(true);
-        })
-        .catch((err) => {
-          console.error("Error preloading images:", err);
-          if (isMounted) setIsLoaded(true);
-        });
+      setImagesLoaded(loaded);
     };
 
-    preloadImages();
-
-    return () => {
-      isMounted = false;
-    };
+    loadImages();
   }, []);
-
+  // Ждём готовности темы И загрузки изображений
+  if (!isThemeReady || imagesLoaded.length < steps.length) {
+    return (
+      <PageWrapper showBackButton={true}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            background: "var(--bg-app)",
+            transition: "background-color 0.3s ease",
+          }}
+        >
+          <LoadingSpinner />
+        </div>
+      </PageWrapper>
+    );
+  }
   // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;

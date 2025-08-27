@@ -8,7 +8,7 @@
   margin: 0 auto var(--numbers-36) auto;
   position: relative;
   background: var(--bg-surface);
-  z-index: 2;
+  z-index: 20000;
 }
 
 .toggleItem {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -24,28 +24,79 @@ export const Home: React.FC = () => {
     error,
     fetchFromIpApi,
     hasRequestedGeo,
-    updateCoords // Добавляем функцию обновления координат в store
+    updateCoords
   } = useGeoStore();
 
-  // Флаги для отслеживания уже выполненных запросов
+  const [showGeoPrompt, setShowGeoPrompt] = useState(false);
+  const [showSensorPrompt, setShowSensorPrompt] = useState(false);
+  const [sensorPermission, setSensorPermission] = useState<string>(
+    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
+  );
+
   const geoRequested = useRef(false);
   const sensorRequested = useRef(false);
 
-  // --- 1. Геолокация: один раз при монтировании ---
+  // Функция для запроса геолокации с обработкой iOS
+  const requestGeolocation = () => {
+    geoRequested.current = true;
+    setShowGeoPrompt(false);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lon } = position.coords;
+        const locationData = { lat, lon, timestamp: Date.now() };
+        localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
+        localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
+        updateCoords({ lat, lon });
+      },
+      (error) => {
+        console.warn("Geolocation error:", error);
+        localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
+        if (!coords && !hasRequestedGeo && !isLoading) {
+          fetchFromIpApi();
+        }
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  // Функция для запроса доступа к датчикам
+  const requestSensorPermission = async () => {
+    sensorRequested.current = true;
+    setShowSensorPrompt(false);
+
+    try {
+      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+      if (DeviceOrientationEventAny?.requestPermission) {
+        // iOS
+        const result = await DeviceOrientationEventAny.requestPermission();
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+        setSensorPermission(result);
+      } else {
+        // Android и другие
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+        setSensorPermission("granted");
+      }
+    } catch (err) {
+      console.error("Sensor permission error:", err);
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+      setSensorPermission("denied");
+    }
+  };
+
+  // Проверка геолокации при монтировании
   useEffect(() => {
     if (geoRequested.current) return;
-    geoRequested.current = true;
 
     const status = localStorage.getItem(GEO_PERMISSION_STATUS);
     const cached = localStorage.getItem(CACHED_LOCATION);
 
-    // Если есть кэш и он свежий (<24ч), используем
+    // Если есть кэш и он свежий, используем
     if (cached) {
       try {
         const data = JSON.parse(cached);
         const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
         if (isFresh && data.lat && data.lon) {
-          // Обновляем store с кэшированными координатами
           updateCoords({ lat: data.lat, lon: data.lon });
           return;
         }
@@ -62,79 +113,48 @@ export const Home: React.FC = () => {
       return;
     }
 
-    // Если разрешение уже предоставлено, но нет кэша
+    // Если разрешение уже предоставлено
     if (status === "granted") {
       if (!coords && !hasRequestedGeo && !isLoading) {
-        // Запрашиваем геолокацию снова
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude: lat, longitude: lon } = position.coords;
-            const locationData = { lat, lon, timestamp: Date.now() };
-            localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
-            updateCoords({ lat, lon });
-          },
-          () => {
-            // При ошибке используем IP
-            fetchFromIpApi();
-          }
-        );
+        requestGeolocation();
       }
       return;
     }
 
-    // Первый запрос геолокации
+    // Для iOS показываем промпт вместо автоматического запроса
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS && (!status || status === "unknown")) {
+      setShowGeoPrompt(true);
+      return;
+    }
+
+    // Для Android и других - запрашиваем сразу
     if (!status || status === "unknown") {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude: lat, longitude: lon } = position.coords;
-          const locationData = { lat, lon, timestamp: Date.now() };
-          localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
-          localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
-          updateCoords({ lat, lon });
-        },
-        (error) => {
-          console.warn("Geolocation error:", error);
-          localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
-          if (!coords && !hasRequestedGeo && !isLoading) {
-            fetchFromIpApi();
-          }
-        },
-        { timeout: 10000, enableHighAccuracy: true }
-      );
+      requestGeolocation();
     }
   }, [coords, hasRequestedGeo, isLoading, fetchFromIpApi, updateCoords]);
 
-  // --- 2. Доступ к датчикам (deviceorientation) - один раз ---
+  // Проверка доступа к датчикам
   useEffect(() => {
     if (sensorRequested.current) return;
-    sensorRequested.current = true;
 
-    const permissionStatus = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     
-    // Если уже есть решение, не запрашиваем снова
-    if (permissionStatus === "granted" || permissionStatus === "denied") {
+    if (status === "granted" || status === "denied") {
+      setSensorPermission(status);
       return;
     }
 
-    const requestSensors = async () => {
-      try {
-        const DeviceOrientationEventAny = DeviceOrientationEvent as any;
-        if (DeviceOrientationEventAny?.requestPermission) {
-          // iOS - требуется явное разрешение
-          const result = await DeviceOrientationEventAny.requestPermission();
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-        } else {
-          // Android и другие - разрешение не требуется
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-        }
-      } catch (err) {
-        console.error("Sensor permission error:", err);
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
-      }
-    };
-
-    // Запрашиваем разрешение сразу при загрузке
-    requestSensors();
+    // Для iOS показываем промпт вместо автоматического запроса
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const DeviceOrientationEventAny = DeviceOrientationEvent as any;
+    
+    if (isIOS && DeviceOrientationEventAny?.requestPermission) {
+      setShowSensorPrompt(true);
+    } else {
+      // Для Android запрашиваем автоматически
+      requestSensorPermission();
+    }
   }, []);
 
   // Telegram WebApp
@@ -148,22 +168,56 @@ export const Home: React.FC = () => {
     }
   }, []);
 
-  const handleCompassClick = () =>
+  const handleCompassClick = () => {
+    // Для iOS запрашиваем разрешение при клике на компас
+    if (sensorPermission !== "granted") {
+      requestSensorPermission();
+    }
     navigate("/qibla", { state: { activeTab: "compass" } });
+  };
+
   const handleMapClick = () =>
     navigate("/qibla", { state: { activeTab: "map" } });
 
-  // Получаем статус разрешения для сенсоров
-  const sensorPermissionGranted = localStorage.getItem(SENSOR_PERMISSION_STATUS) === "granted";
-
   return (
     <PageWrapper>
-      Проверка на Работу 
       <Header
         city={city || "Unknown city"}
         country={country?.name || "Unknown country"}
       />
       <div className={styles.homeRoot}>
+        {/* Промпт для геолокации iOS */}
+        {showGeoPrompt && (
+          <div className={styles.permissionPrompt}>
+            <h3>Разрешить доступ к геолокации?</h3>
+            <p>Для точного определения киблы нужен доступ к вашему местоположению</p>
+            <div className={styles.permissionButtons}>
+              <button onClick={requestGeolocation}>Разрешить</button>
+              <button onClick={() => {
+                setShowGeoPrompt(false);
+                localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
+                fetchFromIpApi();
+              }}>Отказать</button>
+            </div>
+          </div>
+        )}
+
+        {/* Промпт для датчиков iOS */}
+        {showSensorPrompt && (
+          <div className={styles.permissionPrompt}>
+            <h3>Разрешить доступ к датчикам движения?</h3>
+            <p>Для работы компаса нужен доступ к гироскопу и акселерометру</p>
+            <div className={styles.permissionButtons}>
+              <button onClick={requestSensorPermission}>Разрешить</button>
+              <button onClick={() => {
+                setShowSensorPrompt(false);
+                localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+                setSensorPermission("denied");
+              }}>Отказать</button>
+            </div>
+          </div>
+        )}
+
         {isLoading && !coords && (
           <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
             Определяем ваше местоположение...
@@ -193,7 +247,7 @@ export const Home: React.FC = () => {
                   className={styles.compassContainer}
                 >
                   <QiblaCompass
-                    permissionGranted={sensorPermissionGranted}
+                    permissionGranted={sensorPermission === "granted"}
                     coords={coords}
                   />
                 </div>

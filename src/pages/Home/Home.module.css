@@ -139,6 +139,7 @@
   max-width: 48%;
   border-radius: var(--roundings-medium);
   overflow: hidden;
+  border: 2px solid var(--compass-circle-between);
   box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07);
   position: relative;
 }

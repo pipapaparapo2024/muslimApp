@@ -296,8 +296,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
-    setUserHeading(initialHeading);
-
     // Добавляем ориентацию
     if (window.DeviceOrientationEvent) {
       window.addEventListener("deviceorientation", handleOrientation);

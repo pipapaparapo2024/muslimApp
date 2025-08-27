@@ -138,7 +138,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
         width: size,
         height: size,
         position: "relative",
-        border: "2px solid var(--compass-circle-between)",
         borderRadius: "var(--roundings-medium)",
       }}
     >
