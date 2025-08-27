@@ -6,23 +6,25 @@ import { CircleCheck, CircleX, Plus, Upload } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useHistoryStore } from "../HistoryScannerStore";
 
-export const HistoryScannerDetail: React.FC = () => {
+interface HistoryScannerDetailProps {
+  isScan?: boolean;
+  result?: any;
+}
+
+export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
+  result,
+  isScan,
+}) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { history } = useHistoryStore();
-  const currentItem = history.find((item) => item.id === id);
+  // Определяем, откуда берутся данные
+  const currentItem = isScan ? result : history.find((item) => item.id === id);
 
   const handleShare = () => {
     if (!currentItem) return;
     navigate(`/scanner/ScannerShareHistory/${id}`);
   };
-  if (!currentItem) {
-    return (
-      <PageWrapper showBackButton={true}>
-        <div>Запрос не найден</div>
-      </PageWrapper>
-    );
-  }
   return (
     <PageWrapper showBackButton={true}>
       <div className={styles.container}>
