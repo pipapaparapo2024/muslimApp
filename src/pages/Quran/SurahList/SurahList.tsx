@@ -65,7 +65,7 @@ export const SurahList: React.FC = () => {
                   <div className={styles.surahDetails}>
                     <span className={styles.ayahs}>{surah.numberOfAyahs} Ayahs</span>
                     <span className={styles.revelationType}>
-                      {surah.revelationType === "Meccan" ? "مكة" : "مدنية"}
+                      {/* {surah.revelationType === "Meccan" ? "مكة" : "مدنية"} */}
                     </span>
                   </div>
                 </div>
