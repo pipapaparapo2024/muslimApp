@@ -8,6 +8,7 @@ import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { useTelegram } from "../../api/useTelegram";
 // import { useTelegram } from "../../api/useTelegram";
 const steps = [
   {
@@ -38,18 +39,18 @@ export const Welcome: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
-  // const {
-  //   isAuthenticated,
-  //   isLoading: isAuthLoading,
-  //   error: authError,
-  // } = useTelegram();
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    error: authError,
+  } = useTelegram();
 
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
-  // useEffect(() => {
-  //   if (isAuthenticated && !isAuthLoading) {
-  //     navigate("/home", { replace: true });
-  //   }
-  // }, [isAuthenticated, isAuthLoading, navigate]);
+  useEffect(() => {
+    if (isAuthenticated && !isAuthLoading) {
+      navigate("/home", { replace: true });
+    }
+  }, [isAuthenticated, isAuthLoading, navigate]);
   // Предзагрузка всех изображений
   useEffect(() => {
     let isMounted = true;
@@ -135,22 +136,22 @@ export const Welcome: React.FC = () => {
     );
   }
   // Показываем ошибку если авторизация не удалась
-  // if (authError) {
-  //   return (
-  //     <PageWrapper>
-  //       <div className={styles.errorContainer}>
-  //         <h2>Ошибка авторизации</h2>
-  //         <p>{authError}</p>
-  //         <button
-  //           className={styles.welcomeButton}
-  //           onClick={() => window.location.reload()}
-  //         >
-  //           Попробовать снова
-  //         </button>
-  //       </div>
-  //     </PageWrapper>
-  //   );
-  // }
+  if (authError) {
+    return (
+      <PageWrapper>
+        <div className={styles.errorContainer}>
+          <h2>Ошибка авторизации</h2>
+          <p>{authError}</p>
+          <button
+            className={styles.welcomeButton}
+            onClick={() => window.location.reload()}
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   // Основной рендер
   return (

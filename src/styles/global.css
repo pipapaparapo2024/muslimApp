@@ -39,15 +39,7 @@ html.en {
 html.ar {
   font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
 }
-/* Шрифты — с высокой специфичностью */
-:root,
-.en {
-  font-family: var(--typography-body);
-}
 
-.ar {
-  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif !important;
-}
 /* Светлая тема (по умолчанию) */
 :root,
 .light {

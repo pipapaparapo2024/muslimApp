@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../../hooks/useTheme";
 import { useLanguage } from "../../hooks/useLanguages";
 import styles from "./Settings.module.css";
@@ -25,11 +25,22 @@ export const Settings: React.FC = () => {
   const { prayers } = usePrayerTimesStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
-  const { t,i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel, getIconColor } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   console.log("Current language:", i18n.language);
   const visiblePrayers = prayers.filter((p) => p.showOnMain);
+
+  // Временная проверка
+  useEffect(() => {
+    console.log("Current language:", i18n.language);
+    console.log(
+      "HTML dir attribute:",
+      document.documentElement.getAttribute("dir")
+    );
+    console.log("HTML classes:", document.documentElement.className);
+  }, [i18n.language]);
+
   return (
     <PageWrapper showBackButton>
       <div className={styles.settingsContainer}>
