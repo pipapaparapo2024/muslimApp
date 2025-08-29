@@ -18,18 +18,6 @@ body,
   --end: right;
   --text-align: left;
 }
-/* === Язык: ЕДИНСТВЕННЫЙ и СИЛЬНЫЙ === */
-:root,
-.en {
-  direction: ltr;
-  text-align: left;
-}
-
-.ar,
-[dir="rtl"] {
-  direction: rtl;
-  text-align: right;
-}
 
 /* Переменные для RTL/LTR */
 [dir="rtl"] {
@@ -43,7 +31,14 @@ body,
   --end: right;
   --text-align: left;
 }
+/* Оставьте только это: */
+html.en {
+  font-family: var(--typography-body);
+}
 
+html.ar {
+  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
+}
 /* Шрифты — с высокой специфичностью */
 :root,
 .en {

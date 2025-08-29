@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useGeoStore } from "../pages/Home/GeoStore";
+import i18n from "../api/i18n"; // Импортируйте ваш экземпляр i18n
 
 const LANGUAGE_KEY = "preferred-language";
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
@@ -46,6 +47,7 @@ export const useLanguage = () => {
 
       setLanguage(finalLang);
       applyLanguageStyles(finalLang);
+      i18n.changeLanguage(finalLang); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
       setIsInitialized(true);
     };
 
@@ -59,6 +61,7 @@ export const useLanguage = () => {
       setLanguage(newLang);
       localStorage.setItem(LANGUAGE_KEY, newLang);
       applyLanguageStyles(newLang);
+      i18n.changeLanguage(newLang); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
     }
   };
 
