@@ -16,7 +16,7 @@ import { useLanguage } from "./hooks/useLanguages";
 import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
-import { SettingPlayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPlayerTimes";
+import { SettingPlayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPlayerTimes.tsx";
 import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
