@@ -4,7 +4,7 @@ import { useLanguage } from "../../hooks/useLanguages";
 import styles from "./Settings.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
-import { usePrayerTimesStore } from "./appSettings/settingPlayerTimes/SettingPlayerTimesStore";
+import { usePrayerTimesStore } from "./appSettings/settingPlayerTimes/SettingPrayerTimesStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import {

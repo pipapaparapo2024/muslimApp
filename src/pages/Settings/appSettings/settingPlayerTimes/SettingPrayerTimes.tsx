@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
 import styles from "./SettingPlayerTimes.module.css";
-import { type PrayerSetting } from "./SettingPlayerTimesStore";
-import { usePrayerTimesStore } from "./SettingPlayerTimesStore";
+import { type PrayerSetting } from "./SettingPrayerTimesStore";
+import { usePrayerTimesStore } from "./SettingPrayerTimesStore";
 import { Info } from "lucide-react";
 
-export const SettingPlayerTimes: React.FC = () => {
+export const SettingPrayerTimes: React.FC = () => {
   const {
     prayers,
     toggleShowOnMain,

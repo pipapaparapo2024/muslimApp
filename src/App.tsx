@@ -16,7 +16,7 @@ import { useLanguage } from "./hooks/useLanguages";
 import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
-import { SettingPlayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPlayerTimes.tsx";
+import { SettingPrayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPrayerTimes";
 import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
@@ -98,7 +98,7 @@ export const App: React.FC = () => {
         <Route path="/settings/region" element={<Region />} />
         <Route path="/settings/language" element={<ModalLanguage />} />
         <Route path="/settings/dateTime" element={<DataTime />} />
-        <Route path="/settings/prayerTimes" element={<SettingPlayerTimes />} />
+        <Route path="/settings/prayerTimes" element={<SettingPrayerTimes />} />
         <Route path="/settings/theme" element={<ModalTheme />} />
         <Route path="/qibla" element={<QiblaCompassPage />} />
         <Route
