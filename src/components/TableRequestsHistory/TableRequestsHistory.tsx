@@ -1,7 +1,7 @@
 import { Clock, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TableRequestsHistory.module.css";
-import { useQnAStore } from "../../pages/QnA/QnAStore";
+import { useQnAStore } from "../../hooks/useQnAStore";
 
 interface ClickHistory{
   text:string;

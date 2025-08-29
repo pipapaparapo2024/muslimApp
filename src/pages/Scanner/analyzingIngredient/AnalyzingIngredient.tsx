@@ -1,11 +1,9 @@
-
-// AnalyzingIngredient.tsx
 import { useEffect, useState } from "react";
-import { useScannerStore } from "../../hooks/useScannerStore";
+import { useScannerStore } from "../../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
 import styles from './AnalyzingIngredient.module.css'
-import { PageWrapper } from "../../shared/PageWrapper";
-import analyz from '../../assets/image/analyz.png'
+import { PageWrapper } from "../../../shared/PageWrapper";
+import analyz from '../../../assets/image/analyz.png'
 export const AnalyzingIngredient: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(12);
   const { error, isLoading } = useScannerStore();
@@ -29,14 +27,14 @@ export const AnalyzingIngredient: React.FC = () => {
   useEffect(() => {
     // Если время вышло и все еще грузится - переходим на ошибку
     if (timeLeft === 0 && isLoading) {
-      navigate("/scanner/not-scanned");
+      navigate("/scanner/notScanned");
     }
   }, [timeLeft, isLoading, navigate]);
 
   useEffect(() => {
     // Если появилась ошибка - переходим на страницу ошибки
     if (error) {
-      navigate("/scanner/not-scanned");
+      navigate("/scanner/notScanned");
     }
   }, [error, navigate]);
 

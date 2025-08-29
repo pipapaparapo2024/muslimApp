@@ -7,7 +7,7 @@ import { PrayerTimes } from "./PrayerTimes/PrayerTimes";
 import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { useGeoStore } from "../../hooks/useGeoStore";
-import { Header } from "../../components/Header";
+import { Header } from "../../components/header/Header";
 
 // Ключи для localStorage
 const GEO_PERMISSION_STATUS = "geoPermissionStatus"; 

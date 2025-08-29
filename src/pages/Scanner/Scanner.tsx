@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Scanner.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
-import { useQnAStore } from "../QnA/QnAStore";
+import { useQnAStore } from "../../hooks/useQnAStore";
 import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import scanner from "../../assets/image/scanner.png";

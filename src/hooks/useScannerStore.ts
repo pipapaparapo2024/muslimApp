@@ -87,7 +87,6 @@ export const useScannerStore = create<ScannerState>()(
 
         const controller = new AbortController();
         
-        // Таймаут для максимального времени обработки (12 секунд)
         const maxProcessingTimeout = setTimeout(() => {
           console.log("Максимальное время обработки (12с) истекло");
           controller.abort();

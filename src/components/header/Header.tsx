@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import styles from "../pages/Home/Home.module.css";
-import { BuyPremiumModal } from "./modals/modalBuyPremium/ModalBuyPremium";
-import { useQnAStore } from "../pages/QnA/QnAStore";
-import { useDataTimeStore } from "../pages/Settings/appSettings/dataTime/DataTimeStore";
+import styles from "./Header.module.css"
+import { BuyPremiumModal } from "../modals/modalBuyPremium/ModalBuyPremium";
+import { useQnAStore } from "../../hooks/useQnAStore";
+import { useDataTimeStore } from "../../pages/Settings/appSettings/dataTime/DataTimeStore";
 import { useNavigate } from "react-router-dom";
 interface HeaderProps {
   city: string;

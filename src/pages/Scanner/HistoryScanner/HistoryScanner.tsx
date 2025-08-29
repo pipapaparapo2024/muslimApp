@@ -11,10 +11,12 @@ import { historyUtils } from "./HistoryScannerStore";
 export const HistoryScanner: React.FC = () => {
   const { history, isLoading, fetchHistory } = useHistoryStore();
   const navigate = useNavigate();
-
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    // Загружаем данные только если история пустая
+    if (history.length === 0) {
+      fetchHistory();
+    }
+  }, [fetchHistory, history.length]); // ← Правильные зависимости
 
   // Группируем историю по датам
   const groupedHistory = historyUtils.groupByDate(history);

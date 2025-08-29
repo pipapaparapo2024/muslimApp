@@ -1,21 +1,3 @@
-.header {
-  display: flex;
-  justify-content: space-between;
-  border-radius: var(--roundings-medium);
-  align-items: center;
-  padding-bottom: var(--numbers-16);
-  margin: 0 auto;
-  color: var(--text);
-  direction: rtl;
-  direction: ltr;
-  /* text-align: right; */
-}
-.formattedDate {
-  cursor: pointer;
-  color: var(--desk-text);
-  font-size: var(--numbers-14);
-  margin-top: var(--numbers-4);
-}
 .prayerTimesQiblaContainer {
   display: flex;
   margin: 0 auto;
@@ -30,22 +12,6 @@
   box-sizing: border-box;
 }
 
-.buyPremiumButton {
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-4);
-  background: var(--color-background-semantic-solid-brand);
-  color: var(--color-text-inversed);
-  border: none;
-  white-space: nowrap;
-  border-radius: var(--roundings-medium);
-  padding: var(--numbers-12) var(--numbers-18);
-  font-size: var(--numbers-16);
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
 
 .premiumActiveButton {
   display: flex;
@@ -108,22 +74,6 @@
   color: var(--desk-text);
   margin-bottom: var(--numbers-16);
   font-size: var(--numbers-14);
-}
-
-.DaysLeftPrem {
-  background: var(--bg-surface);
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-4);
-  border: none;
-  white-space: nowrap;
-  border-radius: var(--roundings-medium);
-  padding: var(--numbers-12) var(--numbers-18);
-  font-size: var(--numbers-16);
-  font-weight: 500;
-  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
 }
 
 .qiblaBlock {

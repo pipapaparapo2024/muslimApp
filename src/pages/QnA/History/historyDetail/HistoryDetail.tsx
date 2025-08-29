@@ -2,12 +2,12 @@ import React from "react";
 import styles from "./HistoryDetail.module.css";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { TableRequestsHistory } from "../../../../components/TableRequestsHistory/TableRequestsHistory";
-import { Copy, Plus, Upload } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Copy } from "lucide-react";
+import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../HistoryStore";
+import { Share } from "../../../../components/share/Share"; // Импортируйте отдельный компонент
 
 export const HistoryDetail: React.FC = () => {
-  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { history } = useHistoryStore();
   const currentItem = history.find((item) => item.id === id);
@@ -17,7 +17,6 @@ export const HistoryDetail: React.FC = () => {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        // Можно использовать alert или более красивое уведомление
         alert("✅ Текст скопирован в буфер обмена");
       })
       .catch((err) => {
@@ -25,10 +24,7 @@ export const HistoryDetail: React.FC = () => {
         alert("❌ Не удалось скопировать текст");
       });
   };
-  const handleShare = () => {
-    if (!currentItem) return;
-    navigate(`/qna/shareHistory/${id}`);
-  };
+
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} styleHave={true}>
@@ -36,6 +32,7 @@ export const HistoryDetail: React.FC = () => {
       </PageWrapper>
     );
   }
+
   return (
     <PageWrapper showBackButton={true} styleHave={true}>
       <div className={styles.container}>
@@ -57,22 +54,14 @@ export const HistoryDetail: React.FC = () => {
             </div>
           </div>
         </div>
-        <form onSubmit={(e) => e.preventDefault()} className={styles.form}>
-          <button
-            type="submit"
-            className={styles.submitButton}
-            onClick={handleShare}
-          >
-            <Upload strokeWidth={1.5} /> Share
-          </button>
-          <button
-            type="submit"
-            className={styles.questionButton}
-            onClick={() => navigate("/qna")}
-          >
-            <Plus strokeWidth={1.5} /> New Question
-          </button>
-        </form>
+        
+        {/* Используем отдельный компонент Share */}
+        <Share 
+          shareUrl={`/qna/shareHistory/${id}`}
+          newUrl="/qna"
+          shareText="Share"
+          newText="New Question"
+        />
       </div>
     </PageWrapper>
   );

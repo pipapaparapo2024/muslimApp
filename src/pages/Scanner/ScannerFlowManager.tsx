@@ -1,8 +1,7 @@
-// ScannerFlowManager.tsx
 import { useEffect } from "react";
 import { useScannerStore } from "../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
-import { AnalyzingIngredient } from "./AnalyzingIngredient";
+import { AnalyzingIngredient } from "./analyzingIngredient/AnalyzingIngredient";
 
 export const ScannerFlowManager: React.FC = () => {
   const { isLoading, error, scanResult, showAnalyzing } = useScannerStore();
@@ -11,12 +10,14 @@ export const ScannerFlowManager: React.FC = () => {
   useEffect(() => {
     // Если есть результат - переходим на страницу результата
     if (scanResult) {
-      navigate("/scanner/result");
+      // Сохраняем результат в sessionStorage для передачи
+      sessionStorage.setItem('lastScanResult', JSON.stringify(scanResult));
+      navigate(`/scanner/ScannerShareHistory/${scanResult.id}`);
     }
     
     // Если есть ошибка - переходим на страницу ошибки
     if (error && !isLoading) {
-      navigate("/scanner/not-scanned");
+      navigate("/scanner/notScanned");
     }
   }, [scanResult, error, isLoading, navigate]);
 

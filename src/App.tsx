@@ -28,8 +28,8 @@ import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScan
 import { PageWrapper } from "./shared/PageWrapper";
 import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareStory/ScannerShareStory";
 import { useGeoStore } from "./hooks/useGeoStore";
-import { AnalyzingIngredient } from "./pages/Scanner/AnalyzingIngredient";
 import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
+import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -120,7 +120,7 @@ export const App: React.FC = () => {
           path="/scanner/historyScanner/:id"
           element={<HistoryScannerDetail />}
         />
-        <Route path="/scanner/analyze" element={<AnalyzingIngredient />} />
+        <Route path="/scanner/analyze" element={<ScannerFlowManager />} />
         <Route
           path="/scanner/ScannerShareHistory/:id"
           element={<ScannerShareStory />}
@@ -129,7 +129,7 @@ export const App: React.FC = () => {
           path="/scanner/scannerFlowManager "
           element={<ScannerFlowManager />}
         />
-        
+        <Route path="/scanner/notScanned" element={<NotScaned />} />
         <Route path="/qna" element={<QnA />} />
         <Route path="/qna/history" element={<History />} />
         <Route path="/quran/history/:id" element={<HistoryDetail />} />

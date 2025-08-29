@@ -16,7 +16,7 @@ export const useTelegram = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wasLogged, setWasLogged] = useState<boolean | null>(null);
-  const [responseData, setResponseData] = useState<any>(null); // Добавляем состояние для ответа
+  const [responseData, setResponseData] = useState<any>(null);
 
   useEffect(() => {
     if ((window as any).__TELEGRAM_INIT_DONE__) return;
@@ -28,12 +28,20 @@ export const useTelegram = () => {
     const authenticate = async () => {
       try {
         console.log("Отправляем запрос на аутентификацию...");
-        console.log("InitData:", WebApp.initData);
+        
+        // Получаем initData или используем "hello world" если его нет
+        let initDataToSend = WebApp.initData;
+        if (!initDataToSend) {
+          console.log("initData отсутствует, используем 'hello world'");
+          initDataToSend = "hello world";
+        }
+        
+        console.log("InitData:", initDataToSend);
 
         const response = await quranApi.post<AuthResponse>(
           "/api/v1/user/auth/",
           {
-            initData: WebApp.initData,
+            InitData: initDataToSend, // Изменено с initData на InitData (с большой буквы)
           }
         );
 
@@ -87,6 +95,6 @@ export const useTelegram = () => {
     webApp: WebApp,
     initData: WebApp.initData,
     initDataUnsafe: WebApp.initDataUnsafe,
-    responseData, // Возвращаем данные ответа
+    responseData,
   };
 };
