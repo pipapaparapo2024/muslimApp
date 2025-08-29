@@ -28,6 +28,8 @@ import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScan
 import { PageWrapper } from "./shared/PageWrapper";
 import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareStory/ScannerShareStory";
 import { useGeoStore } from "./hooks/useGeoStore";
+import { AnalyzingIngredient } from "./pages/Scanner/AnalyzingIngredient";
+import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -53,7 +55,6 @@ export const App: React.FC = () => {
     if (window.Telegram?.WebApp) {
       // Запрещаем поворот экрана
       window.Telegram.WebApp.disableVerticalSwipes();
-
     }
   }, []);
   useEffect(() => {
@@ -119,10 +120,16 @@ export const App: React.FC = () => {
           path="/scanner/historyScanner/:id"
           element={<HistoryScannerDetail />}
         />
+        <Route path="/scanner/analyze" element={<AnalyzingIngredient />} />
         <Route
           path="/scanner/ScannerShareHistory/:id"
           element={<ScannerShareStory />}
         />
+        <Route
+          path="/scanner/scannerFlowManager "
+          element={<ScannerFlowManager />}
+        />
+        
         <Route path="/qna" element={<QnA />} />
         <Route path="/qna/history" element={<History />} />
         <Route path="/quran/history/:id" element={<HistoryDetail />} />

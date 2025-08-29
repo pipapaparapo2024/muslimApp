@@ -1,26 +1,45 @@
-import { PageWrapper } from "../../shared/PageWrapper";
-import styles from "./AnalyzingIngredient.module.css";
-import analyz from "../../assets/image/analyz.png";
+
+// AnalyzingIngredient.tsx
 import { useEffect, useState } from "react";
+import { useScannerStore } from "../../hooks/useScannerStore";
+import { useNavigate } from "react-router-dom";
+import styles from './AnalyzingIngredient.module.css'
+import { PageWrapper } from "../../shared/PageWrapper";
+import analyz from '../../assets/image/analyz.png'
 export const AnalyzingIngredient: React.FC = () => {
-  const [, setImageLoaded] = useState(false);
-  const [, setImageError] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(12);
+  const { error, isLoading } = useScannerStore();
+  const navigate = useNavigate();
 
-  // Предзагрузка изображения scanner
   useEffect(() => {
-    const img = new Image();
-    img.src = analyz;
+    // Таймер обратного отсчета
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    img.onload = () => {
-      setImageLoaded(true);
-    };
-
-    img.onerror = () => {
-      console.error("Failed to load scanner image:", analyz);
-      setImageError(true);
-      setImageLoaded(true);
-    };
+    return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    // Если время вышло и все еще грузится - переходим на ошибку
+    if (timeLeft === 0 && isLoading) {
+      navigate("/scanner/not-scanned");
+    }
+  }, [timeLeft, isLoading, navigate]);
+
+  useEffect(() => {
+    // Если появилась ошибка - переходим на страницу ошибки
+    if (error) {
+      navigate("/scanner/not-scanned");
+    }
+  }, [error, navigate]);
+
   return (
     <PageWrapper>
       <div className={styles.container}>
@@ -32,6 +51,11 @@ export const AnalyzingIngredient: React.FC = () => {
           <div className={styles.image}>
             <img src={analyz} />
           </div>
+          {timeLeft > 0 && (
+            <div className={styles.countdown}>
+              Time remaining: {timeLeft} seconds
+            </div>
+          )}
         </div>
       </div>
     </PageWrapper>

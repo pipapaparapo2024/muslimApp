@@ -26,3 +26,8 @@
   justify-content: center;
   margin: var(--numbers-36) 0;
 }
+.countdown {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
