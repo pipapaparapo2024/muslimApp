@@ -1,52 +1,33 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
 import styles from "./Scanner.module.css";
-import { PageWrapper } from "../../shared/PageWrapper";
 import { useQnAStore } from "../QnA/QnAStore";
-import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
-import scanner from "../../assets/image/scanner.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
-import { AnalyzingIngredient } from "./AnalyzingIngredient";
-import { HistoryScannerDetail } from "../Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
 import { quranApi } from "../../api/api";
+import { ScannerLayout } from "./scannerBlock/ScannerLayout";
+import { ScannerContent } from "./scannerBlock/ScannerContent";
+import { ScannerActions } from "./scannerBlock/ScannerActions";
+import { ScannerFileInput } from "./scannerBlock/ScannerFileInput";
+import { PageWrapper } from "../../shared/PageWrapper";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [, setImageError] = useState(false);
+  const [imageLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<any>(null);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [minLoadingTimePassed, setMinLoadingTimePassed] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Предзагрузка изображения scanner
-  useEffect(() => {
-    const img = new Image();
-    img.src = scanner;
-
-    img.onload = () => {
-      setImageLoaded(true);
-    };
-
-    img.onerror = () => {
-      console.error("Failed to load scanner image:", scanner);
-      setImageError(true);
-      setImageLoaded(true);
-    };
-  }, []);
-
   const openCamera = () => {
-    fileInputRef.current?.click();
+    // Функционал открытия камеры будет реализован через ScannerFileInput
   };
 
   const handleFileSelect = async (
@@ -146,86 +127,25 @@ export const Scanner: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton>
-      <div className={styles.container}>
-        <div className={styles.table}>
-          <TableRequestsHistory text="/scanner/historyScanner" />
-        </div>
-        {/* Скрытый input для камеры */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileSelect}
-          style={{ display: "none" }}
+    <ScannerLayout>
+      <ScannerFileInput onFileSelect={handleFileSelect} />
+      
+      <div className={styles.content}>
+        <ScannerContent
+          showAnalyzing={showAnalyzing}
+          scanResult={scanResult}
+          capturedImage={capturedImage}
+          onRescan={resetScan}
         />
-
-        {/* Центральный контент */}
-        <div className={styles.content}>
-          {showAnalyzing ? (
-            <AnalyzingIngredient />
-          ) : scanResult ? (
-            <HistoryScannerDetail isScan={true} result={scanResult} />
-          ) : capturedImage ? (
-            <div className={styles.resultContainer}>
-              <div className={styles.resultActions}>
-                <button
-                  className={styles.rescanButton}
-                  onClick={() => {
-                    resetScan;
-                  }}
-                >
-                  <Camera size={16} />
-                  Scan Again
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className={styles.illustration}>
-                <img src={scanner} alt="Instant Halal Check" />
-              </div>
-
-              <div className={styles.halalCheck}>
-                <span>Instant Halal Check</span>
-                <p>
-                  Take a photo of the product's ingredients to check if it's
-                  halal or haram. You'll get a quick result with a short
-                  explanation.
-                </p>
-                <p className={styles.warning}>
-                  <TriangleAlert
-                    strokeWidth={1.5}
-                    size={18}
-                    color="white"
-                    fill="#F59E0B"
-                  />
-                  The result is for informational purposes only.
-                </p>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Кнопка сканирования */}
-        {!capturedImage && !isLoading && !showAnalyzing && !scanResult && (
-          <div className={styles.scanButtonContainer}>
-            <button
-              className={styles.submitButton}
-              onClick={showAskButton ? openCamera : () => setShowModal(true)}
-              disabled={isLoading}
-            >
-              {showAskButton ? (
-                <Camera strokeWidth={1.5} />
-              ) : (
-                <Wallet strokeWidth={1.5} />
-              )}
-              {getButtonText()}
-            </button>
-          </div>
-        )}
       </div>
+
+      <ScannerActions
+        showAskButton={showAskButton}
+        isLoading={isLoading}
+        onOpenCamera={openCamera}
+        onOpenModal={() => setShowModal(true)}
+        buttonText={getButtonText()}
+      />
 
       <BuyRequestsModal
         isOpen={showModal}
@@ -233,6 +153,6 @@ export const Scanner: React.FC = () => {
         selectedRequests={selectedRequests}
         onSelectRequests={setSelectedRequests}
       />
-    </PageWrapper>
+    </ScannerLayout>
   );
 };

@@ -49,7 +49,6 @@ export const Welcome: React.FC = () => {
     wasLogged: telegramWasLogged,
   } = useTelegram();
 
-  // Получаем состояние из сторов
   const {
     wasLogged,
     settingsSent,
