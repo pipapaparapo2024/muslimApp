@@ -4,7 +4,7 @@ import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
-import { useHistoryStore } from "../HistoryScannerStore";
+import { useHistoryStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { CircleCheck, CircleX, Upload } from "lucide-react";
 

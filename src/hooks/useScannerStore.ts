@@ -2,42 +2,44 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import WebApp from "@twa-dev/sdk";
 import { quranApi } from "../api/api";
-
-export interface ScanResult {
-  id: string;
-  productName: string;
-  status: "halal" | "haram" | "doubtful";
-  confidence: number;
-  ingredients: Array<{
-    name: string;
-    status: "halal" | "haram" | "doubtful";
-    description: string;
-  }>;
-  timestamp: string;
-}
+import { type HistoryItem } from "./useHistoryScannerStore"; // Импортируем общий интерфейс
 
 interface ScannerState {
   isLoading: boolean;
   error: string | null;
   capturedImage: string | null;
-  scanResult: ScanResult | null;
+  scanResult: HistoryItem | null; // Изменено на HistoryItem
   showAnalyzing: boolean;
   minLoadingTimePassed: boolean;
-  scanHistory: ScanResult[];
+  scanHistory: HistoryItem[]; // Изменено на HistoryItem[]
 
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setCapturedImage: (image: string | null) => void;
-  setScanResult: (result: ScanResult | null) => void;
+  setScanResult: (result: HistoryItem | null) => void; // Изменено на HistoryItem
   setShowAnalyzing: (showing: boolean) => void;
   setMinLoadingTimePassed: (passed: boolean) => void;
-  addToHistory: (result: ScanResult) => void;
+  addToHistory: (result: HistoryItem) => void; // Изменено на HistoryItem
   clearHistory: () => void;
 
   processImage: (file: File) => Promise<void>;
   resetScan: () => void;
   getScanHistory: () => Promise<void>;
 }
+
+// Функция для преобразования API ответа в HistoryItem
+const transformToHistoryItem = (apiData: any, imageUrl: string): HistoryItem => {
+  return {
+    id: apiData.id || Date.now().toString(),
+    timestamp: apiData.timestamp || new Date().toISOString(),
+    imageUrl: imageUrl,
+    composition: apiData.composition || apiData.ingredients?.map((i: any) => i.name).join(', ') || 'No composition data',
+    analysis: apiData.analysis || `Confidence: ${apiData.confidence || 0}%`,
+    result: apiData.result !== undefined ? apiData.result : 
+            apiData.status === 'haram' ? true : false,
+    userId: "current-user"
+  };
+};
 
 export const useScannerStore = create<ScannerState>()(
   persist(
@@ -116,20 +118,22 @@ export const useScannerStore = create<ScannerState>()(
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
               signal: controller.signal,
-              timeout: 13000, // Увеличиваем на 1 секунду относительно maxProcessingTimeout
+              timeout: 13000,
             }
           );
 
-          clearTimeout(maxProcessingTimeout); // Очищаем таймаут при успехе
+          clearTimeout(maxProcessingTimeout);
           console.log("Запрос успешно завершен:", response.data);
 
-          const result = response.data;
-          setScanResult(result);
-          addToHistory(result);
+          const imageUrl = URL.createObjectURL(file);
+          const historyItem = transformToHistoryItem(response.data, imageUrl);
+          
+          setScanResult(historyItem);
+          addToHistory(historyItem);
           setShowAnalyzing(false);
 
         } catch (error: any) {
-          clearTimeout(maxProcessingTimeout); // Очищаем таймаут при ошибке
+          clearTimeout(maxProcessingTimeout);
           console.error("Ошибка при анализе изображения:", error);
           setShowAnalyzing(false);
 
@@ -138,7 +142,6 @@ export const useScannerStore = create<ScannerState>()(
           if (error.name === "AbortError" || error.code === "ECONNABORTED") {
             errorMessage =
               "Время ожидания ответа истекло (12 секунд). Попробуйте еще раз.";
-            console.log("Таймаут сработал правильно");
           } else if (error.response?.data?.message) {
             errorMessage = error.response.data.message;
           } else if (error.message) {
@@ -171,7 +174,12 @@ export const useScannerStore = create<ScannerState>()(
             timeout: 10000,
           });
 
-          set({ scanHistory: response.data });
+          // Преобразуем историю к единому формату
+          const historyItems: HistoryItem[] = response.data.map((item: any) => 
+            transformToHistoryItem(item, item.imageUrl || '')
+          );
+
+          set({ scanHistory: historyItems });
         } catch (error: any) {
           console.error("Ошибка при получении истории:", error);
 

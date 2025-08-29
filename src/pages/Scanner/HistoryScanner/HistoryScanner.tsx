@@ -1,12 +1,12 @@
 import { PageWrapper } from "../../../shared/PageWrapper";
 import React, { useEffect } from "react";
 import styles from "./HistoryScanner.module.css";
-import { useHistoryStore } from "./HistoryScannerStore";
+import { useHistoryStore } from "../../../hooks/useHistoryScannerStore";
 import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
 import { Share2, CircleCheck, CircleX } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { historyUtils } from "./HistoryScannerStore";
+import { historyUtils } from "../../../hooks/useHistoryScannerStore";
 
 export const HistoryScanner: React.FC = () => {
   const { history, isLoading, fetchHistory } = useHistoryStore();

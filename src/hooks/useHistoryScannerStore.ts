@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { quranApi } from "../../../api/api";
+import { quranApi } from "../api/api";
 
 export interface HistoryItem {
   id: string;
