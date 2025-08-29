@@ -1,6 +1,6 @@
 import React, { useEffect, type CSSProperties, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useLanguage } from "../hooks/useLanguages";
 interface PageProps {
   children: React.ReactNode;
   showBackButton?: boolean;
@@ -17,8 +17,7 @@ export const PageWrapper: React.FC<PageProps> = ({
 }) => {
   const navigate = useNavigate();
   const tg = window.Telegram?.WebApp;
-
-  // Сохраняем callback-функции с useCallback
+  const { direction } = useLanguage();
   const handleSettings = useCallback(() => {
     navigate("/settings");
   }, [navigate]);
@@ -28,14 +27,9 @@ export const PageWrapper: React.FC<PageProps> = ({
   }, [navigate, navigateTo]);
 
   useEffect(() => {
-    if (!tg) {
-      console.warn("Telegram WebApp not available");
-      return;
-    }
+    if (!tg) return;
 
-    console.log("Initializing PageWrapper, showBackButton:", showBackButton);
     tg.ready();
-    tg.setHeaderColor("#ffffff");
 
     if (tg.SettingsButton) {
       tg.SettingsButton.show();
@@ -50,34 +44,32 @@ export const PageWrapper: React.FC<PageProps> = ({
     }
 
     return () => {
-      console.log("Cleaning up buttons");
       if (tg.SettingsButton) {
-        // Передаем ту же самую функцию для удаления
         tg.SettingsButton.offClick(handleSettings);
         tg.SettingsButton.hide();
       }
       if (showBackButton) {
-        // Передаем ту же самую функцию для удаления
         tg.BackButton.offClick(handleBack);
         tg.BackButton.hide();
       }
     };
   }, [showBackButton, navigate, tg, navigateTo, handleSettings, handleBack]);
 
-  const containerStyle: CSSProperties = styleHave ? {
-    backgroundColor: "var(--bg-app)",
-    position: "relative",
-    margin: "0 auto",
-    padding: "12px ",
-    maxWidth: "420px",
-    width: "100%",
-    minHeight: "100vh",
-    boxSizing: "border-box"
-  } : {};
+  const containerStyle: CSSProperties = styleHave
+    ? {
+        backgroundColor: "var(--bg-app)",
+        position: "relative",
+        margin: "0 auto",
+        padding: direction === "rtl" ? "12px 12px 12px 0" : "12px 0 12px 12px",
+        maxWidth: "420px",
+        width: "100%",
+        minHeight: "100vh",
+        boxSizing: "border-box",
+        direction: direction as "ltr" | "rtl" | undefined,
+        textAlign: direction === "rtl" ? "right" : "left",
+      }
+    : {};
 
-  return (
-    <div style={containerStyle}>
-      {children}
-    </div>
-  );
+  return <div style={containerStyle}>{children}</div>;
+  
 };

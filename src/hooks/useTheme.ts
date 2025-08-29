@@ -1,4 +1,3 @@
-// src/hooks/useTheme.ts
 import { useEffect, useState } from "react";
 
 export const THEMES = {
@@ -42,17 +41,6 @@ export const useTheme = () => {
 
     document.documentElement.classList.add(theme);
     document.body.classList.add(theme);
-
-    // Устанавливаем CSS-переменные из вашей дизайн-системы
-    if (theme === "light") {
-      document.documentElement.style.setProperty("--bg-app", "#f5f5f4");
-      document.documentElement.style.setProperty("--bg-surface", "#ffffff");
-      document.documentElement.style.setProperty("--text", "#222222");
-    } else {
-      document.documentElement.style.setProperty("--bg-app", "#333333");
-      document.documentElement.style.setProperty("--bg-surface", "#111111");
-      document.documentElement.style.setProperty("--text", "#ffffff");
-    }
   };
 
   const updateEffectiveTheme = (selectedTheme: Theme) => {

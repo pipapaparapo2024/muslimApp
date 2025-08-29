@@ -5,7 +5,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../HistoryScannerStore";
-import { useScreenshot } from "../../../../components/useScreenshot/useScreenshot";
+import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { CircleCheck, CircleX, Upload } from "lucide-react";
 
 export const ScannerShareStory: React.FC = () => {

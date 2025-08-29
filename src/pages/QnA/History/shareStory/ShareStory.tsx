@@ -5,7 +5,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../HistoryStore";
-import { useScreenshot } from "../../../../components/useScreenshot/useScreenshot";
+import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { Upload } from "lucide-react";
 
 export const ShareStory: React.FC = () => {

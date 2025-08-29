@@ -12,7 +12,7 @@ import { SurahList } from "./pages/Quran/SurahList/SurahList";
 import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
-
+import { useLanguage } from "./hooks/useLanguages";
 import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
@@ -27,6 +27,7 @@ import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импор�
 import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
 import { PageWrapper } from "./shared/PageWrapper";
 import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareStory/ScannerShareStory";
+import { useGeoStore } from "./pages/Home/GeoStore";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -43,6 +44,8 @@ if (swipeBehavior.mount.isAvailable()) {
 export const App: React.FC = () => {
   const { friends, fetchFriends } = useFriendsStore();
   const { isThemeReady } = useTheme();
+  const { isLanguageReady } = useLanguage();
+  const { isInitialized: isGeoInitialized } = useGeoStore();
   const invitedCount = friends.filter(
     (friend) => friend.status === "invited" || friend.status === "purchased"
   ).length;
@@ -69,7 +72,7 @@ export const App: React.FC = () => {
   }, [fetchFriends]);
 
   // Показываем пустой экран до полной инициализации темы
-  if (!isThemeReady) {
+  if (!isThemeReady || !isLanguageReady || !isGeoInitialized) {
     return (
       <div
         style={{

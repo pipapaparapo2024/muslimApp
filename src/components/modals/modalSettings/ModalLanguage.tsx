@@ -1,33 +1,32 @@
 import React from "react";
 import styles from "./ModalLanguage.module.css";
-import arab from "../../../assets/icons/saudi-arab.svg";
-import engl from "../../../assets/icons/united-king.svg";
 import { Check } from "lucide-react";
+import en from "../../../assets/icons/united-king.svg";
+import ar from "../../../assets/icons/saudi-arab.svg";
 interface LanguageModalProps {
   isOpen?: boolean;
-  currentLanguage?: string;
   onClose?: () => void;
-  onLanguageChange?: (language: string) => void;
+  currentLanguage?: "en" | "ar";
+  onLanguageChange?: (lang: "en" | "ar") => void;
 }
-
-// Маппинг флагов к языкам
-const languageFlags: Record<string, string> = {
-  en: engl,
-  ar: arab, // можно заменить на 🇪🇬, если важнее Египет
-};
 
 export const ModalLanguage: React.FC<LanguageModalProps> = ({
   isOpen,
-  currentLanguage = "en",
   onClose,
+  currentLanguage = "en",
   onLanguageChange,
 }) => {
   if (!isOpen) return null;
 
   const languages = [
-    { code: "en", name: "English" },
-    { code: "ar", name: "Arabic" },
-  ];
+    { code: "en", name: "English", url: en },
+    { code: "ar", name: "Arabic", url: ar },
+  ] as const;
+
+  const handleSelect = (lang: "en" | "ar") => {
+    onLanguageChange?.(lang);
+    onClose?.(); // Закрываем модалку после выбора
+  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -44,22 +43,28 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
         </p>
 
         <div className={styles.options}>
-          {languages.map((language) => (
+          {languages.map((lang) => (
             <div
-              key={language.code}
+              key={lang.code}
               className={`${styles.optionBlock} ${
-                currentLanguage === language.code ? styles.selected : ""
+                currentLanguage === lang.code ? styles.selected : ""
               }`}
-              onClick={() => onLanguageChange?.(language.code)}
+              onClick={() => handleSelect(lang.code)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSelect(lang.code);
+                }
+              }}
             >
-              {/* Флаг (эмодзи) */}
               <div className={styles.option}>
                 <span className={styles.flag}>
-                  <img src={languageFlags[language.code]} />
+                  <img src={lang.url} alt={lang.name} />
                 </span>
-                <span className={styles.optionText}>{language.name}</span>
+                <span className={styles.optionText}>{lang.name}</span>
               </div>
-              {currentLanguage === language.code && <Check />}
+              {currentLanguage === lang.code && <Check size={20} />}
             </div>
           ))}
         </div>

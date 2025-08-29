@@ -3,6 +3,7 @@ import styles from "../pages/Home/Home.module.css";
 import { BuyPremiumModal } from "./modals/modalBuyPremium/ModalBuyPremium";
 import { useQnAStore } from "../pages/QnA/QnAStore";
 import { useDataTimeStore } from "../pages/Settings/appSettings/dataTime/DataTimeStore";
+import { useNavigate } from "react-router-dom";
 interface HeaderProps {
   city: string;
   country: string;
@@ -13,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   const { hasPremium, premiumTimeLeft, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-
+const navigate=useNavigate()
   const getButtonText = () => {
     if (!hasPremium) return "Buy Premium";
     if (!premiumTimeLeft) return "Premium Active";
@@ -52,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
         <div className={styles.cityName}>
           {country || "Unknown"}, {city || "Unknown"}
         </div>
-        <div className={styles.formattedDate}>{formattedDate}</div>
+        <div onClick={()=>navigate("/settings/dateTime")} className={styles.formattedDate}>{formattedDate}</div>
       </div>
 
       <button

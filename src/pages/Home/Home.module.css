@@ -6,8 +6,12 @@
   padding-bottom: var(--numbers-16);
   margin: 0 auto;
   color: var(--text);
+  direction: rtl;
+  direction: ltr;
+  /* text-align: right; */
 }
-.formattedDate{
+.formattedDate {
+  cursor: pointer;
   color: var(--desk-text);
   font-size: var(--numbers-14);
   margin-top: var(--numbers-4);

@@ -1,18 +1,19 @@
+// components/modals/modalSettings/ModalTheme.tsx
 import React from "react";
 import styles from "./ModalTheme.module.css";
 import { Check, Moon, Smartphone, Sun } from "lucide-react";
 
 interface ThemeModalProps {
   isOpen?: boolean;
-  currentTheme?: "light" | "dark" | "system";
   onClose?: () => void;
+  currentTheme?: "light" | "dark" | "system";
   onThemeChange?: (theme: "light" | "dark" | "system") => void;
 }
 
 export const ModalTheme: React.FC<ThemeModalProps> = ({
   isOpen,
-  currentTheme = "system",
   onClose,
+  currentTheme = "system",
   onThemeChange,
 }) => {
   if (!isOpen) return null;
@@ -22,6 +23,11 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
     { id: "dark", name: "Dark", icon: <Moon size={20} /> },
     { id: "system", name: "System", icon: <Smartphone size={20} /> },
   ];
+
+  const handleSelect = (theme: "light" | "dark" | "system") => {
+    onThemeChange?.(theme);
+    onClose?.(); // Закрываем после выбора
+  };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -42,9 +48,14 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
               className={`${styles.option} ${
                 currentTheme === theme.id ? styles.selected : ""
               }`}
-              onClick={() =>
-                onThemeChange?.(theme.id as "light" | "dark" | "system")
-              }
+              onClick={() => handleSelect(theme.id as "light" | "dark" | "system")}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleSelect(theme.id as "light" | "dark" | "system");
+                }
+              }}
             >
               <div className={styles.optionNameIcon}>
                 <div>{theme.icon}</div>

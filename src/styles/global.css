@@ -1,10 +1,7 @@
-/* reset */
-
 * {
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  font-family: var(--typography-heading);
   transition: background-color 0.3s ease;
 }
 
@@ -15,15 +12,56 @@ body,
   color: var(--text);
 }
 
+/* Базовые стили для направлений */
+:root {
+  --start: left;
+  --end: right;
+  --text-align: left;
+}
+/* === Язык: ЕДИНСТВЕННЫЙ и СИЛЬНЫЙ === */
+:root,
+.en {
+  direction: ltr;
+  text-align: left;
+}
+
+.ar,
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Переменные для RTL/LTR */
+[dir="rtl"] {
+  --start: right;
+  --end: left;
+  --text-align: right;
+}
+
+[dir="ltr"] {
+  --start: left;
+  --end: right;
+  --text-align: left;
+}
+
+/* Шрифты — с высокой специфичностью */
+:root,
+.en {
+  font-family: var(--typography-body);
+}
+
+.ar {
+  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif !important;
+}
 /* Светлая тема (по умолчанию) */
 :root,
 .light {
-  --desk-text:#57534E;
-  --light-beam:#DCFCE7;
-  --compass-circle-big:#E7E5E4;
-  --compass-circle-between:#F5F5F4;
-  --compass-circle-small:#15803D;
-  --progress-bar:black;
+  --desk-text: #57534e;
+  --light-beam: #dcfce7;
+  --compass-circle-big: #e7e5e4;
+  --compass-circle-between: #f5f5f4;
+  --compass-circle-small: #15803d;
+  --progress-bar: black;
   --bg-app: #f5f5f4; /* фон всего приложения */
   --bg-surface: #ffffff; /* фон карточек, панелей */
   --text: #222222; /* основной текст */
@@ -34,12 +72,12 @@ body,
 
 /* Тёмная тема */
 .dark {
-  --desk-text:#D4D4D4;
-  --light-beam:#262626;
-  --compass-circle-big:#404040;
-  --compass-circle-between:#262626;
-  --compass-circle-small:#22C55E;
-  --progress-bar:#15803D;
+  --desk-text: #d4d4d4;
+  --light-beam: #262626;
+  --compass-circle-big: #404040;
+  --compass-circle-between: #262626;
+  --compass-circle-small: #22c55e;
+  --progress-bar: #15803d;
   --bg-app: #333333; /* серый фон приложения */
   --bg-surface: #111111; /* чёрный фон компонентов */
   --text: #ffffff; /* белый текст */
