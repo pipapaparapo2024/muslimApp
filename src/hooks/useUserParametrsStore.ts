@@ -54,7 +54,7 @@ export const useUserParametersStore = create<UserParametersState>()(
 
           console.log("Отправляем настройки пользователя:", settingsData);
 
-          const response = await quranApi.post("/all", settingsData, {
+          const response = await quranApi.post("/settings/all", settingsData, {
             headers: {
               "Content-Type": "application/json"
             }
