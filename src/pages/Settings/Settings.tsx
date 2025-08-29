@@ -25,17 +25,17 @@ export const Settings: React.FC = () => {
   const { prayers } = usePrayerTimesStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
-const { t } = useTranslation();
+  const { t,i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel, getIconColor } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
-
+  console.log("Current language:", i18n.language);
   const visiblePrayers = prayers.filter((p) => p.showOnMain);
   return (
     <PageWrapper showBackButton>
       <div className={styles.settingsContainer}>
         {/* === App Settings === */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("App Settings")}</h2>
+          <h2 className={styles.sectionTitle}>{t("appSettings")}</h2>
 
           {/* Region */}
           <div
