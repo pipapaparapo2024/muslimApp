@@ -132,7 +132,7 @@ export const App: React.FC = () => {
         <Route path="/scanner/notScanned" element={<NotScaned />} />
         <Route path="/qna" element={<QnA />} />
         <Route path="/qna/history" element={<History />} />
-        <Route path="/quran/history/:id" element={<HistoryDetail />} />
+        <Route path="/qna/history/:id" element={<HistoryDetail />} />
         <Route path="/qna/shareHistory/:id" element={<ShareStory />} />
         <Route path="*" element={<PageWrapper>404 Not Found</PageWrapper>} />
       </Routes>

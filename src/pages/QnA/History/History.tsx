@@ -28,7 +28,7 @@ export const History: React.FC = () => {
   };
 
   const handleBlockClick = (promisId: string) => {
-    navigate(`/quran/history/${promisId}`, {
+    navigate(`/qna/history/${promisId}`, {
       state: {
         question: history.find(item => item.id === promisId)?.question,
         answer: history.find(item => item.id === promisId)?.answer,

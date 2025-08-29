@@ -8,18 +8,18 @@ interface ScannerState {
   isLoading: boolean;
   error: string | null;
   capturedImage: string | null;
-  scanResult: HistoryItem | null; // Изменено на HistoryItem
+  scanResult: HistoryItem | null; 
   showAnalyzing: boolean;
   minLoadingTimePassed: boolean;
-  scanHistory: HistoryItem[]; // Изменено на HistoryItem[]
+  scanHistory: HistoryItem[]; 
 
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setCapturedImage: (image: string | null) => void;
-  setScanResult: (result: HistoryItem | null) => void; // Изменено на HistoryItem
+  setScanResult: (result: HistoryItem | null) => void;
   setShowAnalyzing: (showing: boolean) => void;
   setMinLoadingTimePassed: (passed: boolean) => void;
-  addToHistory: (result: HistoryItem) => void; // Изменено на HistoryItem
+  addToHistory: (result: HistoryItem) => void; 
   clearHistory: () => void;
 
   processImage: (file: File) => Promise<void>;

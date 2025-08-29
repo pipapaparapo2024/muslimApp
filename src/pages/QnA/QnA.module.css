@@ -93,3 +93,12 @@
   margin-bottom: var(--numbers-16);
   font-weight: 400;
 }
+
+.submitButton:disabled {
+  background-color: var(--colors-green-600);
+  cursor: not-allowed;
+}
+
+.submitButton:disabled:hover {
+  transform: none;
+}

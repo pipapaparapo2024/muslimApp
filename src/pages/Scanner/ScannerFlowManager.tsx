@@ -12,7 +12,7 @@ export const ScannerFlowManager: React.FC = () => {
     if (scanResult) {
       // Сохраняем результат в sessionStorage для передачи
       sessionStorage.setItem('lastScanResult', JSON.stringify(scanResult));
-      navigate(`/scanner/ScannerShareHistory/${scanResult.id}`);
+      navigate(`/scanner/historyScanner/${scanResult.id}`);
     }
     
     // Если есть ошибка - переходим на страницу ошибки
