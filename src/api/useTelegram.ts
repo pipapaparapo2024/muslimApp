@@ -53,7 +53,7 @@ export const useTelegram = () => {
         setWasLogged(wasLogged);
 
         if (accessToken) {
-          axios.defaults.headers.common[
+          quranApi.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${accessToken}`;
           setIsAuthenticated(true);
