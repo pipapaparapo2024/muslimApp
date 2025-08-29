@@ -6,7 +6,7 @@ import { MenuBlocks } from "./MenuBlocks/MenuBlocks";
 import { PrayerTimes } from "./PrayerTimes/PrayerTimes";
 import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
-import { useGeoStore } from "./GeoStore";
+import { useGeoStore } from "../../hooks/useGeoStore";
 import { Header } from "../../components/Header";
 
 // Ключи для localStorage

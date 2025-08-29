@@ -27,7 +27,7 @@ import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импор�
 import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
 import { PageWrapper } from "./shared/PageWrapper";
 import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareStory/ScannerShareStory";
-import { useGeoStore } from "./pages/Home/GeoStore";
+import { useGeoStore } from "./hooks/useGeoStore";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -49,7 +49,13 @@ export const App: React.FC = () => {
   const invitedCount = friends.filter(
     (friend) => friend.status === "invited" || friend.status === "purchased"
   ).length;
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      // Запрещаем поворот экрана
+      window.Telegram.WebApp.disableVerticalSwipes();
 
+    }
+  }, []);
   useEffect(() => {
     const initializeApp = () => {
       const tg = window.Telegram?.WebApp;

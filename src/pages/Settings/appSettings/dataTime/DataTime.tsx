@@ -2,7 +2,7 @@ import React from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./DataTime.module.css";
 import { Check, ChevronRight } from "lucide-react";
-import { useGeoStore } from "../../../Home/GeoStore";
+import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "./DataTimeStore";
 // Получаем текущую дату
 const today = new Date();

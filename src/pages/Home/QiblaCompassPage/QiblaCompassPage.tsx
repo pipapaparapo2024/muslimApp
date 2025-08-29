@@ -6,7 +6,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "./QiblaCompassPageStore";
 import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useGeoStore } from "../GeoStore";
+import { useGeoStore } from "../../../hooks/useGeoStore";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus"; // granted/denied
 
 export const QiblaCompassPage: React.FC = () => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
 import axios from "axios";
-import { quranApi } from "./api";
+import { quranApi } from "../api/api";
 
 interface AuthResponse {
   data: {
@@ -37,16 +37,7 @@ export const useTelegram = () => {
           }
         );
 
-        console.log("✅ Получен ответ от сервера:");
-        console.log("📊 Статус:", response.status);
-        console.log("📦 Полные данные ответа:", response.data);
-        console.log("🔐 AccessToken:", response.data.data.accessToken);
-        console.log("👤 WasLogged:", response.data.data.wasLogged);
-        console.log("🏷️ Status:", response.data.status);
-        console.log("InitData:", WebApp.initData);
-        // Сохраняем полный ответ для возможного использования
         setResponseData(response.data);
-
         const { accessToken, wasLogged } = response.data.data;
 
         localStorage.setItem("accessToken", accessToken);

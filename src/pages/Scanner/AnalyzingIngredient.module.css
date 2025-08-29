@@ -5,21 +5,32 @@
 .text {
   max-width: 220px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .title {
   font-size: var(--numbers-20);
   color: var(--text);
+  text-wrap: nowrap;
+  margin-bottom: var(--numbers-4);
 }
 
 .desk {
   font-size: var(--numbers-14);
-  color: var(--desk);
+  color: var(--desk-text);
+  text-align: center;
 }
+
+.image {
+  display: flex;
+  justify-content: center;
+  margin: var(--numbers-36) 0;
+}
+/* 
 .image img {
-  max-height: 400px;
-  padding: var(--numbers-36) 0;
-  width: 100%;
-  max-width: 220px;
+  max-width: 100%;
+  max-height: 100%;
   height: auto;
-}
+  width: auto;
+  object-fit: contain; 
+} */

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { CalculationMethod, Coordinates, PrayerTimes, Madhab } from "adhan";
 import { DateTime } from "luxon";
-import { useGeoStore } from "../../../Home/GeoStore";
+import { useGeoStore } from "../../../../hooks/useGeoStore";
 
 // ========== ИНТЕРФЕЙСЫ И ТИПЫ ==========
 export interface CalculatedPrayerTime {

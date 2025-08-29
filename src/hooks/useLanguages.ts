@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useGeoStore } from "../pages/Home/GeoStore";
+import { useGeoStore } from "./useGeoStore";
 import i18n from "../api/i18n"; // Импортируйте ваш экземпляр i18n
 
 const LANGUAGE_KEY = "preferred-language";

@@ -8,8 +8,10 @@ import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { useTelegram } from "../../api/useTelegram";
-// import { useTelegram } from "../../api/useTelegram";
+import { useTelegram } from "../../hooks/useTelegram";
+import { useUserParametersStore } from "../../hooks/useUserParametrsStore"; // Добавляем импорт стора
+import { useGeoStore } from "../../hooks/useGeoStore";
+
 const steps = [
   {
     title: "Prayer Reminders",
@@ -39,11 +41,59 @@ export const Welcome: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+
   const {
     isAuthenticated,
     isLoading: isAuthLoading,
     error: authError,
+    wasLogged: telegramWasLogged,
   } = useTelegram();
+
+  // Получаем состояние из сторов
+  const {
+    wasLogged,
+    settingsSent,
+    isLoading: isSettingsLoading,
+    error: settingsError,
+    sendUserSettings,
+  } = useUserParametersStore();
+  const {
+    city,
+    country,
+    timeZone,
+    isInitialized: isGeoInitialized,
+  } = useGeoStore();
+
+  // Синхронизируем wasLogged из телеграма с нашим стором
+  useEffect(() => {
+    if (telegramWasLogged !== null && wasLogged === null) {
+      useUserParametersStore.getState().setWasLogged(telegramWasLogged);
+    }
+  }, [telegramWasLogged, wasLogged]);
+
+  // Отправляем настройки если пользователь новый (wasLogged === false)
+  useEffect(() => {
+    if (
+      wasLogged === false &&
+      !settingsSent &&
+      !isSettingsLoading &&
+      isGeoInitialized
+    ) {
+      // Проверяем что геоданные доступны
+      if (city && country && timeZone) {
+        sendUserSettings().catch(console.error);
+      }
+    }
+  }, [
+    wasLogged,
+    settingsSent,
+    isSettingsLoading,
+    isGeoInitialized,
+    city,
+    country,
+    timeZone,
+    sendUserSettings,
+  ]);
 
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
   useEffect(() => {
@@ -51,6 +101,7 @@ export const Welcome: React.FC = () => {
       navigate("/home", { replace: true });
     }
   }, [isAuthenticated, isAuthLoading, navigate]);
+
   // Предзагрузка всех изображений
   useEffect(() => {
     let isMounted = true;
@@ -127,14 +178,15 @@ export const Welcome: React.FC = () => {
     }
   };
 
-  // Лоадер с единым стилем
-  if (!isLoaded) {
+  // Показываем лоадер если загружаются изображения или отправляются настройки
+  if (!isLoaded || isSettingsLoading) {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
       </PageWrapper>
     );
   }
+
   // Показываем ошибку если авторизация не удалась
   if (authError) {
     return (
@@ -142,6 +194,24 @@ export const Welcome: React.FC = () => {
         <div className={styles.errorContainer}>
           <h2>Ошибка авторизации</h2>
           <p>{authError}</p>
+          <button
+            className={styles.welcomeButton}
+            onClick={() => window.location.reload()}
+          >
+            Попробовать снова
+          </button>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // Показываем ошибку если не удалось отправить настройки
+  if (settingsError) {
+    return (
+      <PageWrapper>
+        <div className={styles.errorContainer}>
+          <h2>Ошибка сохранения настроек</h2>
+          <p>{settingsError}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}

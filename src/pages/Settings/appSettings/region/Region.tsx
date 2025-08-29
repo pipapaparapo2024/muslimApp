@@ -3,7 +3,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./Region.module.css";
 import { Check, Search } from "lucide-react";
 import { useRegionStore } from "./RegionStore";
-import { useGeoStore } from "../../../Home/GeoStore";
+import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 
 export const Region: React.FC = () => {

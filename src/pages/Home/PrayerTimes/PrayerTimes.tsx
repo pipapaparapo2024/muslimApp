@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./PrayerTimes.module.css";
 import { usePrayerTimesStore } from "../../Settings/appSettings/settingPlayerTimes/SettingPrayerTimesStore";
-import { useGeoStore } from "../../Home/GeoStore";
+import { useGeoStore } from "../../../hooks/useGeoStore";
 import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer";
 import { type PrayerSetting } from "../../Settings/appSettings/settingPlayerTimes/SettingPrayerTimesStore";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ export const PrayerTimes: React.FC = () => {
   const prayers = usePrayerTimesStore((state) => state.prayers);
   const isLoading = usePrayerTimesStore((state) => state.isLoading);
   const lastUpdated = usePrayerTimesStore((state) => state.lastUpdated);
-  const is24Hour = useDataTimeStore();
+  const is24Hour = useDataTimeStore((state) => state.is24Hour);
   // Обновляем функцию formatTime для поддержки обоих форматов
   const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {

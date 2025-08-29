@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";
 import "leaflet/dist/leaflet.css";
-import { useGeoStore } from "../GeoStore";
+import { useGeoStore } from "../../../hooks/useGeoStore";
 import { useMapStore } from "./QiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";

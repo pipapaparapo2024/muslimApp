@@ -44,7 +44,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: transform 0.2s;
-  overflow: hidden;
+  z-index: 1;
 }
 
 .prayerCard:hover {
@@ -64,16 +64,16 @@
 
 .countdownBanner {
   position: absolute;
-  top: -16px;
-  left: 50%;
+  top: -15%;
+  left: 80%;
   transform: translateX(-50%);
-  background-color: #16a34a; /* green-700 */
+  background-color: var(--color-background-semantic-solid-brand); /* green-700 */
   color: white;
   font-size: 10px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  z-index: 3;
+  padding: var(--numbers-2) var(--numbers-4);
+  border-radius: var(--roundings-medium);
+  z-index: 500;
   white-space: nowrap;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-out;
