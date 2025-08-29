@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
-import styles from "./SettingPlayerTimes.module.css";
+import styles from "./SettingPrayerTimes.module.css";
 import { type PrayerSetting } from "./SettingPrayerTimesStore";
 import { usePrayerTimesStore } from "./SettingPrayerTimesStore";
 import { Info } from "lucide-react";
