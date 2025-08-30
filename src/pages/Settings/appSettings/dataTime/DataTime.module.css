@@ -9,6 +9,7 @@
 .timeZone {
   align-items: center;
   display: flex;
+  gap: var(--numbers-4);
 }
 .toggleInput {
   position: absolute;

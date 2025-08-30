@@ -21,9 +21,10 @@
   color: var(--desk-text);
   font-size: var(--numbers-14);
   margin-bottom: var(--numbers-8);
-  text-align: left;
 }
-
+.ar .subtitle{
+  text-align: right;
+}
 .grid {
   display: flex;
   flex-wrap: wrap;

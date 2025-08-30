@@ -5,6 +5,7 @@ import { Check, Search } from "lucide-react";
 import { useRegionStore } from "./RegionStore";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { t } from "i18next";
 
 export const Region: React.FC = () => {
   const { regions, isLoading, fetchRegions, selectedRegion, setSelectedRegion } = useRegionStore();
@@ -42,15 +43,15 @@ export const Region: React.FC = () => {
     <PageWrapper showBackButton>
       <div className={styles.container}>
         <div className={styles.blockChoose}>
-          <div className={styles.title}>Choose Region</div>
+          <div className={styles.title}>{t("chooseRegion")}</div>
           <div className={styles.description}>
-            Choose your location to personalize content.
+            {t("chooseLocation")}
           </div>
           <div className={styles.searchWrapper}>
             <Search strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder="Search Region"
+              placeholder={t("searchRegion")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -60,7 +61,7 @@ export const Region: React.FC = () => {
 
         <div className={styles.regionsList}>
           {filteredRegions.length === 0 ? (
-            <div className={styles.regionItem}>No regions found</div>
+            <div className={styles.regionItem}>{t("noRegionsFound")}</div>
           ) : (
             filteredRegions.map((region) => (
               <div

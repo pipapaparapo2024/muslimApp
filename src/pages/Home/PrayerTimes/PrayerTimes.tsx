@@ -7,6 +7,7 @@ import { type PrayerSetting } from "../../Settings/appSettings/settingPlayerTime
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../Settings/appSettings/dataTime/DataTimeStore";
+import { t } from "i18next";
 
 // Помогает конвертировать строку или Date в объект Date
 const toDate = (input: string | Date | undefined | null): Date | null => {
@@ -152,7 +153,7 @@ export const PrayerTimes: React.FC = () => {
         <div className={styles.headerRow}>
           <span className={styles.title}>Prayer Times</span>
         </div>
-        <div className={styles.subtitle}>Calculating prayer times...</div>
+        <div className={styles.subtitle}>{t("calculatingPrayerTimes")}</div>
       </div>
     );
   }
@@ -170,7 +171,7 @@ export const PrayerTimes: React.FC = () => {
         </div>
       </div>
       <div className={styles.subtitle}>
-        View today's Salah times and upcoming prayers.
+        {t("viewTodaysSalah")}
       </div>
 
       <div className={styles.grid}>
@@ -192,7 +193,7 @@ export const PrayerTimes: React.FC = () => {
             >
               {isNear && (
                 <div className={styles.countdownBanner}>
-                  In {minutesUntil} min
+                  {t("in")} {minutesUntil} {t("minutes")}
                 </div>
               )}
               <div className={styles.prayerName}>{prayer.name}</div>

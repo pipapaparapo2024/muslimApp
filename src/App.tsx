@@ -30,6 +30,7 @@ import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareSt
 import { useGeoStore } from "./hooks/useGeoStore";
 import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
+import { AyahList } from "./pages/Quran/Ayas/AyasList";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -101,6 +102,7 @@ export const App: React.FC = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Welcome />} />
         <Route path="/quran" element={<SurahList />} />
+        <Route path="/quran/:id" element={<AyahList />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/region" element={<Region />} />
         <Route path="/settings/language" element={<ModalLanguage />} />

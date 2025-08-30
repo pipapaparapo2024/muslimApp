@@ -3,6 +3,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "./FriendsStore";
 import { Check, Wallet } from "lucide-react";
+import { t } from "i18next";
 
 const inviteLink = "https://ff6cd8e75312.ngrok-free.app";
 
@@ -18,9 +19,7 @@ export const Friends: React.FC = () => {
 
   // Подсчитываем количество приглашенных и купивших друзей
   const invitedCount = friends.filter(
-    (friend) =>
-      friend.status === "invited" ||
-      friend.status === "purchased"
+    (friend) => friend.status === "invited" || friend.status === "purchased"
   ).length;
   const purchasedCount = friends.filter(
     (friend) => friend.status === "purchased"
@@ -62,21 +61,16 @@ export const Friends: React.FC = () => {
     <PageWrapper showBackButton>
       <div className={styles.friendsContainer}>
         <div className={styles.card}>
-          <div className={styles.cardTitle}>🎁 Earn Rewards by Sharing</div>
-          <div className={styles.cardDesc}>
-            Invite friends and get exclusive bonuses — the more you share, the
-            more you gain.
-          </div>
+          <div className={styles.cardTitle}>{t("earnRewards")}</div>
+          <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
           <button className={styles.inviteBtn} onClick={handleInvite}>
-            Invite Friends
+            {t("inviteFriends")}
           </button>
         </div>
 
         <div className={styles.card}>
-          <div className={styles.cardTitle}>Get Free Requests</div>
-          <div className={styles.cardDesc}>
-            Get free requests when your invited friends engage with the app.
-          </div>
+          <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
+          <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
@@ -97,17 +91,14 @@ export const Friends: React.FC = () => {
                 alert("Congratulations! You've earned free requests!");
               }}
             >
-              Get Reward
+              {t("getReward")}
             </button>
           )}
         </div>
 
         <div className={styles.card}>
-          <div className={styles.cardTitle}>Unlock Premium for Free</div>
-          <div className={styles.cardDesc}>
-            Access Premium for free when your invited friends complete a
-            purchase.
-          </div>
+          <div className={styles.cardTitle}>{t("unlockPremium")}</div>
+          <div className={styles.cardDesc}>{t("unlockPremiumDesc")}</div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
@@ -130,18 +121,16 @@ export const Friends: React.FC = () => {
                 alert("Congratulations! You've unlocked Premium!");
               }}
             >
-              Get Reward
+              {t("getReward")}
             </button>
           )}
         </div>
 
         {/* Список друзей */}
         <div className={styles.emptyInvitations}>
-          <div className={styles.emptyTitle}>Your Invitations</div>
+          <div className={styles.emptyTitle}>{t("yourInvitations")}</div>
           {sortedFriends.length === 0 ? (
-            <div className={styles.emptyDesc}>
-              None of your invited friends have joined so far.
-            </div>
+            <div className={styles.emptyDesc}>{t("noFriendsYet")}</div>
           ) : (
             <div className={styles.friendsList}>
               {sortedFriends.map((friend) => (
@@ -153,7 +142,7 @@ export const Friends: React.FC = () => {
                         className={`${styles.accepted} ${styles.checkBlock}`}
                       >
                         <Check size={16} />
-                        Accepted
+                        {t("accepted")}
                       </div>
                     )}
                     {friend.status === "purchased" && (
@@ -161,7 +150,7 @@ export const Friends: React.FC = () => {
                         className={`${styles.purchased} ${styles.checkBlock}`}
                       >
                         <Wallet size={16} />
-                        Purchased
+                        {t("purchased")}
                       </div>
                     )}
                   </div>

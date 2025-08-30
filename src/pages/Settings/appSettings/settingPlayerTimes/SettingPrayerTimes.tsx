@@ -5,6 +5,7 @@ import styles from "./SettingPrayerTimes.module.css";
 import { type PrayerSetting } from "./SettingPrayerTimesStore";
 import { usePrayerTimesStore } from "./SettingPrayerTimesStore";
 import { Info } from "lucide-react";
+import { t } from "i18next";
 
 export const SettingPrayerTimes: React.FC = () => {
   const {
@@ -51,14 +52,14 @@ export const SettingPrayerTimes: React.FC = () => {
       <div>
         <h1 className={styles.title}>Prayer Times</h1>
         <p className={styles.subtitle}>
-          Choose the prayers you want to monitor.
+          {t("choosePrayers")}
         </p>
 
         {/* Глобальные переключатели */}
         <div className={styles.globalControls}>
           <div className={styles.toggleGroup}>
             <label className={styles.toggleItem}>
-              <span className={styles.showMain}>Show All Prayer Times</span>
+              <span className={styles.showMain}>{t("showAllPrayerTimes")}</span>
               <input
                 type="checkbox"
                 checked={allPrayersEnabled}
@@ -69,7 +70,7 @@ export const SettingPrayerTimes: React.FC = () => {
             </label>
 
             <label className={styles.toggleItem}>
-              <span>Get All Telegram Notifications</span>
+              <span>{t("getAllTelegramNotifications")}</span>
               <input
                 type="checkbox"
                 checked={allNotificationsEnabled}
@@ -98,7 +99,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
               <div className={styles.toggleGroup}>
                 <label className={styles.toggleItem}>
-                  <span className={styles.showMain}>Show On Main Screen</span>
+                  <span className={styles.showMain}>{t("showOnMainScreen")}</span>
                   <input
                     type="checkbox"
                     checked={prayer.showOnMain}
@@ -109,7 +110,7 @@ export const SettingPrayerTimes: React.FC = () => {
                 </label>
 
                 <label className={styles.toggleItem}>
-                  <span>Get Telegram Notifications</span>
+                  <span>{t("getTelegramNotifications")}</span>
                   <input
                     type="checkbox"
                     checked={prayer.telegramNotifications}

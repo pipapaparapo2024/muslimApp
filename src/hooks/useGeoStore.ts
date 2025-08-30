@@ -1,4 +1,3 @@
-// stores/geoStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
@@ -43,7 +42,6 @@ interface GeoState {
   isInitialized: boolean;
   hasRequestedGeo: boolean;
   
-  // Actions
   fetchFromIpApi: () => Promise<void>;
   setCoords: (coords: { lat: number; lon: number } | null) => void;
   setCity: (city: string | null) => void;
@@ -113,7 +111,6 @@ export const useGeoStore = create<GeoState>()(
               country,
               timestamp: Date.now()
             }));
-            
             set({
               ipData: data,
               coords: data.location,

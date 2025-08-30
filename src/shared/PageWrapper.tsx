@@ -1,6 +1,5 @@
 import React, { useEffect, type CSSProperties, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "../hooks/useLanguages";
 interface PageProps {
   children: React.ReactNode;
   showBackButton?: boolean;
@@ -17,7 +16,6 @@ export const PageWrapper: React.FC<PageProps> = ({
 }) => {
   const navigate = useNavigate();
   const tg = window.Telegram?.WebApp;
-  const { direction } = useLanguage();
   const handleSettings = useCallback(() => {
     navigate("/settings");
   }, [navigate]);
@@ -65,8 +63,6 @@ export const PageWrapper: React.FC<PageProps> = ({
         width: "100%",
         minHeight: "100vh",
         boxSizing: "border-box",
-        direction: direction as "ltr" | "rtl" | undefined,
-        textAlign: direction === "rtl" ? "right" : "left",
       }
     : {};
 

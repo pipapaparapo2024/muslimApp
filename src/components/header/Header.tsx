@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import styles from "./Header.module.css"
+import styles from "./Header.module.css";
 import { BuyPremiumModal } from "../modals/modalBuyPremium/ModalBuyPremium";
 import { useQnAStore } from "../../hooks/useQnAStore";
 import { useDataTimeStore } from "../../pages/Settings/appSettings/dataTime/DataTimeStore";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 interface HeaderProps {
   city: string;
   country: string;
@@ -14,17 +15,18 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   const { hasPremium, premiumTimeLeft, fetchUserData } = useQnAStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-const navigate=useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const getButtonText = () => {
-    if (!hasPremium) return "Buy Premium";
-    if (!premiumTimeLeft) return "Premium Active";
+    if (!hasPremium) return t("buyPremium");
+    if (!premiumTimeLeft) return t("premiumActive");
 
     if (premiumTimeLeft.days > 0) {
-      return `${premiumTimeLeft.days} Days Left`;
+      return `${premiumTimeLeft.days} ${t("daysLeft")}`;
     } else if (premiumTimeLeft.totalHours > 0) {
-      return `${premiumTimeLeft.totalHours} Hours Left`;
+      return `${premiumTimeLeft.totalHours} ${t("hoursLeft")}`;
     } else {
-      return "Buy Premium";
+      return t("buyPremium");
     }
   };
   useEffect(() => {
@@ -53,7 +55,12 @@ const navigate=useNavigate()
         <div className={styles.cityName}>
           {country || "Unknown"}, {city || "Unknown"}
         </div>
-        <div onClick={()=>navigate("/settings/dateTime")} className={styles.formattedDate}>{formattedDate}</div>
+        <div
+          onClick={() => navigate("/settings/dateTime")}
+          className={styles.formattedDate}
+        >
+          {formattedDate}
+        </div>
       </div>
 
       <button

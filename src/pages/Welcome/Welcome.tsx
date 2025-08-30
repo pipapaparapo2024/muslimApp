@@ -9,26 +9,27 @@ import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useTelegram } from "../../hooks/useTelegram";
+import { t } from "i18next";
 
 const steps = [
   {
-    title: "Prayer Reminders",
-    desc: "Stay on track with timely reminders for every prayer throughout the day.",
+    title: t("prayerReminders"),
+    desc: t("stayOnTrack"),
     image: prayerRemindersImage,
   },
   {
-    title: "Read the Quran",
-    desc: "Access the full Quran anytime, anywhere. Beautifully organized and easy to navigate.",
+    title: t("readTheQuran"),
+    desc: t("accessQuran"),
     image: quranImage,
   },
   {
-    title: "Scan Your Food",
-    desc: "Quickly check if a product is halal or haram by scanning it — clear answers in seconds.",
+    title: t("scanYourFood"),
+    desc: t("checkHalal"),
     image: scannerImage,
   },
   {
-    title: "Get Trusted Religious Answers",
-    desc: "Receive accurate, reliable responses to help you confidently understand your faith.",
+    title: t("trustedAnswers"),
+    desc: t("receiveAnswers"),
     image: qnaImage,
   },
 ];
@@ -228,10 +229,15 @@ export const Welcome: React.FC = () => {
             ))}
           </div>
           <button className={styles.welcomeButton} onClick={handleNext}>
-            {step === steps.length - 1 ? "Start" : "Next"}
+            {step === steps.length - 1 ? t("start") : t("next")}
           </button>
         </div>
       </div>
     </PageWrapper>
   );
 };
+// import { useNavigate } from "react-router-dom"
+// export const Welcome:React.FC=()=>{
+//   const navigate=useNavigate()
+//   return<button onClick={()=>navigate("/home")}>home</button>
+// }

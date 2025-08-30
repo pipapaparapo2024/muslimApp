@@ -1,9 +1,9 @@
-
 .en {
   font-family: var(--typography-body);
+  direction: ltr;
 }
 
 .ar {
   font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
+  direction: rtl;
 }
-

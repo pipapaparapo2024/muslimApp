@@ -9,6 +9,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useScannerStore } from "../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
+import { t } from "i18next";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
@@ -71,7 +72,7 @@ export const Scanner: React.FC = () => {
 
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return "Scan Picture";
+      return t("scanPicture");
     }
     return "Buy Requests";
   };
@@ -107,15 +108,12 @@ export const Scanner: React.FC = () => {
         {/* Центральный контент */}
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <img src={scanner} alt="Instant Halal Check" />
+            <img src={scanner} alt={t("instantHalalCheck")} />
           </div>
 
           <div className={styles.halalCheck}>
             <span>Instant Halal Check</span>
-            <p>
-              Take a photo of the product's ingredients to check if it's halal
-              or haram. You'll get a quick result with a short explanation.
-            </p>
+            <p>{t("takePhotoCheck")}</p>
             <p className={styles.warning}>
               <TriangleAlert
                 strokeWidth={1.5}
@@ -123,7 +121,7 @@ export const Scanner: React.FC = () => {
                 color="white"
                 fill="#F59E0B"
               />
-              The result is for informational purposes only.
+              {t("informationalOnly")}
             </p>
           </div>
         </div>

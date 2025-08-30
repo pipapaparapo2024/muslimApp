@@ -32,6 +32,7 @@
   box-sizing: border-box;
   margin-bottom: var(--numbers-4);
   outline: none;
+  text-align: center;
 }
 
 .submitButton {

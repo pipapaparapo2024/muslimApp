@@ -1,4 +1,3 @@
-// Home.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
@@ -10,6 +9,7 @@ import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useGeoStore } from "../../hooks/useGeoStore";
+import { t } from "i18next";
 
 // Ключи для localStorage
 const GEO_PERMISSION_STATUS = "geoPermissionStatus";
@@ -37,12 +37,14 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-
+  console.log(coords?.lat)
+  console.log(coords?.lon)
   const [showGeoPrompt, setShowGeoPrompt] = useState(false);
   const [showSensorPrompt, setShowSensorPrompt] = useState(false);
   const [sensorPermission, setSensorPermission] = useState<string>(
     localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
   );
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
   const sensorRequested = useRef(false);
@@ -63,6 +65,43 @@ export const Home: React.FC = () => {
       console.warn("Failed to parse cached IP data", e);
     }
     return null;
+  };
+
+  // Функция для сброса и обновления данных геолокации
+  const handleRefreshLocationData = async () => {
+    setIsRefreshing(true);
+    
+    // Сбрасываем кэш IP данных
+    localStorage.removeItem(IP_DATA_CACHE);
+    localStorage.removeItem(CACHED_LOCATION);
+    
+    // Сбрасываем состояние геоданных
+    setCoords(null);
+    setCity(null);
+    setCountry(null);
+    setTimeZone(null);
+    setError(null);
+    
+    // Сбрасываем флаги
+    ipDataFetched.current = false;
+    geoRequested.current = false;
+    
+    // Запрашиваем новые данные
+    try {
+      await fetchFromIpApi();
+      ipDataFetched.current = true;
+      
+      // Если есть разрешение на геолокацию, также запрашиваем точные координаты
+      const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
+      if (geoStatus === "granted") {
+        await requestGeolocation();
+      }
+    } catch (error) {
+      console.error("Failed to refresh location data:", error);
+      setError("Не удалось обновить данные местоположения");
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   // Функция для запроса геолокации
@@ -187,7 +226,7 @@ export const Home: React.FC = () => {
         setCity(cachedIpData.city || "Unknown");
         setCountry(cachedIpData.country || "Unknown");
         setTimeZone(cachedIpData.timeZone || null);
-        
+
         // Отправляем данные в хранилище
         if (!settingsSent) {
           sendUserSettings({
@@ -209,7 +248,7 @@ export const Home: React.FC = () => {
           const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
           if (isFresh && data.lat && data.lon) {
             setCoords({ lat: data.lat, lon: data.lon });
-            
+
             // Получаем данные по IP для города/страны
             if (!ipDataFetched.current) {
               try {
@@ -261,7 +300,17 @@ export const Home: React.FC = () => {
     };
 
     initializeLocation();
-  }, [settingsSent, sendUserSettings, fetchFromIpApi, setCoords, setCity, setCountry, setTimeZone, setError, setHasRequestedGeo]);
+  }, [
+    settingsSent,
+    sendUserSettings,
+    fetchFromIpApi,
+    setCoords,
+    setCity,
+    setCountry,
+    setTimeZone,
+    setError,
+    setHasRequestedGeo,
+  ]);
 
   // Проверка доступа к датчикам
   useEffect(() => {
@@ -315,6 +364,22 @@ export const Home: React.FC = () => {
         country={country || "Unknown country"}
       />
       <div className={styles.homeRoot}>
+        {/* Кнопка обновления данных местоположения */}
+        <div className={styles.refreshButtonContainer}>
+          <button 
+            className={styles.refreshLocationButton}
+            onClick={handleRefreshLocationData}
+            disabled={isRefreshing}
+            title="Обновить данные местоположения"
+          >
+            {isRefreshing ? (
+              <span>Обновление...</span>
+            ) : (
+              <span>🔄 Обновить местоположение</span>
+            )}
+          </button>
+        </div>
+
         {/* Промпт для геолокации iOS */}
         {showGeoPrompt && (
           <div className={styles.permissionPrompt}>
@@ -385,9 +450,9 @@ export const Home: React.FC = () => {
           <div className={styles.prayerTimesQiblaContainer}>
             <PrayerTimes />
             <div className={styles.qiblaBlock}>
-              <div className={styles.titleFaceKaaba}>Face the Kaaba</div>
+              <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
               <div className={styles.diskFaceKaaba}>
-                Use the map to align yourself correctly for Salah.
+                {t("useMapForSalah")}
               </div>
               <div className={styles.qiblaBlockRow}>
                 <div onClick={handleMapClick} className={styles.mapContainer}>
@@ -412,3 +477,38 @@ export const Home: React.FC = () => {
     </PageWrapper>
   );
 };
+
+// import React, { useEffect, useState } from 'react'
+// import axios from 'axios'
+
+// export const Home:React.FC=()=> {
+//     const [data, setData] = useState(null)
+//     const [loading, setLoading] = useState(true)
+//     const [error, setError] = useState(null)
+
+//     useEffect(() => {
+//         axios
+//             .post('https://islam_app.myfavouritegames.org/api/v1/user/auth/', {
+//                 initData: 'sdcsdcs',
+//             })
+//             .then((response) => {
+//                 setData(response.data)
+//                 setLoading(false)
+//             })
+//             .catch((err) => {
+//                 setError(err.message || 'Ошибка при загрузке данных')
+//                 setLoading(false)
+//             })
+//     }, [])
+
+//     if (loading) return <div>Загрузка данных...</div>
+//     if (error) return <div>Ошибка: {error}</div>
+
+//     return (
+//         <div>
+//             <h2>Данные с API compass:</h2>
+//             <pre>{JSON.stringify(data, null, 2)}</pre>
+//         </div>
+//     )
+// }
+

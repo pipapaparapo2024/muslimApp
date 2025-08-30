@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./SurahList.module.css";
-import { useSurahListStore } from "./SurahListStore";
+import {
+  useSurahListStore,
+  type Surah,
+} from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
-import { ChevronRight, Search } from "lucide-react";
-
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { useLanguage } from "../../../hooks/useLanguages";
+import { t } from "i18next";
 export const SurahList: React.FC = () => {
+  const navigate = useNavigate();
   const {
     surahs,
     fetchVariants,
     fetchSurahs,
-    selectedSurah,
     setSelectedSurah,
     variants,
     selectedVariant,
@@ -18,28 +23,45 @@ export const SurahList: React.FC = () => {
     loading,
     error,
   } = useSurahListStore();
-
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetchVariants(); // Сначала получаем варианты
-  }, []);
+    fetchVariants();
+  }, [fetchVariants]);
 
   useEffect(() => {
-    if (variants.length > 0 && !selectedVariant) {
-      setSelectedVariant(variants[0]); // Автоматически выбираем первый вариант
-    }
-  }, [variants, selectedVariant, setSelectedVariant]);
-
-  useEffect(() => {
+    // После загрузки вариантов загружаем суры для выбранного варианта
     if (selectedVariant) {
-      fetchSurahs(); // После выбора варианта — загружаем сур
+      fetchSurahs(selectedVariant.id);
     }
   }, [selectedVariant, fetchSurahs]);
 
-  const filteredSurahs = surahs.filter((surah) =>
-    surah.englishName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSurahs = surahs.filter(
+    (surah) =>
+      surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      surah.englishNameTranslation
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
   );
+
+  const handleSurahClick = (surah: Surah) => {
+    setSelectedSurah(surah);
+    // Переход на страницу аятов с передачей параметров
+    navigate(`/quran/${surah.id}`, {
+      state: {
+        surah,
+        variantId: selectedVariant?.id,
+      },
+    });
+  };
+
+  const handleVariantChange = (variantId: string) => {
+    const variant = variants.find((v) => v.id === variantId);
+    if (variant) {
+      setSelectedVariant(variant);
+    }
+  };
 
   return (
     <PageWrapper showBackButton>
@@ -48,19 +70,26 @@ export const SurahList: React.FC = () => {
           <img src={quaran} alt="Quran" className={styles.quranImage} />
           <div className={styles.holyHeader}>
             <div className={styles.titleHeader}>
-              <div className={styles.nameHoly}>Holy Quran</div>
+              <div className={styles.nameHoly}>{t("holyQuran")}</div>
               <div className={styles.sahihInternational}>
-                {selectedVariant?.name} <ChevronRight />
+                {selectedVariant?.name}{" "}
+                {language === "ar" ? (
+                  <ChevronLeft size={24} />
+                ) : (
+                  <ChevronRight size={24} />
+                )}
               </div>
             </div>
-            <div className={styles.diskHeader}>Discover the Quran's 114 chapters</div>
+            <div className={styles.diskHeader}>
+              {t("discoverChapters")}
+            </div>
           </div>
 
           <div className={styles.searchContainer}>
             <Search strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder="Search Chapters"
+              placeholder={t("searchChapters")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -70,14 +99,12 @@ export const SurahList: React.FC = () => {
           {/* Выбор варианта перевода */}
           {variants.length > 0 && (
             <div className={styles.variantSelector}>
-              <label>Translation:</label>
+              <label className={styles.variantLabel}>{t("translation")}</label>
               <select
-                value={selectedVariant?.id || ''}
-                onChange={(e) => {
-                  const variant = variants.find(v => v.id === e.target.value);
-                  if (variant) setSelectedVariant(variant);
-                }}
+                value={selectedVariant?.id || ""}
+                onChange={(e) => handleVariantChange(e.target.value)}
                 className={styles.select}
+                disabled={loading}
               >
                 {variants.map((variant) => (
                   <option key={variant.id} value={variant.id}>
@@ -90,24 +117,27 @@ export const SurahList: React.FC = () => {
         </div>
 
         {/* Ошибка */}
-        {error && (
-          <div className={styles.error}>
-            Error: {error}
+        {error && <div className={styles.error}>Error: {error}</div>}
+
+        {/* Загрузка */}
+        {loading && (
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            {t("loadingChapters")}
           </div>
         )}
 
-        {/* Загрузка */}
-        {loading && <div className={styles.loading}>Loading...</div>}
-
         <div className={styles.blockChapter}>
-          {filteredSurahs.length === 0 ? (
-            <div className={styles.surahItem}>No chapters found</div>
+          {!loading && filteredSurahs.length === 0 ? (
+            <div className={styles.noResults}>
+              {t("noChaptersFound")} "{searchQuery}"
+            </div>
           ) : (
             filteredSurahs.map((surah) => (
               <div
                 key={surah.id}
-                className={`${styles.surahItem} ${selectedSurah?.id === surah.id ? styles.selected : ""}`}
-                onClick={() => setSelectedSurah(surah)}
+                className={styles.surahItem}
+                onClick={() => handleSurahClick(surah)}
               >
                 <div className={styles.surahNumber}>{surah.id}.</div>
                 <div className={styles.surahContent}>
@@ -116,12 +146,19 @@ export const SurahList: React.FC = () => {
                     {surah.englishNameTranslation}
                   </div>
                   <div className={styles.surahDetails}>
-                    <span className={styles.ayahs}>{surah.numberOfAyahs} Ayahs</span>
+                    <span className={styles.ayahs}>
+                      {surah.numberOfAyahs} {t("ayahs")}
+                    </span>
                     <span className={styles.revelationType}>
-                      {surah.revelationType === 'Makkah' ? 'مكة' : 'مدنية'}
+                      {surah.revelationType === "Makkah" ? "مكة" : "مدينة"}
                     </span>
                   </div>
                 </div>
+                {language === "ar" ? (
+                  <ChevronLeft size={24} />
+                ) : (
+                  <ChevronRight size={24} />
+                )}
               </div>
             ))
           )}

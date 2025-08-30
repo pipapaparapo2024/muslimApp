@@ -9,6 +9,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { useHistoryStore } from "./History/HistoryStore";
+import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
@@ -20,6 +21,7 @@ export const QnA: React.FC = () => {
   const [question, setQuestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchUserData();
@@ -43,9 +45,9 @@ export const QnA: React.FC = () => {
 
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return isSubmitting ? "Asking..." : "Ask Question";
+      return isSubmitting ? t("asking") : t("askQuestion");
     }
-    return "Buy Requests";
+    return t("buyRequests");
   };
 
   const showAskButton =
@@ -107,10 +109,9 @@ export const QnA: React.FC = () => {
           </div>
 
           <div className={styles.guidance}>
-            <span>Need Guidance?</span>
+            <span>{t("needGuidance")}</span>
             <p>
-              Get clear, concise answers to what matters most. Ask and we'll
-              respond right here.
+              {t("getClearAnswers")}
             </p>
           </div>
         </div>
@@ -128,7 +129,7 @@ export const QnA: React.FC = () => {
         >
           <input
             type="text"
-            placeholder="Your Question"
+            placeholder={t("yourQuestion")}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             disabled={!showAskButton || isSubmitting}

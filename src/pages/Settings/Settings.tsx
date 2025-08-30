@@ -9,6 +9,7 @@ import { ModalLanguage } from "../../components/modals/modalSettings/ModalLangua
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import {
   Calendar,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Earth,
@@ -52,16 +53,20 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => navigate("/settings/region")}
           >
-            <div className={styles.iconWrapper}>
-              <Earth strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Earth strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("region")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Region</div>
+            <div className={styles.settingItemRight}>
               <div className={styles.description}>Russia, Voronezh</div>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight
-              size={20}
-            />
           </div>
 
           {/* Language */}
@@ -69,14 +74,20 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => setIsLanguageModalOpen(true)}
           >
-            <div className={styles.iconWrapper}>
-              <Languages strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Languages strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("language")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Language</div>
+            <div className={styles.settingItemRight}>
               <div className={styles.description}>{languageLabel}</div>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
 
           {/* Date & Time */}
@@ -84,13 +95,19 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => navigate("/settings/dateTime")}
           >
-            <div className={styles.iconWrapper}>
-              <Calendar strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Calendar strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("dateTime")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Date & Time</div>
+            <div className={styles.settingItemRight}>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
 
           {/* Prayer Times */}
@@ -98,16 +115,22 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => navigate("/settings/prayerTimes")}
           >
-            <div className={styles.iconWrapper}>
-              <Clock strokeWidth={1.5} color={getIconColor()} />
-            </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Prayer Times</div>
-              <div className={styles.description}>
-                {visiblePrayers.length} Selected
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Clock strokeWidth={1.5} color={getIconColor()} />
               </div>
+              <div className={styles.title}>{t("prayerTimes")}</div>
             </div>
-            <ChevronRight size={20} />
+            <div className={styles.settingItemRight}>
+              <div className={styles.description}>
+                {visiblePrayers.length} {t("selected")}
+              </div>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
+            </div>
           </div>
 
           {/* Theme */}
@@ -115,62 +138,88 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => setIsThemeModalOpen(true)}
           >
-            <div className={styles.iconWrapper}>
-              <Sun strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Sun strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("theme")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Theme</div>
+            <div className={styles.settingItemRight}>
               <div className={styles.description}>{themeLabel}</div>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
         </div>
 
         {/* === Important Links === */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Important Links</h2>
+          <h2 className={styles.sectionTitle}>{t("importantLinks")}</h2>
 
+          {/* Privacy Policy */}
           <div
             className={styles.settingItem}
             onClick={() => navigate("/privacy-policy")}
           >
-            <div className={styles.iconWrapper}>
-              <Shield strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Shield strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("privacyPolicy")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Privacy Policy</div>
+            <div className={styles.settingItemRight}>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
 
+          {/* Terms Of Use */}
           <div
             className={styles.settingItem}
             onClick={() => navigate("/terms-of-use")}
           >
-            <div className={styles.iconWrapper}>
-              <FileText strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <FileText strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("termsOfUse")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Terms Of Use</div>
+            <div className={styles.settingItemRight}>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
 
+          {/* Contact Us */}
           <div
             className={styles.settingItem}
             onClick={() => navigate("/contact-us")}
           >
-            <div className={styles.iconWrapper}>
-              <MessageCircle strokeWidth={1.5} color={getIconColor()} />
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <MessageCircle strokeWidth={1.5} color={getIconColor()} />
+              </div>
+              <div className={styles.title}>{t("contactUs")}</div>
             </div>
-            <div className={styles.content}>
-              <div className={styles.title}>Contact Us</div>
+            <div className={styles.settingItemRight}>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
-            <ChevronRight size={20} />
           </div>
         </div>
       </div>
-
       {/* ✅ Language Modal — управляемый */}
       <ModalLanguage
         isOpen={isLanguageModalOpen}

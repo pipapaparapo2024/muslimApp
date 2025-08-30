@@ -69,16 +69,15 @@
   font-size: var(--numbers-16);
   margin: var(--numbers-16) 0 var(--numbers-4);
 }
-
+.ar .titleFaceKaaba{
+  text-align: right;
+}
 .diskFaceKaaba {
   color: var(--desk-text);
   margin-bottom: var(--numbers-16);
   font-size: var(--numbers-14);
 }
 
-.qiblaBlock {
-  text-align: left;
-}
 
 .qiblaBlockRow {
   display: flex;

@@ -39,7 +39,7 @@ export const useLanguage = () => {
   const { country, isInitialized: isGeoInitialized } = useGeoStore();
   const [isChanging, setIsChanging] = useState(false); // 🔥 Новое состояние
   const getDefaultLanguage = (): Language => {
-    if (country && ARABIC_SPEAKING_COUNTRIES.has(country.name)) {
+    if (country && ARABIC_SPEAKING_COUNTRIES.has(country)) {
       return "ar";
     }
     return "en";

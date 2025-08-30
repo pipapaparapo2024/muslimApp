@@ -1,3 +1,16 @@
+.en {
+  font-family: var(--typography-body);
+  direction: ltr;
+}
+
+.ar {
+  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
+  direction: rtl;
+}
+
+.settingsContainer {
+  padding: 16px;
+}
 
 .header {
   display: flex;
@@ -21,50 +34,81 @@
   font-weight: 600;
   margin-bottom: var(--numbers-16);
 }
-
+.ar .sectionTitle{
+  text-align: right;
+}
 .settingItem {
   display: flex;
   align-items: center;
-  margin: var(--numbers-6) 0; 
+  justify-content: space-between;
+  margin: var(--numbers-6) 0;
   padding: var(--numbers-12) var(--numbers-16);
-  border-radius: var(--roundings-medium); 
+  border-radius: var(--roundings-medium);
   cursor: pointer;
   background: var(--bg-surface);
   transition: transform 0.4s ease;
+  gap: var(--numbers-16);
 }
 
 .settingItem:hover {
   transform: scale(1.02);
 }
-.settingItem .description:last-child {
+
+/* Левая часть: иконка + название */
+.settingItemLeft {
   display: flex;
-  margin-left: var(--numbers-4);
   align-items: center;
-  align-self: stretch; /* Занимает всю высоту родителя */
+  gap: var(--numbers-8);
+  flex: 1;
 }
 
 .iconWrapper {
   width: var(--numbers-24);
-  color: var(--text);
   height: var(--numbers-24);
-  margin-right: var(--numbers-16);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
 }
 
-.content {
+/* Правая часть: описание + стрелка */
+.settingItemRight {
   display: flex;
-  justify-content: space-between;
-  flex: 1;
+  align-items: center;
+  gap: var(--numbers-8);
 }
 
 .title {
   font-size: var(--numbers-16);
   font-weight: 500;
   color: var(--text);
+  white-space: nowrap;
 }
 
 .description {
   font-size: var(--numbers-14);
   color: var(--desk-text);
-  margin-top: var(--numbers-2);
+  white-space: nowrap;
+}
+
+/* Для RTL (арабской версии) */
+.ar .settingItem {
+  flex-direction: row-reverse;
+}
+
+.ar .settingItemLeft {
+  flex-direction: row-reverse;
+}
+
+.ar .settingItemRight {
+  flex-direction: row-reverse;
+}
+
+.ar .iconWrapper {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.ar .chevronIcon {
+  transform: rotate(180deg);
 }
