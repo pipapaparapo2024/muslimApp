@@ -4,40 +4,11 @@
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.3s ease;
 }
-
 html,
 body,
 #root {
   height: 100%;
   color: var(--text);
-}
-
-/* Базовые стили для направлений */
-:root {
-  --start: left;
-  --end: right;
-  --text-align: left;
-}
-
-/* Переменные для RTL/LTR */
-[dir="rtl"] {
-  --start: right;
-  --end: left;
-  --text-align: right;
-}
-
-[dir="ltr"] {
-  --start: left;
-  --end: right;
-  --text-align: left;
-}
-/* Оставьте только это: */
-html.en {
-  font-family: var(--typography-body);
-}
-
-html.ar {
-  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
 }
 
 /* Светлая тема (по умолчанию) */

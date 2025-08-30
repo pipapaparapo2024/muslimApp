@@ -1,7 +1,7 @@
+// hooks/useUserParametersStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { quranApi } from "../api/api";
-import { useGeoStore } from "./useGeoStore";
 
 interface UserSettings {
   cityName: string;
@@ -16,7 +16,11 @@ interface UserParametersState {
   isLoading: boolean;
   error: string | null;
   setWasLogged: (value: boolean) => void;
-  sendUserSettings: () => Promise<void>;
+  sendUserSettings: (locationData: {
+    city: string | null;
+    country: string | null;
+    timeZone: string | null;
+  }) => Promise<void>;
   reset: () => void;
 }
 
@@ -30,7 +34,7 @@ export const useUserParametersStore = create<UserParametersState>()(
 
       setWasLogged: (value) => set({ wasLogged: value }),
 
-      sendUserSettings: async () => {
+      sendUserSettings: async (locationData) => {
         const { wasLogged, settingsSent } = get();
         
         // Если настройки уже отправлены или пользователь уже был залогинен - пропускаем
@@ -41,20 +45,17 @@ export const useUserParametersStore = create<UserParametersState>()(
         set({ isLoading: true, error: null });
 
         try {
-          // Получаем геоданные из другого стора
-          const { city, country, timeZone } = useGeoStore.getState();
-          
-          // Формируем данные для отправки согласно спецификации API
+          // Формируем данные для отправки из полученных locationData
           const settingsData: UserSettings = {
-            cityName: city || "Unknown",
-            countryName: country?.name || "Unknown",
-            timeZone: timeZone || "UTC",
-            language: "ru" // Можно определить язык из навигатора или использовать дефолтный
+            cityName: locationData.city || "Unknown",
+            countryName: locationData.country || "Unknown",
+            timeZone: locationData.timeZone || "UTC",
+            language: "ru"
           };
 
           console.log("Отправляем настройки пользователя:", settingsData);
 
-          const response = await quranApi.post("/settings/all", settingsData, {
+          const response = await quranApi.post("api/v1/settings/all", settingsData, {
             headers: {
               "Content-Type": "application/json"
             }

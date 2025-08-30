@@ -1,0 +1,9 @@
+
+.en {
+  font-family: var(--typography-body);
+}
+
+.ar {
+  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
+}
+

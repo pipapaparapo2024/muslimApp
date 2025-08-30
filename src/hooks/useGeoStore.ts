@@ -1,8 +1,9 @@
+// stores/geoStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
 
-interface IpData {
+export interface IpData {
   success: boolean;
   ip: string;
   type: string;
@@ -24,23 +25,35 @@ interface IpData {
   };
 }
 
+export interface LocationData {
+  coords: { lat: number; lon: number } | null;
+  city: string | null;
+  country: string | null;
+  timeZone: string | null;
+}
+
 interface GeoState {
   ipData: IpData | null;
   coords: { lat: number; lon: number } | null;
   city: string | null;
-  country: { code: string; name: string } | null;
+  country: string | null;
   timeZone: string | null;
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
   hasRequestedGeo: boolean;
+  
+  // Actions
   fetchFromIpApi: () => Promise<void>;
-  setIpData: (data: IpData) => void;
+  setCoords: (coords: { lat: number; lon: number } | null) => void;
+  setCity: (city: string | null) => void;
+  setCountry: (country: string | null) => void;
+  setTimeZone: (timeZone: string | null) => void;
   setError: (error: string | null) => void;
   setLoading: (loading: boolean) => void;
-  setInitialized: () => void;
   setHasRequestedGeo: (requested: boolean) => void;
-  updateCoords: (coords: { lat: number; lon: number }) => void; // 👈 Добавленная функция
+  reset: () => void;
+  getLocationData: () => LocationData;
 }
 
 export const useGeoStore = create<GeoState>()(
@@ -56,59 +69,109 @@ export const useGeoStore = create<GeoState>()(
       isInitialized: false,
       hasRequestedGeo: false,
 
-      setInitialized: () => set({ isInitialized: true }),
-      setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
-      
-      setIpData: (data) => {
-        const city = data.city || data.region || data.country.name;
-        set({
-          ipData: data,
-          coords: data.location,
-          city,
-          country: data.country,
-          timeZone: data.timeZone,
-        });
-      },
-
-      setError: (error) => set({ error }),
-      setLoading: (loading) => set({ isLoading: loading }),
-
-      // 👇 Новая функция для обновления координат
-      updateCoords: (coords) => {
-        set({ coords, hasRequestedGeo: true });
-      },
-
       fetchFromIpApi: async () => {
-        if (get().coords || get().hasRequestedGeo || get().isLoading) {
-          return;
+        // Проверяем есть ли свежие данные в localStorage
+        const cachedData = localStorage.getItem('ipDataCache');
+        if (cachedData) {
+          try {
+            const data = JSON.parse(cachedData);
+            // Если данные свежие (менее 24 часов), используем их
+            if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+              set({
+                ipData: data,
+                coords: data.location,
+                city: data.city,
+                country: data.country,
+                timeZone: data.timeZone,
+                isLoading: false,
+                error: null
+              });
+              return;
+            }
+          } catch (e) {
+            console.warn("Failed to parse cached IP data", e);
+          }
         }
 
-        set({ isLoading: true, error: null, hasRequestedGeo: true });
+        console.log("🔄 Запрашиваем геоданные с API...");
+        set({ isLoading: true, error: null });
 
         try {
           const response = await axios.get<IpData>(
             "https://api.my-ip.io/v2/ip.json"
           );
           const data = response.data;
-
+          
           if (data.success) {
-            get().setIpData(data);
+            const city = data.city || data.region || data.country?.name || "Unknown";
+            const country = data.country?.name || "Unknown";
+            
+            // Сохраняем данные в кэш
+            localStorage.setItem('ipDataCache', JSON.stringify({
+              ...data,
+              city,
+              country,
+              timestamp: Date.now()
+            }));
+            
+            set({
+              ipData: data,
+              coords: data.location,
+              city,
+              country,
+              timeZone: data.timeZone,
+              isLoading: false,
+              error: null
+            });
           } else {
             throw new Error("API returned success: false");
           }
         } catch (err: any) {
           const message = err.message || "Failed to get location";
-          set({ error: message });
-          console.error("IP API Error:", message);
-        } finally {
-          set({ isLoading: false });
+          console.error("❌ Ошибка получения геоданных:", message, err);
+          set({ 
+            error: message,
+            isLoading: false
+          });
         }
       },
+
+      // Остальные методы без изменений
+      setCoords: (coords) => set({ coords }),
+      setCity: (city) => set({ city }),
+      setCountry: (country) => set({ country }),
+      setTimeZone: (timeZone) => set({ timeZone }),
+      setError: (error) => set({ error }),
+      setLoading: (loading) => set({ isLoading: loading }),
+      setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
+
+      reset: () => set({
+        ipData: null,
+        coords: null,
+        city: null,
+        country: null,
+        timeZone: null,
+        error: null,
+        hasRequestedGeo: false,
+        isLoading: false
+      }),
+
+      getLocationData: () => {
+        const state = get();
+        return {
+          coords: state.coords,
+          city: state.city,
+          country: state.country,
+          timeZone: state.timeZone
+        };
+      }
     }),
     {
       name: "geo-storage",
       onRehydrateStorage: () => (state) => {
-        state?.setInitialized();
+        if (state) {
+          state.isInitialized = true;
+        }
       },
     }
   )

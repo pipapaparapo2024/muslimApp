@@ -1,4 +1,3 @@
-// components/modals/modalSettings/ModalTheme.tsx
 import React from "react";
 import styles from "./ModalTheme.module.css";
 import { Check, Moon, Smartphone, Sun } from "lucide-react";

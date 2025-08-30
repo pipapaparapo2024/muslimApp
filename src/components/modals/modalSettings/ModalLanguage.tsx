@@ -23,11 +23,15 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     { code: "ar", name: "Arabic", url: ar },
   ] as const;
 
-  const handleSelect = (lang: "en" | "ar") => {
-    onLanguageChange?.(lang);
-    onClose?.(); // Закрываем модалку после выбора
+  // В ModalLanguage компоненте
+  const handleSelect = async (lang: "en" | "ar") => {
+    try {
+      await onLanguageChange?.(lang);
+      onClose?.();
+    } catch (error) {
+      console.error("Error changing language:", error);
+    }
   };
-
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

@@ -30,7 +30,6 @@ export const Settings: React.FC = () => {
   const { language, changeLanguage, languageLabel } = useLanguage();
   console.log("Current language:", i18n.language);
   const visiblePrayers = prayers.filter((p) => p.showOnMain);
-
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);
@@ -60,7 +59,9 @@ export const Settings: React.FC = () => {
               <div className={styles.title}>Region</div>
               <div className={styles.description}>Russia, Voronezh</div>
             </div>
-            <ChevronRight size={20} />
+            <ChevronRight
+              size={20}
+            />
           </div>
 
           {/* Language */}
