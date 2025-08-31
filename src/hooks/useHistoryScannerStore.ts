@@ -230,16 +230,12 @@ export const useHistoryStore = create<HistoryState>()(
 export const historyUtils = {
   groupByDate: (history: HistoryItem[]) => {
     return history.reduce((acc, item) => {
-      const date = new Date(item.timestamp).toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-
-      if (!acc[date]) {
-        acc[date] = [];
+      const dateKey = new Date(item.timestamp).toISOString().split('T')[0];
+      
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
       }
-      acc[date].push(item);
+      acc[dateKey].push(item);
       return acc;
     }, {} as Record<string, HistoryItem[]>);
   },

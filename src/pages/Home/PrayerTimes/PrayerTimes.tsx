@@ -21,6 +21,17 @@ export const PrayerTimes: React.FC = () => {
   const isLoading = usePrayerTimesStore((state) => state.isLoading);
   const lastUpdated = usePrayerTimesStore((state) => state.lastUpdated);
   const is24Hour = useDataTimeStore((state) => state.is24Hour);
+  
+  // Функция для логирования молитв (для отладки)
+  useEffect(() => {
+    console.log("Current prayers:", prayers);
+    if (prayers.length > 0) {
+      prayers.forEach(prayer => {
+        console.log(`Prayer: ${prayer.name}, Original: ${prayer.originalName}, Translated: ${t(prayer.originalName)}`);
+      });
+    }
+  }, [prayers]);
+
   // Обновляем функцию formatTime для поддержки обоих форматов
   const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
@@ -43,6 +54,7 @@ export const PrayerTimes: React.FC = () => {
       return `${hour12}:${formattedMinutes} ${ampm}`;
     }
   };
+  
   const calculatePrayerTimes = usePrayerTimesStore(
     (state) => state.calculatePrayerTimes
   );
@@ -97,15 +109,13 @@ export const PrayerTimes: React.FC = () => {
   // Сортируем молитвы: сначала будущие, потом прошедшие
   const sortedVisiblePrayers = useMemo(() => {
     const visiblePrayers = prayers.filter((p) => p.showOnMain);
-
     return visiblePrayers.sort((a, b) => {
       const aPassed = isPrayerPassed(a.calculatedTime);
       const bPassed = isPrayerPassed(b.calculatedTime);
 
-      if (aPassed && !bPassed) return 1; // a прошедшая, b будущая → a после b
-      if (!aPassed && bPassed) return -1; // a будущая, b прошедшая → a перед b
+      if (aPassed && !bPassed) return 1;
+      if (!aPassed && bPassed) return -1;
 
-      // Если оба будущие или оба прошедшие, сортируем по времени
       const aTime = toDate(a.calculatedTime)?.getTime() || 0;
       const bTime = toDate(b.calculatedTime)?.getTime() || 0;
       return aTime - bTime;
@@ -115,27 +125,32 @@ export const PrayerTimes: React.FC = () => {
   // Инициализация или обновление времени молитв
   useEffect(() => {
     const initializePrayerTimes = async () => {
-      if (geoData.coords && prayers.length === 0) {
-        await calculatePrayerTimes();
+      // Если нет координат, не пытаемся рассчитывать молитвы
+      if (!geoData.coords) {
+        console.log("No coordinates available");
         return;
       }
 
-      if (
-        lastUpdated &&
-        new Date(lastUpdated).getTime() + 24 * 60 * 60 * 1000 < Date.now()
-      ) {
-        await updatePrayerTimes();
+      // Если молитвы уже есть и не устарели, не обновляем
+      if (prayers.length > 0 && lastUpdated) {
+        const lastUpdateDate = new Date(lastUpdated);
+        const hoursDiff = (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
+        if (hoursDiff < 24) {
+          console.log("Prayer times are up to date");
+          return;
+        }
+      }
+
+      // Если молитв нет или они устарели, рассчитываем заново
+      try {
+        await calculatePrayerTimes();
+      } catch (error) {
+        console.error("Error calculating prayer times:", error);
       }
     };
 
     initializePrayerTimes();
-  }, [
-    geoData.coords,
-    calculatePrayerTimes,
-    updatePrayerTimes,
-    prayers.length,
-    lastUpdated,
-  ]);
+  }, [geoData.coords, calculatePrayerTimes, prayers.length, lastUpdated]);
 
   const handlePrayerClick = (prayer: PrayerSetting) => {
     setSelectedPrayer(prayer);
@@ -151,9 +166,33 @@ export const PrayerTimes: React.FC = () => {
     return (
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
-          <span className={styles.title}>Prayer Times</span>
+          <span className={styles.title}>{t("prayerTimes")} </span>
         </div>
         <div className={styles.subtitle}>{t("calculatingPrayerTimes")}</div>
+      </div>
+    );
+  }
+
+  // Если нет молитв для отображения
+  if (sortedVisiblePrayers.length === 0) {
+    return (
+      <div className={styles.prayerTimesContainer}>
+        <div className={styles.headerRow}>
+          <span className={styles.title}>{t("prayerTimes")} </span>
+          <div className={styles.actions}>
+            <Pen
+              size={16}
+              onClick={() => navigate("/settings/prayerTimes")}
+              className={styles.editIcon}
+            />
+          </div>
+        </div>
+        <div className={styles.subtitle}>
+          {t("viewTodaysSalah")}
+        </div>
+        <div className={styles.noPrayers}>
+          {t("noPrayersAvailable")}
+        </div>
       </div>
     );
   }
@@ -161,7 +200,7 @@ export const PrayerTimes: React.FC = () => {
   return (
     <div className={styles.prayerTimesContainer}>
       <div className={styles.headerRow}>
-        <span className={styles.title}>Prayer Times</span>
+        <span className={styles.title}>{t("prayerTimes")} </span>
         <div className={styles.actions}>
           <Pen
             size={16}
@@ -196,7 +235,7 @@ export const PrayerTimes: React.FC = () => {
                   {t("in")} {minutesUntil} {t("minutes")}
                 </div>
               )}
-              <div className={styles.prayerName}>{prayer.name}</div>
+              <div className={styles.prayerName}>{t(prayer.originalName)}</div>
               <div className={styles.prayerTime}>{time}</div>
             </div>
           );

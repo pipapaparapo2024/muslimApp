@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { CircleCheck, CircleX, Upload } from "lucide-react";
+import { t } from "i18next";
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -61,7 +62,7 @@ export const ScannerShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>Запрос не найден</div>
+        <div>Read more about it</div>
       </PageWrapper>
     );
   }
@@ -75,21 +76,21 @@ export const ScannerShareStory: React.FC = () => {
             <div className={styles.blockAccess}>
               {currentItem.result == true ? (
                 <div className={`${styles.accessBlock} ${styles.haram}`}>
-                  <CircleX size={24} strokeWidth={1.5} /> Haram
+                  <CircleX size={24} strokeWidth={1.5} /> {t("haram")}
                 </div>
               ) : (
                 <div className={`${styles.accessBlock} ${styles.halal}`}>
                   <CircleCheck size={24} strokeWidth={1.5} />
-                  Halal
+                  {t("halal")}
                 </div>
               )}
             </div>
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>Ingredients</div>
+              <div className={styles.scanTitle}>{t("ingredients")}</div>
               <div className={styles.scanDesk}>{currentItem.composition}</div>
             </div>
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>Analysis Result</div>
+              <div className={styles.scanTitle}>{t("analysisResult")}</div>
               <div className={styles.scanDesk}>{currentItem.analysis}</div>
             </div>
             <button
@@ -100,7 +101,7 @@ export const ScannerShareStory: React.FC = () => {
                 loading ? styles.shareButtonDisabled : ""
               }`}
             >
-              <Upload /> {loading ? "Loading..." : "Share"}
+              <Upload /> {loading ? t("loading") : t("share")}
             </button>
           </div>
         </div>

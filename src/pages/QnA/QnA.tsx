@@ -8,7 +8,7 @@ import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/Moda
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
-import { useHistoryStore } from "./History/HistoryStore";
+import { useHistoryStore } from "../../hooks/useHistoryStore";
 import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {

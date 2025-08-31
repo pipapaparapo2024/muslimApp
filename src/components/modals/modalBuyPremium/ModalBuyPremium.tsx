@@ -3,6 +3,8 @@ import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { t } from "i18next";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;
@@ -13,11 +15,11 @@ interface BuyPremiumModalProps {
 
 const getPrices = (requests: string) => {
   switch (requests) {
-    case "1 Week":
+    case `1 ${t("week")}`:
       return { ton: 3.45, stars: 2250 };
-    case "1 Month":
+    case `1 ${t("month")}`:
       return { ton: 34.5, stars: 22500 };
-    case "1 Year":
+    case `1 ${t("year")}`:
       return { ton: 345, stars: 225000 };
     default:
       return { ton: 0, stars: 0 };
@@ -30,6 +32,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   selectedRequests,
   onSelectRequests,
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
   const prices = getPrices(selectedRequests);
 
@@ -37,19 +41,18 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Go Premium</h2>
+          <h2>{t("goPremium")}</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
         </div>
 
         <p className={styles.modalDescription}>
-          Unlock all features with a single upgrade. Enjoy full access without
-          limits.
+          {t("premiumDescription")}
         </p>
 
         <div className={styles.options}>
-          {["1 Week", "1 Month", "1 Year"].map((option) => (
+          {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map((option) => (
             <div
               key={option}
               className={`${styles.option} ${
@@ -57,7 +60,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
               }`}
               onClick={() => onSelectRequests(option)}
             >
-              <div>{option}</div>
+              <div>{t(option.toLowerCase().replace(" ", ""))}</div>
               {selectedRequests === option && <Check size={20} />}
             </div>
           ))}
@@ -66,7 +69,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         <div className={styles.priceBlocks}>
           <div
             className={`${styles.priceBlock} ${styles.tonBlock}`}
-            onClick={() => console.log("buy bitch")}
+            onClick={() => console.log("buy with ton")}
           >
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
@@ -78,7 +81,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
           <div
             className={`${styles.priceBlock} ${styles.starsBlock}`}
-            onClick={() => console.log("buy bitch")}
+            onClick={() => console.log("buy with stars")}
           >
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />

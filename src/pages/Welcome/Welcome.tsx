@@ -14,6 +14,7 @@ import { t } from "i18next";
 const steps = [
   {
     title: t("prayerReminders"),
+    // title: t("yourQuestion"),
     desc: t("stayOnTrack"),
     image: prayerRemindersImage,
   },

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from './NotScanner.module.css';
 import scanempty from "../../../assets/image/scannerempty.png";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import { t } from "i18next";
 
 export const NotScaned: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -41,10 +42,10 @@ export const NotScaned: React.FC = () => {
       <div className={styles.root}>
         <div className={styles.header}>
           <div className={styles.title}>
-            Scan failed or timed out
+          {t("scanFailed")}
           </div>
           <div className={styles.subtitle}>
-            The image analysis couldn't be completed. Please try scanning again or check your connection.
+           {t("analysisCouldntComplete")}
           </div>
         </div>
 
@@ -61,7 +62,7 @@ export const NotScaned: React.FC = () => {
             className={styles.inviteButton}
             onClick={() => navigate("/scanner")}
           >
-            Try Again
+            {t("tryAgain")}
           </button>
         </div>
       </div>

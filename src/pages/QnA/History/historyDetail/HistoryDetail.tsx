@@ -4,8 +4,9 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { TableRequestsHistory } from "../../../../components/TableRequestsHistory/TableRequestsHistory";
 import { Copy } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useHistoryStore } from "../HistoryStore";
+import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Share } from "../../../../components/share/Share"; // Импортируйте отдельный компонент
+import { t } from "i18next";
 
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,7 +40,7 @@ export const HistoryDetail: React.FC = () => {
         <TableRequestsHistory text="/qna/history"/>
         <div className={styles.blockMessages}>
           <div className={styles.blockMessageUser}>
-            <div className={styles.nickName}>You</div>
+            <div className={styles.nickName}>{t("you")}</div>
             <div className={styles.text}>{currentItem.question}</div>
           </div>
           <div className={styles.blockMessageBot}>
@@ -50,7 +51,7 @@ export const HistoryDetail: React.FC = () => {
               onClick={() => handleCopy(currentItem.answer)}
             >
               <Copy size={20} strokeWidth={1.5} />
-              Copy
+              {t("copy")}
             </div>
           </div>
         </div>
@@ -59,8 +60,6 @@ export const HistoryDetail: React.FC = () => {
         <Share 
           shareUrl={`/qna/shareHistory/${id}`}
           newUrl="/qna"
-          shareText="Share"
-          newText="New Question"
         />
       </div>
     </PageWrapper>

@@ -7,6 +7,7 @@ import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { t } from "i18next";
 
 export const HistoryScannerEmpty: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
@@ -40,9 +41,9 @@ export const HistoryScannerEmpty: React.FC = () => {
   // Логика кнопки
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return "Scan first product";
+      return t("scanFirstProduct");
     }
-    return "Buy Requests";
+    return t("buyRequests");
   };
 
   const showAskButton =
@@ -60,16 +61,16 @@ export const HistoryScannerEmpty: React.FC = () => {
     <PageWrapper navigateTo="/scanner" showBackButton title="Product Scanner">
       <div className={styles.contain}>
         <div className={styles.header}>
-          <div className={styles.title}>Haven’t Checked Anything</div>
-          <div className={styles.disk}>
-            Once you scan a product, you’ll see your history here.
-          </div>
+          <div className={styles.title}>{t("haventChecked")}</div>
+          <div className={styles.disk}>{t("onceYouScan")}</div>
         </div>
         <img src={emptyscan} alt="think" />
         <button
           className={styles.askButton}
           onClick={
-            showAskButton ? () => navigate("/scanner") : () => setShowModal(true)
+            showAskButton
+              ? () => navigate("/scanner")
+              : () => setShowModal(true)
           }
         >
           {!showAskButton && <Wallet size={18} strokeWidth={1.5} />}

@@ -7,6 +7,7 @@ import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { t } from "i18next";
 
 export const HistoryEmpty: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
@@ -40,9 +41,9 @@ export const HistoryEmpty: React.FC = () => {
   // Логика кнопки
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return "Ask Question";
+      return t("askQuestion");
     }
-    return "Buy Requests";
+    return t("buyRequests");
   };
 
   const showAskButton =
@@ -60,10 +61,9 @@ export const HistoryEmpty: React.FC = () => {
     <PageWrapper navigateTo="/qna" showBackButton title="Product Scanner">
       <div className={styles.contain}>
         <div className={styles.header}>
-          <div className={styles.title}>Waiting for Your First Question</div>
+          <div className={styles.title}>{t("waiting")}</div>
           <div className={styles.disk}>
-            You haven’t asked any questions Fyet. Start asking to see your past
-            answers here.
+           {t("haventAskedQuestions")}
           </div>
         </div>
         <img src={think} alt="think" />

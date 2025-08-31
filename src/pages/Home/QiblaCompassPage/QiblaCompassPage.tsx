@@ -7,6 +7,7 @@ import { useQiblaCompassPageStore } from "./QiblaCompassPageStore";
 import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
+import { t } from "i18next";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus"; // granted/denied
 
 export const QiblaCompassPage: React.FC = () => {
@@ -31,7 +32,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Compass size={16} strokeWidth={1.5} /> Compass
+            <Compass size={16} strokeWidth={1.5} /> {t("compass")}
           </span>
         </label>
 
@@ -44,7 +45,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSliderMap}>
-            <Map size={16} strokeWidth={1.5} /> Map
+            <Map size={16} strokeWidth={1.5} /> {t("map")}
           </span>
         </label>
       </div>

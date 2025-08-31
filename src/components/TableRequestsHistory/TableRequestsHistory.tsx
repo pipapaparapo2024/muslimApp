@@ -2,6 +2,7 @@ import { Clock, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TableRequestsHistory.module.css";
 import { useQnAStore } from "../../hooks/useQnAStore";
+import { t } from "i18next";
 
 interface ClickHistory{
   text:string;
@@ -11,11 +12,11 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({text}) => {
   const { requestsLeft, hasPremium, isLoading } = useQnAStore();
   const navigate = useNavigate();
   const getStatusText = () => {
-    if (isLoading) return "Loading...";
-    if (hasPremium) return "Have Requests";
+    if (isLoading) return t("loading");
+    if (hasPremium) return t("haveRequests");
     if (requestsLeft != null && requestsLeft > 0)
-      return `${requestsLeft} Requests`;
-    return "No Requests";
+      return `${requestsLeft} ${t("requests")}`;
+    return t("noRequests");
   };
   return (
     <div className={styles.header}>
@@ -24,7 +25,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({text}) => {
         onClick={() => navigate(text)}
       >
         <Clock size={20} strokeWidth={1.5} />
-        <span>History</span>
+        <span>{t("history")}</span>
       </button>
       <button className={styles.button}>
         <MessageCircle size={20} strokeWidth={1.5} />

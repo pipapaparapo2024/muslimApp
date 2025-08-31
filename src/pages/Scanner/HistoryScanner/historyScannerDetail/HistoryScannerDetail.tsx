@@ -8,6 +8,7 @@ import { useHistoryStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScannerStore } from "../../../../hooks/useScannerStore";
 import { Share } from "../../../../components/share/Share";
 import { type HistoryItem } from "../../../../hooks/useHistoryScannerStore";
+import { t } from "i18next";
 
 interface HistoryScannerDetailProps {
   result?: HistoryItem; // Указываем правильный тип
@@ -49,7 +50,7 @@ export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>Loading...</div>
+        <div>{t("loading")}</div>
       </PageWrapper>
     );
   }
@@ -62,23 +63,23 @@ export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
           <div className={styles.blockAccess}>
             {currentItem.result ? (
               <div className={`${styles.accessBlock} ${styles.haram}`}>
-                <CircleX size={24} strokeWidth={1.5} /> Haram
+                <CircleX size={24} strokeWidth={1.5} /> {t("haram")}
               </div>
             ) : (
               <div className={`${styles.accessBlock} ${styles.halal}`}>
                 <CircleCheck size={24} strokeWidth={1.5} />
-                Halal
+                {t("halal")}
               </div>
             )}
           </div>
           <div className={styles.blockInside}>
-            <div className={styles.scanTitle}>Ingredients</div>
+            <div className={styles.scanTitle}>{t("ingredients")}</div>
             <div className={styles.scanDesk}>
               {currentItem.composition}
             </div>
           </div>
           <div className={styles.blockInside}>
-            <div className={styles.scanTitle}>Analysis Result</div>
+            <div className={styles.scanTitle}>{t("analysisResult")}</div>
             <div className={styles.scanDesk}>
               {currentItem.analysis}
             </div>
@@ -88,8 +89,7 @@ export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
         <Share 
           shareUrl={`/scanner/ScannerShareHistory/${id}`}
           newUrl="/scanner"
-          shareText="Share"
-          newText="New Scan"
+          newText={t("newScan")}
         />
       </div>
     </PageWrapper>

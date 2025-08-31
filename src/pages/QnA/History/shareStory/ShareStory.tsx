@@ -4,9 +4,10 @@ import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
-import { useHistoryStore } from "../HistoryStore";
+import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { Upload } from "lucide-react";
+import { t } from "i18next";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -77,7 +78,7 @@ export const ShareStory: React.FC = () => {
           />
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
-              <div className={styles.nickName}>You</div>
+              <div className={styles.nickName}>{t("you")}</div>
               <div className={styles.text}>{currentItem.question}</div>
             </div>
             <div className={styles.blockMessageBot}>
@@ -93,7 +94,7 @@ export const ShareStory: React.FC = () => {
                   loading ? styles.shareButtonDisabled : ""
                 }`}
               >
-                <Upload/> {loading ? "Loading..." : "Share"}
+                <Upload/> {loading ? t("loading") : t("share")}
               </button>
             </div>
           </div>

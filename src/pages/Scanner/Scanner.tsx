@@ -74,7 +74,7 @@ export const Scanner: React.FC = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
       return t("scanPicture");
     }
-    return "Buy Requests";
+    return t("buyRequests");
   };
 
   const showAskButton =

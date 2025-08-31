@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { AxiosError } from "axios";
-import { quranApi } from "../../../api/api";
+import { quranApi } from "../api/api";
 import { persist } from "zustand/middleware";
 
 export interface SearchHistoryItem {
