@@ -9,31 +9,7 @@ import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useTelegram } from "../../hooks/useTelegram";
-import { t } from "i18next";
-
-const steps = [
-  {
-    title: t("prayerReminders"),
-    // title: t("yourQuestion"),
-    desc: t("stayOnTrack"),
-    image: prayerRemindersImage,
-  },
-  {
-    title: t("readTheQuran"),
-    desc: t("accessQuran"),
-    image: quranImage,
-  },
-  {
-    title: t("scanYourFood"),
-    desc: t("checkHalal"),
-    image: scannerImage,
-  },
-  {
-    title: t("trustedAnswers"),
-    desc: t("receiveAnswers"),
-    image: qnaImage,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const Welcome: React.FC = () => {
   const [step, setStep] = useState(0);
@@ -41,6 +17,30 @@ export const Welcome: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      title: t("prayerReminders"),
+      desc: t("stayOnTrack"),
+      image: prayerRemindersImage,
+    },
+    {
+      title: t("readTheQuran"),
+      desc: t("accessQuran"),
+      image: quranImage,
+    },
+    {
+      title: t("scanYourFood"),
+      desc: t("checkHalal"),
+      image: scannerImage,
+    },
+    {
+      title: t("trustedAnswers"),
+      desc: t("receiveAnswers"),
+      image: qnaImage,
+    },
+  ];
 
   const {
     isAuthenticated,
@@ -162,13 +162,13 @@ export const Welcome: React.FC = () => {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
-          <h2>Ошибка авторизации</h2>
+          <h2>{t("authError")}</h2>
           <p>{authError}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}
           >
-            Попробовать снова
+            {t("tryAgain")}
           </button>
         </div>
       </PageWrapper>
@@ -237,8 +237,3 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-// import { useNavigate } from "react-router-dom"
-// export const Welcome:React.FC=()=>{
-//   const navigate=useNavigate()
-//   return<button onClick={()=>navigate("/home")}>home</button>
-// }

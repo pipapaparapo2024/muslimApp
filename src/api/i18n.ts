@@ -33,7 +33,8 @@ const resources = {
 
       // History Empty
       waiting: "Waiting for Your First Question",
-      haventAskedQuestions: "  You haven’t asked any questions Fyet. Start asking to see your past answers here.",
+      haventAskedQuestions:
+        "  You haven’t asked any questions Fyet. Start asking to see your past answers here.",
       // Текст кнопок
       buyPremium: "Buy Premium",
       premiumActive: "Premium Active",
@@ -65,6 +66,20 @@ const resources = {
       takePhotoCheck:
         "Take a photo of the product's ingredients to check if it's halal or haram. You'll get a quick result with a short explanation.",
       informationalOnly: "The result is for informational purposes only.",
+
+      //Modal Language
+      languageModal: "Language",
+      selectLanguages: "Select your preferred language for the app.",
+      english: "English",
+      arabic: "Arabic",
+
+      //Modal Theme
+      setYourPreferred:"Set your preferred appearance mode.",
+      chooseTheme:"Choose Theme",
+
+      light: "Light",
+      dark: "Dark",
+      system: "System",
 
       // Welcome screen
       prayerReminders: "Prayer Reminders",
@@ -287,6 +302,18 @@ const resources = {
         "التقط صورة لمكونات المنتج للتحقق مما إذا كانت حلالاً أم حراماً. ستحصل على نتيجة سريعة مع شرح موجز.",
       informationalOnly: "النتيجة لأغراض إعلامية فقط.",
 
+      //Modal Language
+      languageModal: "لغة",
+      selectLanguages: "اختر لغتك المفضلة للتطبيق.",
+      english: "إنجليزي",
+      arabic: "عربي",
+
+      //Modal Theme
+      setYourPreferred:"اضبط وضع المظهر المفضل لديك.",
+      chooseTheme:"اختر الموضوع",
+      light: "ضوء",
+      dark: "مظلم",
+      system: "نظام",
       // Welcome screen
       prayerReminders: "تذكير الصلاة",
       stayOnTrack:

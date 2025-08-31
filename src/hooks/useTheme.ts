@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { useEffect, useState } from "react";
 
 export const THEMES = {
@@ -118,7 +119,7 @@ export const useTheme = () => {
     changeTheme,
     getIconColor,
     themeLabel:
-      theme === "system" ? "System" : theme === "light" ? "Light" : "Dark",
+      theme === "system" ? t("system") : theme === "light" ? t("light") : t("dark"),
     isThemeReady: isInitialized, // 🔥 можно использовать для отложенного рендера
   };
 };

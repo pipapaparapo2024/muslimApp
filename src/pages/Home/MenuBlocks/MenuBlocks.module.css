@@ -1,4 +1,4 @@
-/* MenuBlocks styles */
+/* MenuBlocks.module.css */
 .menu {
   margin-top: var(--numbers-6);
   max-width: 395px;
@@ -12,6 +12,7 @@
 .menuItem {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Равномерное распределение */
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
   box-shadow: 0 var(--numbers-1) var(--numbers-4) rgba(0, 0, 0, 0.04);
@@ -24,13 +25,17 @@
   transform: scale(1.01);
 }
 
-.menuIcon {
-  font-size: var(--numbers-28);
-  margin-right: var(--numbers-16);
+.contentWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-12); /* Отступ между иконкой и текстом */
+  flex: 1; /* Занимает всё доступное пространство */
 }
 
 .menuText {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Выравнивание текста по вертикали */
 }
 
 .menuTitle {
@@ -45,13 +50,12 @@
 }
 
 .menuArrow {
-  font-size: var(--numbers-60);
   color: var(--color-icon-tetriary);
-  margin-left: var(--numbers-12);
+  flex-shrink: 0; /* Предотвращает сжатие стрелки */
 }
 
 .iconImage {
   width: var(--numbers-36);
   height: var(--numbers-36);
-  margin-right: var(--numbers-8);
+  flex-shrink: 0; /* Предотвращает сжатие иконки */
 }

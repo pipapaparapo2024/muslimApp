@@ -3,6 +3,7 @@ import styles from "./ModalLanguage.module.css";
 import { Check } from "lucide-react";
 import en from "../../../assets/icons/united-king.svg";
 import ar from "../../../assets/icons/saudi-arab.svg";
+import { t } from "i18next";
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -19,8 +20,8 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   if (!isOpen) return null;
 
   const languages = [
-    { code: "en", name: "English", url: en },
-    { code: "ar", name: "Arabic", url: ar },
+    { code: "en", name: t("english"), url: en },
+    { code: "ar", name: t("arabic"), url: ar },
   ] as const;
 
   // В ModalLanguage компоненте
@@ -36,14 +37,14 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Language</h2>
+          <h2>{t("languageModal")}</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
         </div>
 
         <p className={styles.modalDescription}>
-          Select your preferred language for the app.
+          {t("selectLanguages")}
         </p>
 
         <div className={styles.options}>

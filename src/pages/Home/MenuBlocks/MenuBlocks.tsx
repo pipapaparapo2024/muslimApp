@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./MenuBlocks.module.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
-import { useTranslation } from "react-i18next"; // Добавьте этот импорт
+import { useTranslation } from "react-i18next";
 
 // Импорты иконок
 import Quaran from "../../../assets/icons/quaran1.svg";
@@ -15,14 +15,13 @@ import settings from "../../../assets/icons/setting.svg";
 export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { t } = useTranslation(); // Используем хук useTranslation
+  const { t } = useTranslation();
 
-  // Массив menuItems теперь внутри компонента
   const menuItems = [
     {
       id: "quran",
       icon: Quaran,
-      title: t("readQuran"), // Теперь t() вызывается при каждом рендере
+      title: t("readQuran"),
       description: t("openAndRead"),
       path: "/quran",
     },
@@ -68,15 +67,17 @@ export const MenuBlocks: React.FC = () => {
           className={styles.menuItem}
           onClick={() => handleNavigation(item.path)}
         >
-          <img src={item.icon} alt={item.title} className={styles.iconImage} />
-          <div className={styles.menuText}>
-            <div className={styles.menuTitle}>{item.title}</div>
-            <div className={styles.menuDesc}>{item.description}</div>
+          <div className={styles.contentWrapper}>
+            <img src={item.icon} alt={item.title} className={styles.iconImage} />
+            <div className={styles.menuText}>
+              <div className={styles.menuTitle}>{item.title}</div>
+              <div className={styles.menuDesc}>{item.description}</div>
+            </div>
           </div>
           {language === "ar" ? (
-            <ChevronLeft size={24} />
+            <ChevronLeft size={24} className={styles.menuArrow} />
           ) : (
-            <ChevronRight size={24} />
+            <ChevronRight size={24} className={styles.menuArrow} />
           )}
         </div>
       ))}

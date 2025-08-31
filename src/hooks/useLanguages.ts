@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useGeoStore } from "./useGeoStore";
 import i18n from "../api/i18n";
+import { t } from "i18next";
 
 const LANGUAGE_KEY = "preferred-language";
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
@@ -111,7 +112,7 @@ export const useLanguage = () => {
   return {
     language,
     changeLanguage: changeLanguageComplete,
-    languageLabel: language === "ar" ? "Arabic" : "English",
+    languageLabel: language === "ar" ? t("arabic") : t("english"),
     isLanguageReady: isInitialized,
     isChanging, // 🔥 Возвращаем состояние изменения
   };

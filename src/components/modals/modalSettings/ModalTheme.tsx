@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./ModalTheme.module.css";
 import { Check, Moon, Smartphone, Sun } from "lucide-react";
+import { t } from "i18next";
 
 interface ThemeModalProps {
   isOpen?: boolean;
@@ -18,27 +19,27 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
   if (!isOpen) return null;
 
   const themes = [
-    { id: "light", name: "Light", icon: <Sun size={20} /> },
-    { id: "dark", name: "Dark", icon: <Moon size={20} /> },
-    { id: "system", name: "System", icon: <Smartphone size={20} /> },
+    { id: "light", name: t("light"), icon: <Sun size={20} /> },
+    { id: "dark", name: t("dark"), icon: <Moon size={20} /> },
+    { id: "system", name: t("system"), icon: <Smartphone size={20} /> },
   ];
 
   const handleSelect = (theme: "light" | "dark" | "system") => {
     onThemeChange?.(theme);
-    onClose?.(); // Закрываем после выбора
+    onClose?.(); 
   };
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Choose Theme</h2>
+          <h2>{t("chooseTheme")}</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
         </div>
         <p className={styles.modalDescription}>
-          Set your preferred appearance mode.
+          {t("setYourPreferred")}
         </p>
         <div className={styles.options}>
           {themes.map((theme) => (
