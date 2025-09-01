@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useFriendsStore } from "./pages/Friends/FriendsStore";
+import { useFriendsStore } from "./hooks/useFriendsStore";
 import { useTheme } from "./hooks/useTheme";
 
 import { Home } from "./pages/Home/Home";

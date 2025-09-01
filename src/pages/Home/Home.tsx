@@ -37,8 +37,6 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-  console.log(coords?.lat)
-  console.log(coords?.lon)
   const [showGeoPrompt, setShowGeoPrompt] = useState(false);
   const [showSensorPrompt, setShowSensorPrompt] = useState(false);
   const [sensorPermission, setSensorPermission] = useState<string>(
@@ -70,27 +68,27 @@ export const Home: React.FC = () => {
   // Функция для сброса и обновления данных геолокации
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
-    
+
     // Сбрасываем кэш IP данных
     localStorage.removeItem(IP_DATA_CACHE);
     localStorage.removeItem(CACHED_LOCATION);
-    
+
     // Сбрасываем состояние геоданных
     setCoords(null);
     setCity(null);
     setCountry(null);
     setTimeZone(null);
     setError(null);
-    
+
     // Сбрасываем флаги
     ipDataFetched.current = false;
     geoRequested.current = false;
-    
+
     // Запрашиваем новые данные
     try {
       await fetchFromIpApi();
       ipDataFetched.current = true;
-      
+
       // Если есть разрешение на геолокацию, также запрашиваем точные координаты
       const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
       if (geoStatus === "granted") {
@@ -214,34 +212,16 @@ export const Home: React.FC = () => {
     }
   };
 
-  // Проверка геолокации при монтировании
   useEffect(() => {
     if (geoRequested.current) return;
 
     const initializeLocation = async () => {
-      // Сначала проверяем кэшированные данные IP
-      const cachedIpData = getCachedIpData();
-      if (cachedIpData) {
-        setCoords(cachedIpData.coords);
-        setCity(cachedIpData.city || "Unknown");
-        setCountry(cachedIpData.country || "Unknown");
-        setTimeZone(cachedIpData.timeZone || null);
-
-        // Отправляем данные в хранилище
-        if (!settingsSent) {
-          sendUserSettings({
-            city: cachedIpData.city || "Unknown",
-            country: cachedIpData.country || "Unknown",
-            timeZone: cachedIpData.timeZone,
-          });
-        }
-        return;
-      }
+      geoRequested.current = true; // Защита от повторных вызовов
 
       const status = localStorage.getItem(GEO_PERMISSION_STATUS);
       const cached = localStorage.getItem(CACHED_LOCATION);
 
-      // Если есть кэш геолокации и он свежий, используем
+      // 2. Проверяем кэш геолокации
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -249,7 +229,6 @@ export const Home: React.FC = () => {
           if (isFresh && data.lat && data.lon) {
             setCoords({ lat: data.lat, lon: data.lon });
 
-            // Получаем данные по IP для города/страны
             if (!ipDataFetched.current) {
               try {
                 await fetchFromIpApi();
@@ -267,7 +246,7 @@ export const Home: React.FC = () => {
         }
       }
 
-      // Если разрешение уже отклонено - используем только IP данные
+      // 3. Если геолокация отклонена — используем IP
       if (status === "denied") {
         if (!ipDataFetched.current) {
           try {
@@ -280,37 +259,27 @@ export const Home: React.FC = () => {
         return;
       }
 
-      // Если разрешение уже предоставлено
+      // 4. Если разрешено — запрашиваем точные координаты
       if (status === "granted") {
-        requestGeolocation();
+        await requestGeolocation();
         return;
       }
 
-      // Для iOS показываем промпт вместо автоматического запроса
+      // 5. iOS — показываем промпт
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       if (isIOS && (!status || status === "unknown")) {
         setShowGeoPrompt(true);
         return;
       }
 
-      // Для Android и других - запрашиваем сразу
+      // 6. Android — запрашиваем сразу
       if (!status || status === "unknown") {
-        requestGeolocation();
+        await requestGeolocation();
       }
     };
 
     initializeLocation();
-  }, [
-    settingsSent,
-    sendUserSettings,
-    fetchFromIpApi,
-    setCoords,
-    setCity,
-    setCountry,
-    setTimeZone,
-    setError,
-    setHasRequestedGeo,
-  ]);
+  }, [settingsSent]);
 
   // Проверка доступа к датчикам
   useEffect(() => {
@@ -366,7 +335,7 @@ export const Home: React.FC = () => {
       <div className={styles.homeRoot}>
         {/* Кнопка обновления данных местоположения */}
         <div className={styles.refreshButtonContainer}>
-          <button 
+          <button
             className={styles.refreshLocationButton}
             onClick={handleRefreshLocationData}
             disabled={isRefreshing}
@@ -451,9 +420,7 @@ export const Home: React.FC = () => {
             <PrayerTimes />
             <div className={styles.qiblaBlock}>
               <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
-              <div className={styles.diskFaceKaaba}>
-                {t("useMapForSalah")}
-              </div>
+              <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
               <div className={styles.qiblaBlockRow}>
                 <div onClick={handleMapClick} className={styles.mapContainer}>
                   <QiblaMap onMapClick={handleMapClick} />
@@ -477,37 +444,3 @@ export const Home: React.FC = () => {
     </PageWrapper>
   );
 };
-
-// import React, { useEffect, useState } from 'react'
-// import axios from 'axios'
-
-// export const Home:React.FC=()=> {
-//     const [data, setData] = useState(null)
-//     const [loading, setLoading] = useState(true)
-//     const [error, setError] = useState(null)
-
-//     useEffect(() => {
-//         axios
-//             .post('https://islam_app.myfavouritegames.org/api/v1/user/auth/', {
-//                 initData: 'sdcsdcs',
-//             })
-//             .then((response) => {
-//                 setData(response.data)
-//                 setLoading(false)
-//             })
-//             .catch((err) => {
-//                 setError(err.message || 'Ошибка при загрузке данных')
-//                 setLoading(false)
-//             })
-//     }, [])
-
-//     if (loading) return <div>Загрузка данных...</div>
-//     if (error) return <div>Ошибка: {error}</div>
-
-//     return (
-//         <div>
-//             <h2>Данные с API compass:</h2>
-//             <pre>{JSON.stringify(data, null, 2)}</pre>
-//         </div>
-//     )
-// }

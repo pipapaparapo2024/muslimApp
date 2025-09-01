@@ -1,7 +1,7 @@
 import React from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
-import { useFriendsStore } from "./FriendsStore";
+import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet } from "lucide-react";
 import { t } from "i18next";
 
@@ -33,7 +33,20 @@ export const Friends: React.FC = () => {
   });
 
   const handleInvite = async () => {
-    if (navigator.share) {
+    // Проверяем, доступен ли Web Share API и работает ли он корректно
+    const isShareAPIAvailable = () => {
+      return navigator.share && typeof navigator.share === "function";
+    };
+
+    // Дополнительная проверка для Android WebView
+    const isAndroidWebView = () => {
+      return (
+        /Android/i.test(navigator.userAgent) &&
+        /WebView/i.test(navigator.userAgent)
+      );
+    };
+
+    if (isShareAPIAvailable() && !isAndroidWebView()) {
       try {
         await navigator.share({
           title: "Join me on Muslim App!",
@@ -42,20 +55,45 @@ export const Friends: React.FC = () => {
         });
       } catch (err) {
         console.log("Share canceled or failed:", err);
+        copyToClipboard();
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(inviteLink);
-        alert("Link copied to clipboard!");
-      } catch (err) {
-        console.error("Failed to copy: ", err);
-        alert("Failed to copy link. Please manually copy it.");
-      }
+      copyToClipboard();
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteLink);
+      // Показываем уведомление о копировании
+      alert(t("linkCopied")); // Добавьте перевод для "Link copied to clipboard!"
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+      // Fallback для старых браузеров
+      const textArea = document.createElement("textarea");
+      textArea.value = inviteLink;
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand("copy");
+        if (successful) {
+          alert(t("linkCopied"));
+        } else {
+          alert(t("copyFailed"));
+        }
+      } catch (fallbackErr) {
+        alert(t("copyFailed"));
+      }
+
+      document.body.removeChild(textArea);
+    }
+  };
+
+  if (loading) return <div>{t("loading")}</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <PageWrapper showBackButton>
