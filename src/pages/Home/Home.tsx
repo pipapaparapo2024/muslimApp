@@ -40,7 +40,6 @@ export const Home: React.FC = () => {
   const [sensorPermission, setSensorPermission] = useState<string>(
     localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
   );
-  const [showSensorPrompt, setShowSensorPrompt] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -186,10 +185,9 @@ export const Home: React.FC = () => {
     });
   };
 
-  // Функция для запроса доступа к датчикам
+  // Функция для автоматического запроса доступа к датчикам
   const requestSensorPermission = async () => {
     sensorRequested.current = true;
-    setShowSensorPrompt(false);
 
     try {
       // Проверяем поддержку API
@@ -200,17 +198,25 @@ export const Home: React.FC = () => {
         return;
       }
 
-      // iOS 13+ - требует действия пользователя
+      // iOS 13+ - используем обходной путь с setTimeout
       if ('requestPermission' in DeviceOrientationEvent) {
-        try {
-          const result = await (DeviceOrientationEvent as any).requestPermission();
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-          setSensorPermission(result);
-        } catch (err) {
-          console.error("iOS sensor permission error:", err);
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
-          setSensorPermission("denied");
-        }
+        // Для iOS используем небольшую задержку и пытаемся автоматически
+        setTimeout(async () => {
+          try {
+            // Создаем скрытое событие для инициализации
+            window.addEventListener('deviceorientation', () => {}, { once: true });
+            
+            // Пытаемся автоматически запросить разрешение
+            const result = await (DeviceOrientationEvent as any).requestPermission();
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+            setSensorPermission(result);
+          } catch (err) {
+            console.log("iOS automatic sensor request failed, will request on interaction");
+            // Если автоматический запрос не сработал, разрешим при первом взаимодействии
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+            setSensorPermission("prompt");
+          }
+        }, 1000);
       } 
       // Android и другие браузеры с Permissions API
       else if ('permissions' in navigator) {
@@ -220,6 +226,12 @@ export const Home: React.FC = () => {
           });
           localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
           setSensorPermission(permission.state);
+          
+          // Слушаем изменения разрешения
+          permission.onchange = () => {
+            setSensorPermission(permission.state);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
+          };
         } catch (err) {
           console.warn('Permissions API not fully supported:', err);
           // Для браузеров без Permissions API считаем разрешённым
@@ -227,15 +239,47 @@ export const Home: React.FC = () => {
           setSensorPermission("granted");
         }
       }
-      // Fallback для старых браузеров
+      // Fallback для старых браузеров - пробуем подписаться на событие
       else {
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-        setSensorPermission("granted");
+        try {
+          // Пытаемся подписаться на событие ориентации
+          const testHandler = () => {
+            window.removeEventListener('deviceorientation', testHandler);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+            setSensorPermission("granted");
+          };
+          
+          window.addEventListener('deviceorientation', testHandler, { once: true });
+          
+          // Таймаут на случай если разрешение не дадут
+          setTimeout(() => {
+            window.removeEventListener('deviceorientation', testHandler);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+            setSensorPermission("granted");
+          }, 1000);
+        } catch (err) {
+          console.warn('Device orientation access failed:', err);
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
-      localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
-      setSensorPermission("denied");
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+      setSensorPermission("granted");
+    }
+  };
+
+  // Функция для принудительного запроса разрешения (при взаимодействии)
+  const forceRequestSensorPermission = async () => {
+    try {
+      if ('requestPermission' in DeviceOrientationEvent) {
+        const result = await (DeviceOrientationEvent as any).requestPermission();
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+        setSensorPermission(result);
+      }
+    } catch (err) {
+      console.error("Force sensor permission error:", err);
     }
   };
 
@@ -297,27 +341,20 @@ export const Home: React.FC = () => {
     initializeLocation();
   }, [settingsSent]);
 
-  // Проверка и запрос доступа к датчикам
+  // Автоматический запрос доступа к датчикам при загрузке
   useEffect(() => {
     if (sensorRequested.current) return;
 
     const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
 
-    if (status === "granted" || status === "denied") {
+    // Если уже есть статус - используем его
+    if (status === "granted" || status === "denied" || status === "unsupported") {
       setSensorPermission(status);
       return;
     }
 
-    // Для iOS показываем промпт (автоматический запрос заблокирован)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const DeviceOrientationEventAny = DeviceOrientationEvent as any;
-
-    if (isIOS && DeviceOrientationEventAny?.requestPermission) {
-      setShowSensorPrompt(true);
-    } else {
-      // Для Android и других устройств запрашиваем автоматически
-      requestSensorPermission();
-    }
+    // Автоматически запрашиваем разрешение
+    requestSensorPermission();
   }, []);
 
   // Telegram WebApp
@@ -332,9 +369,9 @@ export const Home: React.FC = () => {
   }, []);
 
   const handleCompassClick = () => {
-    // Для iOS запрашиваем разрешение при клике на компас
-    if (sensorPermission !== "granted") {
-      requestSensorPermission();
+    // Если на iOS запрос еще не был выполнен, запрашиваем при клике
+    if (sensorPermission === "prompt") {
+      forceRequestSensorPermission();
     }
     navigate("/qibla", { state: { activeTab: "compass" } });
   };
@@ -364,26 +401,6 @@ export const Home: React.FC = () => {
             )}
           </button>
         </div>
-
-        {/* Промпт для датчиков iOS */}
-        {showSensorPrompt && (
-          <div className={styles.permissionPrompt}>
-            <h3>Разрешить доступ к датчикам движения?</h3>
-            <p>Для работы компаса нужен доступ к гироскопу и акселерометру</p>
-            <div className={styles.permissionButtons}>
-              <button onClick={requestSensorPermission}>Разрешить</button>
-              <button
-                onClick={() => {
-                  setShowSensorPrompt(false);
-                  localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
-                  setSensorPermission("denied");
-                }}
-              >
-                Отказать
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading && (
           <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
@@ -416,6 +433,23 @@ export const Home: React.FC = () => {
                     permissionGranted={sensorPermission === "granted"}
                     coords={coords}
                   />
+                  {/* Показываем подсказку если нужно взаимодействие */}
+                  {sensorPermission === "prompt" && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center',
+                      fontSize: '12px',
+                      color: '#666',
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      padding: '8px',
+                      borderRadius: '8px'
+                    }}>
+                      Нажмите для доступа к датчикам
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
