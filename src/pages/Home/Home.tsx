@@ -37,11 +37,10 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-  const [showGeoPrompt, setShowGeoPrompt] = useState(false);
-  const [showSensorPrompt, setShowSensorPrompt] = useState(false);
   const [sensorPermission, setSensorPermission] = useState<string>(
     localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
   );
+  const [showSensorPrompt, setShowSensorPrompt] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -105,7 +104,6 @@ export const Home: React.FC = () => {
   // Функция для запроса геолокации
   const requestGeolocation = async () => {
     geoRequested.current = true;
-    setShowGeoPrompt(false);
     setHasRequestedGeo(true);
 
     return new Promise<void>((resolve) => {
@@ -194,14 +192,43 @@ export const Home: React.FC = () => {
     setShowSensorPrompt(false);
 
     try {
-      const DeviceOrientationEventAny = DeviceOrientationEvent as any;
-      if (DeviceOrientationEventAny?.requestPermission) {
-        // iOS
-        const result = await DeviceOrientationEventAny.requestPermission();
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-        setSensorPermission(result);
-      } else {
-        // Android и другие
+      // Проверяем поддержку API
+      if (typeof DeviceOrientationEvent === 'undefined') {
+        console.warn('DeviceOrientationEvent not supported');
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "unsupported");
+        setSensorPermission("unsupported");
+        return;
+      }
+
+      // iOS 13+ - требует действия пользователя
+      if ('requestPermission' in DeviceOrientationEvent) {
+        try {
+          const result = await (DeviceOrientationEvent as any).requestPermission();
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+          setSensorPermission(result);
+        } catch (err) {
+          console.error("iOS sensor permission error:", err);
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+          setSensorPermission("denied");
+        }
+      } 
+      // Android и другие браузеры с Permissions API
+      else if ('permissions' in navigator) {
+        try {
+          const permission = await navigator.permissions.query({ 
+            name: 'gyroscope' as PermissionName 
+          });
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
+          setSensorPermission(permission.state);
+        } catch (err) {
+          console.warn('Permissions API not fully supported:', err);
+          // Для браузеров без Permissions API считаем разрешённым
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
+      }
+      // Fallback для старых браузеров
+      else {
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
         setSensorPermission("granted");
       }
@@ -216,12 +243,12 @@ export const Home: React.FC = () => {
     if (geoRequested.current) return;
 
     const initializeLocation = async () => {
-      geoRequested.current = true; // Защита от повторных вызовов
+      geoRequested.current = true;
 
       const status = localStorage.getItem(GEO_PERMISSION_STATUS);
       const cached = localStorage.getItem(CACHED_LOCATION);
 
-      // 2. Проверяем кэш геолокации
+      // Проверяем кэш геолокации
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -246,8 +273,16 @@ export const Home: React.FC = () => {
         }
       }
 
-      // 3. Если геолокация отклонена — используем IP
-      if (status === "denied") {
+      // Автоматически запрашиваем геолокацию
+      if (!status || status === "unknown") {
+        await requestGeolocation();
+      } 
+      // Если уже разрешено - используем точные координаты
+      else if (status === "granted") {
+        await requestGeolocation();
+      }
+      // Если отклонено - используем IP
+      else if (status === "denied") {
         if (!ipDataFetched.current) {
           try {
             await fetchFromIpApi();
@@ -256,32 +291,13 @@ export const Home: React.FC = () => {
             setError("Не удалось определить местоположение");
           }
         }
-        return;
-      }
-
-      // 4. Если разрешено — запрашиваем точные координаты
-      if (status === "granted") {
-        await requestGeolocation();
-        return;
-      }
-
-      // 5. iOS — показываем промпт
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS && (!status || status === "unknown")) {
-        setShowGeoPrompt(true);
-        return;
-      }
-
-      // 6. Android — запрашиваем сразу
-      if (!status || status === "unknown") {
-        await requestGeolocation();
       }
     };
 
     initializeLocation();
   }, [settingsSent]);
 
-  // Проверка доступа к датчикам
+  // Проверка и запрос доступа к датчикам
   useEffect(() => {
     if (sensorRequested.current) return;
 
@@ -292,14 +308,14 @@ export const Home: React.FC = () => {
       return;
     }
 
-    // Для iOS показываем промпт вместо автоматического запроса
+    // Для iOS показываем промпт (автоматический запрос заблокирован)
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const DeviceOrientationEventAny = DeviceOrientationEvent as any;
 
     if (isIOS && DeviceOrientationEventAny?.requestPermission) {
       setShowSensorPrompt(true);
     } else {
-      // Для Android запрашиваем автоматически
+      // Для Android и других устройств запрашиваем автоматически
       requestSensorPermission();
     }
   }, []);
@@ -348,39 +364,6 @@ export const Home: React.FC = () => {
             )}
           </button>
         </div>
-
-        {/* Промпт для геолокации iOS */}
-        {showGeoPrompt && (
-          <div className={styles.permissionPrompt}>
-            <h3>Разрешить доступ к геолокации?</h3>
-            <p>
-              Для точного определения киблы нужен доступ к вашему местоположению
-            </p>
-            <div className={styles.permissionButtons}>
-              <button onClick={requestGeolocation}>Разрешить</button>
-              <button
-                onClick={() => {
-                  setShowGeoPrompt(false);
-                  localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
-                  // Используем кэшированные данные IP
-                  const cachedIpData = getCachedIpData();
-                  if (cachedIpData) {
-                    setCoords(cachedIpData.coords);
-                    setCity(cachedIpData.city || "Unknown");
-                    setCountry(cachedIpData.country || "Unknown");
-                    setTimeZone(cachedIpData.timeZone || null);
-                  } else if (!ipDataFetched.current) {
-                    fetchFromIpApi().then(() => {
-                      ipDataFetched.current = true;
-                    });
-                  }
-                }}
-              >
-                Отказать
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Промпт для датчиков iOS */}
         {showSensorPrompt && (

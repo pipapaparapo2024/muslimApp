@@ -7,8 +7,6 @@ const KAABA_COORDS = {
   lon: 39.826206,
 };
 
-
-
 // Базовые размеры
 const BASE_SIZE = 120;
 const BASE_ICON_SIZE = 20;
@@ -256,6 +254,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           <div style={{ color: "#888", fontWeight: 400, fontSize: "16px" }}>
             Qibla angle of your location
           </div>
+          
         </div>
       )}
     </div>
