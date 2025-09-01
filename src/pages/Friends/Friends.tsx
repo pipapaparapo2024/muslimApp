@@ -105,6 +105,7 @@ export const Friends: React.FC = () => {
             {t("inviteFriends")}
           </button>
         </div>
+ 
 
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
