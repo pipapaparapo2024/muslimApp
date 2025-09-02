@@ -1,6 +1,6 @@
 .mapContainer {
   height: 100%;
-  border-radius: var(--roundings-medium);
+  border-radius: var(--numbers-12);
 }
 
 .fullscreen {

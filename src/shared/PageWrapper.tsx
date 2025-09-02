@@ -59,7 +59,7 @@ export const PageWrapper: React.FC<PageProps> = ({
         position: "relative",
         margin: "0 auto",
         padding:"12px",
-        maxWidth: "420px",
+        maxWidth: "388px",
         width: "100%",
         minHeight: "100vh",
         boxSizing: "border-box",

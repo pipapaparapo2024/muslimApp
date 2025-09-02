@@ -136,26 +136,23 @@ export const SurahList: React.FC = () => {
                 className={styles.surahItem}
                 onClick={() => handleSurahClick(surah)}
               >
-                <div className={styles.surahNumber}>{surah.id}.</div>
-                <div className={styles.surahContent}>
-                  <div className={styles.surahName}>{surah.englishName}</div>
-                  <div className={styles.surahDescription}>
-                    {surah.englishNameTranslation}
-                  </div>
-                  <div className={styles.surahDetails}>
-                    <span className={styles.ayahs}>
-                      {surah.numberOfAyahs} {t("ayahs")}
-                    </span>
-                    <span className={styles.revelationType}>
-                      {surah.revelationType === "Makkah" ? "مكة" : "مدينة"}
-                    </span>
+                <div className={styles.blockNameNumber}>
+                  <div className={styles.surahNumber}>{surah.number}</div>
+                  <div className={styles.surahContent}>
+                    <div className={styles.surahName}>{surah.englishName}</div>
+                    <div className={styles.surahDescription}>
+                      {surah.englishNameTranslation}
+                    </div>
                   </div>
                 </div>
-                {language === "ar" ? (
-                  <ChevronLeft size={24} />
-                ) : (
-                  <ChevronRight size={24} />
-                )}
+                <div className={styles.surahDetails}>
+                  <span className={styles.ayahs}>
+                    {surah.numberOfAyahs} {t("ayahs")}
+                  </span>
+                  <span className={styles.revelationType}>
+                    {surah.revelationType === "Makkah" ? "مكة" : "مدينة"}
+                  </span>
+                </div>
               </div>
             ))
           )}

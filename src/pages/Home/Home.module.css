@@ -5,8 +5,8 @@
   width: 100%;
   flex-direction: column;
   gap: var(--numbers-10);
-  padding: var(--numbers-16);
   border-radius: var(--roundings-medium);
+  padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
   background-color: var(--bg-surface);
   box-sizing: border-box;
@@ -82,7 +82,7 @@
 .qiblaBlockRow {
   display: flex;
   justify-content: center;
-  gap: var(--numbers-14);
+  gap: var(--numbers-4);
 }
 
 .mapContainer {
@@ -94,9 +94,8 @@
 
 .compassContainer {
   max-width: 48%;
-  border-radius: var(--roundings-medium);
+  border-radius: var(--numbers-12);
   overflow: hidden;
   border: 2px solid var(--compass-circle-between);
-  box-shadow: 0 var(--numbers-1) var(--numbers-12) rgba(0, 0, 0, 0.07);
   position: relative;
 }

@@ -1,12 +1,3 @@
-.en {
-  font-family: var(--typography-body);
-  direction: ltr;
-}
-
-.ar {
-  font-family: "Noto Sans Arabic", "Segoe UI", sans-serif;
-  direction: rtl;
-}
 
 .settingsContainer {
   padding: 16px;
@@ -30,7 +21,7 @@
 }
 
 .sectionTitle {
-  font-size: var(--numbers-18);
+  font-size: var(--numbers-20);
   font-weight: 600;
   margin-bottom: var(--numbers-16);
 }

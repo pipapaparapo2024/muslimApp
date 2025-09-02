@@ -50,7 +50,7 @@
 .modalHeader h2 {
   margin: 0;
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--text);
 }
 
@@ -105,5 +105,5 @@
 }
 .optionText {
   font-size: var(--numbers-16);
-  font-weight: 500;
+  font-weight: var(--font-500);
 }

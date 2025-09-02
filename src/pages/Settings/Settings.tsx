@@ -28,7 +28,7 @@ export const Settings: React.FC = () => {
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const { t, i18n } = useTranslation();
-  const { rawTheme, changeTheme, themeLabel, getIconColor } = useTheme();
+  const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   const { city, country } = useGeoStore();
   console.log("Current language:", i18n.language);
@@ -57,7 +57,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Earth strokeWidth={1.5} color={getIconColor()} />
+                <Earth strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("region")}</div>
             </div>
@@ -78,7 +78,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Languages strokeWidth={1.5} color={getIconColor()} />
+                <Languages strokeWidth={1.5}color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("language")}</div>
             </div>
@@ -99,7 +99,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Calendar strokeWidth={1.5} color={getIconColor()} />
+                <Calendar strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("dateTime")}</div>
             </div>
@@ -119,7 +119,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Clock strokeWidth={1.5} color={getIconColor()} />
+                <Clock strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("prayerTimes")}</div>
             </div>
@@ -142,7 +142,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Sun strokeWidth={1.5} color={getIconColor()} />
+                <Sun strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("theme")}</div>
             </div>
@@ -168,7 +168,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Shield strokeWidth={1.5} color={getIconColor()} />
+                <Shield strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("privacyPolicy")}</div>
             </div>
@@ -188,7 +188,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <FileText strokeWidth={1.5} color={getIconColor()} />
+                <FileText strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("termsOfUse")}</div>
             </div>
@@ -208,7 +208,7 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <MessageCircle strokeWidth={1.5} color={getIconColor()} />
+                <MessageCircle strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
               <div className={styles.title}>{t("contactUs")}</div>
             </div>

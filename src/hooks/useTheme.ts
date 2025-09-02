@@ -108,16 +108,11 @@ export const useTheme = () => {
     localStorage.setItem("preferred-theme", newTheme);
     updateEffectiveTheme(newTheme);
   };
-  const getIconColor = () => {
-    return effectiveTheme === "dark"
-      ? "var(--colors-white-1000)"
-      : "var(--colors-stone-950)";
-  };
+
   return {
     theme: effectiveTheme, // возвращает "light" или "dark"
     rawTheme: theme, // возвращает текущую настройку: "light", "dark", "system"
     changeTheme,
-    getIconColor,
     themeLabel:
       theme === "system" ? t("system") : theme === "light" ? t("light") : t("dark"),
     isThemeReady: isInitialized, // 🔥 можно использовать для отложенного рендера

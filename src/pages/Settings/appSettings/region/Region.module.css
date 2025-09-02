@@ -9,6 +9,7 @@
 .title {
   font-size: var(--numbers-20);
   color: var(--text);
+  font-weight: var(--font-600);
 }
 
 .description {

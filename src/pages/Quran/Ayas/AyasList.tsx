@@ -1,49 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
+import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
-// import { useSurahListStore} from '../../../hooks/useSurahListStore'
-import styles from "./AyasList.module.css"
+import styles from "./AyasList.module.css";
+
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
-  // const navigate = useNavigate();
+  const { surah } = location.state || {};
+
+  const { fetchAyahs } = useSurahListStore();
+
   const [ayahs, setAyahs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Получаем данные из состояния навигации
-  const { surah, variantId } = location.state || {};
-
   useEffect(() => {
-    const fetchAyahs = async () => {
-      if (!surahId || !variantId) {
-        setError("Missing surah ID or variant ID");
+    const loadAyahs = async () => {
+      if (!surahId) {
+        setError("Surah ID is missing");
         setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        // Здесь должен быть API вызов для получения аятов
-        // const response = await quranApi.get(`/api/v1/quran/surah/${surahId}?varId=${variantId}`);
-        // setAyahs(response.data.data.ayahs);
-        
-        // Временно заглушка
-        setTimeout(() => {
-          setAyahs(Array.from({ length: surah?.numberOfAyahs || 0 }, (_, i) => ({
-            number: i + 1,
-            text: `Ayah ${i + 1} text for surah ${surahId}`
-          })));
-          setLoading(false);
-        }, 1000);
+        const ayahsData = await fetchAyahs(surahId); // ✅ Передаём только ID
+        setAyahs(ayahsData);
+        setLoading(false);
       } catch (err) {
-        setError("Failed to load ayahs");
+        setError(err instanceof Error ? err.message : "Failed to load ayahs");
         setLoading(false);
       }
     };
 
-    fetchAyahs();
-  }, [surahId, variantId, surah]);
+    loadAyahs();
+  }, [surahId, fetchAyahs]);
 
   if (error) {
     return (
@@ -68,12 +60,16 @@ export const AyahList: React.FC = () => {
           <div className={styles.loading}>Loading ayahs...</div>
         ) : (
           <div className={styles.ayahsList}>
-            {ayahs.map((ayah) => (
-              <div key={ayah.number} className={styles.ayahItem}>
-                <div className={styles.ayahNumber}>{ayah.number}</div>
-                <div className={styles.ayahText}>{ayah.text}</div>
-              </div>
-            ))}
+            {ayahs.length === 0 ? (
+              <div className={styles.noAyahs}>No ayahs found</div>
+            ) : (
+              ayahs.map((ayah) => (
+                <div key={ayah.number} className={styles.ayahItem}>
+                  <div className={styles.ayahNumber}>{ayah.number}</div>
+                  <div className={styles.ayahText}>{ayah.text}</div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

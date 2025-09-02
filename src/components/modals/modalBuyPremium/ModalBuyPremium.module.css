@@ -48,7 +48,7 @@
 
 .modalHeader h2 {
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--text);
 }
 
@@ -103,7 +103,6 @@
   align-items: center;
   gap: var(--numbers-4);
   margin: 0 auto;
-  color: ;
 }
 .priceBlock {
   cursor: pointer;

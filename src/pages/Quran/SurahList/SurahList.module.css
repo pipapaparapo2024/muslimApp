@@ -24,7 +24,7 @@
 
 .nameHoly {
   font-size: var(--numbers-24);
-  font-weight: bold;
+  font-weight: var(--font-600);
 }
 
 .sahihInternational {
@@ -67,7 +67,7 @@
 
 .surahItem {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   background-color: var(--color-background-secondary);
   border-radius: var(--roundings-medium);
   padding: var(--numbers-15);
@@ -80,14 +80,15 @@
 .surahItem.selected {
   background-color: var(--color-background-semantic-dimmed-brand);
 }
-
+.blockNameNumber{
+  display: flex;
+  gap: var(--numbers-8);
+}
 .surahNumber {
-  font-size: var(--numbers-18);
-  padding: var(--numbers-8) var(--numbers-12);
+  font-size: var(--numbers-20);
+  padding: var(--numbers-14);
   background: var(--color-background-primary);
-  border-radius: var(--roundings-small);
-  font-weight: bold;
-  padding: 10px 14px;
+  border-radius: 50%;
   background: var(--bg-app);
 }
 

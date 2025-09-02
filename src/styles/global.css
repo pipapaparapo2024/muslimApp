@@ -320,6 +320,9 @@ body {
   --states-disabled: var(--numbers-36);
   --states-hovered: var(--numbers-80);
 
+  --font-600: 600;
+  --font-500: 500;
+  --font-400: 400;
   /* === Округления === */
   --roundings-small: 0.5rem;
   --roundings-medium: 1rem;

@@ -8,8 +8,10 @@ interface Ayah {
 }
 
 export interface Surah {
-  id: string; // Изменено на string (UUID)
+  id: string; 
   name: string;
+  number:number;
+  description:string;
   englishName: string;
   englishNameTranslation: string;
   numberOfAyahs: number;
@@ -91,7 +93,9 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
     return response.data.data.suras.map((chap: any) => ({
       id: chap.ID, // Оставляем как строку (UUID)
       name: chap.SuraName,
+      number: chap.SuraNumber,
       englishName: chap.SuraName,
+      description:chap.SuraDescription,
       englishNameTranslation: chap.SuraDescription || "",
       numberOfAyahs: parseInt(chap.AyasAmount),
       revelationType:
@@ -110,16 +114,15 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
 // Функция для получения аятов по ID суры и варианту
 const fetchAyahsBySurah = async (
   surahId: string,
-  variantId: string
 ): Promise<Ayah[]> => {
   try {
     const response = await quranApi.get(
-      "/api/v1/quran/ayas?page=1&suraId=a8ec7212-21d1-4fa8-90b5-d7893af62f8c",
+      "/api/v1/quran/ayas",
       {
         params: {
           page: 1,
-          suraId: surahId, // Используем правильный параметр
-          varId: variantId,
+          suraId: surahId,
+          search: "",
         },
       }
     );
@@ -182,9 +185,9 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     }
   },
 
-  fetchAyahs: async (surahId: string, variantId: string): Promise<Ayah[]> => {
+  fetchAyahs: async (surahId: string): Promise<Ayah[]> => {
     try {
-      const ayahs = await fetchAyahsBySurah(surahId, variantId);
+      const ayahs = await fetchAyahsBySurah(surahId);
       return ayahs;
     } catch (error) {
       const errorMessage =

@@ -33,7 +33,7 @@ export const Region: React.FC = () => {
 
   if (isLoading) {
     return (
-      <PageWrapper showBackButton>
+      <PageWrapper showBackButton navigateTo="/settings" >
         <LoadingSpinner />
       </PageWrapper>
     );

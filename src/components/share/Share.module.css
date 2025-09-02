@@ -35,7 +35,7 @@
 .questionButton {
   background-color: var(--bg-app);
   color: var(--text);
-  font-weight: 500;
+  font-weight: var(--font-500);
   border: none;
   width: 100%;
   display: flex;

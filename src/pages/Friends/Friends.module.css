@@ -13,14 +13,14 @@
 
 .progressSection {
   display: flex;
-  font-weight: 600;
+  font-weight: var(--font-600);
   gap: var(--numbers-8);
   align-items: center;
 }
 
 .cardTitle {
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
   margin-bottom: var(--numbers-2);
   display: flex;
   align-items: center;
@@ -73,7 +73,7 @@
 
 .emptyTitle {
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--text);
   margin-top: var(--numbers-16);
 }
@@ -101,12 +101,12 @@
 }
 .friendName {
   color: var(--text);
-  font-weight: 600;
+  font-weight: var(--font-600);
   font-size: var(--numbers-16);
 }
 .friendStatus {
   color: var(--text);
-  font-weight: 500;
+  font-weight: var(--font-500);
   font-size: var(--numbers-14);
 }
 .accepted {
