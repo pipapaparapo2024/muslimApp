@@ -8,6 +8,7 @@ export interface IpData {
   type: string;
   city?: string;
   region?: string;
+  langcode?: string;
   country: {
     code: string;
     name: string;
@@ -32,6 +33,7 @@ export interface LocationData {
 }
 
 interface GeoState {
+  langcode: string | null;
   ipData: IpData | null;
   coords: { lat: number; lon: number } | null;
   city: string | null;
@@ -41,7 +43,7 @@ interface GeoState {
   error: string | null;
   isInitialized: boolean;
   hasRequestedGeo: boolean;
-  
+
   fetchFromIpApi: () => Promise<void>;
   setCoords: (coords: { lat: number; lon: number } | null) => void;
   setCity: (city: string | null) => void;
@@ -60,6 +62,7 @@ export const useGeoStore = create<GeoState>()(
       ipData: null,
       coords: null,
       city: null,
+      langcode: null,
       country: null,
       timeZone: null,
       isLoading: false,
@@ -69,20 +72,25 @@ export const useGeoStore = create<GeoState>()(
 
       fetchFromIpApi: async () => {
         // Проверяем есть ли свежие данные в localStorage
-        const cachedData = localStorage.getItem('ipDataCache');
+        const cachedData = localStorage.getItem("ipDataCache");
         if (cachedData) {
           try {
             const data = JSON.parse(cachedData);
+            // В методе fetchFromIpApi после получения данных:
+            const browserLang = navigator.language || navigator.languages[0];
+            const langcode =
+              data.country?.code || browserLang?.split("-")[0] || "en";
             // Если данные свежие (менее 24 часов), используем их
             if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
               set({
                 ipData: data,
                 coords: data.location,
                 city: data.city,
+                langcode: langcode,
                 country: data.country,
                 timeZone: data.timeZone,
                 isLoading: false,
-                error: null
+                error: null,
               });
               return;
             }
@@ -99,18 +107,22 @@ export const useGeoStore = create<GeoState>()(
             "https://api.my-ip.io/v2/ip.json"
           );
           const data = response.data;
-          
+
           if (data.success) {
-            const city = data.city || data.region || data.country?.name || "Unknown";
+            const city =
+              data.city || data.region || data.country?.name || "Unknown";
             const country = data.country?.name || "Unknown";
-            
+
             // Сохраняем данные в кэш
-            localStorage.setItem('ipDataCache', JSON.stringify({
-              ...data,
-              city,
-              country,
-              timestamp: Date.now()
-            }));
+            localStorage.setItem(
+              "ipDataCache",
+              JSON.stringify({
+                ...data,
+                city,
+                country,
+                timestamp: Date.now(),
+              })
+            );
             set({
               ipData: data,
               coords: data.location,
@@ -118,7 +130,7 @@ export const useGeoStore = create<GeoState>()(
               country,
               timeZone: data.timeZone,
               isLoading: false,
-              error: null
+              error: null,
             });
           } else {
             throw new Error("API returned success: false");
@@ -126,9 +138,9 @@ export const useGeoStore = create<GeoState>()(
         } catch (err: any) {
           const message = err.message || "Failed to get location";
           console.error("❌ Ошибка получения геоданных:", message, err);
-          set({ 
+          set({
             error: message,
-            isLoading: false
+            isLoading: false,
           });
         }
       },
@@ -142,16 +154,17 @@ export const useGeoStore = create<GeoState>()(
       setLoading: (loading) => set({ isLoading: loading }),
       setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
 
-      reset: () => set({
-        ipData: null,
-        coords: null,
-        city: null,
-        country: null,
-        timeZone: null,
-        error: null,
-        hasRequestedGeo: false,
-        isLoading: false
-      }),
+      reset: () =>
+        set({
+          ipData: null,
+          coords: null,
+          city: null,
+          country: null,
+          timeZone: null,
+          error: null,
+          hasRequestedGeo: false,
+          isLoading: false,
+        }),
 
       getLocationData: () => {
         const state = get();
@@ -159,9 +172,9 @@ export const useGeoStore = create<GeoState>()(
           coords: state.coords,
           city: state.city,
           country: state.country,
-          timeZone: state.timeZone
+          timeZone: state.timeZone,
         };
-      }
+      },
     }),
     {
       name: "geo-storage",

@@ -55,7 +55,6 @@ export const SurahList: React.FC = () => {
       },
     });
   };
-
   const handleVariantChange = (variantId: string) => {
     const variant = variants.find((v) => v.id === variantId);
     if (variant) {
@@ -80,9 +79,7 @@ export const SurahList: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className={styles.diskHeader}>
-              {t("discoverChapters")}
-            </div>
+            <div className={styles.diskHeader}>{t("discoverChapters")}</div>
           </div>
 
           <div className={styles.searchContainer}>

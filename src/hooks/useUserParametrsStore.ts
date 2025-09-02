@@ -1,4 +1,3 @@
-// hooks/useUserParametersStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { quranApi } from "../api/api";
@@ -7,7 +6,7 @@ interface UserSettings {
   cityName: string;
   countryName: string;
   timeZone: string;
-  language: string;
+  language: string | null;
 }
 
 interface UserParametersState {
@@ -19,6 +18,7 @@ interface UserParametersState {
   sendUserSettings: (locationData: {
     city: string | null;
     country: string | null;
+    langcode: string | null;
     timeZone: string | null;
   }) => Promise<void>;
   reset: () => void;
@@ -45,12 +45,16 @@ export const useUserParametersStore = create<UserParametersState>()(
         set({ isLoading: true, error: null });
 
         try {
+          const token = localStorage.getItem("accessToken");
+          if (!token) {
+            throw new Error("No access token available");
+          }
           // Формируем данные для отправки из полученных locationData
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.country || "Unknown",
+            language: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
-            language: "ru",
           };
 
           console.log("Отправляем настройки пользователя:", settingsData);
@@ -61,6 +65,7 @@ export const useUserParametersStore = create<UserParametersState>()(
             {
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
               },
             }
           );

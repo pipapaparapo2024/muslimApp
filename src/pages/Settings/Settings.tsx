@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { usePrayerTimesStore } from "./appSettings/settingPlayerTimes/SettingPrayerTimesStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
+import { useGeoStore } from "../../hooks/useGeoStore";
 import {
   Calendar,
   ChevronLeft,
@@ -29,6 +30,7 @@ export const Settings: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel, getIconColor } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
+  const { city, country } = useGeoStore();
   console.log("Current language:", i18n.language);
   const visiblePrayers = prayers.filter((p) => p.showOnMain);
   // Временная проверка
@@ -60,7 +62,7 @@ export const Settings: React.FC = () => {
               <div className={styles.title}>{t("region")}</div>
             </div>
             <div className={styles.settingItemRight}>
-              <div className={styles.description}>Russia, Voronezh</div>
+              <div className={styles.description}>{country}, {city}</div>
               {language === "ar" ? (
                 <ChevronLeft size={24} />
               ) : (

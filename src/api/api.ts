@@ -1,33 +1,30 @@
 import axios from "axios";
 import WebApp from "@twa-dev/sdk";
+
+// Создаём экземпляр API
 export const quranApi = axios.create({
   baseURL: 'https://islam_app.myfavouritegames.org',
-  timeout: 15000,
 });
 
+// Request interceptor — добавляем accessToken и initData
 quranApi.interceptors.request.use((config) => {
-  const isAuthRequest = config.url?.includes("/auth");
-
-  // Логирование только в development
-  if (process.env.NODE_ENV === "development") {
-    console.log("[API Request]", config.url, config.params || "");
+  const accessToken = localStorage.getItem("accessToken");
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
-  if (!isAuthRequest) {
-    const token = localStorage.getItem("jwtToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+  if (WebApp.initData) {
+    config.headers["X-Telegram-Init-Data"] = WebApp.initData;
+  }
 
-    if (window.Telegram?.WebApp?.initData) {
-      config.headers["X-Telegram-Init-Data"] = window.Telegram.WebApp.initData;
-    }
+  if (process.env.NODE_ENV === "development") {
+    console.log("[API Request]", config.url, config.method?.toUpperCase(), config.params || "");
   }
 
   return config;
 });
 
-// Response Interceptor с Retry-логикой
+// Response interceptor с refresh token
 quranApi.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === "development") {
@@ -38,99 +35,63 @@ quranApi.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Логирование ошибок
     if (process.env.NODE_ENV === "development") {
       console.error("[API Error]", error.response?.status, error.config.url);
     }
 
-    // Обработка 401 (истечение токена)
+    // Обработка 401 — только один раз
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        // Пытаемся обновить токен
         const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const response = await quranApi.post("/auth/refresh", {
-            refreshToken,
-          });
-          const { token, refreshToken: newRefreshToken } = response.data;
+        if (!refreshToken) throw new Error("No refreshToken");
 
-          localStorage.setItem("jwtToken", token);
-          localStorage.setItem("refreshToken", newRefreshToken);
+        // Запрос на обновление accessToken через /auth/refresh
+        const response = await quranApi.post("/auth/refresh", {
+          refreshToken,
+        });
 
-          // Повторяем исходный запрос с новым токеном
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return quranApi(originalRequest);
+        // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
+        const { accessToken } = response.data.data;
+
+        if (!accessToken) {
+          throw new Error("Refresh failed: no accessToken in response");
         }
-      } catch (refreshError) {
-        console.error("Refresh token failed", refreshError);
-      }
 
-      // useUserStore.getState().logout();
-      localStorage.removeItem("jwtToken");
-      localStorage.removeItem("refreshToken");
+        // Сохраняем новый accessToken
+        localStorage.setItem("accessToken", accessToken);
 
-      if (window.Telegram?.WebApp?.close) {
-        window.Telegram.WebApp.close();
-      } else {
-        window.location.href = "/login";
-      }
-    }
+        // Обновляем заголовок запроса
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-    // Обработка 500 ошибки
-    if (error.response?.status === 500) {
-      window.Telegram?.WebApp?.showAlert?.("Ошибка сервера. Попробуйте позже");
-    }
+        // Обновляем дефолтный заголовок
+        quranApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
-    return Promise.reject(error);
-  }
-);
-export const reauthenticate = async (): Promise<string> => {
-  console.log("🔄 Попытка повторной аутентификации...");
-
-  const response = await quranApi.post<{ data: { accessToken: string } }>(
-    "/api/v1/user/auth/",
-    {
-      initData: WebApp.initData,
-    }
-  );
-
-  const newToken = response.data.data.accessToken;
-  localStorage.setItem("accessToken", newToken);
-  return newToken;
-};
-
-quranApi.interceptors.response.use(
-  (response) => response, // всё ок — пропускаем
-  async (error) => {
-    const originalRequest = error.config;
-
-    // Если ошибка 401 и мы ещё не делали повторной попытки
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true; // защита от зацикливания
-
-      try {
-        // Получаем новый токен
-        const newToken = await reauthenticate();
-
-        // Обновляем заголовок оригинального запроса
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-
-        // Обновляем дефолтный заголовок для всех будущих запросов
-        axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
-
-        // Повторяем оригинальный запрос
+        // Повторяем запрос
         return quranApi(originalRequest);
-      } catch (reauthError) {
-        console.error("❌ Не удалось обновить токен:", reauthError);
-        // Можно принудительно выйти
+      } catch (refreshError) {
+        console.error("❌ Refresh token failed:", refreshError);
+
+        // Очищаем токены
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+
+        // Закрываем бот
         if (window.Telegram?.WebApp) {
           window.Telegram.WebApp.showAlert("Сессия истекла. Перезапустите бота.");
-          window.Telegram.WebApp.close();
+          setTimeout(() => window.Telegram?.WebApp.close(), 1500);
+        } else {
+          window.location.href = "/login";
         }
-        return Promise.reject(reauthError);
+
+        return Promise.reject(refreshError);
       }
+    }
+
+    // Обработка 500
+    if (error.response?.status === 500) {
+      window.Telegram?.WebApp?.showAlert?.("Ошибка сервера. Попробуйте позже");
     }
 
     return Promise.reject(error);

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -23,6 +23,8 @@ export const Home: React.FC = () => {
 
   // Используем стор для геоданных
   const {
+    ipData,
+    langcode,
     coords,
     city,
     country,
@@ -45,6 +47,12 @@ export const Home: React.FC = () => {
   const geoRequested = useRef(false);
   const sensorRequested = useRef(false);
   const ipDataFetched = useRef(false);
+  const settingsSentRef = useRef(settingsSent);
+
+  // Обновляем ref при изменении settingsSent
+  useEffect(() => {
+    settingsSentRef.current = settingsSent;
+  }, [settingsSent]);
 
   // Функция для получения данных из кэша
   const getCachedIpData = () => {
@@ -53,7 +61,7 @@ export const Home: React.FC = () => {
       if (cached) {
         const data = JSON.parse(cached);
         // Проверяем что кэш свежий (менее 24 часов)
-        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+        if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
           return data;
         }
       }
@@ -62,6 +70,55 @@ export const Home: React.FC = () => {
     }
     return null;
   };
+
+  // Функция для отправки настроек местоположения
+  const sendLocationSettings = useCallback(async () => {
+    if (settingsSentRef.current) {
+      console.log("Настройки уже отправлены, пропускаем");
+      return;
+    }
+
+    if (
+      city &&
+      country &&
+      timeZone &&
+      city !== "Unknown" &&
+      country !== "Unknown"
+    ) {
+      console.log("Отправляем настройки местоположения:", {
+        city,
+        country,
+        langcode,
+        timeZone,
+      });
+
+      // Формируем данные для отправки
+      const settingsData = {
+        city,
+        country,
+        langcode,
+        timeZone,
+      };
+      console.log("настройки",settingsData)
+
+      try {
+        await sendUserSettings(settingsData);
+        console.log("Настройки успешно отправлены на сервер");
+      } catch (error) {
+        console.error("Ошибка при отправке настроек:", error);
+      }
+    } else {
+      console.log("Не все данные готовы для отправки:", {
+        city,
+        country,
+        timeZone,
+      });
+    }
+  }, [city, country, timeZone, ipData, sendUserSettings]); // Добавляем ipData в зависимости
+  // Отслеживаем изменения геоданных и отправляем настройки
+  useEffect(() => {
+    sendLocationSettings();
+  }, [sendLocationSettings]);
 
   // Функция для сброса и обновления данных геолокации
   const handleRefreshLocationData = async () => {
@@ -135,15 +192,6 @@ export const Home: React.FC = () => {
             }
           }
 
-          // Отправляем данные в хранилище пользователя
-          if (!settingsSent) {
-            sendUserSettings({
-              city: city || "Unknown",
-              country: country || "Unknown",
-              timeZone: timeZone,
-            });
-          }
-
           resolve();
         },
         async (error) => {
@@ -169,15 +217,6 @@ export const Home: React.FC = () => {
             }
           }
 
-          // Отправляем данные в хранилище
-          if (!settingsSent) {
-            sendUserSettings({
-              city: city || "Unknown",
-              country: country || "Unknown",
-              timeZone: timeZone,
-            });
-          }
-
           resolve();
         },
         { timeout: 10000, enableHighAccuracy: true }
@@ -191,49 +230,55 @@ export const Home: React.FC = () => {
 
     try {
       // Проверяем поддержку API
-      if (typeof DeviceOrientationEvent === 'undefined') {
-        console.warn('DeviceOrientationEvent not supported');
+      if (typeof DeviceOrientationEvent === "undefined") {
+        console.warn("DeviceOrientationEvent not supported");
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "unsupported");
         setSensorPermission("unsupported");
         return;
       }
 
       // iOS 13+ - используем обходной путь с setTimeout
-      if ('requestPermission' in DeviceOrientationEvent) {
+      if ("requestPermission" in DeviceOrientationEvent) {
         // Для iOS используем небольшую задержку и пытаемся автоматически
         setTimeout(async () => {
           try {
             // Создаем скрытое событие для инициализации
-            window.addEventListener('deviceorientation', () => {}, { once: true });
-            
+            window.addEventListener("deviceorientation", () => {}, {
+              once: true,
+            });
+
             // Пытаемся автоматически запросить разрешение
-            const result = await (DeviceOrientationEvent as any).requestPermission();
+            const result = await (
+              DeviceOrientationEvent as any
+            ).requestPermission();
             localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
             setSensorPermission(result);
           } catch (err) {
-            console.log("iOS automatic sensor request failed, will request on interaction");
+            console.log(
+              "iOS automatic sensor request failed, will request on interaction"
+            );
             // Если автоматический запрос не сработал, разрешим при первом взаимодействии
             localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
             setSensorPermission("prompt");
           }
         }, 1000);
-      } 
+      }
       // Android и другие браузеры с Permissions API
-      else if ('permissions' in navigator) {
+      else if ("permissions" in navigator) {
         try {
-          const permission = await navigator.permissions.query({ 
-            name: 'gyroscope' as PermissionName 
+          const permission = await navigator.permissions.query({
+            name: "gyroscope" as PermissionName,
           });
           localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
           setSensorPermission(permission.state);
-          
+
           // Слушаем изменения разрешения
           permission.onchange = () => {
             setSensorPermission(permission.state);
             localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
           };
         } catch (err) {
-          console.warn('Permissions API not fully supported:', err);
+          console.warn("Permissions API not fully supported:", err);
           // Для браузеров без Permissions API считаем разрешённым
           localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
           setSensorPermission("granted");
@@ -244,21 +289,23 @@ export const Home: React.FC = () => {
         try {
           // Пытаемся подписаться на событие ориентации
           const testHandler = () => {
-            window.removeEventListener('deviceorientation', testHandler);
+            window.removeEventListener("deviceorientation", testHandler);
             localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
             setSensorPermission("granted");
           };
-          
-          window.addEventListener('deviceorientation', testHandler, { once: true });
-          
+
+          window.addEventListener("deviceorientation", testHandler, {
+            once: true,
+          });
+
           // Таймаут на случай если разрешение не дадут
           setTimeout(() => {
-            window.removeEventListener('deviceorientation', testHandler);
+            window.removeEventListener("deviceorientation", testHandler);
             localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
             setSensorPermission("granted");
           }, 1000);
         } catch (err) {
-          console.warn('Device orientation access failed:', err);
+          console.warn("Device orientation access failed:", err);
           localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
           setSensorPermission("granted");
         }
@@ -273,8 +320,10 @@ export const Home: React.FC = () => {
   // Функция для принудительного запроса разрешения (при взаимодействии)
   const forceRequestSensorPermission = async () => {
     try {
-      if ('requestPermission' in DeviceOrientationEvent) {
-        const result = await (DeviceOrientationEvent as any).requestPermission();
+      if ("requestPermission" in DeviceOrientationEvent) {
+        const result = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
         localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
         setSensorPermission(result);
       }
@@ -320,7 +369,7 @@ export const Home: React.FC = () => {
       // Автоматически запрашиваем геолокацию
       if (!status || status === "unknown") {
         await requestGeolocation();
-      } 
+      }
       // Если уже разрешено - используем точные координаты
       else if (status === "granted") {
         await requestGeolocation();
@@ -348,7 +397,11 @@ export const Home: React.FC = () => {
     const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
 
     // Если уже есть статус - используем его
-    if (status === "granted" || status === "denied" || status === "unsupported") {
+    if (
+      status === "granted" ||
+      status === "denied" ||
+      status === "unsupported"
+    ) {
       setSensorPermission(status);
       return;
     }
@@ -435,18 +488,20 @@ export const Home: React.FC = () => {
                   />
                   {/* Показываем подсказку если нужно взаимодействие */}
                   {sensorPermission === "prompt" && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      textAlign: 'center',
-                      fontSize: '12px',
-                      color: '#666',
-                      background: 'rgba(255, 255, 255, 0.9)',
-                      padding: '8px',
-                      borderRadius: '8px'
-                    }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "#666",
+                        background: "rgba(255, 255, 255, 0.9)",
+                        padding: "8px",
+                        borderRadius: "8px",
+                      }}
+                    >
                       Нажмите для доступа к датчикам
                     </div>
                   )}
