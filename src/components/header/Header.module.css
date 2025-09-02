@@ -31,6 +31,10 @@
   transition: all 0.2s ease;
 }
 
+.buyPremiumButton svg {
+  color: currentColor;
+  stroke: currentColor;
+}
 .DaysLeftPrem {
   background: var(--bg-surface);
   color: var(--text);
@@ -45,4 +49,8 @@
   font-weight: 500;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+}
+.DaysLeftPrem svg {
+  color: currentColor;
+  stroke: currentColor;
 }

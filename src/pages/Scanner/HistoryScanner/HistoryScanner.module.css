@@ -2,7 +2,7 @@
   margin-bottom: var(--numbers-16);
 }
 .dateHeader {
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--desk-text);
   margin: var(--numbers-8) 0;
 }
@@ -13,12 +13,12 @@
   margin-bottom: var(--numbers-4);
 }
 .scanTitle {
-  font-weight: 600;
+  font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
 }
 .scanDesk {
-  font-weight: 400;
+  font-weight: var(--font-400);
   margin: var(--numbers-4) 0 var(--numbers-8) 0;
   color: var(--desk-text);
   font-size: var(--numbers-14);
@@ -31,7 +31,7 @@
   padding: var(--numbers-8);
   border-radius: var(--roundings-small);
   border: none;
-  font-weight: 500;
+  font-weight: var(--font-500);
   gap: var(--numbers-4);
   cursor: pointer;
 }
@@ -48,7 +48,7 @@
 .accessBlock {
   display: flex;
   align-items: center;
-  font-weight: 500;
+  font-weight: var(--font-500);
   font-size: var(--numbers-14);
   gap: var(--numbers-4);
   padding: var(--numbers-8);

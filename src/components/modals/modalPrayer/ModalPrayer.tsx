@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ModalPrayer.module.css";
 import { useNavigate } from "react-router-dom";
-import { type PrayerSetting } from "../../../pages/Settings/appSettings/settingPlayerTimes/SettingPrayerTimesStore";
+import { type PrayerSetting } from "../../../hooks/useSettingPrayerTimesStore";
 import { Pen } from "lucide-react";
 import { t } from "i18next";
 

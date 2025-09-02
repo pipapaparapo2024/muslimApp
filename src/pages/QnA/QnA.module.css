@@ -32,7 +32,6 @@
   box-sizing: border-box;
   margin-bottom: var(--numbers-4);
   outline: none;
-  text-align: center;
 }
 
 .submitButton {
@@ -85,20 +84,20 @@
 }
 
 .guidance span {
+  display: block;
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
+  letter-spacing: var(--letter-spacing-tighter);
+  margin-bottom: var(--numbers-6);
 }
 .guidance p {
   font-size: var(--numbers-14);
   color: var(--desk-text);
   margin-bottom: var(--numbers-16);
-  font-weight: 400;
+  font-weight: var(--font-400);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
-.submitButton:disabled {
-  background-color: var(--colors-green-600);
-  cursor: not-allowed;
-}
 
 .submitButton:disabled:hover {
   transform: none;

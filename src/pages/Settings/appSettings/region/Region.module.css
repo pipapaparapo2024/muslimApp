@@ -10,11 +10,13 @@
   font-size: var(--numbers-20);
   color: var(--text);
   font-weight: var(--font-600);
+  letter-spacing: var(--letter-spacing-tighter);
 }
 
 .description {
   font-size: var(--numbers-14);
   color: var(--desk-text);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .searchWrapper {

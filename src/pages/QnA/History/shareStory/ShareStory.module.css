@@ -87,7 +87,7 @@
   border: none;
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
-  font-weight: 600;
+  font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
   display: flex;

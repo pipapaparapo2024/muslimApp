@@ -2,7 +2,7 @@
   margin-bottom: var(--numbers-16);
 }
 .dateHeader {
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--desk-text);
   margin: var(--numbers-8) 0;
 }
@@ -13,7 +13,7 @@
   margin-bottom: var(--numbers-4);
 }
 .questionPromis {
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--text);
 }
 .answerPromis {
@@ -26,7 +26,7 @@
   background: var(--bg-app);
   color: var(--text);
   display: flex;
-  font-weight: 500;
+  font-weight: var(--font-500);
   align-items: center;
   padding: var(--numbers-8);
   border-radius: var(--roundings-small);

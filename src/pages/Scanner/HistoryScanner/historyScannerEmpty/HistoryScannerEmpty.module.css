@@ -19,7 +19,7 @@
 
 .title {
   font-size: var(--numbers-20);
-  font-weight: 600;
+  font-weight: var(--font-600);
   margin-bottom: var(--numbers-4);
 }
 

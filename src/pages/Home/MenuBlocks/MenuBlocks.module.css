@@ -39,7 +39,7 @@
 }
 
 .menuTitle {
-  font-weight: 600;
+  font-weight: var(--font-600);
   font-size: var(--numbers-16);
   margin-bottom: var(--numbers-2);
 }

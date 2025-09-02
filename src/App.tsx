@@ -31,6 +31,7 @@ import { useGeoStore } from "./hooks/useGeoStore";
 import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
 import { AyahList } from "./pages/Quran/Ayas/AyasList";
+import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -114,6 +115,7 @@ export const App: React.FC = () => {
           path="/privacy-policy"
           element={<div>Privacy Policy Page</div>}
         />
+        <Route  path="/quran/translation"element={<ChooseTranslation/>}/>
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />
         <Route path="/scanner" element={<Scanner />} />

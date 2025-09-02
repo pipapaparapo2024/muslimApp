@@ -7,7 +7,7 @@
 
 .title {
   font-size: var(--numbers-16);
-  font-weight: 600;
+  font-weight: var(--font-600);
   color: var(--text);
 }
 
@@ -42,7 +42,7 @@
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--font-500);
   cursor: pointer;
   transition: transform 0.2s;
   z-index: 1;
@@ -54,7 +54,7 @@
 
 .prayerName {
   font-size: var(--numbers-14);
-  font-weight: 500;
+  font-weight: var(--font-500);
   color: var(--text);
 }
 
@@ -71,7 +71,7 @@
   background-color: var(--color-background-semantic-solid-brand); /* green-700 */
   color: white;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: var(--font-600);
   padding: var(--numbers-2) var(--numbers-4);
   border-radius: var(--roundings-medium);
   z-index: 500;

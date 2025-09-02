@@ -323,6 +323,13 @@ body {
   --font-600: 600;
   --font-500: 500;
   --font-400: 400;
+
+  --letter-spacing-tighter: -0.48px;
+  --letter-spacing-tight: -0.24px;
+  --letter-spacing-normal: 0px;
+  --letter-spacing-wide: 0.24px;
+  --letter-spacing-wider: 0.48px;
+
   /* === Округления === */
   --roundings-small: 0.5rem;
   --roundings-medium: 1rem;

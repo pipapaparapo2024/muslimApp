@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-12);
+}
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+}
+.title {
+  font-size: var(--numbers-20);
+  font-weight: var(--font-600);
+  letter-spacing: var(--letter-spacing-tighter);
+}
+.deskription {
+  color: var(--desk-text);
+  font-weight: var(--font-400);
+  letter-spacing: var(--letter-spacing-wide);
+}
+.blockVariant {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+}
+
+.itemVariant {
+  padding: var(--numbers-12) var(--numbers-16);
+  background-color: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--roundings-medium);
+  border: 2px solid var(--bg-surface);
+}
+.selectedVariant {
+  border-color: var(--color-background-semantic-solid-brand);
+  color: var(--color-background-semantic-solid-brand);
+}

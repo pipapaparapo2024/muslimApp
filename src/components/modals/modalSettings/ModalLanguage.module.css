@@ -52,6 +52,8 @@
   font-size: var(--numbers-20);
   font-weight: var(--font-600);
   color: var(--text);
+  letter-spacing: var(--letter-spacing-tighter);
+
 }
 
 .closeButton {
@@ -61,6 +63,7 @@
   cursor: pointer;
   color: var(--color-icon-secondary);
   padding: var(--numbers-8);
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .modalDescription {

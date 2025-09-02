@@ -20,7 +20,7 @@
 }
 
 .title {
-  font-weight: 500;
+  font-weight: var(--font-600);
   font-size: var(--numbers-20);
   text-align: center;
   width: 100%;
@@ -54,7 +54,7 @@
   border: none;
   padding: var(--numbers-18) 0; /* 18px */
   font-size: var(--numbers-16);
-  font-weight: 600;
+  font-weight: var(--font-600);
   cursor: pointer;
 }
 

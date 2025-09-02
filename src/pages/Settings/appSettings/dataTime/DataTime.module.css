@@ -64,6 +64,7 @@
 .titleTime {
   font-size: var(--numbers-20);
   margin-bottom: var(--numbers-12);
+  letter-spacing: var(--letter-spacing-tighter);
 }
 
 .blockTime {

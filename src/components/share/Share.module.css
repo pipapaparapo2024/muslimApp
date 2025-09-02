@@ -1,6 +1,7 @@
 
 .form {
   padding: var(--numbers-16);
+  padding-bottom: var(--numbers-40);
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);

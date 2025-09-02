@@ -85,14 +85,14 @@ export const useQnAStore = create<QnAState>((set,) => ({
 
       // Вариант 3: С премиумом (5 часов)
       
-      // set({
-      //   requestsLeft: 999,
-      //   hasPremium: true,
-      //   premiumTimeLeft: { days: 0, hours: 5, totalHours: 5 },
-      //   isLoading: false,
-      //   error: null,
-      // });
-      // return;
+      set({
+        requestsLeft: 999,
+        hasPremium: true,
+        premiumTimeLeft: { days: 0, hours: 5, totalHours: 5 },
+        isLoading: false,
+        error: null,
+      });
+      return;
       
 
       // Вариант 4: Премиум истек

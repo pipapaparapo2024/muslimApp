@@ -97,7 +97,7 @@
   display: flex;
   background: var(--bg-surface);
   padding: var(--numbers-14) var(--numbers-16);
-  border-radius: var(--roundings-big);
+  border-radius: var(--roundings-medium);
 }
 .friendName {
   color: var(--text);

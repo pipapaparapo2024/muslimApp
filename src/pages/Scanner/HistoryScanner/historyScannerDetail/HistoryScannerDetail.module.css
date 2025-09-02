@@ -15,10 +15,9 @@
 }
 
 .blockInside {
-  border-radius: var(--roundings-medium) var(--roundings-medium) 0
-    var(--roundings-medium);
+  border-radius: var(--roundings-medium);
   background: var(--bg-surface);
-  padding: var(--numbers-8) var(--numbers-16);
+  padding: var(--numbers-12) var(--numbers-16);
 }
 
 .form {
@@ -53,7 +52,7 @@
 .questionButton {
   background-color: var(--bg-app);
   color: var(--text);
-  font-weight: 500;
+  font-weight: var(--font-500);
   border: none;
   width: 100%;
   display: flex;
@@ -74,7 +73,7 @@
 .accessBlock {
   display: flex;
   align-items: center;
-  font-weight: 500;
+  font-weight: var(--font-500);
   font-size: var(--numbers-20);
   gap: var(--numbers-4);
   padding: var(--numbers-12) var(--numbers-16);
@@ -83,13 +82,13 @@
 }
 
 .scanTitle {
-  font-weight: 600;
+  font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
 }
 .scanDesk {
   font-weight: 400;
-  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  margin-top: var(--numbers-4) ;
   color: var(--desk-text);
   font-size: var(--numbers-14);
 }

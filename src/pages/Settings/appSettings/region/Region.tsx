@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./Region.module.css";
 import { Check, Search } from "lucide-react";
-import { useRegionStore } from "./RegionStore";
+import { useRegionStore } from "../../../../hooks/useRegionStore";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { t } from "i18next";

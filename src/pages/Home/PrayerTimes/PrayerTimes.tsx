@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styles from "./PrayerTimes.module.css";
-import { usePrayerTimesStore } from "../../Settings/appSettings/settingPlayerTimes/SettingPrayerTimesStore";
+import { usePrayerTimesStore } from "../../../hooks/useSettingPrayerTimesStore";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer";
-import { type PrayerSetting } from "../../Settings/appSettings/settingPlayerTimes/SettingPrayerTimesStore";
+import { type PrayerSetting } from "../../../hooks/useSettingPrayerTimesStore";
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
-import { useDataTimeStore } from "../../Settings/appSettings/dataTime/DataTimeStore";
+import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
 
 // Помогает конвертировать строку или Date в объект Date
@@ -57,9 +57,6 @@ export const PrayerTimes: React.FC = () => {
   
   const calculatePrayerTimes = usePrayerTimesStore(
     (state) => state.calculatePrayerTimes
-  );
-  const updatePrayerTimes = usePrayerTimesStore(
-    (state) => state.updatePrayerTimes
   );
 
   const geoData = useGeoStore((state) => state);

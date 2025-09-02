@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
       const cached = localStorage.getItem(IP_DATA_CACHE);
       if (cached) {
         const data = JSON.parse(cached);
-        // Проверяем что кэш свежий (менее 24 часов)
+        // Проверяем что кэш свежий (менее 2 часов)
         if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
           return data;
         }
@@ -73,11 +73,6 @@ export const Home: React.FC = () => {
 
   // Функция для отправки настроек местоположения
   const sendLocationSettings = useCallback(async () => {
-    if (settingsSentRef.current) {
-      console.log("Настройки уже отправлены, пропускаем");
-      return;
-    }
-
     if (
       city &&
       country &&
@@ -99,7 +94,7 @@ export const Home: React.FC = () => {
         langcode,
         timeZone,
       };
-      console.log("настройки",settingsData)
+      console.log("настройки", settingsData);
 
       try {
         await sendUserSettings(settingsData);

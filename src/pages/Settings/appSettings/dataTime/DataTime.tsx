@@ -3,7 +3,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./DataTime.module.css";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
-import { useDataTimeStore } from "./DataTimeStore";
+import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
 import { useLanguage } from "../../../../hooks/useLanguages";
 import { t } from "i18next";
 // Получаем текущую дату

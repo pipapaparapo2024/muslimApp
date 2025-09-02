@@ -3,7 +3,7 @@ import L from "leaflet";
 import styles from "./QiblaMap.module.css";
 import "leaflet/dist/leaflet.css";
 import { useGeoStore } from "../../../hooks/useGeoStore";
-import { useMapStore } from "./QiblaMapStore";
+import { useMapStore } from "../../../hooks/useQiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";
 

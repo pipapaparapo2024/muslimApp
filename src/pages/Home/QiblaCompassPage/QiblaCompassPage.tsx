@@ -3,7 +3,7 @@ import { QiblaMap } from "../QiblaCompass/QiblaMap";
 import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
-import { useQiblaCompassPageStore } from "./QiblaCompassPageStore";
+import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStore";
 import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
@@ -44,7 +44,7 @@ export const QiblaCompassPage: React.FC = () => {
             onChange={() => setActiveTab("map")}
             className={styles.toggleInput}
           />
-          <span className={styles.toggleSliderMap}>
+          <span className={styles.toggleSlider}>
             <Map size={16} strokeWidth={1.5} /> {t("map")}
           </span>
         </label>

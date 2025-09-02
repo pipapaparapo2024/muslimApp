@@ -74,8 +74,8 @@ const resources = {
       arabic: "Arabic",
 
       //Modal Theme
-      setYourPreferred:"Set your preferred appearance mode.",
-      chooseTheme:"Choose Theme",
+      setYourPreferred: "Set your preferred appearance mode.",
+      chooseTheme: "Choose Theme",
 
       light: "Light",
       dark: "Dark",
@@ -127,6 +127,13 @@ const resources = {
       noChaptersFound: "No chapters found for",
       loadingChapters: "Loading chapters...",
       ayahs: "Ayahs",
+
+      //Translation and other
+      chooseTranslation: "Choose Translation",
+      selectPreferred:
+        "Select your preferred translation of the Quran for better understanding.",
+      makkah: "Makkah",
+      madinah: "Madinah",
 
       // Date Time Settings
       timeFormat: "Time Format",
@@ -309,8 +316,8 @@ const resources = {
       arabic: "عربي",
 
       //Modal Theme
-      setYourPreferred:"اضبط وضع المظهر المفضل لديك.",
-      chooseTheme:"اختر الموضوع",
+      setYourPreferred: "اضبط وضع المظهر المفضل لديك.",
+      chooseTheme: "اختر الموضوع",
       light: "ضوء",
       dark: "مظلم",
       system: "نظام",
@@ -357,7 +364,13 @@ const resources = {
       translation: "الترجمة:",
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
-      ayahs: "{{count}} آية",
+
+      //Translation and other
+      chooseTranslation: "اختر الترجمة",
+      selectPreferred: "اختر ترجمتك المفضلة للقرآن لفهم أفضل.",
+      makkah: "مكة",
+      madinah: "المدينة المنورة",
+      ayahs:"آيات",
 
       // Date Time Settings
       timeFormat: "تنسيق الوقت",

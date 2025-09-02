@@ -12,7 +12,7 @@
   color: var(--text);
   gap: var(--numbers-4);
   border-radius: var(--roundings-medium);
-  font-weight: var(--font-600);
+  font-weight: var(--font-500);
   display: flex;
   align-items: center;
   padding: var(--numbers-13) var(--numbers-24);

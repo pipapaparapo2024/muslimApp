@@ -1,19 +1,25 @@
+
 .headerContainer {
   align-items: center;
   padding: var(--numbers-16);
   gap: var(--numbers-14);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.07);
-  border-radius: 14px;
   border-radius: 0 0 var(--roundings-medium) var(--roundings-medium);
-  margin: -12px;
+  margin: -12px -12px 0 -12px;
   background-color: var(--bg-surface);
 }
 
 .quranImage {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
   object-fit: cover;
+  margin-bottom: var(--numbers-8);
+}
+
+.holyHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-6);
 }
 
 .titleHeader {
@@ -25,11 +31,13 @@
 .nameHoly {
   font-size: var(--numbers-24);
   font-weight: var(--font-600);
+  letter-spacing: var(--letter-spacing-tighter);
 }
 
 .sahihInternational {
   display: flex;
   align-items: center;
+  gap: var(--numbers-8);
   font-size: var(--numbers-16);
   color: var(--color-text-brand);
 }
@@ -41,7 +49,7 @@
 }
 
 .searchContainer {
-  gap: var(--numbers-4);
+  gap: var(--numbers-8);
   display: flex;
   align-items: center;
   border-radius: var(--roundings-medium);
@@ -54,79 +62,76 @@
   border: none;
   outline: none;
   background: transparent;
+  font-weight: var(--font-500);
   font-size: var(--numbers-16);
 }
-.searchInput::placeholder{
+
+.searchInput::placeholder {
   color: var(--desk-text);
 }
 .blockChapter {
+  margin-top: var(--numbers-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
+}
+
+.surahItem {
+  background-color: var(--bg-surface);
+  padding: var(--numbers-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
+  border-radius: var(--roundings-medium);
+}
+
+.blockNameNumber {
+  display: flex;
+  gap: var(--numbers-8);
+  align-items: flex-start;
+}
+
+.surahNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--numbers-20);
+  font-weight: var(--font-400);
+  letter-spacing: var(--letter-spacing-wider);
+  background: var(--bg-app);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.surahContent {
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
 }
 
-.surahItem {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--color-background-secondary);
-  border-radius: var(--roundings-medium);
-  padding: var(--numbers-15);
-  padding: var(--numbers-16);
-  box-shadow: 0 var(--numbers-2) var(--numbers-8);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.surahItem.selected {
-  background-color: var(--color-background-semantic-dimmed-brand);
-}
-.blockNameNumber{
-  display: flex;
-  gap: var(--numbers-8);
-}
-.surahNumber {
-  font-size: var(--numbers-20);
-  padding: var(--numbers-14);
-  background: var(--color-background-primary);
-  border-radius: 50%;
-  background: var(--bg-app);
-}
-
 .surahName {
-  font-size: var(--numbers-18);
-  color: var(--color-text-primary);
-  margin-bottom: var(--numbers-6);
-  font-weight: bold;
+  font-weight: var(--font-600);
+  letter-spacing: var(--letter-spacing-tighter);
 }
 
 .surahDescription {
+  color: var(--desk-text);
+  font-weight: var(--font-400);
   font-size: var(--numbers-14);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--numbers-5);
-  margin-bottom: var(--numbers-6);
 }
-
 .surahDetails {
   display: flex;
-  align-items: center;
-  gap: var(--numbers-10);
+  gap: var(--numbers-4);
 }
-
-.ayahs {
-  font-size: var(--numbers-14);
-  color: var(--color-text-secondary);
-}
-
-.revelationType {
+.blockDeskription {
   display: flex;
-  align-items: center;
-  gap: var(--numbers-5);
+  font-weight: var(--font-500);
   font-size: var(--numbers-14);
-  color: var(--color-text-secondary);
-}
-
-.revelationType .searchIcon {
-  width: 16px;
-  height: 16px;
-  color: var(--color-background-semantic-solid-success);
+  gap: var(--numbers-4);
+  align-items: center;
+  padding: var(--numbers-8);
+  border-radius: var(--roundings-small);
+  background: var(--bg-app);
 }

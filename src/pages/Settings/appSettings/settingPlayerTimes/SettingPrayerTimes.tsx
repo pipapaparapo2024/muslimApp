@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
 import styles from "./SettingPrayerTimes.module.css";
-import { type PrayerSetting } from "./SettingPrayerTimesStore";
-import { usePrayerTimesStore } from "./SettingPrayerTimesStore";
+import { type PrayerSetting } from "../../../../hooks/useSettingPrayerTimesStore";
+import { usePrayerTimesStore } from "../../../../hooks/useSettingPrayerTimesStore";
 import { Info } from "lucide-react";
 import { t } from "i18next";
 
@@ -50,7 +50,7 @@ export const SettingPrayerTimes: React.FC = () => {
   return (
     <PageWrapper showBackButton>
       <div>
-        <h1 className={styles.title}>Prayer Times</h1>
+        <h1 className={styles.title}>{t("prayerTimes")}</h1>
         <p className={styles.subtitle}>
           {t("choosePrayers")}
         </p>
