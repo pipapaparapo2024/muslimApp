@@ -37,7 +37,7 @@ export const useTelegram = () => {
         console.log("InitData:", initDataToSend);
 
         const response = await quranApi.post<AuthResponse>(
-          "/api/v1/user/auth",
+          "/api/v1/user/auth/",
           {
             initData: initDataToSend,
           }

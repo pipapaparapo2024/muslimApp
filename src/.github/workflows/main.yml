@@ -1,52 +1,25 @@
-name: CI/CD Pipeline
+name: Deploy to Server
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  ci:
+  deploy:
     runs-on: ubuntu-latest
-    name: Проверка кода и сборка
 
     steps:
-      # 1. Клонируем репозиторий на виртуальную машину GitHub
-      - name: 🛑 Checkout кода
-        uses: actions/checkout@v4
-
-      # 2. Устанавливаем Node.js версии 18 и кэшируем зависимости npm
-      - name: ⬇️ Установить Node.js
-        uses: actions/setup-node@v4
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          node-version: '18'
-          cache: 'npm'
+          ssh-private-key: ${{ secrets.SSH_IS_PRIVATE_KEY }}
 
-      # 3. Устанавливаем зависимости. --frozen-lockfile — чтобы не обновлять package-lock.json
-      - name: 📦 Установить зависимости
-        run: npm ci
-
-      # 4. Проверяем стиль кода через ESLint
-      - name: 🔍 Линтинг (проверка стиля кода)
-        run: npm run lint
-
-      # 5. Проверяем типы TypeScript. --pretty — красивый вывод
-      - name: ✅ Проверка типов (TypeScript)
-        run: npm run type-check
-
-      # 6. Запускаем тесты в CI-режиме (без интерактивности)
-      - name: 🧪 Запуск тестов
-        run: npm run test -- --ci --coverage --watchAll=false
-
-      # 7. Собираем проект. Используем тот же скрипт, что и локально: tsc -b && vite build
-      - name: 🛠️ Сборка проекта
-        run: npm run build
-
-      # 8. (Опционально) Сохраняем результат сборки, если нужно использовать дальше
-      - name: 📦 Загрузить артефакт сборки
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: build
-          path: dist/  # ВАЖНО: Vite по умолчанию собирает в папку dist/, не build!
+      - name: Deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@ip-172-31-30-224 << 'EOF'
+            cd /home/ubuntu/muslim_1
+            git pull origin main
+            npm install
+            nohup npm run dev > app.log 2>&1 &
+          EOF
