@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useSurahListStore, mockAyahs } from "../../../hooks/useSurahListStore";
+import { useSurahListStore, mockAyahs,type Ayah } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
@@ -14,7 +14,7 @@ export const AyahList: React.FC = () => {
 
   const { fetchAyahs } = useSurahListStore();
 
-  const [, setAyahs] = useState<any[]>([]);
+  const [, setAyahs] = useState<Ayah[]>([]);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");

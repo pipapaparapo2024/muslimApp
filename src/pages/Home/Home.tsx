@@ -189,8 +189,8 @@ export const Home: React.FC = () => {
 
           resolve();
         },
-        async (error) => {
-          console.warn("Geolocation error:", error);
+        async (err) => {
+          console.warn("Geolocation error:", err);
           localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
 
           // Используем кэшированные данные IP если они есть
@@ -244,7 +244,9 @@ export const Home: React.FC = () => {
 
             // Пытаемся автоматически запросить разрешение
             const result = await (
-              DeviceOrientationEvent as any
+              DeviceOrientationEvent as unknown as {
+                requestPermission: () => Promise<string>;
+              }
             ).requestPermission();
             localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
             setSensorPermission(result);
@@ -375,7 +377,7 @@ export const Home: React.FC = () => {
           try {
             await fetchFromIpApi();
             ipDataFetched.current = true;
-          } catch (error) {
+          } catch (err) {
             setError("Не удалось определить местоположение");
           }
         }

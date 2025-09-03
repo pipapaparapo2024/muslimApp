@@ -5,7 +5,8 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet } from "lucide-react";
 import { t } from "i18next";
 
-const inviteLink = "https://ff6cd8e75312.ngrok-free.app";
+const inviteLink =
+  "https://ya.ru/?npr=1&nr=1&redirect_ts=1756905495.00000&utm_referrer=https%3A%2F%2Fwww.google.com%2F";
 
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
@@ -84,7 +85,7 @@ export const Friends: React.FC = () => {
         } else {
           alert(t("copyFailed"));
         }
-      } catch (_) {
+      } catch (_ignored) {
         alert(t("copyFailed"));
       }
 

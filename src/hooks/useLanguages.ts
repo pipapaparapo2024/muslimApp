@@ -80,7 +80,7 @@ export const useLanguage = () => {
       i18n
         .changeLanguage(newLang)
         .then(() => console.log("i18n language changed to:", newLang))
-        .catch(console.error);
+        .catch((err) => console.error(err));
     } catch (error) {
       console.error("Error changing language:", error);
     } finally {
