@@ -55,7 +55,15 @@ interface GeoState {
   reset: () => void;
   getLocationData: () => LocationData;
 }
-
+// Вспомогательная функция для безопасной проверки ошибки
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: string }).message === "string"
+  );
+}
 export const useGeoStore = create<GeoState>()(
   persist(
     (set, get) => ({
@@ -135,8 +143,10 @@ export const useGeoStore = create<GeoState>()(
           } else {
             throw new Error("API returned success: false");
           }
-        } catch (err: any) {
-          const message = err.message || "Failed to get location";
+        } catch (err: unknown) {
+          const message = isErrorWithMessage(err)
+            ? err.message
+            : "Fail to get location";
           console.error("❌ Ошибка получения геоданных:", message, err);
           set({
             error: message,
