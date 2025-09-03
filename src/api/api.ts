@@ -97,3 +97,11 @@ quranApi.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+export function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: string }).message === "string"
+  );
+}

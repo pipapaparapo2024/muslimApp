@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
-
+import { isErrorWithMessage } from "../api/api";
 export interface IpData {
   success: boolean;
   ip: string;
@@ -55,15 +55,7 @@ interface GeoState {
   reset: () => void;
   getLocationData: () => LocationData;
 }
-// Вспомогательная функция для безопасной проверки ошибки
-function isErrorWithMessage(error: unknown): error is { message: string } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof (error as { message: string }).message === "string"
-  );
-}
+
 export const useGeoStore = create<GeoState>()(
   persist(
     (set, get) => ({
