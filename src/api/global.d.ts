@@ -21,10 +21,10 @@ declare global {
         // Свайпы и жесты
         disableSwipeToClose: () => void;
         enableSwipeToClose: () => void;
-
         // События
         onEvent: (eventType: string, eventHandler: () => void) => void;
         offEvent: (eventType: string, eventHandler: () => void) => void;
+        disableVerticalSwipes: () => void;
 
         // Данные и ссылки
         sendData: (data: unknown) => void;

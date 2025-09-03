@@ -93,13 +93,15 @@ export const useTheme = () => {
 
     return () => {
       media.removeEventListener("change", handler);
-      const checkTg = setInterval(() => {
+      let checkTg: ReturnType<typeof setInterval> | null = null;
+
+      checkTg = setInterval(() => {
         if (window.Telegram?.WebApp) {
-          clearInterval(checkTg);
+          clearInterval(checkTg!);
+          checkTg = null;
           initializeTheme();
         }
       }, 50);
-      clearInterval(checkTg as any);
     };
   }, []);
 
@@ -114,7 +116,11 @@ export const useTheme = () => {
     rawTheme: theme, // возвращает текущую настройку: "light", "dark", "system"
     changeTheme,
     themeLabel:
-      theme === "system" ? t("system") : theme === "light" ? t("light") : t("dark"),
+      theme === "system"
+        ? t("system")
+        : theme === "light"
+        ? t("light")
+        : t("dark"),
     isThemeReady: isInitialized, // 🔥 можно использовать для отложенного рендера
   };
 };

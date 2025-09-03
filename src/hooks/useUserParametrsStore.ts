@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { quranApi } from "../api/api";
+import { isErrorWithMessage, quranApi } from "../api/api";
 
 interface UserSettings {
   cityName: string;
@@ -73,18 +73,15 @@ export const useUserParametersStore = create<UserParametersState>()(
           console.log("Настройки успешно сохранены:", response.data);
 
           set({ settingsSent: true, wasLogged: true });
-        } catch (err: any) {
-          console.error("Ошибка при отправке настроек:", err);
-
-          const errorMessage =
-            err.response?.data?.message ||
-            err.message ||
-            "Не удалось сохранить настройки";
-
-          set({ error: errorMessage });
-          throw new Error(errorMessage);
-        } finally {
-          set({ isLoading: false });
+        } catch (err: unknown) {
+          const message = isErrorWithMessage(err)
+            ? err.message
+            : "Fail to get location";
+          console.error(" Ошибка получения геоданных:", message, err);
+          set({
+            error: message,
+            isLoading: false,
+          });
         }
       },
 

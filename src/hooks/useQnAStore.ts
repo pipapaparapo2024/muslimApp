@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { isErrorWithMessage } from "../api/api";
 // import { quranApi } from "../../api/api";
 
 interface PremiumTimeLeft {
@@ -20,7 +21,7 @@ interface QnAState {
   calculatePremiumTimeLeft: (endDate?: string) => PremiumTimeLeft | null;
 }
 
-export const useQnAStore = create<QnAState>((set,) => ({
+export const useQnAStore = create<QnAState>((set) => ({
   requestsLeft: null,
   hasPremium: false,
   premiumTimeLeft: null,
@@ -32,18 +33,18 @@ export const useQnAStore = create<QnAState>((set,) => ({
 
   calculatePremiumTimeLeft: (endDate?: string) => {
     if (!endDate) return null;
-    
+
     try {
       const now = new Date();
       const premiumEndDate = new Date(endDate);
-      
+
       if (isNaN(premiumEndDate.getTime())) {
         console.error("Invalid premium end date:", endDate);
         return null;
       }
 
       const diffTime = premiumEndDate.getTime() - now.getTime();
-      
+
       if (diffTime <= 0) {
         return { days: 0, hours: 0, totalHours: 0 };
       }
@@ -84,7 +85,7 @@ export const useQnAStore = create<QnAState>((set,) => ({
       // return;
 
       // Вариант 3: С премиумом (5 часов)
-      
+
       set({
         requestsLeft: 999,
         hasPremium: true,
@@ -93,7 +94,6 @@ export const useQnAStore = create<QnAState>((set,) => ({
         error: null,
       });
       return;
-      
 
       // Вариант 4: Премиум истек
       // set({
@@ -104,7 +104,6 @@ export const useQnAStore = create<QnAState>((set,) => ({
       //   error: null,
       // });
       // return;
-      
 
       // const response = await quranApi.get<QnAUserResponse>("/user/qna-status");
       // const { requestsLeft, hasPremium, premiumEndDate } = response.data;
@@ -123,26 +122,14 @@ export const useQnAStore = create<QnAState>((set,) => ({
       //   isLoading: false,
       //   error: null,
       // });
-
-    } catch (err: any) {
-      console.error("Failed to fetch Q&A user data:", err);
-
-      let message = "Unknown error";
-
-      if (err.response) {
-        message = `Server error: ${err.response.status}`;
-      } else if (err.request) {
-        message = "No response from server (check connection or HTTPS)";
-      } else {
-        message = err.message;
-      }
-
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Fail to get location";
+      console.error(" Ошибка получения геоданных:", message, err);
       set({
         error: message,
         isLoading: false,
-        requestsLeft: null,
-        hasPremium: false,
-        premiumTimeLeft: null,
       });
     }
   },

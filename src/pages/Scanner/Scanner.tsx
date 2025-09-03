@@ -89,7 +89,7 @@ export const Scanner: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton navigateTo="/home">
       <div className={styles.container}>
         <div className={styles.table}>
           <TableRequestsHistory text="/scanner/historyScanner" />

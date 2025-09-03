@@ -204,7 +204,7 @@ export const Home: React.FC = () => {
             try {
               await fetchFromIpApi();
               ipDataFetched.current = true;
-            } catch (ipError) {
+            } catch (_) {
               setError("Не удалось определить местоположение");
               setCity("Unknown");
               setCountry("Unknown");
@@ -445,7 +445,10 @@ export const Home: React.FC = () => {
             {isRefreshing ? (
               <span>Обновление...</span>
             ) : (
-              <span>🔄 Обновить местоположение (yml правильное если это видно на home)</span>
+              <span>
+                🔄 Обновить местоположение (yml правильное если это видно на
+                home)
+              </span>
             )}
           </button>
         </div>

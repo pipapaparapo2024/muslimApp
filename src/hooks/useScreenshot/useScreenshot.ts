@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import { quranApi } from '../../api/api';
 import { useStoreScreenShot } from './useStoreScreenShot';
@@ -9,6 +9,7 @@ interface Format {
   width?: number;
   height?: number;
 }
+
 interface Media {
   id: number;
   url: string;
@@ -24,34 +25,23 @@ export const useScreenshot = () => {
 
   const createScreenshot = async (): Promise<string> => {
     if (!imageRef.current) throw new Error('No element to capture');
-
     setLoading(true);
     try {
       if (!shareImageReady) {
-        await toJpeg(imageRef.current, {
-          quality: 0.05,
-          cacheBust: false,
-        });
+        await toJpeg(imageRef.current, { quality: 0.05 });
         setShareImageReady();
       }
 
-      const dataUrl = await toJpeg(imageRef.current, {
-        quality: 0.95,
-        cacheBust: false,
-      });
-
+      const dataUrl = await toJpeg(imageRef.current, { quality: 0.95 });
       const res = await fetch(dataUrl);
       const blob = await res.blob();
 
       const formData = new FormData();
       formData.append('files', blob, 'story-screenshot.jpg');
 
-      const uploadRes = await quranApi.post<Media[]>('/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
+      const uploadRes = await quranApi.post<Media[]>('/api/upload', formData);
       setLoading(false);
-      return baseUrl + uploadRes.data[0].url;
+      return `${baseUrl}${uploadRes.data[0].url}`;
     } catch (error) {
       setLoading(false);
       throw error;
@@ -69,28 +59,5 @@ export const useScreenshot = () => {
     }
   };
 
-  return {
-    imageRef,
-    loading,
-    createScreenshot,
-    shareToTelegramStory,
-  };
-};
-
-interface ScreenshotCreatorProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const ScreenshotCreator: React.FC<ScreenshotCreatorProps> = ({
-  children,
-  className = '',
-}) => {
-  const { imageRef } = useScreenshot();
-
-  return (
-    <div ref={imageRef} className={`screenshot-creator ${className}`}>
-      {children}
-    </div>
-  );
+  return { imageRef, loading, createScreenshot, shareToTelegramStory };
 };
