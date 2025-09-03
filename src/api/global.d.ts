@@ -1,5 +1,6 @@
 declare global {
   interface Window {
+    __TELEGRAM_INIT_DONE__?: boolean;
     DeviceOrientationEvent?: {
       requestPermission?: () => Promise<"granted" | "denied">;
     };
@@ -79,7 +80,7 @@ interface PopupParams {
   message: string;
   buttons?: Array<{
     id?: string;
-    type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive';
+    type?: "default" | "ok" | "close" | "cancel" | "destructive";
     text: string;
   }>;
 }

@@ -4,10 +4,15 @@ import { quranApi } from '../../api/api';
 import { useStoreScreenShot } from './useStoreScreenShot';
 import { shareStory } from '@telegram-apps/sdk';
 
+interface Format {
+  url: string;
+  width?: number;
+  height?: number;
+}
 interface Media {
   id: number;
   url: string;
-  formats?: any;
+  formats?: Format;
 }
 
 export const useScreenshot = () => {

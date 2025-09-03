@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { CalculationMethod, Coordinates, PrayerTimes, Madhab } from "adhan";
+import {
+  CalculationMethod,
+  Coordinates,
+  PrayerTimes,
+  Madhab,
+  CalculationParameters,
+} from "adhan";
 import { DateTime } from "luxon";
 import { useGeoStore } from "./useGeoStore";
 
@@ -13,8 +19,8 @@ export interface CalculatedPrayerTime {
 }
 
 export interface PrayerCalculationConfig {
-  calculationMethod?: any;
-  madhab?: typeof Madhab;
+  calculationMethod?: CalculationParameters;
+  madhab?: "shafi" | "hanafi"; // ✅ Прямое указание
   timeZone?: string;
 }
 
@@ -33,7 +39,7 @@ interface PrayerTimesStore {
   prayers: PrayerSetting[];
   isLoading: boolean;
   lastUpdated: string | null;
-  is24Hour: boolean; // Добавляем состояние формата времени
+  is24Hour: boolean;
 
   toggleShowOnMain: (id: string) => void;
   toggleTelegramNotifications: (id: string) => void;
@@ -41,22 +47,24 @@ interface PrayerTimesStore {
   setAllNotifications: (enabled: boolean) => void;
   calculatePrayerTimes: () => Promise<void>;
   updatePrayerTimes: () => Promise<void>;
-  set24HourFormat: (value: boolean) => void; // Функция для изменения формата времени
+  set24HourFormat: (value: boolean) => void;
 }
 
 // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-// Функция форматирования времени с учетом формата (12/24 часа)
-export const formatTime = (date: Date, timeZone: string, is24Hour: boolean = false): string => {
+export const formatTime = (
+  date: Date,
+  timeZone: string,
+  is24Hour: boolean = false
+): string => {
   const dt = DateTime.fromJSDate(date).setZone(timeZone);
-  
+
   if (is24Hour) {
-    return dt.toFormat("HH:mm"); // 24-часовой формат: 14:30
+    return dt.toFormat("HH:mm");
   } else {
-    return dt.toFormat("h:mm a"); // 12-часовой формат: 2:30 PM
+    return dt.toFormat("h:mm a");
   }
 };
 
-// Основная функция расчета молитв
 export const calculateDailyPrayers = (
   latitude: number,
   longitude: number,
@@ -74,10 +82,15 @@ export const calculateDailyPrayers = (
     date.getDate()
   );
 
-  const calculationMethod = config.calculationMethod || CalculationMethod.MuslimWorldLeague();
+  const calculationMethod =
+    config.calculationMethod || CalculationMethod.MuslimWorldLeague();
   calculationMethod.madhab = config.madhab || Madhab.Shafi;
 
-  const prayerTimes = new PrayerTimes(coordinates, prayerDate, calculationMethod);
+  const prayerTimes = new PrayerTimes(
+    coordinates,
+    prayerDate,
+    calculationMethod
+  );
   const timeZone = config.timeZone || "UTC";
 
   let nextPrayerFound = false;
@@ -121,11 +134,10 @@ export const calculateDailyPrayers = (
     },
   };
 
-  // Определяем следующую молитву
   const sortedPrayers = Object.values(prayers).sort(
     (a, b) => a.time.getTime() - b.time.getTime()
   );
-  
+
   for (const prayer of sortedPrayers) {
     if (prayer.time > now) {
       prayer.isNext = true;
@@ -134,20 +146,26 @@ export const calculateDailyPrayers = (
     }
   }
 
-  // Если все молитвы прошли — следующая Fajr завтра
   if (!nextPrayerFound) {
     const tomorrow = new Date(prayerDate);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowTimes = new PrayerTimes(coordinates, tomorrow, calculationMethod);
+    const tomorrowTimes = new PrayerTimes(
+      coordinates,
+      tomorrow,
+      calculationMethod
+    );
     prayers.fajr.time = tomorrowTimes.fajr;
-    prayers.fajr.formattedTime = formatTime(tomorrowTimes.fajr, timeZone, is24Hour);
+    prayers.fajr.formattedTime = formatTime(
+      tomorrowTimes.fajr,
+      timeZone,
+      is24Hour
+    );
     prayers.fajr.isNext = true;
   }
 
   return prayers;
 };
 
-// Расчет дополнительных молитв
 export const calculateOptionalPrayers = (
   ishaTime: Date,
   fajrTime: Date,
@@ -156,27 +174,23 @@ export const calculateOptionalPrayers = (
 ): Record<string, CalculatedPrayerTime> => {
   const now = new Date();
 
-  // Witr: 30 минут после Isha
   const witrTime = new Date(ishaTime);
   witrTime.setMinutes(ishaTime.getMinutes() + 30);
 
-  // Tahajjud: примерно в последнюю треть ночи
   const tahajjudTime = new Date();
   const nightStart = new Date(ishaTime);
   const nightEnd = new Date(fajrTime);
   const nightDuration = nightEnd.getTime() - nightStart.getTime();
   tahajjudTime.setTime(nightStart.getTime() + nightDuration * 0.75);
 
-  // Duha: через 15-20 минут после восхода
   const sunriseTime = new Date(fajrTime);
   sunriseTime.setHours(fajrTime.getHours() + 1);
   const duhaTime = new Date(sunriseTime);
   duhaTime.setMinutes(sunriseTime.getMinutes() + 20);
 
-  // Tarawih: через 30 минут после Isha
   const tarawihTime = new Date(ishaTime);
   tarawihTime.setMinutes(ishaTime.getMinutes() + 15);
-  
+
   return {
     witr: {
       name: "Witr",
@@ -205,28 +219,33 @@ export const calculateOptionalPrayers = (
   };
 };
 
-// Проверка необходимости обновления
-export const shouldUpdatePrayerTimes = (lastUpdated: string | null): boolean => {
+export const shouldUpdatePrayerTimes = (
+  lastUpdated: string | null
+): boolean => {
   if (!lastUpdated) return true;
 
   const lastUpdateDate = new Date(lastUpdated);
   const now = new Date();
-  const hoursDiff = (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
+  const hoursDiff =
+    (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
 
   return hoursDiff >= 24;
 };
 
-// Описания молитв
 const prayerDescriptions: Record<string, string> = {
   Fajr: "The Fajr prayer is the first of the five daily prayers performed by practicing Muslims. It is performed before sunrise and consists of 2 rak'ahs.",
-  Dhuhr: "The Dhuhr prayer is the second prayer of the day and is offered at noon. It consists of 4 rak'ahs and is performed after the sun passes its zenith.",
+  Dhuhr:
+    "The Dhuhr prayer is the second prayer of the day and is offered at noon. It consists of 4 rak'ahs and is performed after the sun passes its zenith.",
   Asr: "The Asr prayer is the afternoon prayer and consists of 4 rak'ahs. It is performed in the late part of the afternoon before sunset.",
-  Maghrib: "The Maghrib prayer is offered immediately after sunset. It consists of 3 rak'ahs and marks the end of the day's fasting during Ramadan.",
+  Maghrib:
+    "The Maghrib prayer is offered immediately after sunset. It consists of 3 rak'ahs and marks the end of the day's fasting during Ramadan.",
   Isha: "The Isha prayer is the night prayer and consists of 4 rak'ahs. It is performed after twilight has disappeared and before midnight.",
   Witr: "Witr is an optional prayer performed after the Isha prayer, consisting of an odd number of rak'ahs (usually 1, 3, 5, or 7). It is highly recommended in Islam.",
-  Tahajjud: "Tahajjud is a voluntary night prayer performed after waking from sleep. It is considered one of the most virtuous optional prayers in Islam.",
+  Tahajjud:
+    "Tahajjud is a voluntary night prayer performed after waking from sleep. It is considered one of the most virtuous optional prayers in Islam.",
   Duha: "Duha is an optional prayer performed in the forenoon after sunrise. It consists of 2 to 8 rak'ahs and is known as the prayer of the repentant.",
-  Tarawih: "Tarawih are special nightly prayers performed during Ramadan after the Isha prayer. They typically consist of 8 or 20 rak'ahs.",
+  Tarawih:
+    "Tarawih are special nightly prayers performed during Ramadan after the Isha prayer. They typically consist of 8 or 20 rak'ahs.",
 };
 
 // ========== ОСНОВНОЕ ХРАНИЛИЩЕ ==========
@@ -236,11 +255,11 @@ export const usePrayerTimesStore = create<PrayerTimesStore>()(
       prayers: [],
       isLoading: false,
       lastUpdated: null,
-      is24Hour: false, // По умолчанию 12-часовой формат
+      is24Hour: false,
 
       calculatePrayerTimes: async () => {
         const geoStore = useGeoStore.getState();
-        const { is24Hour } = get(); // Получаем текущий формат времени
+        const { is24Hour } = get();
 
         if (!geoStore.coords) {
           console.warn("No coordinates available for prayer calculation");
@@ -254,14 +273,14 @@ export const usePrayerTimesStore = create<PrayerTimesStore>()(
             geoStore.coords.lat,
             geoStore.coords.lon,
             { timeZone: geoStore.timeZone || "UTC" },
-            is24Hour // Передаем формат времени
+            is24Hour
           );
 
           const optionalPrayers = calculateOptionalPrayers(
             dailyPrayers.isha.time,
             dailyPrayers.fajr.time,
             geoStore.timeZone || "UTC",
-            is24Hour // Передаем формат времени
+            is24Hour
           );
 
           const tarawihTime = optionalPrayers.tarawih || {
@@ -385,7 +404,6 @@ export const usePrayerTimesStore = create<PrayerTimesStore>()(
 
       set24HourFormat: (value: boolean) => {
         set({ is24Hour: value });
-        // При изменении формата времени пересчитываем молитвы
         get().calculatePrayerTimes();
       },
 
@@ -435,7 +453,7 @@ export const usePrayerTimesStore = create<PrayerTimesStore>()(
       partialize: (state) => ({
         prayers: state.prayers,
         lastUpdated: state.lastUpdated,
-        is24Hour: state.is24Hour, // Сохраняем формат времени
+        is24Hour: state.is24Hour,
       }),
     }
   )

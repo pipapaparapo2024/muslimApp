@@ -1,4 +1,3 @@
-// shared/lib/appStore.ts
 import { create } from 'zustand';
 
 interface AppStore {

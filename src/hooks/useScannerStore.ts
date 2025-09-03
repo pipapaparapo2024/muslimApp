@@ -4,7 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { quranApi } from "../api/api";
 import { type HistoryItem } from "./useHistoryScannerStore";
 import { isErrorWithMessage } from "../api/api";
-
+import { AxiosError } from "axios";
 // --- Типы API ---
 interface ApiIngredient {
   name: string;
@@ -143,7 +143,10 @@ export const useScannerStore = create<ScannerState>()(
               : "No composition data");
 
           const analysis =
-            data.analysis || `Confidence: ${typeof data.confidence === "number" ? data.confidence : 0}%`;
+            data.analysis ||
+            `Confidence: ${
+              typeof data.confidence === "number" ? data.confidence : 0
+            }%`;
 
           const result =
             data.result !== undefined
@@ -172,16 +175,15 @@ export const useScannerStore = create<ScannerState>()(
           let errorMessage = "Не удалось проанализировать изображение";
 
           if (controller.signal.aborted) {
-            errorMessage = "Время ожидания ответа истекло (12 секунд). Попробуйте еще раз.";
+            errorMessage =
+              "Время ожидания ответа истекло (12 секунд). Попробуйте еще раз.";
           } else if (isErrorWithMessage(error)) {
             errorMessage = error.message;
           } else if (
-            typeof error === "object" &&
-            error !== null &&
-            "response" in error &&
-            (error as any).response?.data?.message
+            error instanceof AxiosError &&
+            error.response?.data?.message
           ) {
-            errorMessage = (error as any).response.data.message;
+            errorMessage = error.response.data.message as string;
           }
 
           setError(errorMessage);

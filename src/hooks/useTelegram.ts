@@ -16,12 +16,11 @@ export const useTelegram = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wasLogged, setWasLogged] = useState<boolean | null>(null);
-  const [responseData, setResponseData] = useState<any>(null);
+  const [responseData, setResponseData] = useState<AuthResponse>();
 
   useEffect(() => {
-    if ((window as any).__TELEGRAM_INIT_DONE__) return;
-    (window as any).__TELEGRAM_INIT_DONE__ = true;
-
+    if (window.__TELEGRAM_INIT_DONE__) return;
+    window.__TELEGRAM_INIT_DONE__ = true;
     WebApp.ready();
     WebApp.expand();
 
