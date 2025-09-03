@@ -60,6 +60,9 @@ export const useLanguage = () => {
 
     // Принудительный рефлоу для немедленного применения стилей
     // Принудительный рефлоу для немедленного применения стилей
+    
+    
+    
     document.body.offsetHeight;
   };
   const changeLanguageComplete = async (newLang: Language) => {
