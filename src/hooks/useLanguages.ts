@@ -58,12 +58,6 @@ export const useLanguage = () => {
     // Устанавливаем языковой атрибут
     html.setAttribute("lang", lang);
 
-    // Принудительный рефлоу для немедленного применения стилей
-    // Принудительный рефлоу для немедленного применения стилей
-    
-    
-    
-    document.body.offsetHeight;
   };
   const changeLanguageComplete = async (newLang: Language) => {
     if (!SUPPORTED_LANGUAGES.includes(newLang) || isChanging) return;
