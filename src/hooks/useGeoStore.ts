@@ -147,7 +147,7 @@ export const useGeoStore = create<GeoState>()(
           const message = isErrorWithMessage(err)
             ? err.message
             : "Fail to get location";
-          console.error("❌ Ошибка получения геоданных:", message, err);
+          console.error(" Ошибка получения геоданных:", message, err);
           set({
             error: message,
             isLoading: false,
