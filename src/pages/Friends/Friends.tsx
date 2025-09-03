@@ -85,7 +85,7 @@ export const Friends: React.FC = () => {
         } else {
           alert(t("copyFailed"));
         }
-      } catch (_ignored) {
+      } catch (_) {
         alert(t("copyFailed"));
       }
 
