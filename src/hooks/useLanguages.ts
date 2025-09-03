@@ -101,6 +101,8 @@ export const useLanguage = () => {
       }
     };
 
+
+    
     if (isGeoInitialized) {
       initializeLanguage();
     }
