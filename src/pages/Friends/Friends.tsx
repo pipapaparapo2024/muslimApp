@@ -1,6 +1,6 @@
 import React from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
-import styles from "./Friends.module.css";
+import styles from "./Friends.module.css"
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet } from "lucide-react";
 import { t } from "i18next";
