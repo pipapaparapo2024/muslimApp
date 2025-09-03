@@ -103,7 +103,15 @@ const TEST_DATA: HistoryItem[] = [
     userId: "current-user",
   },
 ];
-
+// Вспомогательная функция для безопасной проверки ошибки
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: string }).message === "string"
+  );
+}
 export const useHistoryStore = create<HistoryState>()(
   persist(
     (set, get) => ({
@@ -148,9 +156,10 @@ export const useHistoryStore = create<HistoryState>()(
           }));
 
           return newItem;
-        } catch (err: any) {
-          const errorMessage =
-            err.response?.data?.error || err.message || "Scan failed";
+        } catch (err: unknown) {
+          const errorMessage = isErrorWithMessage(err)
+            ? err.message
+            : "Fail to get location";
           set({ error: errorMessage, isScanning: false });
           return null;
         }
@@ -173,8 +182,12 @@ export const useHistoryStore = create<HistoryState>()(
             history: response.data.data,
             isLoading: false,
           });
-        } catch (err: any) {
-          console.log("Using test data due to API error:", err.message);
+        } catch (err: unknown) {
+          const errorMessage = isErrorWithMessage(err)
+            ? err.message
+            : "Fail to get location";
+
+          console.log("Using test data due to API error:", errorMessage);
           // При ошибке API используем тестовые данные
           set({
             history: TEST_DATA,
@@ -230,8 +243,8 @@ export const useHistoryStore = create<HistoryState>()(
 export const historyUtils = {
   groupByDate: (history: HistoryItem[]) => {
     return history.reduce((acc, item) => {
-      const dateKey = new Date(item.timestamp).toISOString().split('T')[0];
-      
+      const dateKey = new Date(item.timestamp).toISOString().split("T")[0];
+
       if (!acc[dateKey]) {
         acc[dateKey] = [];
       }
