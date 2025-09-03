@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: Проверка кода и сборка
+
+    steps:
+      - name: 🛑 Checkout кода
+        uses: actions/checkout@v4
+
+      - name: ⬇️ Установить Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Установить зависимости
+        run: npm ci
+
+      - name: 🔍 Линтинг (проверка стиля кода)
+        run: npm run lint
+
+      - name: ✅ Проверка типов (TypeScript)
+        run: npm run type-check
+
+      - name: 🧪 Запуск тестов
+        run: npm run test -- --ci --coverage --watchAll=false
+
+      - name: 🛠️ Сборка проекта
+        run: npm run build
+
+      - name: 📦 Загрузить артефакт сборки
+        uses: actions/upload-artifact@v3
+        if: success()
+        with:
+          name: build
+          path: dist/
