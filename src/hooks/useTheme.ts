@@ -103,6 +103,7 @@ export const useTheme = () => {
         }
       }, 50);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changeTheme = (newTheme: Theme) => {

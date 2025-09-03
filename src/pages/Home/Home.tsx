@@ -109,6 +109,7 @@ export const Home: React.FC = () => {
         timeZone,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city, country, timeZone, ipData, sendUserSettings]); // Добавляем ipData в зависимости
   // Отслеживаем изменения геоданных и отправляем настройки
   useEffect(() => {
@@ -401,6 +402,7 @@ export const Home: React.FC = () => {
     };
 
     initializeLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsSent]);
 
   // Автоматический запрос доступа к датчикам при загрузке

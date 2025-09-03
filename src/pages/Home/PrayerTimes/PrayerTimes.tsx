@@ -21,13 +21,17 @@ export const PrayerTimes: React.FC = () => {
   const isLoading = usePrayerTimesStore((state) => state.isLoading);
   const lastUpdated = usePrayerTimesStore((state) => state.lastUpdated);
   const is24Hour = useDataTimeStore((state) => state.is24Hour);
-  
+
   // Функция для логирования молитв (для отладки)
   useEffect(() => {
     console.log("Current prayers:", prayers);
     if (prayers.length > 0) {
-      prayers.forEach(prayer => {
-        console.log(`Prayer: ${prayer.name}, Original: ${prayer.originalName}, Translated: ${t(prayer.originalName)}`);
+      prayers.forEach((prayer) => {
+        console.log(
+          `Prayer: ${prayer.name}, Original: ${
+            prayer.originalName
+          }, Translated: ${t(prayer.originalName)}`
+        );
       });
     }
   }, [prayers]);
@@ -54,7 +58,7 @@ export const PrayerTimes: React.FC = () => {
       return `${hour12}:${formattedMinutes} ${ampm}`;
     }
   };
-  
+
   const calculatePrayerTimes = usePrayerTimesStore(
     (state) => state.calculatePrayerTimes
   );
@@ -117,6 +121,7 @@ export const PrayerTimes: React.FC = () => {
       const bTime = toDate(b.calculatedTime)?.getTime() || 0;
       return aTime - bTime;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prayers, now]);
 
   // Инициализация или обновление времени молитв
@@ -131,7 +136,8 @@ export const PrayerTimes: React.FC = () => {
       // Если молитвы уже есть и не устарели, не обновляем
       if (prayers.length > 0 && lastUpdated) {
         const lastUpdateDate = new Date(lastUpdated);
-        const hoursDiff = (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
+        const hoursDiff =
+          (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
         if (hoursDiff < 24) {
           console.log("Prayer times are up to date");
           return;
@@ -184,12 +190,8 @@ export const PrayerTimes: React.FC = () => {
             />
           </div>
         </div>
-        <div className={styles.subtitle}>
-          {t("viewTodaysSalah")}
-        </div>
-        <div className={styles.noPrayers}>
-          {t("noPrayersAvailable")}
-        </div>
+        <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
+        <div className={styles.noPrayers}>{t("noPrayersAvailable")}</div>
       </div>
     );
   }
@@ -206,9 +208,7 @@ export const PrayerTimes: React.FC = () => {
           />
         </div>
       </div>
-      <div className={styles.subtitle}>
-        {t("viewTodaysSalah")}
-      </div>
+      <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
 
       <div className={styles.grid}>
         {sortedVisiblePrayers.map((prayer) => {

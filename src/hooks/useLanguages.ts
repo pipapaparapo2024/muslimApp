@@ -102,10 +102,11 @@ export const useLanguage = () => {
     };
 
 
-    
+
     if (isGeoInitialized) {
       initializeLanguage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGeoInitialized]);
 
   return {

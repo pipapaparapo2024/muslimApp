@@ -11,7 +11,6 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next";
 
-
 export const Welcome: React.FC = () => {
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
@@ -51,14 +50,14 @@ export const Welcome: React.FC = () => {
 
   console.log("Welcome render - состояние авторизации:", {
     isAuthenticated,
-    isAuthLoading
+    isAuthLoading,
   });
 
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
   useEffect(() => {
     console.log("useEffect проверки авторизации", {
       isAuthenticated,
-      isAuthLoading
+      isAuthLoading,
     });
 
     if (isAuthenticated && !isAuthLoading) {
@@ -102,6 +101,7 @@ export const Welcome: React.FC = () => {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Обработка свайпов
@@ -132,6 +132,7 @@ export const Welcome: React.FC = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, isLoaded]);
 
   const handleNext = async () => {
