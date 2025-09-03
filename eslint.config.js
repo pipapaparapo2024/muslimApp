@@ -2,12 +2,6 @@ import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
-import { FlatCompat } from "@typescript-eslint/eslint-plugin";
-
-// Создаём совместимый конфиг для старых extends
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
 
 export default [
   // Игнорируемые папки
