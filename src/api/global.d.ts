@@ -11,10 +11,10 @@ declare global {
         close: () => void;
 
         // Попапы и уведомления
-        showPopup: (params: any) => void;
+        showPopup: (params: PopupParams) => void;
         showAlert: (message: string) => void;
         showConfirm: (message: string) => Promise<boolean>;
-        showScanQrPopup: (params: any) => void;
+        showScanQrPopup: (params: ScanQrParams) => void;
         closeScanQrPopup: () => void;
 
         // Свайпы и жесты
@@ -26,7 +26,7 @@ declare global {
         offEvent: (eventType: string, eventHandler: () => void) => void;
 
         // Данные и ссылки
-        sendData: (data: any) => void;
+        sendData: (data: unknown) => void;
         switchInlineQuery: (
           query: string,
           choose_chat_types?: string[]
@@ -68,10 +68,24 @@ declare global {
         viewportStableHeight: number;
 
         // Другие возможные методы
-        [key: string]: any;
+        [key: string]: unknown;
       };
     };
   }
+}
+
+interface PopupParams {
+  title?: string;
+  message: string;
+  buttons?: Array<{
+    id?: string;
+    type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive';
+    text: string;
+  }>;
+}
+
+interface ScanQrParams {
+  text?: string;
 }
 
 interface TelegramButton {
@@ -86,12 +100,19 @@ interface TelegramMainButton extends TelegramButton {
   enable: () => void;
   disable: () => void;
   setText: (text: string) => void;
-  setParams: (params: any) => void;
+  setParams: (params: ButtonParams) => void;
   text: string;
   color: string;
   textColor: string;
   isActive: boolean;
   isProgressVisible: boolean;
+}
+
+interface ButtonParams {
+  color?: string;
+  text_color?: string;
+  is_active?: boolean;
+  is_visible?: boolean;
 }
 
 interface ThemeParams {
@@ -112,7 +133,7 @@ interface InitDataUnsafe {
     language_code?: string;
     is_premium?: boolean;
   };
-  chat?: any;
+  chat?: unknown;
   chat_type?: string;
   chat_instance?: string;
   start_param?: string;
