@@ -31,8 +31,8 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   };
   useEffect(() => {
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const getButtonClassName = () => {
     if (!hasPremium) return styles.buyPremiumButton;
@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
 
       <button
         className={getButtonClassName()}
-        onClick={()=>setShowModal(true)}
+        onClick={() => setShowModal(true)}
       >
         <svg
           width="20"
