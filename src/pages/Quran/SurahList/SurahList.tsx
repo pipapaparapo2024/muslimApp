@@ -39,7 +39,7 @@ export const SurahList: React.FC = () => {
   const filteredSurahs = surahs.filter(
     (surah) =>
       surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      surah.englishNameTranslation
+      surah.description
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
   );
@@ -116,7 +116,7 @@ export const SurahList: React.FC = () => {
                   <div className={styles.surahContent}>
                     <div className={styles.surahName}>{surah.englishName}</div>
                     <div className={styles.surahDescription}>
-                      {surah.englishNameTranslation}
+                      {surah.description}
                     </div>
                   </div>
                 </div>

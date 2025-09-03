@@ -1,0 +1,68 @@
+.blockHeader {
+  background-color: var(--bg-surface);
+  margin: -12px -12px var(--numbers-8) -12px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-12);
+  padding: var(--numbers-16);
+  border-radius: 0 0 var(--roundings-big) var(--roundings-big);
+}
+.text{
+    display: flex;
+    flex-direction: column;
+    gap: var(--numbers-4);
+}
+.title {
+  font-size: var(--numbers-20);
+  font-weight: var(--font-400);
+  letter-spacing: var(--letter-spacing-tighter);
+}
+.deskription {
+  font-size: var(--numbers-14);
+  font-weight: var(--font-400);
+}
+.searchContainer {
+  gap: var(--numbers-8);
+  display: flex;
+  align-items: center;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-16) var(--numbers-12);
+  background-color: var(--bg-app);
+}
+
+.searchInput {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-weight: var(--font-500);
+  font-size: var(--numbers-16);
+}
+.ayatlist{
+    display: flex;
+    flex-direction: column;
+    gap: var(--numbers-8);
+}
+.blockAyas {
+  background-color: var(--bg-surface);
+  padding: var(--numbers-12) var(--numbers-16);
+  display: flex;
+  gap: var(--numbers-8);
+  border-radius: var(--roundings-medium);
+}
+.ayasNember {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--numbers-20);
+  font-weight: var(--font-400);
+  letter-spacing: var(--letter-spacing-wider);
+  background: var(--bg-app);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.ayasText {
+    font-weight: var(--font-400);
+}
