@@ -7,7 +7,7 @@ import {
 import { Check } from "lucide-react";
 import { t } from "i18next";
 export const ChooseTranslation: React.FC = () => {
-  const { variants, selectedVariant, setSelectedVariant } = useSurahListStore();
+  const { selectedVariant, setSelectedVariant } = useSurahListStore();
   return (
     <PageWrapper>
       <div className={styles.container}>
