@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import axios from "axios";
 import { isErrorWithMessage } from "../api/api";
 
-export interface Region {
+export interface RegionProps {
   id: string;
   city: string;
   country: string;
@@ -12,13 +12,13 @@ export interface Region {
 }
 
 interface RegionState {
-  regions: Region[];
-  selectedRegion: Region | null;
+  regions: RegionProps[];
+  selectedRegion: RegionProps | null;
   isLoading: boolean;
   error: string | null;
 
   fetchRegions: () => Promise<void>;
-  setSelectedRegion: (region: Region) => void;
+  setSelectedRegion: (region: RegionProps) => void;
   clearRegions: () => void;
 }
 
@@ -37,7 +37,7 @@ export const useRegionStore = create<RegionState>()(
         try {
           const response = await axios.get<{
             success: boolean;
-            data: Region[];
+            data: RegionProps[];
           }>(API_URL);
           if (!response.data.success) throw new Error("Failed to load regions");
 
@@ -53,7 +53,7 @@ export const useRegionStore = create<RegionState>()(
           });
 
           // Mock-данные
-          const mockRegions: Region[] = [
+          const mockRegions: RegionProps[] = [
             {
               id: "1",
               city: "London",

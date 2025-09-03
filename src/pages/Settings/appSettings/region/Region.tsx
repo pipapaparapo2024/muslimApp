@@ -2,14 +2,27 @@ import React, { useEffect, useState } from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./Region.module.css";
 import { Check, Search } from "lucide-react";
-import { useRegionStore } from "../../../../hooks/useRegionStore";
+import {
+  useRegionStore,
+  type RegionProps,
+} from "../../../../hooks/useRegionStore";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { t } from "i18next";
 
 export const Region: React.FC = () => {
-  const { regions, isLoading, fetchRegions, selectedRegion, setSelectedRegion } = useRegionStore();
-  const { city: currentCity, country: currentCountry, timeZone: currentTimeZone } = useGeoStore();
+  const {
+    regions,
+    isLoading,
+    fetchRegions,
+    selectedRegion,
+    setSelectedRegion,
+  } = useRegionStore();
+  const {
+    city: currentCity,
+    country: currentCountry,
+    timeZone: currentTimeZone,
+  } = useGeoStore();
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -18,11 +31,13 @@ export const Region: React.FC = () => {
   }, [fetchRegions]);
 
   // Фильтрация регионов по городу или стране
-  const filteredRegions = regions.filter((region) =>
-    `${region.city} ${region.country}`.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRegions = regions.filter((region: RegionProps) =>
+    `${region.city} ${region.country}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   );
 
-  const isSelected = (region: any) => {
+  const isSelected = (region: RegionProps) => {
     if (selectedRegion) return selectedRegion.id === region.id;
     return (
       region.city === currentCity &&
@@ -33,7 +48,7 @@ export const Region: React.FC = () => {
 
   if (isLoading) {
     return (
-      <PageWrapper showBackButton navigateTo="/settings" >
+      <PageWrapper showBackButton navigateTo="/settings">
         <LoadingSpinner />
       </PageWrapper>
     );
@@ -44,9 +59,7 @@ export const Region: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.blockChoose}>
           <div className={styles.title}>{t("chooseRegion")}</div>
-          <div className={styles.description}>
-            {t("chooseLocation")}
-          </div>
+          <div className={styles.description}>{t("chooseLocation")}</div>
           <div className={styles.searchWrapper}>
             <Search strokeWidth={1.5} color="var(--desk-text)" />
             <input
@@ -66,7 +79,9 @@ export const Region: React.FC = () => {
             filteredRegions.map((region) => (
               <div
                 key={region.id}
-                className={`${styles.regionItem} ${isSelected(region) ? styles.selected : ""}`}
+                className={`${styles.regionItem} ${
+                  isSelected(region) ? styles.selected : ""
+                }`}
                 onClick={() => setSelectedRegion(region)}
               >
                 <div className={styles.regionText}>

@@ -7,6 +7,7 @@ import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
   globalIgnores(['dist']),
+
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -18,6 +19,20 @@ export default tseslint.config([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+    rules: {
+      // Отключаем стандартное правило
+      'no-unused-vars': 'off',
+
+      // Включаем TypeScript-версию с настройками
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',        // Игнорирует аргументы, начинающиеся с _
+          caughtErrors: 'all',            // Проверяет все, кроме тех, что игнорируются
+          caughtErrorsIgnorePattern: '^_$' // Игнорирует `_` в `catch (_)`
+        },
+      ],
     },
   },
 ])

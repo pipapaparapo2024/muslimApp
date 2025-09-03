@@ -179,7 +179,7 @@ export const Home: React.FC = () => {
             try {
               await fetchFromIpApi();
               ipDataFetched.current = true;
-            } catch (error) {
+            } catch (_) {
               console.warn("IP API failed, using coordinates only");
               setCity("Unknown");
               setCountry("Unknown");
@@ -245,12 +245,19 @@ export const Home: React.FC = () => {
             // Пытаемся автоматически запросить разрешение
             const result = await (
               DeviceOrientationEvent as unknown as {
-                requestPermission: () => Promise<string>;
+                requestPermission?: () => Promise<string>;
               }
-            ).requestPermission();
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-            setSensorPermission(result);
-          } catch (err) {
+            ).requestPermission?.();
+            if (result) {
+              // Только если result есть (например, "granted", "denied")
+              localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+              setSensorPermission(result);
+            } else {
+              // Если нет — fallback: считаем, что разрешение получено
+              localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+              setSensorPermission("granted");
+            }
+          } catch (_) {
             console.log(
               "iOS automatic sensor request failed, will request on interaction"
             );
@@ -319,10 +326,19 @@ export const Home: React.FC = () => {
     try {
       if ("requestPermission" in DeviceOrientationEvent) {
         const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-        setSensorPermission(result);
+          DeviceOrientationEvent as unknown as {
+            requestPermission?: () => Promise<string>;
+          }
+        ).requestPermission?.();
+        if (result) {
+          // Только если result есть (например, "granted", "denied")
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+          setSensorPermission(result);
+        } else {
+          // Если нет — fallback: считаем, что разрешение получено
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
       }
     } catch (err) {
       console.error("Force sensor permission error:", err);
@@ -350,7 +366,7 @@ export const Home: React.FC = () => {
               try {
                 await fetchFromIpApi();
                 ipDataFetched.current = true;
-              } catch (error) {
+              } catch (_) {
                 setCity("Unknown");
                 setCountry("Unknown");
                 setTimeZone(null);
@@ -377,7 +393,7 @@ export const Home: React.FC = () => {
           try {
             await fetchFromIpApi();
             ipDataFetched.current = true;
-          } catch (err) {
+          } catch (_) {
             setError("Не удалось определить местоположение");
           }
         }
