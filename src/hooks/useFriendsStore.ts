@@ -23,6 +23,15 @@ interface FriendsState {
     purchasedDate?: string
   ) => Promise<void>;
 }
+// Вспомогательная функция для безопасной проверки ошибки
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message: string }).message === "string"
+  );
+}
 // Тестовые данные друзей
 const mockFriends: Friend[] = [
   {
@@ -84,10 +93,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       //   loading: false,
       //   error: null,
       // });
-    } catch (e: any) {
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Fail to get location";
       set({
         loading: false,
-        error: e.message || "Ошибка загрузки списка друзей",
+        error: message || "Ошибка загрузки списка друзей",
       });
     }
   },
@@ -113,10 +125,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       // Перезагружаем актуальные данные
       await get().fetchFriends();
-    } catch (e: any) {
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Fail to get location";
       set({
         loading: false,
-        error: e.message || "Ошибка при добавлении друга",
+        error: message || "Ошибка при добавлении друга",
       });
     }
   },
@@ -138,10 +153,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       // Перезагружаем актуальные данные
       await get().fetchFriends();
-    } catch (e: any) {
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Fail to get location";
       set({
         loading: false,
-        error: e.message || "Ошибка при обновлении статуса",
+        error: message || "Ошибка при обновлении статуса",
       });
     }
   },

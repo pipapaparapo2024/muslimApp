@@ -37,7 +37,7 @@ interface SearchHistoryState {
 interface ApiErrorResponse {
   message?: string;
   error?: string;
-  details?: any;
+  details?: string;
 }
 
 export const useHistoryStore = create<SearchHistoryState>()(
