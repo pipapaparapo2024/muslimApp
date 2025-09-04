@@ -11,13 +11,12 @@ export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
   const { surah } = location.state || {};
-
   const { fetchAyahs, error } = useSurahListStore();
 
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-
+  console.log("Ayahssss", surah.ayahs);
   useEffect(() => {
     const loadAyahs = async () => {
       if (!surahId) {
@@ -83,7 +82,7 @@ export const AyahList: React.FC = () => {
               {t("noChaptersFound")} "{searchQuery}"
             </div>
           ) : (
-            filteredAyas.map((ayas:Ayah) => (
+            filteredAyas.map((ayas: Ayah) => (
               <div className={styles.blockAyas}>
                 <div className={styles.ayasNember}>{ayas.number}</div>
                 <div className={styles.ayasText}>{ayas.text}</div>

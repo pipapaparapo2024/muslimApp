@@ -24,7 +24,7 @@ export const SurahList: React.FC = () => {
   } = useSurahListStore();
   const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-
+  
   useEffect(() => {
     fetchVariants();
   }, [fetchVariants]);
