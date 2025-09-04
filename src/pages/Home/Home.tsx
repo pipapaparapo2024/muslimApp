@@ -291,6 +291,7 @@ export const Home: React.FC = () => {
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       />
+      ываываываываа
       <div className={styles.homeRoot}>
         {/* Кнопка обновления */}
         <div className={styles.refreshButtonContainer}>
