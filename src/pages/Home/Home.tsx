@@ -39,7 +39,9 @@ export const Home: React.FC = () => {
     setHasRequestedGeo,
   } = useGeoStore();
 
-  const [sensorPermission, setSensorPermission] = useState<string>("prompt"); // Не читаем из localStorage
+  // Состояние: начинаем с "prompt", но потом синхронизируем с проверкой
+  const [sensorPermission, setSensorPermission] = useState<string>("prompt");
+
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -51,7 +53,7 @@ export const Home: React.FC = () => {
     settingsSentRef.current = settingsSent;
   }, [settingsSent]);
 
-  // === ФУНКЦИЯ ОТПРАВКИ НАСТРОЕК ===
+  // === ОТПРАВКА НАСТРОЕК ===
   const sendLocationSettings = async () => {
     if (
       city &&
@@ -60,16 +62,9 @@ export const Home: React.FC = () => {
       city !== "Unknown" &&
       country !== "Unknown"
     ) {
-      console.log("Отправляем настройки местоположения:", {
-        city,
-        country,
-        langcode,
-        timeZone,
-      });
-
       try {
         await sendUserSettings({ city, country, langcode, timeZone });
-        console.log("Настройки успешно отправлены");
+        console.log("Настройки местоположения отправлены");
       } catch (error) {
         console.error("Ошибка при отправке настроек:", error);
       }
@@ -83,29 +78,24 @@ export const Home: React.FC = () => {
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
-
     localStorage.removeItem(IP_DATA_CACHE);
     localStorage.removeItem(CACHED_LOCATION);
-
     setCoords(null);
     setCity(null);
     setCountry(null);
     setTimeZone(null);
     setError(null);
-
     ipDataFetched.current = false;
     geoRequested.current = false;
 
     try {
       await fetchFromIpApi();
       ipDataFetched.current = true;
-
       const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
       if (geoStatus === "granted") {
         await requestGeolocation();
       }
     } catch (error) {
-      console.error("Failed to refresh location data:", error);
       setError("Не удалось обновить данные местоположения");
     } finally {
       setIsRefreshing(false);
@@ -121,7 +111,6 @@ export const Home: React.FC = () => {
       (position) => {
         const { latitude: lat, longitude: lon } = position.coords;
         const locationData = { lat, lon, timestamp: Date.now() };
-
         localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
         localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
         setCoords({ lat, lon });
@@ -141,10 +130,9 @@ export const Home: React.FC = () => {
             });
         }
       },
-      async (err) => {
+      (err) => {
         console.warn("Geolocation error:", err);
         localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
-
         const cachedIpData = getCachedIpData();
         if (cachedIpData) {
           setCoords(cachedIpData.coords);
@@ -152,15 +140,11 @@ export const Home: React.FC = () => {
           setCountry(cachedIpData.country || "Unknown");
           setTimeZone(cachedIpData.timeZone || null);
         } else if (!ipDataFetched.current) {
-          try {
-            await fetchFromIpApi();
-            ipDataFetched.current = true;
-          } catch (_) {
-            setError("Не удалось определить местоположение");
-            setCity("Unknown");
-            setCountry("Unknown");
-            setTimeZone(null);
-          }
+          fetchFromIpApi()
+            .then(() => (ipDataFetched.current = true))
+            .catch(() => {
+              setError("Не удалось определить местоположение");
+            });
         }
       },
       { timeout: 10000, enableHighAccuracy: true }
@@ -186,10 +170,9 @@ export const Home: React.FC = () => {
   // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
   useEffect(() => {
     if (geoRequested.current) return;
-
+    // ... (оставьте как есть)
     const initializeLocation = async () => {
       geoRequested.current = true;
-
       const status = localStorage.getItem(GEO_PERMISSION_STATUS);
       const cached = localStorage.getItem(CACHED_LOCATION);
 
@@ -199,7 +182,6 @@ export const Home: React.FC = () => {
           const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
           if (isFresh && data.lat && data.lon) {
             setCoords({ lat: data.lat, lon: data.lon });
-
             if (!ipDataFetched.current) {
               try {
                 await fetchFromIpApi();
@@ -236,47 +218,33 @@ export const Home: React.FC = () => {
     initializeLocation();
   }, [settingsSent]);
 
-  // === ПРОВЕРКА РЕАЛЬНОГО ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
+  // === ПРОВЕРКА ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
   useEffect(() => {
-    const checkSensorAccess = () => {
-      const isIOS =
-        typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission;
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
 
-      if (isIOS) {
-        // На iOS: попробуем получить событие
-        const handler = (event: DeviceOrientationEvent) => {
-          if (event.absolute !== null || event.alpha !== null) {
-            window.removeEventListener("deviceorientation", handler);
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-            setSensorPermission("granted");
-          }
-        };
+    // Если ранее разрешали — пробуем использовать
+    if (saved === "granted") {
+      const handler = () => {
+        window.removeEventListener("deviceorientation", handler);
+        setSensorPermission("granted");
+      };
 
-        window.addEventListener("deviceorientation", handler, { once: true });
+      window.addEventListener("deviceorientation", handler, { once: true });
 
-        const timeout = setTimeout(() => {
-          window.removeEventListener("deviceorientation", handler);
-          console.log("No sensor data — permission not active");
-          setSensorPermission("prompt");
-        }, 1000);
+      const timeout = setTimeout(() => {
+        window.removeEventListener("deviceorientation", handler);
+        // Не получили данные → сбрасываем
+        localStorage.removeItem(SENSOR_PERMISSION_STATUS);
+        setSensorPermission("prompt");
+      }, 1000);
 
-        return () => clearTimeout(timeout);
-      } else {
-        // Android: доверяем localStorage, но не считаем наверняка
-        const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-        if (saved === "granted") {
-          setSensorPermission("granted");
-        } else {
-          setSensorPermission("prompt");
-        }
-      }
-    };
-
-    checkSensorAccess();
+      return () => clearTimeout(timeout);
+    } else {
+      setSensorPermission("prompt");
+    }
   }, []);
 
-  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ЧЕРЕЗ КНОПКУ ===
+  // === ЗАПРОС ЧЕРЕЗ КНОПКУ ===
   const requestSensorPermission = async () => {
     try {
       if (
@@ -292,7 +260,7 @@ export const Home: React.FC = () => {
           setSensorPermission("denied");
         }
       } else {
-        // На Android просто разрешаем
+        // Android
         window.addEventListener("deviceorientation", () => {}, { once: true });
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
         setSensorPermission("granted");
@@ -329,7 +297,7 @@ export const Home: React.FC = () => {
         country={country || "Unknown country"}
       />
 
-      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (только если нет доступа) === */}
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       {sensorPermission !== "granted" && (
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
@@ -348,7 +316,7 @@ export const Home: React.FC = () => {
 
       {/* === ОСНОВНОЙ КОНТЕНТ === */}
       <div className={styles.homeRoot}>
-        {/* Кнопка обновления местоположения */}
+        {/* Кнопка обновления */}
         <div className={styles.refreshButtonContainer}>
           <button
             className={styles.refreshLocationButton}
