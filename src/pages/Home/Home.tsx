@@ -41,7 +41,10 @@ export const Home: React.FC = () => {
   } = useGeoStore();
 
   // Состояние доступа к датчикам
-  const [sensorPermission, setSensorPermission] = useState<string>("prompt");
+  const [sensorPermission, setSensorPermission] = useState<string>(() => {
+  const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+  return saved === "granted" ? "granted" : "prompt";
+});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
