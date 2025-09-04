@@ -6,7 +6,7 @@ interface UserSettings {
   cityName: string;
   countryName: string;
   timeZone: string;
-  language: string | null;
+  langCode: string | null;
 }
 
 interface UserParametersState {
@@ -26,7 +26,7 @@ interface UserParametersState {
 
 export const useUserParametersStore = create<UserParametersState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       wasLogged: null,
       settingsSent: false,
       isLoading: false,
@@ -35,13 +35,6 @@ export const useUserParametersStore = create<UserParametersState>()(
       setWasLogged: (value) => set({ wasLogged: value }),
 
       sendUserSettings: async (locationData) => {
-        const { wasLogged, settingsSent } = get();
-
-        // Если настройки уже отправлены или пользователь уже был залогинен - пропускаем
-        if (settingsSent || wasLogged) {
-          return;
-        }
-
         set({ isLoading: true, error: null });
 
         try {
@@ -53,7 +46,7 @@ export const useUserParametersStore = create<UserParametersState>()(
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.country || "Unknown",
-            language: locationData.langcode,
+            langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };
 
