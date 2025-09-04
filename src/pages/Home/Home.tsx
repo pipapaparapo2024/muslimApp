@@ -486,48 +486,48 @@ export const Home: React.FC = () => {
         )}
 
         {/* Показываем контент когда есть данные (город или координаты) */}
-        {!isLoading && (city || coords) && (<div>sdfsdfdfs</div>
-          // <div className={styles.prayerTimesQiblaContainer}>
-          //   <PrayerTimes />
-          //   <div className={styles.qiblaBlock}>
-          //     <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
-          //     <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
-          //     <div className={styles.qiblaBlockRow}>
-          //       <div onClick={handleMapClick} className={styles.mapContainer}>
-          //         <QiblaMap onMapClick={handleMapClick} />
-          //       </div>
-          //       <div
-          //         onClick={handleCompassClick}
-          //         className={styles.compassContainer}
-          //       >
-          //         <QiblaCompass
-          //           permissionGranted={sensorPermission === "granted"}
-          //           coords={coords}
-          //         />
-          //         {/* Показываем подсказку если нужно взаимодействие */}
-          //         {sensorPermission === "prompt" && (
-          //           <div
-          //             style={{
-          //               position: "absolute",
-          //               top: "50%",
-          //               left: "50%",
-          //               transform: "translate(-50%, -50%)",
-          //               textAlign: "center",
-          //               fontSize: "12px",
-          //               color: "#666",
-          //               background: "rgba(255, 255, 255, 0.9)",
-          //               padding: "8px",
-          //               borderRadius: "8px",
-          //             }}
-          //           >
-          //             Нажмите для доступа к датчикам
-          //           </div>
-          //         )}
-          //       </div>
-          //     </div>
-          //   </div>
-          // </div>
-        )}
+        {/* {!isLoading && (city || coords) && ( */}
+          <div className={styles.prayerTimesQiblaContainer}>
+            <PrayerTimes />
+            <div className={styles.qiblaBlock}>
+              <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
+              <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
+              <div className={styles.qiblaBlockRow}>
+                <div onClick={handleMapClick} className={styles.mapContainer}>
+                  <QiblaMap onMapClick={handleMapClick} />
+                </div>
+                <div
+                  onClick={handleCompassClick}
+                  className={styles.compassContainer}
+                >
+                  <QiblaCompass
+                    permissionGranted={sensorPermission === "granted"}
+                    coords={coords}
+                  />
+                  {/* Показываем подсказку если нужно взаимодействие */}
+                  {sensorPermission === "prompt" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "#666",
+                        background: "rgba(255, 255, 255, 0.9)",
+                        padding: "8px",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      Нажмите для доступа к датчикам
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        {/* )} */}
 
         <MenuBlocks />
       </div>
