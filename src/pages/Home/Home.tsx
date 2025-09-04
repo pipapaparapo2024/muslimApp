@@ -453,26 +453,41 @@ export const Home: React.FC = () => {
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       />
+
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
+      {(sensorPermission === "unknown" || sensorPermission === "prompt") && (
+        <div className={styles.sensorPermissionPrompt}>
+          <div className={styles.sensorPermissionCard}>
+            <div className={styles.sensorIcon}>🔐</div>
+            <h3>{t("enableDeviceSensors")}</h3>
+            <p>{t("compassAndQiblaNeedAccess")}</p>
+            <button
+              className={styles.allowSensorButton}
+              onClick={forceRequestSensorPermission}
+            >
+              {t("allowAccess")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* === ОСНОВНОЙ КОНТЕНТ === */}
       <div className={styles.homeRoot}>
-        {/* Кнопка обновления данных местоположения */}
+        {/* Кнопка обновления местоположения */}
         <div className={styles.refreshButtonContainer}>
           <button
             className={styles.refreshLocationButton}
             onClick={handleRefreshLocationData}
             disabled={isRefreshing}
-            title="Обновить данные местоположения"
+            title={t("refreshLocation")}
           >
-            {isRefreshing ? (
-              <span>Обновление...</span>
-            ) : (
-              <span>🔄 Обновить местоположение</span>
-            )}
+            {isRefreshing ? t("updating") : "🔄 " + t("refreshLocation")}
           </button>
         </div>
 
         {isLoading && (
           <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
-            Определяем ваше местоположение...
+            {t("detectingLocation")}...
           </div>
         )}
 
@@ -482,8 +497,7 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Показываем контент когда есть данные (город или координаты) */}
-        {/* {!isLoading && (city || coords) && ( */}
+        {/* Основной контент: молитвы, компас, карта */}
         <div className={styles.prayerTimesQiblaContainer}>
           <PrayerTimes />
           <div className={styles.qiblaBlock}>
@@ -497,7 +511,6 @@ export const Home: React.FC = () => {
                 onClick={handleCompassClick}
                 className={styles.compassContainer}
               >
-                {/* Блок запроса доступа к датчикам */}
                 {sensorPermission === "unknown" ||
                 sensorPermission === "prompt" ? (
                   <div className={styles.permissionPrompt}>
@@ -507,7 +520,7 @@ export const Home: React.FC = () => {
                     <button
                       className={styles.permissionButton}
                       onClick={(e) => {
-                        e.stopPropagation(); // Не вызываем handleCompassClick
+                        e.stopPropagation();
                         forceRequestSensorPermission();
                       }}
                     >
@@ -528,7 +541,6 @@ export const Home: React.FC = () => {
                     </button>
                   </div>
                 ) : (
-                  // Всегда рендерим компас, если разрешено или fallback
                   <QiblaCompass
                     permissionGranted={sensorPermission === "granted"}
                     coords={coords}
@@ -538,7 +550,6 @@ export const Home: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* )} */}
 
         <MenuBlocks />
       </div>
