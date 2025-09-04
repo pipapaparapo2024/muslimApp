@@ -38,7 +38,7 @@ export const SurahList: React.FC = () => {
 
   const filteredSurahs = surahs.filter(
     (surah) =>
-      surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       surah.description
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
@@ -114,7 +114,7 @@ export const SurahList: React.FC = () => {
                 <div className={styles.blockNameNumber}>
                   <div className={styles.surahNumber}>{surah.number}</div>
                   <div className={styles.surahContent}>
-                    <div className={styles.surahName}>{surah.englishName}</div>
+                    <div className={styles.surahName}>{surah.name}</div>
                     <div className={styles.surahDescription}>
                       {surah.description}
                     </div>
@@ -155,7 +155,7 @@ export const SurahList: React.FC = () => {
                         </clipPath>
                       </defs>
                     </svg>
-                    {surah.revelationType === "Makkah"
+                    {surah.suraPlaceOfWriting === "Makkah"
                       ? t("makkah")
                       : t("madinah")}
                   </div>

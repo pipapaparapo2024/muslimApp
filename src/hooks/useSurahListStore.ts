@@ -10,10 +10,10 @@ export interface Surah {
   id: string;
   name: string;
   number: number;
+  suraBismillah:string;
   description: string;
-  englishName: string;
   numberOfAyahs: number;
-  revelationType: "Makkah" | "Madinah";
+  suraPlaceOfWriting: "Makkah" | "Madinah";
   ayahs?: Ayah[];
 }
 
@@ -86,12 +86,12 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
 
     return response.data.data.suras.map((chap: any) => ({
       id: chap.ID,
+      suraBismillah:chap.SuraBismillah,
+      description: chap.SuraDescription || "nodesk",
       name: chap.SuraName,
       number: chap.SuraNumber,
-      englishName: chap.SuraNameEng || chap.SuraName,
-      description: chap.SuraDescription || "",
+      suraPlaceOfWriting: chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
       numberOfAyahs: parseInt(chap.AyasAmount, 10),
-      revelationType: chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
     }));
   } catch (error) {
     console.error("❌ Failed to fetch surahs:", error);
