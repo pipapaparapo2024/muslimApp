@@ -46,6 +46,7 @@ export const Welcome: React.FC = () => {
     isAuthenticated,
     isLoading: isAuthLoading,
     error: authError,
+    wasLogged,
   } = useTelegram();
 
   console.log("Welcome render - состояние авторизации:", {
@@ -55,17 +56,25 @@ export const Welcome: React.FC = () => {
 
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
   useEffect(() => {
-    console.log("useEffect проверки авторизации", {
+    console.log("Проверка авторизации и wasLogged", {
       isAuthenticated,
       isAuthLoading,
+      wasLogged,
     });
 
-    if (isAuthenticated && !isAuthLoading) {
-      console.log("Пользователь авторизован, перенаправляем на /home");
-      navigate("/home", { replace: true });
+    if (!isAuthLoading) {
+      if (isAuthenticated && wasLogged === true) {
+        console.log("Пользователь уже логинился, пропускаем онбординг");
+        navigate("/home", { replace: true });
+      } else if (isAuthenticated && wasLogged === false) {
+        console.log(
+          "Пользователь аутентифицирован, но первый раз — показываем онбординг"
+        );
+      } else if (!isAuthenticated && authError) {
+        console.log("Ошибка авторизации:", authError);
+      }
     }
-  }, [isAuthenticated, isAuthLoading, navigate]);
-
+  }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
   // Предзагрузка всех изображений
   useEffect(() => {
     let isMounted = true;
@@ -239,4 +248,3 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-
