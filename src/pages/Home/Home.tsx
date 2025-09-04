@@ -38,10 +38,11 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-
+  localStorage.removeItem("sensorPermissionStatus");
   const [sensorPermission, setSensorPermission] = useState<string>(
     localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
   );
+
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -291,6 +292,7 @@ export const Home: React.FC = () => {
       />
 
       {/* === ЕДИНСТВЕННАЯ КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (под Header) === */}
+      {sensorPermission !== "granted" && (
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
             <div className={styles.sensorIcon}>🧭</div>
@@ -304,6 +306,7 @@ export const Home: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
 
       {/* === ОСНОВНОЙ КОНТЕНТ === */}
       <div className={styles.homeRoot}>
