@@ -38,11 +38,8 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-  localStorage.removeItem("sensorPermissionStatus");
-  const [sensorPermission, setSensorPermission] = useState<string>(
-    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
-  );
 
+  const [sensorPermission, setSensorPermission] = useState<string>("prompt"); // Не читаем из localStorage
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -79,7 +76,6 @@ export const Home: React.FC = () => {
     }
   };
 
-  // Отправка при изменении данных
   useEffect(() => {
     sendLocationSettings();
   }, [city, country, timeZone, sendUserSettings]);
@@ -240,6 +236,46 @@ export const Home: React.FC = () => {
     initializeLocation();
   }, [settingsSent]);
 
+  // === ПРОВЕРКА РЕАЛЬНОГО ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
+  useEffect(() => {
+    const checkSensorAccess = () => {
+      const isIOS =
+        typeof DeviceOrientationEvent !== "undefined" &&
+        (DeviceOrientationEvent as any).requestPermission;
+
+      if (isIOS) {
+        // На iOS: попробуем получить событие
+        const handler = (event: DeviceOrientationEvent) => {
+          if (event.absolute !== null || event.alpha !== null) {
+            window.removeEventListener("deviceorientation", handler);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+            setSensorPermission("granted");
+          }
+        };
+
+        window.addEventListener("deviceorientation", handler, { once: true });
+
+        const timeout = setTimeout(() => {
+          window.removeEventListener("deviceorientation", handler);
+          console.log("No sensor data — permission not active");
+          setSensorPermission("prompt");
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+      } else {
+        // Android: доверяем localStorage, но не считаем наверняка
+        const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+        if (saved === "granted") {
+          setSensorPermission("granted");
+        } else {
+          setSensorPermission("prompt");
+        }
+      }
+    };
+
+    checkSensorAccess();
+  }, []);
+
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ЧЕРЕЗ КНОПКУ ===
   const requestSensorPermission = async () => {
     try {
@@ -247,14 +283,16 @@ export const Home: React.FC = () => {
         typeof DeviceOrientationEvent !== "undefined" &&
         (DeviceOrientationEvent as any).requestPermission
       ) {
-        // iOS: явный запрос
-        const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-        setSensorPermission(result);
+        const result = await (DeviceOrientationEvent as any).requestPermission();
+        if (result === "granted") {
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        } else {
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+          setSensorPermission("denied");
+        }
       } else {
-        // Android и другие: просто пытаемся использовать
+        // На Android просто разрешаем
         window.addEventListener("deviceorientation", () => {}, { once: true });
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
         setSensorPermission("granted");
@@ -291,7 +329,7 @@ export const Home: React.FC = () => {
         country={country || "Unknown country"}
       />
 
-      {/* === ЕДИНСТВЕННАЯ КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (под Header) === */}
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (только если нет доступа) === */}
       {sensorPermission !== "granted" && (
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
