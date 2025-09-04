@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -21,9 +21,8 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   const { settingsSent, sendUserSettings } = useUserParametersStore();
 
-  // Используем стор для геоданных
+  // Геоданные из стора
   const {
-    ipData,
     langcode,
     coords,
     city,
@@ -39,40 +38,23 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
+
   const [sensorPermission, setSensorPermission] = useState<string>(
-    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
+    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
-  const sensorRequested = useRef(false);
-  const ipDataFetched = useRef(false);
   const settingsSentRef = useRef(settingsSent);
+  const ipDataFetched = useRef(false);
 
   // Обновляем ref при изменении settingsSent
   useEffect(() => {
     settingsSentRef.current = settingsSent;
   }, [settingsSent]);
 
-  // Функция для получения данных из кэша
-  const getCachedIpData = () => {
-    try {
-      const cached = localStorage.getItem(IP_DATA_CACHE);
-      if (cached) {
-        const data = JSON.parse(cached);
-        // Проверяем что кэш свежий (менее 2 часов)
-        if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
-          return data;
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to parse cached IP data", e);
-    }
-    return null;
-  };
-
-  // Функция для отправки настроек местоположения
-  const sendLocationSettings = useCallback(async () => {
+  // === ФУНКЦИЯ ОТПРАВКИ НАСТРОЕК ===
+  const sendLocationSettings = async () => {
     if (
       city &&
       country &&
@@ -87,60 +69,40 @@ export const Home: React.FC = () => {
         timeZone,
       });
 
-      // Формируем данные для отправки
-      const settingsData = {
-        city,
-        country,
-        langcode,
-        timeZone,
-      };
-      console.log("настройки", settingsData);
-
       try {
-        await sendUserSettings(settingsData);
-        console.log("Настройки успешно отправлены на сервер");
+        await sendUserSettings({ city, country, langcode, timeZone });
+        console.log("Настройки успешно отправлены");
       } catch (error) {
         console.error("Ошибка при отправке настроек:", error);
       }
-    } else {
-      console.log("Не все данные готовы для отправки:", {
-        city,
-        country,
-        timeZone,
-      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [city, country, timeZone, ipData, sendUserSettings]); // Добавляем ipData в зависимости
-  // Отслеживаем изменения геоданных и отправляем настройки
+  };
+
+  // Отправка при изменении данных
   useEffect(() => {
     sendLocationSettings();
-  }, [sendLocationSettings]);
+  }, [city, country, timeZone, sendUserSettings]);
 
-  // Функция для сброса и обновления данных геолокации
+  // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
 
-    // Сбрасываем кэш IP данных
     localStorage.removeItem(IP_DATA_CACHE);
     localStorage.removeItem(CACHED_LOCATION);
 
-    // Сбрасываем состояние геоданных
     setCoords(null);
     setCity(null);
     setCountry(null);
     setTimeZone(null);
     setError(null);
 
-    // Сбрасываем флаги
     ipDataFetched.current = false;
     geoRequested.current = false;
 
-    // Запрашиваем новые данные
     try {
       await fetchFromIpApi();
       ipDataFetched.current = true;
 
-      // Если есть разрешение на геолокацию, также запрашиваем точные координаты
       const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
       if (geoStatus === "granted") {
         await requestGeolocation();
@@ -153,199 +115,78 @@ export const Home: React.FC = () => {
     }
   };
 
-  // Функция для запроса геолокации
+  // === ГЕОЛОКАЦИЯ ===
   const requestGeolocation = async () => {
     geoRequested.current = true;
     setHasRequestedGeo(true);
 
-    return new Promise<void>((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude: lat, longitude: lon } = position.coords;
-          const locationData = { lat, lon, timestamp: Date.now() };
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude: lat, longitude: lon } = position.coords;
+        const locationData = { lat, lon, timestamp: Date.now() };
 
-          localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
-          localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
+        localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
+        localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
+        setCoords({ lat, lon });
 
-          // Сохраняем координаты в стор
-          setCoords({ lat, lon });
-
-          // Используем кэшированные данные IP если они есть
-          const cachedIpData = getCachedIpData();
-          if (cachedIpData) {
-            setCity(cachedIpData.city || "Unknown");
-            setCountry(cachedIpData.country || "Unknown");
-            setTimeZone(cachedIpData.timeZone || null);
-          } else if (!ipDataFetched.current) {
-            try {
-              await fetchFromIpApi();
-              ipDataFetched.current = true;
-            } catch (_) {
-              console.warn("IP API failed, using coordinates only");
+        const cachedIpData = getCachedIpData();
+        if (cachedIpData) {
+          setCity(cachedIpData.city || "Unknown");
+          setCountry(cachedIpData.country || "Unknown");
+          setTimeZone(cachedIpData.timeZone || null);
+        } else if (!ipDataFetched.current) {
+          fetchFromIpApi()
+            .then(() => (ipDataFetched.current = true))
+            .catch(() => {
               setCity("Unknown");
               setCountry("Unknown");
               setTimeZone(null);
-            }
-          }
-
-          resolve();
-        },
-        async (err) => {
-          console.warn("Geolocation error:", err);
-          localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
-
-          // Используем кэшированные данные IP если они есть
-          const cachedIpData = getCachedIpData();
-          if (cachedIpData) {
-            setCoords(cachedIpData.coords);
-            setCity(cachedIpData.city || "Unknown");
-            setCountry(cachedIpData.country || "Unknown");
-            setTimeZone(cachedIpData.timeZone || null);
-          } else if (!ipDataFetched.current) {
-            try {
-              await fetchFromIpApi();
-              ipDataFetched.current = true;
-            } catch (_) {
-              setError("Не удалось определить местоположение");
-              setCity("Unknown");
-              setCountry("Unknown");
-              setTimeZone(null);
-            }
-          }
-
-          resolve();
-        },
-        { timeout: 10000, enableHighAccuracy: true }
-      );
-    });
-  };
-
-  // Функция для автоматического запроса доступа к датчикам
-  const requestSensorPermission = async () => {
-    sensorRequested.current = true;
-
-    try {
-      // Проверяем поддержку API
-      if (typeof DeviceOrientationEvent === "undefined") {
-        console.warn("DeviceOrientationEvent not supported");
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, "unsupported");
-        setSensorPermission("unsupported");
-        return;
-      }
-
-      // iOS 13+ - используем обходной путь с setTimeout
-      if ("requestPermission" in DeviceOrientationEvent) {
-        // Для iOS используем небольшую задержку и пытаемся автоматически
-        setTimeout(async () => {
-          try {
-            // Создаем скрытое событие для инициализации
-            window.addEventListener("deviceorientation", () => {}, {
-              once: true,
             });
+        }
+      },
+      async (err) => {
+        console.warn("Geolocation error:", err);
+        localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
 
-            // Пытаемся автоматически запросить разрешение
-            const result = await (
-              DeviceOrientationEvent as unknown as {
-                requestPermission?: () => Promise<string>;
-              }
-            ).requestPermission?.();
-            if (result) {
-              // Только если result есть (например, "granted", "denied")
-              localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-              setSensorPermission(result);
-            } else {
-              // Если нет — fallback: считаем, что разрешение получено
-              localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-              setSensorPermission("granted");
-            }
+        const cachedIpData = getCachedIpData();
+        if (cachedIpData) {
+          setCoords(cachedIpData.coords);
+          setCity(cachedIpData.city || "Unknown");
+          setCountry(cachedIpData.country || "Unknown");
+          setTimeZone(cachedIpData.timeZone || null);
+        } else if (!ipDataFetched.current) {
+          try {
+            await fetchFromIpApi();
+            ipDataFetched.current = true;
           } catch (_) {
-            console.log(
-              "iOS automatic sensor request failed, will request on interaction"
-            );
-            // Если автоматический запрос не сработал, разрешим при первом взаимодействии
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
-            setSensorPermission("prompt");
+            setError("Не удалось определить местоположение");
+            setCity("Unknown");
+            setCountry("Unknown");
+            setTimeZone(null);
           }
-        }, 1000);
-      }
-      // Android и другие браузеры с Permissions API
-      else if ("permissions" in navigator) {
-        try {
-          const permission = await navigator.permissions.query({
-            name: "gyroscope" as PermissionName,
-          });
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
-          setSensorPermission(permission.state);
-
-          // Слушаем изменения разрешения
-          permission.onchange = () => {
-            setSensorPermission(permission.state);
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
-          };
-        } catch (err) {
-          console.warn("Permissions API not fully supported:", err);
-          // Для браузеров без Permissions API считаем разрешённым
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-          setSensorPermission("granted");
         }
-      }
-      // Fallback для старых браузеров - пробуем подписаться на событие
-      else {
-        try {
-          // Пытаемся подписаться на событие ориентации
-          const testHandler = () => {
-            window.removeEventListener("deviceorientation", testHandler);
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-            setSensorPermission("granted");
-          };
-
-          window.addEventListener("deviceorientation", testHandler, {
-            once: true,
-          });
-
-          // Таймаут на случай если разрешение не дадут
-          setTimeout(() => {
-            window.removeEventListener("deviceorientation", testHandler);
-            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-            setSensorPermission("granted");
-          }, 1000);
-        } catch (err) {
-          console.warn("Device orientation access failed:", err);
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-          setSensorPermission("granted");
-        }
-      }
-    } catch (err) {
-      console.error("Sensor permission error:", err);
-      localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-      setSensorPermission("granted");
-    }
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
   };
 
-  // Функция для принудительного запроса разрешения (при взаимодействии)
-  const forceRequestSensorPermission = async () => {
+  // === КЭШ IP ===
+  const getCachedIpData = () => {
     try {
-      if ("requestPermission" in DeviceOrientationEvent) {
-        const result = await (
-          DeviceOrientationEvent as unknown as {
-            requestPermission?: () => Promise<string>;
-          }
-        ).requestPermission?.();
-        if (result) {
-          // Только если result есть (например, "granted", "denied")
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-          setSensorPermission(result);
-        } else {
-          // Если нет — fallback: считаем, что разрешение получено
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-          setSensorPermission("granted");
+      const cached = localStorage.getItem(IP_DATA_CACHE);
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
+          return data;
         }
       }
-    } catch (err) {
-      console.error("Force sensor permission error:", err);
+    } catch (e) {
+      console.warn("Failed to parse cached IP data", e);
     }
+    return null;
   };
 
+  // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
   useEffect(() => {
     if (geoRequested.current) return;
 
@@ -355,7 +196,6 @@ export const Home: React.FC = () => {
       const status = localStorage.getItem(GEO_PERMISSION_STATUS);
       const cached = localStorage.getItem(CACHED_LOCATION);
 
-      // Проверяем кэш геолокации
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -380,16 +220,11 @@ export const Home: React.FC = () => {
         }
       }
 
-      // Автоматически запрашиваем геолокацию
       if (!status || status === "unknown") {
         await requestGeolocation();
-      }
-      // Если уже разрешено - используем точные координаты
-      else if (status === "granted") {
+      } else if (status === "granted") {
         await requestGeolocation();
-      }
-      // Если отклонено - используем IP
-      else if (status === "denied") {
+      } else if (status === "denied") {
         if (!ipDataFetched.current) {
           try {
             await fetchFromIpApi();
@@ -402,28 +237,33 @@ export const Home: React.FC = () => {
     };
 
     initializeLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsSent]);
 
-  // Автоматический запрос доступа к датчикам при загрузке
-  useEffect(() => {
-    if (sensorRequested.current) return;
-
-    const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-
-    // Если уже есть статус - используем его
-    if (
-      status === "granted" ||
-      status === "denied" ||
-      status === "unsupported"
-    ) {
-      setSensorPermission(status);
-      return;
+  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ЧЕРЕЗ КНОПКУ ===
+  const requestSensorPermission = async () => {
+    try {
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        (DeviceOrientationEvent as any).requestPermission
+      ) {
+        // iOS: явный запрос
+        const result = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+        setSensorPermission(result);
+      } else {
+        // Android и другие: просто пытаемся использовать
+        window.addEventListener("deviceorientation", () => {}, { once: true });
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+        setSensorPermission("granted");
+      }
+    } catch (err) {
+      console.error("Sensor permission error:", err);
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+      setSensorPermission("denied");
     }
-
-    // Автоматически запрашиваем разрешение
-    requestSensorPermission();
-  }, []);
+  };
 
   // Telegram WebApp
   useEffect(() => {
@@ -437,10 +277,6 @@ export const Home: React.FC = () => {
   }, []);
 
   const handleCompassClick = () => {
-    // Если на iOS запрос еще не был выполнен, запрашиваем при клике
-    if (sensorPermission === "prompt") {
-      forceRequestSensorPermission();
-    }
     navigate("/qibla", { state: { activeTab: "compass" } });
   };
 
@@ -454,22 +290,20 @@ export const Home: React.FC = () => {
         country={country || "Unknown country"}
       />
 
-      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-      {(sensorPermission === "unknown" || sensorPermission === "prompt") && (
+      {/* === ЕДИНСТВЕННАЯ КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (под Header) === */}
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
-            <div className={styles.sensorIcon}>🔐</div>
+            <div className={styles.sensorIcon}>🧭</div>
             <h3>{t("enableDeviceSensors")}</h3>
             <p>{t("compassAndQiblaNeedAccess")}</p>
             <button
               className={styles.allowSensorButton}
-              onClick={forceRequestSensorPermission}
+              onClick={requestSensorPermission}
             >
               {t("allowAccess")}
             </button>
           </div>
         </div>
-      )}
 
       {/* === ОСНОВНОЙ КОНТЕНТ === */}
       <div className={styles.homeRoot}>
@@ -497,54 +331,37 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Основной контент: молитвы, компас, карта */}
         <div className={styles.prayerTimesQiblaContainer}>
           <PrayerTimes />
+
           <div className={styles.qiblaBlock}>
             <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
             <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
+
             <div className={styles.qiblaBlockRow}>
               <div onClick={handleMapClick} className={styles.mapContainer}>
                 <QiblaMap onMapClick={handleMapClick} />
               </div>
+
               <div
                 onClick={handleCompassClick}
                 className={styles.compassContainer}
               >
-                {sensorPermission === "unknown" ||
-                sensorPermission === "prompt" ? (
+                {sensorPermission === "granted" ? (
+                  <QiblaCompass permissionGranted={true} coords={coords} />
+                ) : (
                   <div className={styles.permissionPrompt}>
-                    <div className={styles.permissionIcon}>🧭</div>
-                    <h4>{t("enableSensors")}</h4>
                     <p>{t("compassNeedsAccess")}</p>
                     <button
                       className={styles.permissionButton}
                       onClick={(e) => {
                         e.stopPropagation();
-                        forceRequestSensorPermission();
+                        requestSensorPermission();
                       }}
                     >
                       {t("allow")}
                     </button>
                   </div>
-                ) : sensorPermission === "denied" ? (
-                  <div className={styles.permissionDenied}>
-                    <p>{t("sensorAccessDenied")}</p>
-                    <button
-                      className={styles.retryButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        forceRequestSensorPermission();
-                      }}
-                    >
-                      {t("tryAgain")}
-                    </button>
-                  </div>
-                ) : (
-                  <QiblaCompass
-                    permissionGranted={sensorPermission === "granted"}
-                    coords={coords}
-                  />
                 )}
               </div>
             </div>
