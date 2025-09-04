@@ -56,7 +56,6 @@ export const useTelegram = () => {
           setIsAuthenticated(true);
         }
 
-        WebApp.MainButton.setText("Закрыть");
         WebApp.MainButton.onClick(() => WebApp.close());
         WebApp.MainButton.show();
       } catch (err) {

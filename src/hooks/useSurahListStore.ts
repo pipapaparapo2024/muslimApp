@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { quranApi } from "../api/api";
 
 export interface Ayah {
   number: number;
@@ -11,7 +12,6 @@ export interface Surah {
   number: number;
   description: string;
   englishName: string;
-  // englishNameTranslation: string;
   numberOfAyahs: number;
   revelationType: "Makkah" | "Madinah";
   ayahs?: Ayah[];
@@ -37,126 +37,49 @@ interface SurahListState {
   clearError: () => void;
 }
 
-// Тестовые данные для вариантов перевода
-export const mockVariants: Variant[] = [
-  { id: "33f74188-c57e-4010-b477-680a95edb882", name: "Sahih International" },
-  { id: "1b1d1c1a-2b2c-3d3e-4f4g-5h5i6j7k8l9m", name: "Yusuf Ali" },
-  { id: "2a2b2c2d-3e3f-4g4h-5i5j-6k6l7m8n9o0p", name: "Pickthall" },
-];
-
-// Тестовые данные для сур
-export const mockSurahs: Surah[] = [
-  {
-    id: "1",
-    name: "الفاتحة",
-    number: 1,
-    description:
-      "The fundamental principles of the Qur'an in a condensed form.",
-    englishName: "Al-Fatiha",
-    numberOfAyahs: 7,
-    revelationType: "Makkah",
-  },
-  {
-    id: "2",
-    name: "البقرة",
-    number: 2,
-    description: "The necessity of God-consciousness.",
-    englishName: "Al-Baqarah",
-    numberOfAyahs: 286,
-    revelationType: "Madinah",
-  },
-  {
-    id: "3",
-    name: "آل عمران",
-    number: 3,
-    description: "The human nature of Isa.",
-    englishName: "Al-Imran",
-    numberOfAyahs: 200,
-    revelationType: "Madinah",
-  },
-];
-
-// Тестовые данные для аятов (сура Аль-Фатиха)
-export const mockAyahs: Ayah[] = [
-  {
-    number: 1,
-    text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ  اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ  اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  },
-  {
-    number: 2,
-    text: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-  },
-  {
-    number: 3,
-    text: "الرَّحْمَٰنِ الرَّحِيمِ",
-  },
-  {
-    number: 4,
-    text: "مَالِكِ يَوْمِ الدِّينِ",
-  },
-  {
-    number: 5,
-    text: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
-  },
-  {
-    number: 6,
-    text: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
-  },
-  {
-    number: 7,
-    text: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
-  },
-];
-
 // Функция для получения вариантов перевода
 const fetchVariants = async (): Promise<Variant[]> => {
   try {
-    // Для тестирования используем mock данные
-    console.log("Using mock variants data");
-    return mockVariants;
-
-    // Рабочий код (закомментирован для тестирования):
-    /*
     const token = localStorage.getItem("accessToken");
     if (!token) {
       throw new Error("No access token available");
     }
+
     const response = await quranApi.get("/api/v1/quran/variants", {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
+
     if (!response.data?.data?.variants) {
       throw new Error('Invalid API response structure: missing "data.variants"');
     }
+
     return response.data.data.variants.map((v: any) => ({
       id: v.id,
       name: v.name,
     }));
-    */
   } catch (error) {
-    console.log("Using fallback mock variants due to error:", error);
-    return mockVariants;
+    console.error("❌ Failed to fetch variants:", error);
+    throw error;
   }
 };
 
 // Функция для получения сур по variantId
 const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
   try {
-    // Для тестирования используем mock данные
-    console.log("Using mock surahs data for variant:", variantId);
-    return mockSurahs;
-
-    // Рабочий код (закомментирован для тестирования):
-    /*
     const response = await quranApi.get("/api/v1/quran/suras", {
       params: {
         page: 1,
         varId: variantId,
         search: "",
       },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
+
     if (!response.data?.data?.suras) {
       throw new Error('Invalid API response structure: missing "data.suras"');
     }
@@ -165,71 +88,42 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
       id: chap.ID,
       name: chap.SuraName,
       number: chap.SuraNumber,
-      englishName: chap.SuraName,
-      description: chap.SuraDescription,
-      englishNameTranslation: chap.SuraDescription || "",
-      numberOfAyahs: parseInt(chap.AyasAmount),
+      englishName: chap.SuraNameEng || chap.SuraName,
+      description: chap.SuraDescription || "",
+      numberOfAyahs: parseInt(chap.AyasAmount, 10),
       revelationType: chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
     }));
-    */
   } catch (error) {
-    console.log("Using fallback mock surahs due to error:", error);
-    return mockSurahs;
+    console.error("❌ Failed to fetch surahs:", error);
+    throw error;
   }
 };
 
 // Функция для получения аятов по ID суры
 const fetchAyahsBySurah = async (surahId: string): Promise<Ayah[]> => {
   try {
-    // Для тестирования используем mock данные
-    console.log("Using mock ayahs data for surah:", surahId);
-
-    // Возвращаем разные данные в зависимости от суры
-    if (surahId === "1") {
-      return mockAyahs;
-    } else if (surahId === "2") {
-      // Пример аятов для суры Аль-Бакара
-      return [
-        { number: 1, text: "الم" },
-        {
-          number: 2,
-          text: "ذَٰلِكَ الْكِتَابُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ",
-        },
-        {
-          number: 3,
-          text: "الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ",
-        },
-      ];
-    } else {
-      return [
-        { number: 1, text: `Аят 1 суры ${surahId}` },
-        { number: 2, text: `Аят 2 суры ${surahId}` },
-        { number: 3, text: `Аят 3 суры ${surahId}` },
-      ];
-    }
-
-    // Рабочий код (закомментирован для тестирования):
-    /*
     const response = await quranApi.get("/api/v1/quran/ayas", {
       params: {
         page: 1,
         suraid: surahId,
         search: "",
       },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
-    if (!response.data?.data?.ayahs) {
-      throw new Error('Invalid API response structure: missing "data.ayahs"');
+    if (!response.data?.data?.ayas) {
+      throw new Error('Invalid API response structure: missing "data.ayas"');
     }
 
-    return response.data.data.ayahs.map((ayah: any) => ({
-      number: ayah.number || ayah.Number,
-      text: ayah.text || ayah.Text,
+    return response.data.data.ayas.map((ayah: any) => ({
+      number: ayah.number,
+      text: ayah.text,
     }));
-    */
   } catch (error) {
-    console.log("Using fallback mock ayahs due to error:", error);
-    return mockAyahs;
+    console.error("❌ Failed to fetch ayahs:", error);
+    throw error;
   }
 };
 
@@ -253,9 +147,8 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
         get().fetchSurahs(selectedVariant.id);
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch variants";
-      set({ error: errorMessage, loading: false });
+      const message = error instanceof Error ? error.message : "Неизвестная ошибка";
+      set({ error: message, loading: false });
     }
   },
 
@@ -265,26 +158,23 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       const surahs = await fetchSurahsByVariant(variantId);
       set({ surahs, loading: false });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch surahs";
-      set({ error: errorMessage, loading: false });
+      const message = error instanceof Error ? error.message : "Не удалось загрузить сур";
+      set({ error: message, loading: false });
     }
   },
 
   fetchAyahs: async (surahId: string): Promise<Ayah[]> => {
     try {
-      const ayahs = await fetchAyahsBySurah(surahId);
-      return ayahs;
+      return await fetchAyahsBySurah(surahId);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to fetch ayahs";
-      throw new Error(errorMessage);
+      const message = error instanceof Error ? error.message : "Не удалось загрузить аяты";
+      throw new Error(message);
     }
   },
 
-  setSelectedSurah: (surah: Surah) => set({ selectedSurah: surah }),
+  setSelectedSurah: (surah) => set({ selectedSurah: surah }),
 
-  setSelectedVariant: (variant: Variant) => {
+  setSelectedVariant: (variant) => {
     set({ selectedVariant: variant });
     get().fetchSurahs(variant.id);
   },

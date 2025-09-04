@@ -23,6 +23,7 @@ export const Home: React.FC = () => {
 
   // Используем стор для геоданных
   const {
+    ipData,
     langcode,
     coords,
     city,
@@ -38,12 +39,10 @@ export const Home: React.FC = () => {
     setError,
     setHasRequestedGeo,
   } = useGeoStore();
-
   const [sensorPermission, setSensorPermission] = useState<string>(
     localStorage.getItem(SENSOR_PERMISSION_STATUS) || "unknown"
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showSensorModal, setShowSensorModal] = useState(false); // Модальное окно
 
   const geoRequested = useRef(false);
   const sensorRequested = useRef(false);
@@ -61,6 +60,7 @@ export const Home: React.FC = () => {
       const cached = localStorage.getItem(IP_DATA_CACHE);
       if (cached) {
         const data = JSON.parse(cached);
+        // Проверяем что кэш свежий (менее 2 часов)
         if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
           return data;
         }
@@ -73,10 +73,28 @@ export const Home: React.FC = () => {
 
   // Функция для отправки настроек местоположения
   const sendLocationSettings = useCallback(async () => {
-    if (city && country && timeZone && city !== "Unknown" && country !== "Unknown") {
-      console.log("Отправляем настройки местоположения:", { city, country, langcode, timeZone });
+    if (
+      city &&
+      country &&
+      timeZone &&
+      city !== "Unknown" &&
+      country !== "Unknown"
+    ) {
+      console.log("Отправляем настройки местоположения:", {
+        city,
+        country,
+        langcode,
+        timeZone,
+      });
 
-      const settingsData = { city, country, langcode, timeZone };
+      // Формируем данные для отправки
+      const settingsData = {
+        city,
+        country,
+        langcode,
+        timeZone,
+      };
+      console.log("настройки", settingsData);
 
       try {
         await sendUserSettings(settingsData);
@@ -85,10 +103,14 @@ export const Home: React.FC = () => {
         console.error("Ошибка при отправке настроек:", error);
       }
     } else {
-      console.log("Не все данные готовы для отправки:", { city, country, timeZone });
+      console.log("Не все данные готовы для отправки:", {
+        city,
+        country,
+        timeZone,
+      });
     }
-  }, [city, country, timeZone, langcode, sendUserSettings]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [city, country, timeZone, ipData, sendUserSettings]); // Добавляем ipData в зависимости
   // Отслеживаем изменения геоданных и отправляем настройки
   useEffect(() => {
     sendLocationSettings();
@@ -98,22 +120,27 @@ export const Home: React.FC = () => {
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
 
+    // Сбрасываем кэш IP данных
     localStorage.removeItem(IP_DATA_CACHE);
     localStorage.removeItem(CACHED_LOCATION);
 
+    // Сбрасываем состояние геоданных
     setCoords(null);
     setCity(null);
     setCountry(null);
     setTimeZone(null);
     setError(null);
 
+    // Сбрасываем флаги
     ipDataFetched.current = false;
     geoRequested.current = false;
 
+    // Запрашиваем новые данные
     try {
       await fetchFromIpApi();
       ipDataFetched.current = true;
 
+      // Если есть разрешение на геолокацию, также запрашиваем точные координаты
       const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
       if (geoStatus === "granted") {
         await requestGeolocation();
@@ -140,8 +167,10 @@ export const Home: React.FC = () => {
           localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
           localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
 
+          // Сохраняем координаты в стор
           setCoords({ lat, lon });
 
+          // Используем кэшированные данные IP если они есть
           const cachedIpData = getCachedIpData();
           if (cachedIpData) {
             setCity(cachedIpData.city || "Unknown");
@@ -152,6 +181,7 @@ export const Home: React.FC = () => {
               await fetchFromIpApi();
               ipDataFetched.current = true;
             } catch (_) {
+              console.warn("IP API failed, using coordinates only");
               setCity("Unknown");
               setCountry("Unknown");
               setTimeZone(null);
@@ -164,6 +194,7 @@ export const Home: React.FC = () => {
           console.warn("Geolocation error:", err);
           localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
 
+          // Используем кэшированные данные IP если они есть
           const cachedIpData = getCachedIpData();
           if (cachedIpData) {
             setCoords(cachedIpData.coords);
@@ -189,50 +220,132 @@ export const Home: React.FC = () => {
     });
   };
 
-  // Проверяем статус датчиков при загрузке
-  useEffect(() => {
-    if (sensorRequested.current) return;
-
-    const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-
-    if (status === "granted") {
-      setSensorPermission("granted");
-    } else if (status === "denied") {
-      setSensorPermission("denied");
-    } else if (status === "unsupported") {
-      setSensorPermission("unsupported");
-    } else {
-      // Показываем модальное окно, если статус неизвестен
-      setShowSensorModal(true);
-    }
-
+  // Функция для автоматического запроса доступа к датчикам
+  const requestSensorPermission = async () => {
     sensorRequested.current = true;
-  }, []);
 
-  // Telegram WebApp
-  useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.ready();
-      tg.MainButton.hide();
-      tg.BackButton.hide();
-      tg.enableClosingConfirmation();
-    }
-  }, []);
+    try {
+      // Проверяем поддержку API
+      if (typeof DeviceOrientationEvent === "undefined") {
+        console.warn("DeviceOrientationEvent not supported");
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "unsupported");
+        setSensorPermission("unsupported");
+        return;
+      }
 
-  const handleCompassClick = () => {
-    // Если разрешение ещё не получено — показываем модальное окно
-    if (sensorPermission !== "granted" && sensorPermission !== "denied") {
-      setShowSensorModal(true);
-    } else if (sensorPermission === "granted") {
-      navigate("/qibla", { state: { activeTab: "compass" } });
+      // iOS 13+ - используем обходной путь с setTimeout
+      if ("requestPermission" in DeviceOrientationEvent) {
+        // Для iOS используем небольшую задержку и пытаемся автоматически
+        setTimeout(async () => {
+          try {
+            // Создаем скрытое событие для инициализации
+            window.addEventListener("deviceorientation", () => {}, {
+              once: true,
+            });
+
+            // Пытаемся автоматически запросить разрешение
+            const result = await (
+              DeviceOrientationEvent as unknown as {
+                requestPermission?: () => Promise<string>;
+              }
+            ).requestPermission?.();
+            if (result) {
+              // Только если result есть (например, "granted", "denied")
+              localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+              setSensorPermission(result);
+            } else {
+              // Если нет — fallback: считаем, что разрешение получено
+              localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+              setSensorPermission("granted");
+            }
+          } catch (_) {
+            console.log(
+              "iOS automatic sensor request failed, will request on interaction"
+            );
+            // Если автоматический запрос не сработал, разрешим при первом взаимодействии
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+            setSensorPermission("prompt");
+          }
+        }, 1000);
+      }
+      // Android и другие браузеры с Permissions API
+      else if ("permissions" in navigator) {
+        try {
+          const permission = await navigator.permissions.query({
+            name: "gyroscope" as PermissionName,
+          });
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
+          setSensorPermission(permission.state);
+
+          // Слушаем изменения разрешения
+          permission.onchange = () => {
+            setSensorPermission(permission.state);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, permission.state);
+          };
+        } catch (err) {
+          console.warn("Permissions API not fully supported:", err);
+          // Для браузеров без Permissions API считаем разрешённым
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
+      }
+      // Fallback для старых браузеров - пробуем подписаться на событие
+      else {
+        try {
+          // Пытаемся подписаться на событие ориентации
+          const testHandler = () => {
+            window.removeEventListener("deviceorientation", testHandler);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+            setSensorPermission("granted");
+          };
+
+          window.addEventListener("deviceorientation", testHandler, {
+            once: true,
+          });
+
+          // Таймаут на случай если разрешение не дадут
+          setTimeout(() => {
+            window.removeEventListener("deviceorientation", testHandler);
+            localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+            setSensorPermission("granted");
+          }, 1000);
+        } catch (err) {
+          console.warn("Device orientation access failed:", err);
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
+      }
+    } catch (err) {
+      console.error("Sensor permission error:", err);
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+      setSensorPermission("granted");
     }
   };
 
-  const handleMapClick = () =>
-    navigate("/qibla", { state: { activeTab: "map" } });
+  // Функция для принудительного запроса разрешения (при взаимодействии)
+  const forceRequestSensorPermission = async () => {
+    try {
+      if ("requestPermission" in DeviceOrientationEvent) {
+        const result = await (
+          DeviceOrientationEvent as unknown as {
+            requestPermission?: () => Promise<string>;
+          }
+        ).requestPermission?.();
+        if (result) {
+          // Только если result есть (например, "granted", "denied")
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
+          setSensorPermission(result);
+        } else {
+          // Если нет — fallback: считаем, что разрешение получено
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setSensorPermission("granted");
+        }
+      }
+    } catch (err) {
+      console.error("Force sensor permission error:", err);
+    }
+  };
 
-  // Инициализация геолокации
   useEffect(() => {
     if (geoRequested.current) return;
 
@@ -242,6 +355,7 @@ export const Home: React.FC = () => {
       const status = localStorage.getItem(GEO_PERMISSION_STATUS);
       const cached = localStorage.getItem(CACHED_LOCATION);
 
+      // Проверяем кэш геолокации
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -266,11 +380,16 @@ export const Home: React.FC = () => {
         }
       }
 
+      // Автоматически запрашиваем геолокацию
       if (!status || status === "unknown") {
         await requestGeolocation();
-      } else if (status === "granted") {
+      }
+      // Если уже разрешено - используем точные координаты
+      else if (status === "granted") {
         await requestGeolocation();
-      } else if (status === "denied") {
+      }
+      // Если отклонено - используем IP
+      else if (status === "denied") {
         if (!ipDataFetched.current) {
           try {
             await fetchFromIpApi();
@@ -283,7 +402,50 @@ export const Home: React.FC = () => {
     };
 
     initializeLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsSent]);
+
+  // Автоматический запрос доступа к датчикам при загрузке
+  useEffect(() => {
+    if (sensorRequested.current) return;
+
+    const status = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+
+    // Если уже есть статус - используем его
+    if (
+      status === "granted" ||
+      status === "denied" ||
+      status === "unsupported"
+    ) {
+      setSensorPermission(status);
+      return;
+    }
+
+    // Автоматически запрашиваем разрешение
+    requestSensorPermission();
+  }, []);
+
+  // Telegram WebApp
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.MainButton.hide();
+      tg.BackButton.hide();
+      tg.enableClosingConfirmation();
+    }
+  }, []);
+
+  const handleCompassClick = () => {
+    // Если на iOS запрос еще не был выполнен, запрашиваем при клике
+    if (sensorPermission === "prompt") {
+      forceRequestSensorPermission();
+    }
+    navigate("/qibla", { state: { activeTab: "compass" } });
+  };
+
+  const handleMapClick = () =>
+    navigate("/qibla", { state: { activeTab: "map" } });
 
   return (
     <PageWrapper>
@@ -291,9 +453,8 @@ export const Home: React.FC = () => {
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       />
-      ываываываываа
       <div className={styles.homeRoot}>
-        {/* Кнопка обновления */}
+        {/* Кнопка обновления данных местоположения */}
         <div className={styles.refreshButtonContainer}>
           <button
             className={styles.refreshLocationButton}
@@ -321,7 +482,8 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Основной контент */}
+        {/* Показываем контент когда есть данные (город или координаты) */}
+        {/* {!isLoading && (city || coords) && ( */}
         <div className={styles.prayerTimesQiblaContainer}>
           <PrayerTimes />
           <div className={styles.qiblaBlock}>
@@ -335,84 +497,51 @@ export const Home: React.FC = () => {
                 onClick={handleCompassClick}
                 className={styles.compassContainer}
               >
-                <QiblaCompass
-                  permissionGranted={sensorPermission === "granted"}
-                  coords={coords}
-                />
-                {/* Подсказка, если нужно взаимодействие */}
-                {sensorPermission === "prompt" && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      textAlign: "center",
-                      fontSize: "12px",
-                      color: "#666",
-                      background: "rgba(255, 255, 255, 0.9)",
-                      padding: "8px",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    Нажмите для доступа к датчикам
+                {/* Блок запроса доступа к датчикам */}
+                {sensorPermission === "unknown" ||
+                sensorPermission === "prompt" ? (
+                  <div className={styles.permissionPrompt}>
+                    <div className={styles.permissionIcon}>🧭</div>
+                    <h4>{t("enableSensors")}</h4>
+                    <p>{t("compassNeedsAccess")}</p>
+                    <button
+                      className={styles.permissionButton}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Не вызываем handleCompassClick
+                        forceRequestSensorPermission();
+                      }}
+                    >
+                      {t("allow")}
+                    </button>
                   </div>
+                ) : sensorPermission === "denied" ? (
+                  <div className={styles.permissionDenied}>
+                    <p>{t("sensorAccessDenied")}</p>
+                    <button
+                      className={styles.retryButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        forceRequestSensorPermission();
+                      }}
+                    >
+                      {t("tryAgain")}
+                    </button>
+                  </div>
+                ) : (
+                  // Всегда рендерим компас, если разрешено или fallback
+                  <QiblaCompass
+                    permissionGranted={sensorPermission === "granted"}
+                    coords={coords}
+                  />
                 )}
               </div>
             </div>
           </div>
         </div>
+        {/* )} */}
 
         <MenuBlocks />
       </div>
-
-      {/* Модальное окно для запроса доступа к датчикам */}
-      {showSensorModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h3>{t("enableSensors")}</h3>
-            <p>{t("compassNeedsAccess")}</p>
-            <div className={styles.modalButtons}>
-              <button
-                className={styles.modalButton}
-                onClick={async () => {
-                  try {
-                    const result = await (
-                      DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }
-                    ).requestPermission?.();
-
-                    const permission = result === "granted" ? "granted" : "denied";
-                    setSensorPermission(permission);
-                    localStorage.setItem(SENSOR_PERMISSION_STATUS, permission);
-
-                    if (permission === "granted") {
-                      console.log("✅ Доступ к датчикам разрешён");
-                    }
-                  } catch (err) {
-                    console.error("Ошибка запроса разрешения:", err);
-                    setSensorPermission("granted");
-                    localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-                  } finally {
-                    setShowSensorModal(false);
-                  }
-                }}
-              >
-                {t("allow")}
-              </button>
-              <button
-                className={styles.modalButtonSecondary}
-                onClick={() => {
-                  setSensorPermission("denied");
-                  localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
-                  setShowSensorModal(false);
-                }}
-              >
-                {t("deny")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </PageWrapper>
   );
 };
