@@ -473,6 +473,7 @@ export const Home: React.FC = () => {
           </button>
         </div>
 
+
         {isLoading && (
           <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
             Определяем ваше местоположение...
