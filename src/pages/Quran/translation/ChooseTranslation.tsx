@@ -14,7 +14,7 @@ export const ChooseTranslation: React.FC = () => {
   }, [fetchVariants]); // Добавляем fetchVariants в зависимости
 
   return (
-    <PageWrapper>
+    <PageWrapper navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.text}>
           <div className={styles.title}>{t("chooseTranslation")}</div>

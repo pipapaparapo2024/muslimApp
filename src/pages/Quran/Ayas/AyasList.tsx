@@ -12,9 +12,8 @@ export const AyahList: React.FC = () => {
   const location = useLocation();
   const { surah } = location.state || {};
 
-  const { fetchAyahs,error, } = useSurahListStore();
+  const { fetchAyahs, error } = useSurahListStore();
 
-  const [Ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,7 +31,6 @@ export const AyahList: React.FC = () => {
         console.log("Fetching ayahs for surah:", surahId);
         const ayahsData = await fetchAyahs(surahId);
         console.log("Received ayahs:", ayahsData);
-        setAyahs(ayahsData);
         setLoading(false);
       } catch (err) {
         console.error("Error loading ayahs:", err);
@@ -57,7 +55,7 @@ export const AyahList: React.FC = () => {
         <LoadingSpinner />
       </PageWrapper>
     );
-  const filteredAyas = Ayahs.filter((ayah) =>
+  const filteredAyas = surah.ayah.filter((ayah: Ayah) =>
     ayah.text.toLowerCase().includes(searchQuery.toLowerCase())
   );
   return (
@@ -85,7 +83,7 @@ export const AyahList: React.FC = () => {
               {t("noChaptersFound")} "{searchQuery}"
             </div>
           ) : (
-            filteredAyas.map((ayas) => (
+            filteredAyas.map((ayas:Ayah) => (
               <div className={styles.blockAyas}>
                 <div className={styles.ayasNember}>{ayas.number}</div>
                 <div className={styles.ayasText}>{ayas.text}</div>
