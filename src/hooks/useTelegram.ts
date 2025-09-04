@@ -55,9 +55,6 @@ export const useTelegram = () => {
           ] = `Bearer ${accessToken}`;
           setIsAuthenticated(true);
         }
-
-        WebApp.MainButton.onClick(() => WebApp.close());
-        WebApp.MainButton.show();
       } catch (err) {
         console.error("❌ Ошибка при запросе:");
 
