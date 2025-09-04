@@ -346,64 +346,64 @@ export const Home: React.FC = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (geoRequested.current) return;
+  useEffect(() => {
+    if (geoRequested.current) return;
 
-  //   const initializeLocation = async () => {
-  //     geoRequested.current = true;
+    const initializeLocation = async () => {
+      geoRequested.current = true;
 
-  //     const status = localStorage.getItem(GEO_PERMISSION_STATUS);
-  //     const cached = localStorage.getItem(CACHED_LOCATION);
+      const status = localStorage.getItem(GEO_PERMISSION_STATUS);
+      const cached = localStorage.getItem(CACHED_LOCATION);
 
-  //     // Проверяем кэш геолокации
-  //     if (cached) {
-  //       try {
-  //         const data = JSON.parse(cached);
-  //         const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
-  //         if (isFresh && data.lat && data.lon) {
-  //           setCoords({ lat: data.lat, lon: data.lon });
+      // Проверяем кэш геолокации
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
+          if (isFresh && data.lat && data.lon) {
+            setCoords({ lat: data.lat, lon: data.lon });
 
-  //           if (!ipDataFetched.current) {
-  //             try {
-  //               await fetchFromIpApi();
-  //               ipDataFetched.current = true;
-  //             } catch (_) {
-  //               setCity("Unknown");
-  //               setCountry("Unknown");
-  //               setTimeZone(null);
-  //             }
-  //           }
-  //           return;
-  //         }
-  //       } catch (e) {
-  //         console.warn("Failed to parse cached location", e);
-  //       }
-  //     }
+            if (!ipDataFetched.current) {
+              try {
+                await fetchFromIpApi();
+                ipDataFetched.current = true;
+              } catch (_) {
+                setCity("Unknown");
+                setCountry("Unknown");
+                setTimeZone(null);
+              }
+            }
+            return;
+          }
+        } catch (e) {
+          console.warn("Failed to parse cached location", e);
+        }
+      }
 
-  //     // Автоматически запрашиваем геолокацию
-  //     if (!status || status === "unknown") {
-  //       await requestGeolocation();
-  //     }
-  //     // Если уже разрешено - используем точные координаты
-  //     else if (status === "granted") {
-  //       await requestGeolocation();
-  //     }
-  //     // Если отклонено - используем IP
-  //     else if (status === "denied") {
-  //       if (!ipDataFetched.current) {
-  //         try {
-  //           await fetchFromIpApi();
-  //           ipDataFetched.current = true;
-  //         } catch (_) {
-  //           setError("Не удалось определить местоположение");
-  //         }
-  //       }
-  //     }
-  //   };
+      // Автоматически запрашиваем геолокацию
+      if (!status || status === "unknown") {
+        await requestGeolocation();
+      }
+      // Если уже разрешено - используем точные координаты
+      else if (status === "granted") {
+        await requestGeolocation();
+      }
+      // Если отклонено - используем IP
+      else if (status === "denied") {
+        if (!ipDataFetched.current) {
+          try {
+            await fetchFromIpApi();
+            ipDataFetched.current = true;
+          } catch (_) {
+            setError("Не удалось определить местоположение");
+          }
+        }
+      }
+    };
 
-  //   initializeLocation();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [settingsSent]);
+    initializeLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsSent]);
 
   // Автоматический запрос доступа к датчикам при загрузке
   useEffect(() => {
@@ -448,89 +448,90 @@ export const Home: React.FC = () => {
     navigate("/qibla", { state: { activeTab: "map" } });
 
   return (
-    <PageWrapper>
-      <Header
-        city={city || "Unknown city"}
-        country={country || "Unknown country"}
-      />
-      <div className={styles.homeRoot}>
-        {/* Кнопка обновления данных местоположения */}
-        <div className={styles.refreshButtonContainer}>
-          <button
-            className={styles.refreshLocationButton}
-            onClick={handleRefreshLocationData}
-            disabled={isRefreshing}
-            title="Обновить данные местоположения"
-          >
-            {isRefreshing ? (
-              <span>Обновление...</span>
-            ) : (
-              <span>
-                🔄 Обновить местоположение
-              </span>
-            )}
-          </button>
-        </div>
+    <div>blebleble</div>
+    // <PageWrapper>
+    //   <Header
+    //     city={city || "Unknown city"}
+    //     country={country || "Unknown country"}
+    //   />
+    //   <div className={styles.homeRoot}>
+    //     {/* Кнопка обновления данных местоположения */}
+    //     <div className={styles.refreshButtonContainer}>
+    //       <button
+    //         className={styles.refreshLocationButton}
+    //         onClick={handleRefreshLocationData}
+    //         disabled={isRefreshing}
+    //         title="Обновить данные местоположения"
+    //       >
+    //         {isRefreshing ? (
+    //           <span>Обновление...</span>
+    //         ) : (
+    //           <span>
+    //             🔄 Обновить местоположение
+    //           </span>
+    //         )}
+    //       </button>
+    //     </div>
 
 
-        {isLoading && (
-          <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
-            Определяем ваше местоположение...
-          </div>
-        )}
+    //     {isLoading && (
+    //       <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
+    //         Определяем ваше местоположение...
+    //       </div>
+    //     )}
 
-        {error && (
-          <div style={{ padding: "16px", textAlign: "center", color: "red" }}>
-            {error}
-          </div>
-        )}
+    //     {error && (
+    //       <div style={{ padding: "16px", textAlign: "center", color: "red" }}>
+    //         {error}
+    //       </div>
+    //     )}
 
-        {/* Показываем контент когда есть данные (город или координаты) */}
-        {!isLoading && (city || coords) && (
-          <div className={styles.prayerTimesQiblaContainer}>
-            <PrayerTimes />
-            <div className={styles.qiblaBlock}>
-              <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
-              <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
-              <div className={styles.qiblaBlockRow}>
-                <div onClick={handleMapClick} className={styles.mapContainer}>
-                  <QiblaMap onMapClick={handleMapClick} />
-                </div>
-                <div
-                  onClick={handleCompassClick}
-                  className={styles.compassContainer}
-                >
-                  <QiblaCompass
-                    permissionGranted={sensorPermission === "granted"}
-                    coords={coords}
-                  />
-                  {/* Показываем подсказку если нужно взаимодействие */}
-                  {sensorPermission === "prompt" && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        textAlign: "center",
-                        fontSize: "12px",
-                        color: "#666",
-                        background: "rgba(255, 255, 255, 0.9)",
-                        padding: "8px",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      Нажмите для доступа к датчикам
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+    //     {/* Показываем контент когда есть данные (город или координаты) */}
+    //     {!isLoading && (city || coords) && (
+    //       <div className={styles.prayerTimesQiblaContainer}>
+    //         <PrayerTimes />
+    //         <div className={styles.qiblaBlock}>
+    //           <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
+    //           <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
+    //           <div className={styles.qiblaBlockRow}>
+    //             <div onClick={handleMapClick} className={styles.mapContainer}>
+    //               <QiblaMap onMapClick={handleMapClick} />
+    //             </div>
+    //             <div
+    //               onClick={handleCompassClick}
+    //               className={styles.compassContainer}
+    //             >
+    //               <QiblaCompass
+    //                 permissionGranted={sensorPermission === "granted"}
+    //                 coords={coords}
+    //               />
+    //               {/* Показываем подсказку если нужно взаимодействие */}
+    //               {sensorPermission === "prompt" && (
+    //                 <div
+    //                   style={{
+    //                     position: "absolute",
+    //                     top: "50%",
+    //                     left: "50%",
+    //                     transform: "translate(-50%, -50%)",
+    //                     textAlign: "center",
+    //                     fontSize: "12px",
+    //                     color: "#666",
+    //                     background: "rgba(255, 255, 255, 0.9)",
+    //                     padding: "8px",
+    //                     borderRadius: "8px",
+    //                   }}
+    //                 >
+    //                   Нажмите для доступа к датчикам
+    //                 </div>
+    //               )}
+    //             </div>
+    //           </div>
+    //         </div>
+    //       </div>
+    //     )}
 
-        <MenuBlocks />
-      </div>
-    </PageWrapper>
+    //     <MenuBlocks />
+    //   </div>
+    // </PageWrapper>
   );
 };
