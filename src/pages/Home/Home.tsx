@@ -16,7 +16,6 @@ const GEO_PERMISSION_STATUS = "geoPermissionStatus";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const CACHED_LOCATION = "cachedLocation";
 const IP_DATA_CACHE = "ipDataCache";
-const SESSION_ID = "homeSessionId"; // Для отслеживания сессии
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -42,9 +41,9 @@ export const Home: React.FC = () => {
 
   // Состояние доступа к датчикам
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
-  const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-  return saved === "granted" ? "granted" : "prompt";
-});
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    return saved === "granted" ? "granted" : "prompt";
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const geoRequested = useRef(false);
@@ -237,36 +236,54 @@ export const Home: React.FC = () => {
     initializeLocation();
   }, [settingsSent]);
 
-  // === СБРОС ДОСТУПА К ДАТЧИКАМ ПРИ КАЖДОМ ЗАХОДЕ В ПРИЛОЖЕНИЕ ===
+  // === ПРОВЕРКА ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
   useEffect(() => {
-    // Генерируем уникальный ID сессии при первом рендере
-    const sessionStarted = localStorage.getItem(SESSION_ID);
-    if (!sessionStarted) {
-      // Это новый "заход" в приложение
-      localStorage.setItem(SESSION_ID, Date.now().toString());
-      localStorage.removeItem(SENSOR_PERMISSION_STATUS);
-      setSensorPermission("prompt");
-    } else {
-      // Проверим, можем ли мы получить данные с датчика
+    let isMounted = true;
+
+    const checkSensorAccess = () => {
+      // Если уже есть активный доступ — не трогаем
+      if (sensorPermission === "granted") return;
+
       const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+
+      // Если ранее было "granted", проверим, работает ли датчик
       if (saved === "granted") {
-        const handler = () => {
-          window.removeEventListener("deviceorientation", handler);
-          setSensorPermission("granted");
+        const handler = (event: DeviceOrientationEvent) => {
+          if (
+            isMounted &&
+            (event.alpha !== null ||
+              event.beta !== null ||
+              event.gamma !== null)
+          ) {
+            window.removeEventListener("deviceorientation", handler);
+            setSensorPermission("granted");
+          }
         };
+
         window.addEventListener("deviceorientation", handler, { once: true });
 
+        // Таймаут: если событие не пришло — значит, нет доступа
         const timeout = setTimeout(() => {
           window.removeEventListener("deviceorientation", handler);
-          setSensorPermission("prompt");
+          if (isMounted) {
+            setSensorPermission("prompt"); // только если не получили данные
+          }
         }, 1000);
+
         return () => clearTimeout(timeout);
       } else {
-        setSensorPermission("prompt");
+        if (isMounted) {
+          setSensorPermission("prompt");
+        }
       }
-    }
-  }, []);
+    };
 
+    checkSensorAccess();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ (ТОЛЬКО ПО КЛИКУ) ===
   const requestSensorPermission = async () => {
     try {
@@ -275,7 +292,9 @@ export const Home: React.FC = () => {
         (DeviceOrientationEvent as any).requestPermission
       ) {
         // iOS
-        const result = await (DeviceOrientationEvent as any).requestPermission();
+        const result = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
         if (result === "granted") {
           localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
           setSensorPermission("granted");
