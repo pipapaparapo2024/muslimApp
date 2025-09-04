@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useSurahListStore, mockAyahs,type Ayah } from "../../../hooks/useSurahListStore";
+import { useSurahListStore, type Ayah } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
@@ -12,9 +12,9 @@ export const AyahList: React.FC = () => {
   const location = useLocation();
   const { surah } = location.state || {};
 
-  const { fetchAyahs } = useSurahListStore();
+  const { fetchAyahs,error, } = useSurahListStore();
 
-  const [, setAyahs] = useState<Ayah[]>([]);
+  const [Ayahs, setAyahs] = useState<Ayah[]>([]);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,20 +44,20 @@ export const AyahList: React.FC = () => {
     loadAyahs();
   }, [surahId, fetchAyahs]);
 
-  // if (error) {
-  //   return (
-  //     <PageWrapper showBackButton>
-  //       <p>{error}</p>
-  //     </PageWrapper>
-  //   );
-  // }
+  if (error) {
+    return (
+      <PageWrapper showBackButton>
+        <p>{error}</p>
+      </PageWrapper>
+    );
+  }
   if (loading)
     return (
       <PageWrapper>
         <LoadingSpinner />
       </PageWrapper>
     );
-  const filteredAyas = mockAyahs.filter((ayah) =>
+  const filteredAyas = Ayahs.filter((ayah) =>
     ayah.text.toLowerCase().includes(searchQuery.toLowerCase())
   );
   return (
