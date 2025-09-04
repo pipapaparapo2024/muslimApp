@@ -15,10 +15,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-          
       - name: Deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@172.31.30.224 << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@ec2-54-70-95-26.us-west-2.compute.amazonaws.com << 'EOF'
             cd /home/ubuntu/muslim_1
             git pull origin main
             npm install
