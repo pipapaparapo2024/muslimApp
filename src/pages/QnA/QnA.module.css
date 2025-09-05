@@ -24,6 +24,7 @@
 
 .input {
   border: none;
+  color: var(--text);
   width: 100%;
   padding: var(--numbers-16);
   font-size: var(--numbers-16);

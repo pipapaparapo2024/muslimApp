@@ -6,7 +6,7 @@
   overflow: auto;
   margin: 0 -12px -12px -12px;
 }
-.table{
+.table {
   margin: 0 12px;
 }
 .header {
@@ -45,6 +45,14 @@
   outline: none;
 }
 .scanButtonContainer {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 400px;
+  width: 100%;
   padding: var(--numbers-16) var(--numbers-16) var(--numbers-40)
     var(--numbers-16);
   background: var(--bg-surface);
@@ -86,11 +94,19 @@
   box-sizing: border-box;
 }
 
+.illustration {
+  object-fit: contain;
+  max-width: 340px;
+  height: auto;
+  display: block;
+}
+
 .illustration img {
-  max-height: 350px;
-  padding: 55px 0;
-  width: 100%;
-  max-width: 220px;
+  max-height: 300px;
+  padding: var(--numbers-40) 0;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
   height: auto;
 }
 

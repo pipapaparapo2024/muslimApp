@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
-import styles from "./Friends.module.css"
+import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet } from "lucide-react";
 import { t } from "i18next";
 
-const inviteLink =
-  "https://ya.ru/?npr=1&nr=1&redirect_ts=1756905495.00000&utm_referrer=https%3A%2F%2Fwww.google.com%2F";
+// Пример ссылки (замените на реальную)
+const inviteLink = "https://t.me/your_bot?start=ref_12345";
 
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
+
+  const [copied, setCopied] = useState(false);
 
   const requestsGoal = 10;
   const premiumGoal = 10;
@@ -18,7 +20,7 @@ export const Friends: React.FC = () => {
     fetchFriends();
   }, [fetchFriends]);
 
-  // Подсчитываем количество приглашенных и купивших друзей
+  // Подсчитываем количество приглашённых и купивших друзей
   const invitedCount = friends.filter(
     (friend) => friend.status === "invited" || friend.status === "purchased"
   ).length;
@@ -26,79 +28,105 @@ export const Friends: React.FC = () => {
     (friend) => friend.status === "purchased"
   ).length;
 
-  // Сортируем друзей: сначала purchased, потом invited
+  // Сортируем: сначала купившие, потом просто приглашённые
   const sortedFriends = [...friends].sort((a, b) => {
     if (a.status === "purchased" && b.status !== "purchased") return -1;
     if (a.status !== "purchased" && b.status === "purchased") return 1;
     return 0;
   });
 
-  const handleInvite = async () => {
-    // Проверяем, доступен ли Web Share API и работает ли он корректно
-    const isShareAPIAvailable = () => {
-      return navigator.share && typeof navigator.share === "function";
-    };
+const handleInvite = async () => {
+  // Проверяем, открыто ли приложение в Telegram WebApp
+  const isInTelegram = !!window.Telegram?.WebApp;
 
-    // Дополнительная проверка для Android WebView
-    const isAndroidWebView = () => {
-      return (
-        /Android/i.test(navigator.userAgent) &&
-        /WebView/i.test(navigator.userAgent)
+  if (isInTelegram) {
+    try {
+      // Используем нативный метод Telegram для шаринга
+      window.Telegram?.WebApp.share(
+        inviteLink,
+        t("inviteFriendText", "Присоединяйся по моей ссылке и получи награды!")
       );
-    };
-
-    if (isShareAPIAvailable() && !isAndroidWebView()) {
-      try {
-        await navigator.share({
-          title: "Join me on Muslim App!",
-          text: "Get rewards and unlock features by joining through my link!",
-          url: inviteLink,
-        });
-      } catch (err) {
-        console.log("Share canceled or failed:", err);
-        copyToClipboard();
-      }
-    } else {
-      copyToClipboard();
+    } catch (err) {
+      console.log("Telegram share failed or was cancelled", err);
+      // Если что-то пошло не так — копируем
+      copyLink();
     }
-  };
+    return;
+  }
 
-  const copyToClipboard = async () => {
+  // Если НЕ в Telegram — пробуем Web Share API
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: t("inviteFriendTitle", "Присоединяйся ко мне в Muslim App!"),
+        text: t(
+          "inviteFriendText",
+          "Присоединяйся по моей ссылке и получи награды!"
+        ),
+        url: inviteLink,
+      });
+    } catch (err) {
+      console.log("Share cancelled or failed", err);
+      copyLink();
+    }
+  } else {
+    // Fallback: копируем ссылку
+    copyLink();
+  }
+};
+
+  const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      // Показываем уведомление о копировании
-      alert(t("linkCopied")); // Добавьте перевод для "Link copied to clipboard!"
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error("Failed to copy link:", err);
       // Fallback для старых браузеров
-      const textArea = document.createElement("textarea");
-      textArea.value = inviteLink;
-      textArea.style.position = "fixed";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      try {
-        const successful = document.execCommand("copy");
-        if (successful) {
-          alert(t("linkCopied"));
-        } else {
-          alert(t("copyFailed"));
-        }
-      } catch (_) {
-        alert(t("copyFailed"));
-      }
-
-      document.body.removeChild(textArea);
+      fallbackCopy(inviteLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  if (loading) return <div>{t("loading")}</div>;
-  if (error) return <div>{error}</div>;
+  const fallbackCopy = (text: string) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+      document.execCommand("copy");
+    } catch (err) {
+      console.error("Fallback copy failed", err);
+    }
+
+    document.body.removeChild(textarea);
+  };
+
+  if (loading) {
+    return (
+      <PageWrapper showBackButton>
+        <div className={styles.loading}>{t("loading")}...</div>
+      </PageWrapper>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageWrapper showBackButton>
+        <div className={styles.error}>{error}</div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper showBackButton>
       <div className={styles.friendsContainer}>
+        {/* Карточка: Заработай награды */}
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("earnRewards")}</div>
           <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
@@ -107,6 +135,7 @@ export const Friends: React.FC = () => {
           </button>
         </div>
 
+        {/* Карточка: Бесплатные запросы */}
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
           <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
@@ -121,13 +150,12 @@ export const Friends: React.FC = () => {
               {invitedCount}/{requestsGoal}
             </div>
           </div>
-          {/* Кнопка получения награды за запросы */}
           {invitedCount >= requestsGoal && (
             <button
               className={styles.rewardBtn}
               onClick={() => {
-                // TODO: Логика получения награды за запросы
-                alert("Congratulations! You've earned free requests!");
+                // TODO: вызвать API за получение награды
+                alert(t("freeRequestsUnlocked"));
               }}
             >
               {t("getReward")}
@@ -135,6 +163,7 @@ export const Friends: React.FC = () => {
           )}
         </div>
 
+        {/* Карточка: Разблокируй Premium */}
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("unlockPremium")}</div>
           <div className={styles.cardDesc}>{t("unlockPremiumDesc")}</div>
@@ -151,13 +180,12 @@ export const Friends: React.FC = () => {
               {purchasedCount}/{premiumGoal}
             </div>
           </div>
-          {/* Кнопка получения премиум-награды */}
           {purchasedCount >= premiumGoal && (
             <button
               className={styles.rewardBtn}
               onClick={() => {
-                // TODO: Логика получения премиум-награды
-                alert("Congratulations! You've unlocked Premium!");
+                // TODO: вызвать API за разблокировку премиума
+                alert(t("premiumUnlocked"));
               }}
             >
               {t("getReward")}
@@ -165,7 +193,7 @@ export const Friends: React.FC = () => {
           )}
         </div>
 
-        {/* Список друзей */}
+        {/* Список приглашённых */}
         <div className={styles.emptyInvitations}>
           <div className={styles.emptyTitle}>{t("yourInvitations")}</div>
           {sortedFriends.length === 0 ? (
@@ -198,6 +226,13 @@ export const Friends: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Уведомление о копировании */}
+        {copied && (
+          <div className={styles.copiedToast}>
+            {t("linkCopied", "Ссылка скопирована!")}
+          </div>
+        )}
       </div>
     </PageWrapper>
   );

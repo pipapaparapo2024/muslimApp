@@ -10,7 +10,6 @@ import quaran from "../../../assets/icons/quaran1.svg";
 import { ChevronLeft, ChevronRight, Menu, Search } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
-import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
   const {
@@ -91,13 +90,6 @@ export const SurahList: React.FC = () => {
 
         {/* Ошибка */}
         {error && <div>Error: {error}</div>}
-
-        {/* Загрузка */}
-        {loading && (
-          <PageWrapper>
-            <LoadingSpinner />
-          </PageWrapper>
-        )}
 
         <div className={styles.blockChapter}>
           {!loading && filteredSurahs.length === 0 ? (

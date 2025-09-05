@@ -10,7 +10,8 @@ declare global {
         ready: () => void;
         expand: () => void;
         close: () => void;
-
+        //Ширинг
+        share: (url: string, text?: string) => void;
         // Попапы и уведомления
         showPopup: (params: PopupParams) => void;
         showAlert: (message: string) => void;

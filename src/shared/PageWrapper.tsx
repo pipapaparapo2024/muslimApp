@@ -1,5 +1,6 @@
-import React, { useEffect, type CSSProperties, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, type CSSProperties } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
 interface PageProps {
   children: React.ReactNode;
   showBackButton?: boolean;
@@ -15,25 +16,30 @@ export const PageWrapper: React.FC<PageProps> = ({
   styleHave = true,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const tg = window.Telegram?.WebApp;
-  const handleSettings = useCallback(() => {
-    navigate("/settings");
-  }, [navigate]);
 
-  const handleBack = useCallback(() => {
+  // Функция назад — стабильна при изменении navigateTo
+  const handleBack = () => {
     navigate(navigateTo);
-  }, [navigate, navigateTo]);
+  };
+
+  const handleSettings = () => {
+    navigate("/settings");
+  };
 
   useEffect(() => {
     if (!tg) return;
 
     tg.ready();
 
+    // Настройка SettingsButton
     if (tg.SettingsButton) {
       tg.SettingsButton.show();
       tg.SettingsButton.onClick(handleSettings);
     }
 
+    // Настройка BackButton
     if (showBackButton) {
       tg.BackButton.show();
       tg.BackButton.onClick(handleBack);
@@ -41,33 +47,38 @@ export const PageWrapper: React.FC<PageProps> = ({
       tg.BackButton.hide();
     }
 
+    // Очистка при размонтировании
     return () => {
       if (tg.SettingsButton) {
         tg.SettingsButton.offClick(handleSettings);
-        tg.SettingsButton.hide();
+        // Не скрываем SettingsButton — пусть остаётся для других страниц
       }
       if (showBackButton) {
         tg.BackButton.offClick(handleBack);
         tg.BackButton.hide();
       }
     };
-  }, [showBackButton, navigate, tg, navigateTo, handleSettings, handleBack]);
+  }, [
+    showBackButton,
+    navigateTo,
+    tg,
+    location.pathname, 
+  ]);
 
   const containerStyle: CSSProperties = styleHave
     ? {
         backgroundColor: "var(--bg-app)",
         position: "relative",
         margin: "0 auto",
-        padding:"12px 16px",
+        padding: "12px 16px",
         maxWidth: "410px",
         width: "100%",
         minHeight: "100vh",
-        lineHeight:"20px",
+        lineHeight: "20px",
         boxSizing: "border-box",
-        letterSpacing:"-0.24px"
+        letterSpacing: "-0.24px",
       }
     : {};
 
   return <div style={containerStyle}>{children}</div>;
-  
 };
