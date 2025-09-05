@@ -2,39 +2,9 @@
   min-height: 96vh;
 }
 
-.button {
-  background-color: var(--bg-surface);
-  border: none;
-  color: var(--text);
-  border-radius: var(--roundings-medium);
-  font-weight: var(--font-600);
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-4);
-  padding: var(--numbers-13) var(--numbers-24);
-  font-size: var(--numbers-16);
-  cursor: pointer;
-}
-
-.button:hover {
-  transform: scale(1.02);
-  transition: transform 0.3s ease;
-}
-
-.input {
-  border: none;
-  width: 100%;
-  padding: var(--numbers-16);
-  font-size: var(--numbers-16);
-  background: var(--bg-app);
-  border-radius: var(--roundings-medium);
-  box-sizing: border-box;
-  margin-bottom: var(--numbers-4);
-  outline: none;
-}
 .scanButtonContainer {
   position: absolute;
-  bottom: 0;
+  bottom: 20px;
   max-width: 100%;
   width: 380px;
   margin: 0 -16px 0 -16px;
