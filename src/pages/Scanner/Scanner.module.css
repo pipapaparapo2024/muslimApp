@@ -1,17 +1,5 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  min-height: 95vh;
-  box-sizing: border-box;
-  overflow: auto;
-  margin: 0 -12px -12px -12px;
-}
-.table {
-  margin: 0 12px;
-}
-.header {
-  display: flex;
-  justify-content: space-between;
+  min-height: 96vh;
 }
 
 .button {
@@ -46,13 +34,10 @@
 }
 .scanButtonContainer {
   position: absolute;
-  display: flex;
-  justify-content: center;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 400px;
-  width: 100%;
+  max-width: 100%;
+  width: 380px;
+  margin: 0 -16px 0 -16px;
   padding: var(--numbers-16) var(--numbers-16) var(--numbers-40)
     var(--numbers-16);
   background: var(--bg-surface);
@@ -83,30 +68,21 @@
   cursor: not-allowed;
 }
 
-/* Центральный контент — занимает всё оставшееся пространство */
 .content {
   flex-direction: column;
-  justify-content: center; /* Центрируем по вертикали */
-  align-items: center; /* Центрируем по горизонтали */
+  justify-content: center;
+  align-items: center;
   text-align: center;
   padding: 0 16px;
   margin-bottom: 16px;
   box-sizing: border-box;
 }
 
-.illustration {
-  object-fit: contain;
-  max-width: 340px;
-  height: auto;
-  display: block;
-}
-
 .illustration img {
-  max-height: 300px;
-  padding: var(--numbers-40) 0;
-  width: auto;
-  max-width: 100%;
-  object-fit: contain;
+  max-height: 350px;
+  padding: 55px 0;
+  width: 100%;
+  max-width: 220px;
   height: auto;
 }
 

@@ -13,7 +13,6 @@
 .form {
   padding: var(--numbers-16);
   background: var(--bg-surface);
-  border-radius: var(--roundings-medium);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
