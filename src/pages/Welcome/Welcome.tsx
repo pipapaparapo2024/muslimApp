@@ -53,7 +53,9 @@ export const Welcome: React.FC = () => {
     isAuthenticated,
     isAuthLoading,
   });
-
+  const text = () => {
+    console.log("проблемный текст", steps[step].title);
+  };
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
   useEffect(() => {
     console.log("Проверка авторизации и wasLogged", {
@@ -200,7 +202,8 @@ export const Welcome: React.FC = () => {
               transition: "opacity 0.3s ease, transform 0.3s ease",
             }}
           >
-            {steps[step].title}
+            {/* {steps[step].title} */}
+            здесь должен быть текст из за которого ошибки
           </div>
           <div
             className={styles.welcomeDesc}
