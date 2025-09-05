@@ -46,7 +46,7 @@
 .welcomeBottom {
   width: 100%;
   max-width: 420px;
-  padding: var(--numbers-64);
+  padding-top: var(--numbers-64);
   display: flex;
   flex-direction: column;
   align-items: center;
