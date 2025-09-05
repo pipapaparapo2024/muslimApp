@@ -15,6 +15,7 @@ export const Welcome: React.FC = () => {
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false); // ← Новое состояние
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
@@ -53,17 +54,9 @@ export const Welcome: React.FC = () => {
     isAuthenticated,
     isAuthLoading,
   });
-  const text = () => {
-    console.log("проблемный текст", steps[step].title);
-  };
+
   // Проверяем авторизацию и перенаправляем если пользователь уже авторизован
   useEffect(() => {
-    console.log("Проверка авторизации и wasLogged", {
-      isAuthenticated,
-      isAuthLoading,
-      wasLogged,
-    });
-
     if (!isAuthLoading) {
       if (isAuthenticated && wasLogged === true) {
         console.log("Пользователь уже логинился, пропускаем онбординг");
@@ -77,7 +70,8 @@ export const Welcome: React.FC = () => {
       }
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
-  // Предзагрузка всех изображений
+
+  // Предзагрузка изображений
   useEffect(() => {
     let isMounted = true;
 
@@ -112,8 +106,7 @@ export const Welcome: React.FC = () => {
     return () => {
       isMounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [steps]); // Добавлено steps как зависимость
 
   // Обработка свайпов
   useEffect(() => {
@@ -128,9 +121,11 @@ export const Welcome: React.FC = () => {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      if (isAnimating) return; // ← блокируем свайп во время анимации
+
       endX = e.changedTouches[0].clientX;
       if (endX - startX > 60 && step > 0) {
-        setStep((s) => s - 1);
+        handlePrev();
       } else if (startX - endX > 60 && step < steps.length - 1) {
         handleNext();
       }
@@ -143,25 +138,59 @@ export const Welcome: React.FC = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, isLoaded]);
+  }, [step, isLoaded, isAnimating]); // isAnimating добавлено
 
+  // Функция для следующего шага
   const handleNext = async () => {
+    if (isAnimating || step >= steps.length - 1) return;
+
+    setIsAnimating(true);
     setFade(true);
+
     await new Promise((resolve) => setTimeout(resolve, 200));
-    if (step < steps.length - 1) {
-      setStep((s) => s + 1);
-      setFade(false);
-    } else {
-      console.log("Завершаем онбординг, сохраняем в localStorage");
-      localStorage.setItem("onboardingComplete", "1");
-      navigate("/home", { replace: true });
-    }
+
+    setStep((s) => s + 1);
+    setFade(false);
+
+    // Небольшая задержка, чтобы избежать двойного клика
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  // Функция для предыдущего шага (если нужно)
+  const handlePrev = async () => {
+    if (isAnimating || step <= 0) return;
+
+    setIsAnimating(true);
+    setFade(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    setStep((s) => s - 1);
+    setFade(false);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  };
+
+  // Завершение онбординга
+  const handleStart = async () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+    setFade(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    console.log("Завершаем онбординг, сохраняем в localStorage");
+    localStorage.setItem("onboardingComplete", "1");
+    navigate("/home", { replace: true });
   };
 
   // Показываем лоадер если загружаются изображения
   if (!isLoaded) {
-    console.log("Показываем лоадер, изображения загружаются");
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
@@ -171,7 +200,6 @@ export const Welcome: React.FC = () => {
 
   // Показываем ошибку если авторизация не удалась
   if (authError) {
-    console.log("Показываем ошибку авторизации:", authError);
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
@@ -202,8 +230,7 @@ export const Welcome: React.FC = () => {
               transition: "opacity 0.3s ease, transform 0.3s ease",
             }}
           >
-            {/* {steps[step].title} */}
-            здесь должен быть текст из за которого ошибки
+            {steps[step].title}
           </div>
           <div
             className={styles.welcomeDesc}
@@ -217,7 +244,7 @@ export const Welcome: React.FC = () => {
           </div>
         </div>
 
-        {/* Картинка — между текстом и кнопкой */}
+        {/* Картинка */}
         <div
           className={styles.welcomeImage}
           style={{
@@ -229,7 +256,7 @@ export const Welcome: React.FC = () => {
           <img src={steps[step].image} alt={steps[step].title} />
         </div>
 
-        {/* Кнопка и пагинация внизу, в потоке */}
+        {/* Кнопка и пагинация */}
         <div className={styles.welcomeBottom}>
           <div className={styles.welcomePagination}>
             {steps.map((_, i) => (
@@ -243,7 +270,15 @@ export const Welcome: React.FC = () => {
               />
             ))}
           </div>
-          <button className={styles.welcomeButton} onClick={handleNext}>
+          <button
+            className={styles.welcomeButton}
+            onClick={step === steps.length - 1 ? handleStart : handleNext}
+            disabled={isAnimating} // ← Кнопка отключена во время анимации
+            style={{
+              opacity: isAnimating ? 0.7 : 1,
+              cursor: isAnimating ? "not-allowed" : "pointer",
+            }}
+          >
             {step === steps.length - 1 ? t("start") : t("next")}
           </button>
         </div>

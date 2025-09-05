@@ -55,7 +55,7 @@ export const SurahList: React.FC = () => {
   };
 
   return (
-    <PageWrapper showBackButton navigateTo="/home">
+    <PageWrapper showBackButton={true} navigateTo="/home">
       <div className={styles.container}>
         <div className={styles.headerContainer}>
           <img src={quaran} alt="Quran" className={styles.quranImage} />

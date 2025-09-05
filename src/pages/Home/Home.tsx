@@ -344,13 +344,11 @@ export const Home: React.FC = () => {
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
             <div className={styles.sensorIcon}>🧭</div>
-            <h3>{t("enableDeviceSensors")}</h3>
-            <p>{t("compassAndQiblaNeedAccess")}</p>
             <button
               className={styles.allowSensorButton}
               onClick={requestSensorPermission}
             >
-              {t("allowAccess")}
+              Allow
             </button>
           </div>
         </div>

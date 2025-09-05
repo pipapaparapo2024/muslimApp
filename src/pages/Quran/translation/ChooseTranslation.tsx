@@ -10,11 +10,11 @@ export const ChooseTranslation: React.FC = () => {
     useSurahListStore();
 
   useEffect(() => {
-    fetchVariants(); // Вызываем один раз при монтировании
-  }, [fetchVariants]); // Добавляем fetchVariants в зависимости
+    fetchVariants();
+  }, [fetchVariants]); 
 
   return (
-    <PageWrapper navigateTo="/quran">
+    <PageWrapper showBackButton={true} navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.text}>
           <div className={styles.title}>{t("chooseTranslation")}</div>
