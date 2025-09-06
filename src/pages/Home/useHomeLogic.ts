@@ -68,7 +68,7 @@ export const useHomeLogic = () => {
       try {
         await sendUserSettings({
           city,
-          countryCode: langcode,
+          countryName: country,
           langcode,
           timeZone,
         });
