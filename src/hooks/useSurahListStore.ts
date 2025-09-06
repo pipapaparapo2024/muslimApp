@@ -25,6 +25,7 @@ interface Variant {
 interface SurahListState {
   surahs: Surah[];
   loading: boolean;
+  isLoadingMore: boolean;
   error: string | null;
   variants: Variant[];
   selectedVariant: Variant | null;
@@ -148,7 +149,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   variants: [],
   selectedVariant: null,
   selectedSurah: null,
-
+  isLoadingMore: false,
   // Упрощенные состояния
   ayahs: [],
   currentPage: 1,
@@ -195,7 +196,11 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   },
 
   loadMoreAyahs: async (surahId: string) => {
-    const { currentPage, ayahs } = get();
+    const { currentPage, ayahs, hasMore } = get();
+
+    if (!hasMore) {
+      throw new Error("No more ayahs available");
+    }
 
     try {
       set({ loading: true });
@@ -203,7 +208,6 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
       const newAyahs = await get().fetchAyahs(surahId, nextPage);
 
-      // Если пришли пустые аяты - значит больше нет данных
       if (newAyahs.length === 0) {
         set({ hasMore: false, loading: false });
         return;
@@ -220,6 +224,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
         hasMore: false,
         error: error instanceof Error ? error.message : "Ошибка загрузки",
       });
+      throw error; // Пробрасываем ошибку дальше
     }
   },
 

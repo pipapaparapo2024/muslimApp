@@ -20,6 +20,7 @@ export const AyahList: React.FC = () => {
     fetchAyahs,
     loadMoreAyahs,
     resetAyahs,
+    isLoadingMore,
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -51,14 +52,20 @@ export const AyahList: React.FC = () => {
 
   // Загрузка дополнительных аятов
   const handleLoadMore = useCallback(async () => {
-    if (!surahId || !hasMore || loading) return;
+    if (!surahId || !hasMore || isLoadingMore) return;
 
     try {
+      // Мгновенно блокируем кнопку
+      useSurahListStore.setState({ loading: true });
+
       await loadMoreAyahs(surahId);
     } catch (err) {
       console.error("Error loading more ayahs:", err);
+      // В случае ошибки разблокируем загрузку
+      useSurahListStore.setState({ loading: false });
     }
-  }, [surahId, hasMore, loading, loadMoreAyahs]);
+    await loadMoreAyahs(surahId);
+  }, [surahId, hasMore, isLoadingMore, loadMoreAyahs]);
 
   if (error) {
     return (
