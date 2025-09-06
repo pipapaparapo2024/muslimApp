@@ -1,11 +1,15 @@
+// hooks/useWelcomeLogic.ts
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTelegram } from "../../hooks/useTelegram";
+import { useTranslation } from "react-i18next"; // ← добавлено
 
-import prayerRemindersImage from "../../assets/image/playeR.png";
-import quranImage from "../../assets/image/read.png";
-import scannerImage from "../../assets/image/scan.png";
-import qnaImage from "../../assets/image/get.png";
+// Импортируем изображения — они остаются в хуке, потому что используются в steps
+import prayerRemindersImage from "../assets/image/playeR.png";
+import quranImage from "../assets/image/read.png";
+import scannerImage from "../assets/image/scan.png";
+import qnaImage from "../assets/image/get.png";
+
 interface Step {
   title: string;
   desc: string;
@@ -14,13 +18,13 @@ interface Step {
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t } = useTranslation(); // ← переводы здесь
 
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
       desc: t("stayOnTrack"),
-      image: prayerRemindersImage, 
+      image: prayerRemindersImage,
     },
     {
       title: t("readTheQuran"),
@@ -45,6 +49,29 @@ export const useWelcomeLogic = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Получаем данные авторизации
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    error: authError,
+    wasLogged,
+  } = useTelegram();
+
+  // Проверка авторизации — перенаправление
+  useEffect(() => {
+    if (!isAuthLoading) {
+      if (isAuthenticated && wasLogged === true) {
+        console.log("Пользователь уже логинился, пропускаем онбординг");
+        navigate("/home", { replace: true });
+      } else if (isAuthenticated && wasLogged === false) {
+        console.log("Пользователь аутентифицирован, но первый раз — показываем онбординг");
+      } else if (!isAuthenticated && authError) {
+        console.log("Ошибка авторизации:", authError);
+      }
+    }
+  }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
+
   // Предзагрузка изображений
   useEffect(() => {
     let isMounted = true;
@@ -155,6 +182,7 @@ export const useWelcomeLogic = () => {
 
     await new Promise((resolve) => setTimeout(resolve, 200));
 
+    console.log("Завершаем онбординг, сохраняем в localStorage");
     localStorage.setItem("onboardingComplete", "1");
     navigate("/home", { replace: true });
   };
@@ -166,10 +194,9 @@ export const useWelcomeLogic = () => {
     isLoaded,
     isAnimating,
     containerRef,
+    authError, // ← передаём в UI для отображения ошибки
     handleNext,
     handlePrev,
     handleStart,
-    setStep,
-    setFade,
   };
 };
