@@ -22,6 +22,7 @@ import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
 import { HistoryScanner } from "./pages/Scanner/HistoryScanner/HistoryScanner";
 
+
 import { ShareStory } from "./pages/QnA/History/shareStory/ShareStory";
 import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импортируем из SDK
 import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
