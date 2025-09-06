@@ -1,8 +1,11 @@
-// hooks/useWelcomeLogic.ts
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import prayerRemindersImage from "../../assets/image/playeR.png";
+import quranImage from "../../assets/image/read.png";
+import scannerImage from "../../assets/image/scan.png";
+import qnaImage from "../../assets/image/get.png";
 interface Step {
   title: string;
   desc: string;
@@ -17,22 +20,22 @@ export const useWelcomeLogic = () => {
     {
       title: t("prayerReminders"),
       desc: t("stayOnTrack"),
-      image: "/path/to/prayerRemindersImage.png", // ← замени на реальный путь или передай как пропс
+      image: prayerRemindersImage, 
     },
     {
       title: t("readTheQuran"),
       desc: t("accessQuran"),
-      image: "/path/to/quranImage.png",
+      image: quranImage,
     },
     {
       title: t("scanYourFood"),
       desc: t("checkHalal"),
-      image: "/path/to/scannerImage.png",
+      image: scannerImage,
     },
     {
       title: t("trustedAnswers"),
       desc: t("receiveAnswers"),
-      image: "/path/to/qnaImage.png",
+      image: qnaImage,
     },
   ];
 
