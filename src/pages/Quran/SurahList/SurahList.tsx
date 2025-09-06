@@ -23,7 +23,7 @@ export const SurahList: React.FC = () => {
   } = useSurahListStore();
   const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   useEffect(() => {
     fetchVariants();
   }, [fetchVariants]);
@@ -38,18 +38,13 @@ export const SurahList: React.FC = () => {
   const filteredSurahs = surahs.filter(
     (surah) =>
       surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      surah.description
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      surah.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSurahClick = (surah: Surah) => {
     setSelectedSurah(surah);
     navigate(`/quran/${surah.id}`, {
-      state: {
-        surah,
-        variantId: selectedVariant?.id,
-      },
+      state: { surah, variantId: selectedVariant?.id },
     });
   };
 
@@ -114,8 +109,10 @@ export const SurahList: React.FC = () => {
                 </div>
                 <div className={styles.surahDetails}>
                   <div className={styles.blockDeskription}>
-                    <Menu size={16} strokeWidth={2}/>
-                    <div className={styles.ayas}>{surah.numberOfAyahs} {t("ayahs")}</div>
+                    <Menu size={16} strokeWidth={2} />
+                    <div className={styles.ayas}>
+                      {surah.numberOfAyahs} {t("ayahs")}
+                    </div>
                   </div>
                   <div className={styles.blockDeskription}>
                     <svg

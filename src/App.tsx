@@ -103,7 +103,7 @@ export const App: React.FC = () => {
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Welcome />} />
         <Route path="/quran" element={<SurahList />} />
-        <Route path="/quran/:id" element={<AyahList />} />
+        <Route path="/quran/:surahId" element={<AyahList />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/region" element={<Region />} />
         <Route path="/settings/language" element={<ModalLanguage />} />
