@@ -18,7 +18,7 @@ jobs:
       - name: Deploy
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@ec2-54-70-95-26.us-west-2.compute.amazonaws.com << 'EOF'
-            cd /home/ubuntu/muslim_1
+            cd /home/ubuntu/muslimApp
             git pull origin main
             npm install
             nohup npm run dev > app.log 2>&1 &
