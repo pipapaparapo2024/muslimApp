@@ -149,7 +149,8 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   variants: [],
   selectedVariant: null,
   selectedSurah: null,
-  isLoadingMore: false,
+  isLoadingMore: false, // Добавляем отдельный флаг для загрузки "еще"
+  
   // Упрощенные состояния
   ayahs: [],
   currentPage: 1,
@@ -203,28 +204,29 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     }
 
     try {
-      set({ loading: true });
+      set({ isLoadingMore: true }); // Используем отдельный флаг
       const nextPage = currentPage + 1;
 
       const newAyahs = await get().fetchAyahs(surahId, nextPage);
 
-      if (newAyahs.length === 0) {
-        set({ hasMore: false, loading: false });
+      // Проверяем, если аятов меньше 20 - значит это последняя страница
+      if (newAyahs.length === 0 || newAyahs.length < 20) {
+        set({ hasMore: false, isLoadingMore: false });
         return;
       }
 
       set({
         ayahs: [...ayahs, ...newAyahs],
         currentPage: nextPage,
-        loading: false,
+        isLoadingMore: false,
       });
     } catch (error) {
       set({
-        loading: false,
+        isLoadingMore: false,
         hasMore: false,
         error: error instanceof Error ? error.message : "Ошибка загрузки",
       });
-      throw error; // Пробрасываем ошибку дальше
+      throw error;
     }
   },
 
@@ -233,6 +235,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       ayahs: [],
       currentPage: 1,
       hasMore: true,
+      isLoadingMore: false,
     }),
 
   setSelectedSurah: (surah) => set({ selectedSurah: surah }),

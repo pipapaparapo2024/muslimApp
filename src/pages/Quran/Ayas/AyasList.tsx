@@ -14,7 +14,6 @@ export const AyahList: React.FC = () => {
 
   const {
     ayahs,
-    loading,
     error,
     hasMore,
     fetchAyahs,
@@ -55,16 +54,10 @@ export const AyahList: React.FC = () => {
     if (!surahId || !hasMore || isLoadingMore) return;
 
     try {
-      // Мгновенно блокируем кнопку
-      useSurahListStore.setState({ loading: true });
-
       await loadMoreAyahs(surahId);
     } catch (err) {
       console.error("Error loading more ayahs:", err);
-      // В случае ошибки разблокируем загрузку
-      useSurahListStore.setState({ loading: false });
     }
-    await loadMoreAyahs(surahId);
   }, [surahId, hasMore, isLoadingMore, loadMoreAyahs]);
 
   if (error) {
@@ -113,7 +106,7 @@ export const AyahList: React.FC = () => {
         </div>
 
         <div className={styles.ayatlist}>
-          {ayahs.length === 0 && !loading ? (
+          {ayahs.length === 0 ? (
             <PageWrapper>
               <LoadingSpinner />
             </PageWrapper>
@@ -132,9 +125,9 @@ export const AyahList: React.FC = () => {
                   <button
                     className={styles.loadMoreButton}
                     onClick={handleLoadMore}
-                    disabled={loading || !hasMore} // ← отключаем когда нет больше аятов
+                    disabled={isLoadingMore}
                   >
-                    {loading ? (
+                    {isLoadingMore ? (
                       <Loader size={20} className={styles.spinner} />
                     ) : (
                       <>
