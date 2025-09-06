@@ -5,6 +5,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { Search, Loader, ChevronDown } from "lucide-react";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
@@ -22,7 +23,7 @@ export const AyahList: React.FC = () => {
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
-  const [isSearching, ] = useState(false);
+  const [isSearching] = useState(false);
 
   // Загрузка первых аятов
   useEffect(() => {
@@ -81,9 +82,7 @@ export const AyahList: React.FC = () => {
               {initialSurah?.description}
             </div>
           </div>
-          <form
-            className={styles.searchContainer}
-          >
+          <form className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -108,7 +107,9 @@ export const AyahList: React.FC = () => {
 
         <div className={styles.ayatlist}>
           {ayahs.length === 0 && !loading ? (
-            <div className={styles.noResults}>{t("noAyahsAvailable")}</div>
+            <PageWrapper>
+              <LoadingSpinner />
+            </PageWrapper>
           ) : (
             <>
               {ayahs.map((ayah: Ayah) => (
@@ -124,7 +125,7 @@ export const AyahList: React.FC = () => {
                   <button
                     className={styles.loadMoreButton}
                     onClick={handleLoadMore}
-                    disabled={loading}
+                    disabled={loading || !hasMore} // ← отключаем когда нет больше аятов
                   >
                     {loading ? (
                       <Loader size={20} className={styles.spinner} />
