@@ -3,29 +3,26 @@ import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore, type Ayah } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
-import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { Search, Loader } from "lucide-react";
+import { Search, Loader, ChevronDown } from "lucide-react";
 import { t } from "i18next";
-import { useInfiniteScroll } from "../../../hooks/useInfiniteScrollStore";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
   const { surah: initialSurah } = location.state || {};
-  
+
   const {
     ayahs,
     loading,
     error,
     hasMore,
     fetchAyahs,
-    searchAyahs,
     loadMoreAyahs,
     resetAyahs,
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearching, ] = useState(false);
 
   // Загрузка первых аятов
   useEffect(() => {
@@ -36,62 +33,31 @@ export const AyahList: React.FC = () => {
         resetAyahs();
         const initialAyahs = await fetchAyahs(surahId, 1);
         useSurahListStore.setState({ ayahs: initialAyahs });
+
+        // Проверяем, есть ли еще аяты для загрузки
+        // Если в первой загрузке меньше 20 аятов - значит это последняя страница
+        if (initialAyahs.length < 20) {
+          useSurahListStore.setState({ hasMore: false });
+        }
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
+        useSurahListStore.setState({ hasMore: false });
       }
     };
 
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
 
-  // Обработчик поиска
-  const handleSearch = useCallback(async () => {
-    if (!surahId) return;
+  // Загрузка дополнительных аятов
+  const handleLoadMore = useCallback(async () => {
+    if (!surahId || !hasMore || loading) return;
 
-    setIsSearching(true);
     try {
-      resetAyahs();
-      
-      if (localSearchQuery.trim()) {
-        const searchResults = await searchAyahs(surahId, localSearchQuery.trim(), 1);
-        useSurahListStore.setState({ 
-          ayahs: searchResults,
-          isSearchMode: true,
-          searchQuery: localSearchQuery.trim(),
-          hasMore: searchResults.length > 0
-        });
-      } else {
-        // Если поисковой запрос пустой, загружаем обычные аяты
-        const initialAyahs = await fetchAyahs(surahId, 1);
-        useSurahListStore.setState({ 
-          ayahs: initialAyahs,
-          isSearchMode: false,
-          searchQuery: "",
-          hasMore: initialAyahs.length > 0
-        });
-      }
+      await loadMoreAyahs(surahId);
     } catch (err) {
-      console.error("Error searching ayahs:", err);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [surahId, localSearchQuery, searchAyahs, fetchAyahs, resetAyahs]);
-
-  // Загрузка при скролле
-  const loadMore = useCallback(() => {
-    if (surahId && hasMore && !loading) {
-      loadMoreAyahs(surahId);
+      console.error("Error loading more ayahs:", err);
     }
   }, [surahId, hasMore, loading, loadMoreAyahs]);
-
-  // Infinite scroll hook
-  const { observerTarget } = useInfiniteScroll(loadMore);
-
-  // Обработчик отправки поиска
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSearch();
-  };
 
   if (error) {
     return (
@@ -111,11 +77,13 @@ export const AyahList: React.FC = () => {
             <div className={styles.title}>
               {initialSurah?.englishName || initialSurah?.name}
             </div>
-            <div className={styles.deskription}>{initialSurah?.description}</div>
+            <div className={styles.deskription}>
+              {initialSurah?.description}
+            </div>
           </div>
-          
-          {/* Поисковая строка */}
-          <form onSubmit={handleSearchSubmit} className={styles.searchContainer}>
+          <form
+            className={styles.searchContainer}
+          >
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -124,24 +92,23 @@ export const AyahList: React.FC = () => {
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className={styles.searchButton}
               disabled={isSearching}
             >
-              {isSearching ? <Loader size={20} className={styles.spinner} /> : t("search")}
+              {isSearching ? (
+                <Loader size={20} className={styles.spinner} />
+              ) : (
+                t("search")
+              )}
             </button>
           </form>
         </div>
 
         <div className={styles.ayatlist}>
           {ayahs.length === 0 && !loading ? (
-            <div className={styles.noResults}>
-              {localSearchQuery 
-                ? t("noAyahsFoundFor") + ` "${localSearchQuery}"`
-                : t("noAyahsAvailable")
-              }
-            </div>
+            <div className={styles.noResults}>{t("noAyahsAvailable")}</div>
           ) : (
             <>
               {ayahs.map((ayah: Ayah) => (
@@ -150,16 +117,31 @@ export const AyahList: React.FC = () => {
                   <div className={styles.ayasText}>{ayah.text}</div>
                 </div>
               ))}
-              
-              {/* Индикатор загрузки */}
-              {loading && (
-                <div className={styles.loadingContainer}>
-                  <LoadingSpinner />
+
+              {/* Кнопка загрузки еще */}
+              {hasMore && (
+                <div className={styles.loadMoreContainer}>
+                  <button
+                    className={styles.loadMoreButton}
+                    onClick={handleLoadMore}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader size={20} className={styles.spinner} />
+                    ) : (
+                      <>
+                        <ChevronDown size={20} />
+                        {t("loadMore")}
+                      </>
+                    )}
+                  </button>
                 </div>
               )}
-              
-              {/* Target для infinite scroll */}
-              {hasMore && <div ref={observerTarget} className={styles.observerTarget} />}
+
+              {/* Сообщение о конце суры */}
+              {!hasMore && ayahs.length > 0 && (
+                <div className={styles.endOfSurah}>{t("endOfSurah")}</div>
+              )}
             </>
           )}
         </div>
