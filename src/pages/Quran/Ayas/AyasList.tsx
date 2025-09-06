@@ -65,6 +65,7 @@ export const AyahList: React.FC = () => {
   if (error || err) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/quran">
+        {surahId} fgdfgdfg
         <p> error {error}</p>
         <p> err {err}</p>
       </PageWrapper>
