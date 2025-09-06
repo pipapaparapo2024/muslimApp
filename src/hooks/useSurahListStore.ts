@@ -108,7 +108,7 @@ const fetchAyahsBySurah = async (surahId: string): Promise<Ayah[]> => {
     const response = await quranApi.get("/api/v1/quran/ayas", {
       params: {
         page: 1,
-        suraid: surahId,
+        suraId: surahId,
         search: "",
       },
       headers: {
