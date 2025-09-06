@@ -8,8 +8,8 @@ import { Friends } from "./pages/Friends/Friends";
 import { QnA } from "./pages/QnA/QnA";
 import { Scanner } from "./pages/Scanner/Scanner";
 import { Settings } from "./pages/Settings/Settings";
-import { SurahList } from "./pages/Quran/surahList/SurahList";
-import { QiblaCompassPage } from "./pages/Home/qiblaCompassPage/QiblaCompassPage";
+import { SurahList } from "./pages/Quran/SurahList/SurahList";
+import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
 import { useLanguage } from "./hooks/useLanguages";
@@ -17,20 +17,20 @@ import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
 import { SettingPrayerTimes } from "./pages/Settings/appSettings/settingPlayerTimes/SettingPrayerTimes";
-import { HistoryDetail } from "./pages/QnA/history/historyDetail/HistoryDetail";
+import { HistoryDetail } from "./pages/QnA/History/historyDetail/HistoryDetail";
 import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
-import { History } from "./pages/QnA/history/History";
-import { HistoryScanner } from "./pages/Scanner/historyScanner/HistoryScanner";
+import { History } from "./pages/QnA/History/History";
+import { HistoryScanner } from "./pages/Scanner/HistoryScanner/HistoryScanner";
 
-import { ShareStory } from "./pages/QnA/history/shareStory/ShareStory";
+import { ShareStory } from "./pages/QnA/History/shareStory/ShareStory";
 import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импортируем из SDK
-import { HistoryScannerDetail } from "./pages/Scanner/historyScanner/historyScannerDetail/HistoryScannerDetail";
+import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
 import { PageWrapper } from "./shared/PageWrapper";
-import { ScannerShareStory } from "./pages/Scanner/historyScanner/scannerShareStory/ScannerShareStory";
+import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareStory/ScannerShareStory";
 import { useGeoStore } from "./hooks/useGeoStore";
 import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
-import { AyahList } from "./pages/Quran/ayas/AyasList";
+import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 
 // Настройка полноэкранного режима и предотвращение свайпа

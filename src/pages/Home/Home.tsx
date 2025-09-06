@@ -1,10 +1,10 @@
 import React from "react";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
-import { MenuBlocks } from "./menuBlocks/MenuBlocks";
-import { PrayerTimes } from "./prayerTimes/PrayerTimes";
-import { QiblaCompass } from "./qiblaCompass/QiblaCompass";
-import { QiblaMap } from "./qiblaCompass/QiblaMap";
+import { MenuBlocks } from "./MenuBlocks/MenuBlocks";
+import { PrayerTimes } from "./PrayerTimes/PrayerTimes";
+import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
+import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic"; 
