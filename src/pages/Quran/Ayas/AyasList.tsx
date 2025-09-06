@@ -80,10 +80,10 @@ export const AyahList: React.FC = () => {
     );
   }
   // В начале компонента добавьте:
-  console.log("Initial surah:", initialSurah);
-  console.log("Surah state:", surah);
-  console.log("Surah id:", surahId);
-  console.log("Ayahs:", ayahs);
+  // console.log("Initial surah:", initialSurah);
+  // console.log("Surah state:", surah);
+  // console.log("Surah id:", surahId);
+  // console.log("Ayahs:", ayahs);
   return (
     <PageWrapper showBackButton navigateTo="/quran">
       <div className={styles.container}>
