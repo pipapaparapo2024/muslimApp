@@ -170,8 +170,8 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchAyahs: async (surahId: string): Promise<Ayah[]> => {
     try {
-      return await fetchAyahsBySurah(surahId);
       console.log("fetchAyahsBySurah", surahId);
+      return await fetchAyahsBySurah(surahId);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Не удалось загрузить аяты";

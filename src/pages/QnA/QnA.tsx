@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./QnA.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import thinkPerson from "../../assets/image/question.png";
-import { useQnAStore } from "../../hooks/usePremiumStore";
+import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
@@ -12,7 +12,7 @@ import { useHistoryStore } from "../../hooks/useHistoryStore";
 import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {
-  const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
+  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const { addHistory } = useHistoryStore(); // Используем addHistory вместо addToHistory
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");

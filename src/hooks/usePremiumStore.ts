@@ -21,7 +21,7 @@ interface QnAState {
   calculatePremiumTimeLeft: (endDate?: string) => PremiumTimeLeft | null;
 }
 
-export const useQnAStore = create<QnAState>((set) => ({
+export const usePremiumStore = create<QnAState>((set) => ({
   requestsLeft: null,
   hasPremium: false,
   premiumTimeLeft: null,

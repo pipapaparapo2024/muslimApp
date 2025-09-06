@@ -1,29 +1,12 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  min-height: 96vh;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.button:hover {
-  transform: scale(1.02);
-}
-
 .form {
   position: fixed;
   bottom: 0;
-  left: 16px;
-  right: 16px;
-  margin: 0 40px;
+  left: 0;
+  right: 0;
   padding: var(--numbers-16) var(--numbers-16) var(--numbers-64) var(--numbers-16);
   background: var(--bg-surface);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  display: flex;
   border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
-  margin:  -16px;
-  flex-direction: column;
-  align-items: center;
 }
 
 .input {
@@ -34,7 +17,6 @@
   font-size: var(--numbers-16);
   background: var(--bg-app);
   border-radius: var(--roundings-medium);
-  box-sizing: border-box;
   margin-bottom: var(--numbers-4);
   outline: none;
 }
@@ -66,17 +48,9 @@
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   text-align: center;
   padding: 0 var(--numbers-16);
   margin-bottom: var(--numbers-16);
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
 }
 
 .illustration img {
@@ -97,7 +71,6 @@
 .guidance p {
   font-size: var(--numbers-14);
   color: var(--desk-text);
-  margin-bottom: var(--numbers-16);
   font-weight: var(--font-400);
   letter-spacing: var(--letter-spacing-wide);
 }

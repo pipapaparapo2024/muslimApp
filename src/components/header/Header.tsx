@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Header.module.css";
 import { BuyPremiumModal } from "../modals/modalBuyPremium/ModalBuyPremium";
-import { useQnAStore } from "../../hooks/usePremiumStore";
+import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   const { formattedDate } = useDataTimeStore();
-  const { hasPremium, premiumTimeLeft, fetchUserData } = useQnAStore();
+  const { hasPremium, premiumTimeLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { t } = useTranslation();

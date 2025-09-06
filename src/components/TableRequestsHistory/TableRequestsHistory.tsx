@@ -1,7 +1,7 @@
 import { Clock, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TableRequestsHistory.module.css";
-import { useQnAStore } from "../../hooks/usePremiumStore";
+import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
 import { useState } from "react";
@@ -13,7 +13,7 @@ interface ClickHistory {
 export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { requestsLeft, hasPremium, isLoading } = useQnAStore();
+  const { requestsLeft, hasPremium, isLoading } = usePremiumStore();
   const navigate = useNavigate();
   const getStatusText = () => {
     if (isLoading) return t("loading");

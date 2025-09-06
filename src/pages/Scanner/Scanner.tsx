@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Scanner.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
-import { useQnAStore } from "../../hooks/usePremiumStore";
+import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import scanner from "../../assets/image/scanner.png";
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 
 export const Scanner: React.FC = () => {
-  const { requestsLeft, hasPremium, fetchUserData } = useQnAStore();
+  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [, setImageError] = useState(false);
