@@ -1,122 +1,166 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore, type Ayah } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { Search } from "lucide-react";
+import { Search, Loader } from "lucide-react";
 import { t } from "i18next";
+import { useInfiniteScroll } from "../../../hooks/useInfiniteScrollStore";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
   const { surah: initialSurah } = location.state || {};
-  const { fetchAyahs, error } = useSurahListStore();
+  
+  const {
+    ayahs,
+    loading,
+    error,
+    hasMore,
+    fetchAyahs,
+    searchAyahs,
+    loadMoreAyahs,
+    resetAyahs,
+  } = useSurahListStore();
 
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [ayahs, setAyahs] = useState<Ayah[]>([]);
-  const [surah, setSurah] = useState(initialSurah);
+  const [localSearchQuery, setLocalSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
+  // Загрузка первых аятов
   useEffect(() => {
-    const loadAyahs = async () => {
-      if (!surahId) {
-        setErr("Surah ID is missing");
-        setLoading(false);
-        return;
-      }
+    const loadInitialAyahs = async () => {
+      if (!surahId) return;
 
       try {
-        setLoading(true);
-        console.log("Fetching ayahs for surah:", surahId);
-
-        // Получаем аяты из API
-        const ayahsData = await fetchAyahs(surahId);
-        console.log("Received ayahs:", ayahsData);
-
-        // Обновляем состояние с полученными аятами
-        setAyahs(ayahsData);
-
-        // Если сура была передана через state, обновляем ее с аятами
-        if (initialSurah) {
-          setSurah({
-            ...initialSurah,
-            ayahs: ayahsData,
-          });
-        }
-
-        setLoading(false);
+        resetAyahs();
+        const initialAyahs = await fetchAyahs(surahId, 1);
+        useSurahListStore.setState({ ayahs: initialAyahs });
       } catch (err) {
-        console.error("Error loading ayahs:", err);
-        setErr(err instanceof Error ? err.message : "Failed to load ayahs");
-        setLoading(false);
+        console.error("Error loading initial ayahs:", err);
       }
     };
 
-    loadAyahs();
-  }, [surahId, fetchAyahs, initialSurah]);
+    loadInitialAyahs();
+  }, [surahId, fetchAyahs, resetAyahs]);
 
-  // Фильтрация аятов по поисковому запросу
-  const filteredAyas = ayahs.filter((ayah: Ayah) =>
-    ayah.text.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Обработчик поиска
+  const handleSearch = useCallback(async () => {
+    if (!surahId) return;
 
-  if (error || err) {
+    setIsSearching(true);
+    try {
+      resetAyahs();
+      
+      if (localSearchQuery.trim()) {
+        const searchResults = await searchAyahs(surahId, localSearchQuery.trim(), 1);
+        useSurahListStore.setState({ 
+          ayahs: searchResults,
+          isSearchMode: true,
+          searchQuery: localSearchQuery.trim(),
+          hasMore: searchResults.length > 0
+        });
+      } else {
+        // Если поисковой запрос пустой, загружаем обычные аяты
+        const initialAyahs = await fetchAyahs(surahId, 1);
+        useSurahListStore.setState({ 
+          ayahs: initialAyahs,
+          isSearchMode: false,
+          searchQuery: "",
+          hasMore: initialAyahs.length > 0
+        });
+      }
+    } catch (err) {
+      console.error("Error searching ayahs:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [surahId, localSearchQuery, searchAyahs, fetchAyahs, resetAyahs]);
+
+  // Загрузка при скролле
+  const loadMore = useCallback(() => {
+    if (surahId && hasMore && !loading) {
+      loadMoreAyahs(surahId);
+    }
+  }, [surahId, hasMore, loading, loadMoreAyahs]);
+
+  // Infinite scroll hook
+  const { observerTarget } = useInfiniteScroll(loadMore);
+
+  // Обработчик отправки поиска
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
+  };
+
+  if (error) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/quran">
-        {surahId}
-        <p> error {error}</p>
-        <p> err {err}</p>
+        <div className={styles.errorContainer}>
+          <p>Error: {error}</p>
+        </div>
       </PageWrapper>
     );
   }
 
-  if (loading) {
-    return (
-      <PageWrapper>
-        <LoadingSpinner />
-      </PageWrapper>
-    );
-  }
-  // В начале компонента добавьте:
-  // console.log("Initial surah:", initialSurah);
-  // console.log("Surah state:", surah);
-  // console.log("Surah id:", surahId);
-  // console.log("Ayahs:", ayahs);
   return (
     <PageWrapper showBackButton navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.blockHeader}>
           <div className={styles.text}>
             <div className={styles.title}>
-              {surah?.englishName || surah?.name}
+              {initialSurah?.englishName || initialSurah?.name}
             </div>
-            <div className={styles.deskription}>{surah?.description}</div>
+            <div className={styles.deskription}>{initialSurah?.description}</div>
           </div>
-          <div className={styles.searchContainer}>
+          
+          {/* Поисковая строка */}
+          <form onSubmit={handleSearchSubmit} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchChapters")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("searchInAyahs")}
+              value={localSearchQuery}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-          </div>
+            <button 
+              type="submit" 
+              className={styles.searchButton}
+              disabled={isSearching}
+            >
+              {isSearching ? <Loader size={20} className={styles.spinner} /> : t("search")}
+            </button>
+          </form>
         </div>
+
         <div className={styles.ayatlist}>
-          {filteredAyas.length === 0 ? (
+          {ayahs.length === 0 && !loading ? (
             <div className={styles.noResults}>
-              {t("noChaptersFound")} "{searchQuery}"
+              {localSearchQuery 
+                ? t("noAyahsFoundFor") + ` "${localSearchQuery}"`
+                : t("noAyahsAvailable")
+              }
             </div>
           ) : (
-            filteredAyas.map((ayah: Ayah) => (
-              <div key={ayah.number} className={styles.blockAyas}>
-                <div className={styles.ayasNember}>{ayah.number}</div>
-                <div className={styles.ayasText}>{ayah.text}</div>
-              </div>
-            ))
+            <>
+              {ayahs.map((ayah: Ayah) => (
+                <div key={ayah.number} className={styles.blockAyas}>
+                  <div className={styles.ayasNember}>{ayah.number}</div>
+                  <div className={styles.ayasText}>{ayah.text}</div>
+                </div>
+              ))}
+              
+              {/* Индикатор загрузки */}
+              {loading && (
+                <div className={styles.loadingContainer}>
+                  <LoadingSpinner />
+                </div>
+              )}
+              
+              {/* Target для infinite scroll */}
+              {hasMore && <div ref={observerTarget} className={styles.observerTarget} />}
+            </>
           )}
         </div>
       </div>
