@@ -1,7 +1,6 @@
 // hooks/useWelcomeLogic.ts
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next";
 
 interface Step {
@@ -43,27 +42,6 @@ export const useWelcomeLogic = () => {
   const [isAnimating, setIsAnimating] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const {
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    error: authError,
-    wasLogged,
-  } = useTelegram();
-
-  // Проверка авторизации
-  useEffect(() => {
-    if (!isAuthLoading) {
-      if (isAuthenticated && wasLogged === true) {
-        navigate("/home", { replace: true });
-      } else if (isAuthenticated && wasLogged === false) {
-        // Показываем онбординг
-      } else if (!isAuthenticated && authError) {
-        console.log("Ошибка авторизации:", authError);
-      }
-    }
-  }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
-
   // Предзагрузка изображений
   useEffect(() => {
     let isMounted = true;
@@ -185,11 +163,6 @@ export const useWelcomeLogic = () => {
     isLoaded,
     isAnimating,
     containerRef,
-    isAuthenticated,
-    isAuthLoading,
-    authError,
-    wasLogged,
-
     handleNext,
     handlePrev,
     handleStart,
