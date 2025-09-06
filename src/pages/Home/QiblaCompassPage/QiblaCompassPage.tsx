@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { QiblaMap } from "../QiblaCompass/QiblaMap";
-import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
+import { QiblaMap } from "../qiblaCompass/QiblaMap";
+import { QiblaCompass } from "../qiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStore";
