@@ -5,10 +5,10 @@ import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next"; // ← добавлено
 
 // Импортируем изображения — они остаются в хуке, потому что используются в steps
-import prayerRemindersImage from "../assets/image/playeR.png";
-import quranImage from "../assets/image/read.png";
-import scannerImage from "../assets/image/scan.png";
-import qnaImage from "../assets/image/get.png";
+import prayerRemindersImage from "../../assets/image/playeR.png";
+import quranImage from "../../assets/image/read.png";
+import scannerImage from "../../assets/image/scan.png";
+import qnaImage from "../../assets/image/get.png";
 
 interface Step {
   title: string;
