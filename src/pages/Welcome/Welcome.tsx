@@ -4,6 +4,7 @@ import styles from "./Welcome.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useWelcomeLogic } from "./WelcomeLogic"; // ← вся логика здесь
+import { t } from "i18next";
 
 export const Welcome: React.FC = () => {
   const {
@@ -108,7 +109,7 @@ export const Welcome: React.FC = () => {
               cursor: isAnimating ? "not-allowed" : "pointer",
             }}
           >
-            {step === steps.length - 1 ? "Начать" : "Далее"}
+            {step === steps.length - 1 ? t("start") : t("next")}
           </button>
         </div>
       </div>
