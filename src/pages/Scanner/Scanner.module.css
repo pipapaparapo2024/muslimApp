@@ -10,7 +10,7 @@
   max-width: 100%;
   width: 380px;
   margin: 0 -16px 0 -16px;
-  padding: var(--numbers-16) var(--numbers-16) var(--numbers-40)
+  padding: var(--numbers-16) var(--numbers-16) var(--numbers-64)
     var(--numbers-16);
   background: var(--bg-surface);
   border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
