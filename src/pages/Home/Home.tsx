@@ -56,7 +56,7 @@ export const Home: React.FC = () => {
             disabled={isRefreshing}
             title={t("refreshLocation")}
           >
-            {isRefreshing ? t("updating") : "🔄 " + t("refreshLocation")}
+            refresh
           </button>
         </div>
 
