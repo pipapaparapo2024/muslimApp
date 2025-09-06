@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./QnA.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import thinkPerson from "../../assets/image/question.png";
-import { useQnAStore } from "../../hooks/useQnAStore";
+import { useQnAStore } from "../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";

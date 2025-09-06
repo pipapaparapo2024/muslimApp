@@ -295,6 +295,7 @@ body {
   /* === Числовые значения (отступы, размеры) === */
   --numbers-1: 1px;
   --numbers-2: 0.125rem;
+  --numbers-3: 3px;
   --numbers-4: 0.25rem;
   --numbers-6: 6px;
   --numbers-8: 0.5rem;

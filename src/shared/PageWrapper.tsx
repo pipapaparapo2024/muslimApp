@@ -51,7 +51,6 @@ export const PageWrapper: React.FC<PageProps> = ({
     return () => {
       if (tg.SettingsButton) {
         tg.SettingsButton.offClick(handleSettings);
-        // Не скрываем SettingsButton — пусть остаётся для других страниц
       }
       if (showBackButton) {
         tg.BackButton.offClick(handleBack);

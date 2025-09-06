@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./Header.module.css";
 import { BuyPremiumModal } from "../modals/modalBuyPremium/ModalBuyPremium";
-import { useQnAStore } from "../../hooks/useQnAStore";
+import { useQnAStore } from "../../hooks/usePremiumStore";
 import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";

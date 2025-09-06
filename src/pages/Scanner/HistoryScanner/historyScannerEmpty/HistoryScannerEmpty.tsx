@@ -2,7 +2,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./HistoryScannerEmpty.module.css";
 import emptyscan from "../../../../assets/image/scannerempty.png";
 import React, { useEffect, useState } from "react";
-import { useQnAStore } from "../../../../hooks/useQnAStore";
+import { useQnAStore } from "../../../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { useNavigate } from "react-router-dom";

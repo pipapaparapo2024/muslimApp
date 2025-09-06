@@ -1,10 +1,8 @@
 .toggleGroup {
   display: flex;
-  justify-content: center;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-4);
   gap: var(--numbers-4);
-  max-width: 360px;
   margin: 0 auto var(--numbers-36) auto;
   position: relative;
   background: var(--bg-surface);
@@ -13,8 +11,6 @@
 
 .toggleItem {
   width: 100%;
-  position: relative;
-  cursor: pointer;
 }
 
 .toggleInput {
@@ -45,18 +41,8 @@
 }
 
 .tabContent {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-}
-
-.bigCompass {
-  margin-top: var(--numbers-120);
-}
-
-.bigMap {
-  width: 100%;
-  height: calc(100vh - var(--numbers-80));
 }

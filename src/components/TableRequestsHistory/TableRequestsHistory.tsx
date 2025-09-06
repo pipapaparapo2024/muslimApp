@@ -1,7 +1,7 @@
 import { Clock, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TableRequestsHistory.module.css";
-import { useQnAStore } from "../../hooks/useQnAStore";
+import { useQnAStore } from "../../hooks/usePremiumStore";
 import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
 import { useState } from "react";

@@ -6,9 +6,7 @@
 }
 
 .title {
-  font-size: var(--numbers-16);
   font-weight: var(--font-600);
-  color: var(--text);
 }
 
 
@@ -22,13 +20,11 @@
   font-size: var(--numbers-14);
   margin-bottom: var(--numbers-8);
 }
-.ar .subtitle{
-  text-align: right;
-}
+
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--numbers-4);
+  gap: var(--numbers-3);
 }
 
 .prayerCard {
@@ -41,7 +37,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--numbers-14);
   font-weight: var(--font-500);
   cursor: pointer;
   transition: transform 0.2s;
@@ -53,13 +49,10 @@
 }
 
 .prayerName {
-  font-size: var(--numbers-14);
   font-weight: var(--font-500);
-  color: var(--text);
 }
 
 .prayerTime {
-  font-size: var(--numbers-14);
   color: var(--desk-text);
 }
 

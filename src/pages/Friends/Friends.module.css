@@ -8,7 +8,6 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
-  flex-direction: column;
 }
 
 .progressSection {
@@ -22,9 +21,6 @@
   font-size: var(--numbers-20);
   font-weight: var(--font-600);
   margin-bottom: var(--numbers-2);
-  display: flex;
-  align-items: center;
-  font-family: var(--typography-heading);
   color: var(--text);
 }
 
@@ -37,7 +33,7 @@
 
 .inviteBtn,
 .rewardBtn {
-  background: var(--colors-green-700); /* #15803D */
+  background: var(--colors-green-700);
   color: var(--colors-white-1000);
   border: none;
   border-radius: var(--roundings-medium);
@@ -45,7 +41,6 @@
   font-size: var(--numbers-16);
   cursor: pointer;
   margin-top: var(--numbers-6);
-  font-family: var(--typography-body);
 }
 
 .progressBarContainer {

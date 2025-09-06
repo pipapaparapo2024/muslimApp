@@ -69,7 +69,7 @@ export const MenuBlocks: React.FC = () => {
         >
           <div className={styles.contentWrapper}>
             <img src={item.icon} alt={item.title} className={styles.iconImage} />
-            <div className={styles.menuText}>
+            <div>
               <div className={styles.menuTitle}>{item.title}</div>
               <div className={styles.menuDesc}>{item.description}</div>
             </div>

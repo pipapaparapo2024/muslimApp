@@ -1,6 +1,6 @@
 .blockHeader {
   background-color: var(--bg-surface);
-  margin: -12px -12px var(--numbers-8) -12px;
+  margin: -12px -16px var(--numbers-8) -16px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-12);

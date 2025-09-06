@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./Scanner.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
-import { useQnAStore } from "../../hooks/useQnAStore";
+import { useQnAStore } from "../../hooks/usePremiumStore";
 import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import scanner from "../../assets/image/scanner.png";
@@ -18,8 +18,8 @@ export const Scanner: React.FC = () => {
   const [, setImageError] = useState(false);
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  // Используем store сканера
   const { isLoading, processImage } = useScannerStore();
 
   useEffect(() => {
@@ -43,24 +43,28 @@ export const Scanner: React.FC = () => {
   }, []);
 
   const openCamera = () => {
-    fileInputRef.current?.click();
+    // Проверяем, является ли устройство iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    if (isIOS) {
+      // Для iOS используем камеру с capture="environment"
+      cameraInputRef.current?.click();
+    } else {
+      // Для Android и других устройств используем обычный input file
+      fileInputRef.current?.click();
+    }
   };
 
-  const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Сначала переходим на analyzing, затем обрабатываем
       navigate("/scanner/analyze");
 
-      // Небольшая задержка для гарантии навигации
       setTimeout(async () => {
         try {
           await processImage(file);
         } catch (error) {
           console.error("Ошибка обработки:", error);
-          // Ошибка обрабатывается в store, навигация произойдет автоматически
         }
       }, 100);
     }
@@ -77,8 +81,7 @@ export const Scanner: React.FC = () => {
     return t("buyRequests");
   };
 
-  const showAskButton =
-    hasPremium || (requestsLeft != null && requestsLeft > 0);
+  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
 
   if (!imageLoaded) {
     return (
@@ -95,10 +98,19 @@ export const Scanner: React.FC = () => {
           <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
 
-        {/* Скрытый input для камеры */}
+        {/* Скрытый input для Android и других устройств */}
         <input
           type="file"
           ref={fileInputRef}
+          accept="image/*"
+          onChange={handleFileSelect}
+          style={{ display: "none" }}
+        />
+
+        {/* Скрытый input для iOS с камерой */}
+        <input
+          type="file"
+          ref={cameraInputRef}
           accept="image/*"
           capture="environment"
           onChange={handleFileSelect}
