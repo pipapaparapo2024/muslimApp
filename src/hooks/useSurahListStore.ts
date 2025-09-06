@@ -10,7 +10,7 @@ export interface Surah {
   id: string;
   name: string;
   number: number;
-  suraBismillah:string;
+  suraBismillah: string;
   description: string;
   numberOfAyahs: number;
   suraPlaceOfWriting: "Makkah" | "Madinah";
@@ -53,7 +53,9 @@ const fetchVariants = async (): Promise<Variant[]> => {
     });
 
     if (!response.data?.data?.variants) {
-      throw new Error('Invalid API response structure: missing "data.variants"');
+      throw new Error(
+        'Invalid API response structure: missing "data.variants"'
+      );
     }
 
     return response.data.data.variants.map((v: any) => ({
@@ -86,11 +88,12 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
 
     return response.data.data.suras.map((chap: any) => ({
       id: chap.ID,
-      suraBismillah:chap.SuraBismillah,
+      suraBismillah: chap.SuraBismillah,
       description: chap.SuraDescription || "nodesk",
       name: chap.SuraName,
       number: chap.SuraNumber,
-      suraPlaceOfWriting: chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
+      suraPlaceOfWriting:
+        chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
       numberOfAyahs: parseInt(chap.AyasAmount, 10),
     }));
   } catch (error) {
@@ -147,7 +150,8 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
         get().fetchSurahs(selectedVariant.id);
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Неизвестная ошибка";
+      const message =
+        error instanceof Error ? error.message : "Неизвестная ошибка";
       set({ error: message, loading: false });
     }
   },
@@ -158,7 +162,8 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       const surahs = await fetchSurahsByVariant(variantId);
       set({ surahs, loading: false });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Не удалось загрузить сур";
+      const message =
+        error instanceof Error ? error.message : "Не удалось загрузить сур";
       set({ error: message, loading: false });
     }
   },
@@ -166,8 +171,11 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   fetchAyahs: async (surahId: string): Promise<Ayah[]> => {
     try {
       return await fetchAyahsBySurah(surahId);
+      console.log("fetchAyahsBySurah", surahId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Не удалось загрузить аяты";
+      const message =
+        error instanceof Error ? error.message : "Не удалось загрузить аяты";
+      console.log("message", message);
       throw new Error(message);
     }
   },
