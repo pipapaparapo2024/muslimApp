@@ -8,7 +8,7 @@ import { Friends } from "./pages/Friends/Friends";
 import { QnA } from "./pages/QnA/QnA";
 import { Scanner } from "./pages/Scanner/Scanner";
 import { Settings } from "./pages/Settings/Settings";
-import { SurahList } from "./pages/Quran/surahList/SurahList";
+// import { SurahList } from "./pages/Quran/surahList/SurahList";
 import { QiblaCompassPage } from "./pages/Home/qiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
         <Route path="/friends" element={<Friends />} />
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Welcome />} />
-        <Route path="/quran" element={<SurahList />} />
+        {/* <Route path="/quran" element={<SurahList />} /> */}
         <Route path="/quran/:surahId" element={<AyahList />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/region" element={<Region />} />
