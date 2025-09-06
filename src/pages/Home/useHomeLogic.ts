@@ -60,7 +60,6 @@ export const useHomeLogic = () => {
       console.log("Отправляем настройки местоположения:", {
         city,
         country,
-        countryCode: langcode,
         langcode,
         timeZone,
       });
