@@ -66,3 +66,38 @@
 .ayasText {
     font-weight: var(--font-400);
 }
+
+/* AyasList.module.css */
+.searchButton {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.searchButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.observerTarget {
+  height: 1px;
+}
