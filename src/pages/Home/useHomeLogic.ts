@@ -5,32 +5,25 @@ import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useGeoStore } from "../../hooks/useGeoStore";
 
 // Ключи для localStorage
-const GEO_PERMISSION_STATUS = "geoPermissionStatus";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
-const CACHED_LOCATION = "cachedLocation";
-const IP_DATA_CACHE = "ipDataCache";
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { settingsSent, sendUserSettings } = useUserParametersStore();
 
-  // Геоданные из стора
+  // Получаем данные из геостора
   const {
-    langcode,
-    coords,
-    city,
-    country,
-    timeZone,
-    isLoading,
-    error,
+    ipData,
+    isLoading: isGeoLoading,
+    error: geoError,
     fetchFromIpApi,
-    setCoords,
-    setCity,
-    setCountry,
-    setTimeZone,
-    setError,
-    setHasRequestedGeo,
+    reset: resetGeoStore,
+    getLocationData,
   } = useGeoStore();
+
+  // Получаем актуальные данные местоположения
+  const locationData = getLocationData();
+  const { coords, city, country, timeZone } = locationData;
 
   // Состояние доступа к датчикам
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -39,8 +32,6 @@ export const useHomeLogic = () => {
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const geoRequested = useRef(false);
-  const ipDataFetched = useRef(false);
   const settingsSentRef = useRef(settingsSent);
 
   // Обновляем ref при изменении settingsSent
@@ -59,17 +50,16 @@ export const useHomeLogic = () => {
     ) {
       console.log("Отправляем настройки местоположения:", {
         city,
-        country,
-        countryCode: langcode,
-        langcode,
+        countryCode: ipData?.country.code || null,
+        langcode: ipData?.langcode || null,
         timeZone,
       });
 
       try {
         await sendUserSettings({
           city,
-          countryCode: langcode,
-          langcode,
+          countryCode: ipData?.country.code || null,
+          langcode: ipData?.langcode || null,
           timeZone,
         });
         console.log("Настройки успешно отправлены");
@@ -87,153 +77,18 @@ export const useHomeLogic = () => {
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
 
-    localStorage.removeItem(IP_DATA_CACHE);
-    localStorage.removeItem(CACHED_LOCATION);
-
-    setCoords(null);
-    setCity(null);
-    setCountry(null);
-    setTimeZone(null);
-    setError(null);
-
-    ipDataFetched.current = false;
-    geoRequested.current = false;
+    // Сбрасываем кэш и данные
+    localStorage.removeItem("ipDataCache");
+    resetGeoStore();
 
     try {
       await fetchFromIpApi();
-      ipDataFetched.current = true;
-
-      const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
-      if (geoStatus === "granted") {
-        await requestGeolocation();
-      }
     } catch (error) {
       console.error("Failed to refresh location data:", error);
-      setError("Не удалось обновить данные местоположения");
     } finally {
       setIsRefreshing(false);
     }
   };
-
-  // === ГЕОЛОКАЦИЯ ===
-  const requestGeolocation = async () => {
-    geoRequested.current = true;
-    setHasRequestedGeo(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude: lat, longitude: lon } = position.coords;
-        const locationData = { lat, lon, timestamp: Date.now() };
-
-        localStorage.setItem(CACHED_LOCATION, JSON.stringify(locationData));
-        localStorage.setItem(GEO_PERMISSION_STATUS, "granted");
-        setCoords({ lat, lon });
-
-        const cachedIpData = getCachedIpData();
-        if (cachedIpData) {
-          setCity(cachedIpData.city || "Unknown");
-          setCountry(cachedIpData.country || "Unknown");
-          setTimeZone(cachedIpData.timeZone || null);
-        } else if (!ipDataFetched.current) {
-          fetchFromIpApi()
-            .then(() => (ipDataFetched.current = true))
-            .catch(() => {
-              setCity("Unknown");
-              setCountry("Unknown");
-              setTimeZone(null);
-            });
-        }
-      },
-      (err) => {
-        console.warn("Geolocation error:", err);
-        localStorage.setItem(GEO_PERMISSION_STATUS, "denied");
-
-        const cachedIpData = getCachedIpData();
-        if (cachedIpData) {
-          setCoords(cachedIpData.coords);
-          setCity(cachedIpData.city || "Unknown");
-          setCountry(cachedIpData.country || "Unknown");
-          setTimeZone(cachedIpData.timeZone || null);
-        } else if (!ipDataFetched.current) {
-          fetchFromIpApi()
-            .then(() => (ipDataFetched.current = true))
-            .catch(() => {
-              setError("Не удалось определить местоположение");
-            });
-        }
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  };
-
-  // === КЭШ IP ===
-  const getCachedIpData = () => {
-    try {
-      const cached = localStorage.getItem(IP_DATA_CACHE);
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
-          return data;
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to parse cached IP data", e);
-    }
-    return null;
-  };
-
-  // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
-  useEffect(() => {
-    if (geoRequested.current) return;
-
-    const initializeLocation = async () => {
-      geoRequested.current = true;
-
-      const status = localStorage.getItem(GEO_PERMISSION_STATUS);
-      const cached = localStorage.getItem(CACHED_LOCATION);
-
-      if (cached) {
-        try {
-          const data = JSON.parse(cached);
-          const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
-          if (isFresh && data.lat && data.lon) {
-            setCoords({ lat: data.lat, lon: data.lon });
-
-            if (!ipDataFetched.current) {
-              try {
-                await fetchFromIpApi();
-                ipDataFetched.current = true;
-              } catch (_) {
-                setCity("Unknown");
-                setCountry("Unknown");
-                setTimeZone(null);
-              }
-            }
-            return;
-          }
-        } catch (e) {
-          console.warn("Failed to parse cached location", e);
-        }
-      }
-
-      if (!status || status === "unknown") {
-        await requestGeolocation();
-      } else if (status === "granted") {
-        await requestGeolocation();
-      } else if (status === "denied") {
-        if (!ipDataFetched.current) {
-          try {
-            await fetchFromIpApi();
-            ipDataFetched.current = true;
-          } catch (_) {
-            setError("Не удалось определить местоположение");
-          }
-        }
-      }
-    };
-
-    initializeLocation();
-  }, [settingsSent]);
 
   // === ПРОВЕРКА ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
   useEffect(() => {
@@ -337,8 +192,8 @@ export const useHomeLogic = () => {
     city,
     country,
     timeZone,
-    isLoading,
-    error,
+    isLoading: isGeoLoading,
+    error: geoError,
 
     // Обработчики
     requestSensorPermission,

@@ -116,3 +116,4 @@ export const Home: React.FC = () => {
     </PageWrapper>
   );
 };
+

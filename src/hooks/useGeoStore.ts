@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
 import { isErrorWithMessage } from "../api/api";
+
 export interface IpData {
   success: boolean;
   ip: string;
@@ -33,12 +34,7 @@ export interface LocationData {
 }
 
 interface GeoState {
-  langcode: string | null;
   ipData: IpData | null;
-  coords: { lat: number; lon: number } | null;
-  city: string | null;
-  country: string | null;
-  timeZone: string | null;
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
@@ -60,11 +56,6 @@ export const useGeoStore = create<GeoState>()(
   persist(
     (set, get) => ({
       ipData: null,
-      coords: null,
-      city: null,
-      langcode: null,
-      country: null,
-      timeZone: null,
       isLoading: false,
       error: null,
       isInitialized: false,
@@ -80,11 +71,6 @@ export const useGeoStore = create<GeoState>()(
             if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
               set({
                 ipData: data,
-                coords: data.location,
-                city: data.city,
-                langcode: data.country.code,
-                country: data.country.name,
-                timeZone: data.timeZone,
                 isLoading: false,
                 error: null,
               });
@@ -105,29 +91,16 @@ export const useGeoStore = create<GeoState>()(
           const data = response.data;
 
           if (data.success) {
-            const city =
-              data.city || data.region || data.country?.name || "Unknown";
-            const countryName = data.country?.name || "Unknown";
-            const countryCode = data.country?.code || "Unknown";
             // Сохраняем данные в кэш
             localStorage.setItem(
               "ipDataCache",
               JSON.stringify({
                 ...data,
-                city,
-                country: {
-                  name: countryName,
-                  code: countryCode,
-                },
                 timestamp: Date.now(),
               })
             );
             set({
               ipData: data,
-              coords: data.location,
-              city,
-              country:countryName,
-              timeZone: data.timeZone,
               isLoading: false,
               error: null,
             });
@@ -146,11 +119,32 @@ export const useGeoStore = create<GeoState>()(
         }
       },
 
-      // Остальные методы без изменений
-      setCoords: (coords) => set({ coords }),
-      setCity: (city) => set({ city }),
-      setCountry: (country) => set({ country }),
-      setTimeZone: (timeZone) => set({ timeZone }),
+      // Методы для обновления отдельных полей (если нужны)
+      setCoords: (coords) => set((state) => ({
+        ipData: state.ipData ? {
+          ...state.ipData,
+          location: coords ? { lat: coords.lat, lon: coords.lon } : state.ipData.location
+        } : null
+      })),
+
+      setCity: (city) => set((state) => ({
+        ipData: state.ipData ? { ...state.ipData, city: city || undefined } : null
+      })),
+
+      setCountry: (country) => set((state) => ({
+        ipData: state.ipData ? {
+          ...state.ipData,
+          country: {
+            ...state.ipData.country,
+            name: country || state.ipData.country.name
+          }
+        } : null
+      })),
+
+      setTimeZone: (timeZone) => set((state) => ({
+        ipData: state.ipData ? { ...state.ipData, timeZone: timeZone || state.ipData.timeZone } : null
+      })),
+
       setError: (error) => set({ error }),
       setLoading: (loading) => set({ isLoading: loading }),
       setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
@@ -158,22 +152,18 @@ export const useGeoStore = create<GeoState>()(
       reset: () =>
         set({
           ipData: null,
-          coords: null,
-          city: null,
-          country: null,
-          timeZone: null,
+          isLoading: false,
           error: null,
           hasRequestedGeo: false,
-          isLoading: false,
         }),
 
       getLocationData: () => {
         const state = get();
         return {
-          coords: state.coords,
-          city: state.city,
-          country: state.country,
-          timeZone: state.timeZone,
+          coords: state.ipData?.location || null,
+          city: state.ipData?.city || null,
+          country: state.ipData?.country.name || null,
+          timeZone: state.ipData?.timeZone || null,
         };
       },
     }),
