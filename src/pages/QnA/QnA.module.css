@@ -11,7 +11,7 @@
 }
 
 .form {
-  padding: var(--numbers-16);
+  padding: var(--numbers-16) var(--numbers-16) var(--numbers-40) var(--numbers-16);
   background: var(--bg-surface);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   display: flex;

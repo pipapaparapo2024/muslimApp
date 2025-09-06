@@ -34,7 +34,6 @@ interface DataTimeState {
 export const useDataTimeStore = create<DataTimeState>()(
   persist(
     (set) => {
-
       return {
         is24Hour: false,
         isAutoTime: true,

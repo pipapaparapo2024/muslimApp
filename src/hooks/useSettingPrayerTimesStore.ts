@@ -20,7 +20,7 @@ export interface CalculatedPrayerTime {
 
 export interface PrayerCalculationConfig {
   calculationMethod?: CalculationParameters;
-  madhab?: "shafi" | "hanafi"; // ✅ Прямое указание
+  madhab?: "shafi" | "hanafi"; 
   timeZone?: string;
 }
 
