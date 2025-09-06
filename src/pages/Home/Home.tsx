@@ -10,7 +10,6 @@ import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic"; 
 
 export const Home: React.FC = () => {
-  // ✨ Вся логика — в хуке
   const {
     city,
     country,

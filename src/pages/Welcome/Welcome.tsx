@@ -61,7 +61,7 @@ export const Welcome: React.FC = () => {
             }}
           >
             {steps[step].title}
-            ыаолрилыраватфыгвлф
+            проверка на рендер если это видно значит версия новая
           </div>
           <div
             className={styles.welcomeDesc}
