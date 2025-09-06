@@ -30,22 +30,22 @@ export const AyahList: React.FC = () => {
       try {
         setLoading(true);
         console.log("Fetching ayahs for surah:", surahId);
-        
+
         // Получаем аяты из API
         const ayahsData = await fetchAyahs(surahId);
         console.log("Received ayahs:", ayahsData);
-        
+
         // Обновляем состояние с полученными аятами
         setAyahs(ayahsData);
-        
+
         // Если сура была передана через state, обновляем ее с аятами
         if (initialSurah) {
           setSurah({
             ...initialSurah,
-            ayahs: ayahsData
+            ayahs: ayahsData,
           });
         }
-        
+
         setLoading(false);
       } catch (err) {
         console.error("Error loading ayahs:", err);
@@ -65,7 +65,7 @@ export const AyahList: React.FC = () => {
   if (error || err) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/quran">
-        {surahId} 
+        {surahId}
         <p> error {error}</p>
         <p> err {err}</p>
       </PageWrapper>
@@ -79,13 +79,19 @@ export const AyahList: React.FC = () => {
       </PageWrapper>
     );
   }
-
+  // В начале компонента добавьте:
+  console.log("Initial surah:", initialSurah);
+  console.log("Surah state:", surah);
+  console.log("Surah id:", surahId);
+  console.log("Ayahs:", ayahs);
   return (
     <PageWrapper showBackButton navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.blockHeader}>
           <div className={styles.text}>
-            <div className={styles.title}>{surah?.englishName || surah?.name}</div>
+            <div className={styles.title}>
+              {surah?.englishName || surah?.name}
+            </div>
             <div className={styles.deskription}>{surah?.description}</div>
           </div>
           <div className={styles.searchContainer}>
