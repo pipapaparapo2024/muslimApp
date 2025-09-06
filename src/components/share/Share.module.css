@@ -1,5 +1,8 @@
-
 .form {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: var(--numbers-16);
   padding-bottom: var(--numbers-40);
   background: var(--bg-surface);
@@ -7,13 +10,10 @@
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
-  margin: 0 -12px;
   gap: var(--numbers-4);
   flex-direction: column;
   align-items: center;
 }
-
-
 
 .submitButton {
   background-color: var(--color-background-semantic-solid-brand);
@@ -30,8 +30,6 @@
   cursor: pointer;
   transition: background 0.2s ease;
 }
-
-
 
 .questionButton {
   background-color: var(--bg-app);
@@ -50,8 +48,6 @@
   transition: background 0.2s ease;
 }
 
-
 .submitButton:hover {
   background-color: var(--colors-green-800);
 }
-

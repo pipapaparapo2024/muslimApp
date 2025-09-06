@@ -76,18 +76,14 @@ export const useGeoStore = create<GeoState>()(
         if (cachedData) {
           try {
             const data = JSON.parse(cachedData);
-            // В методе fetchFromIpApi после получения данных:
-            const browserLang = navigator.language || navigator.languages[0];
-            const langcode =
-              data.country?.code || browserLang?.split("-")[0] || "en";
             // Если данные свежие (менее 24 часов), используем их
             if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
               set({
                 ipData: data,
                 coords: data.location,
                 city: data.city,
-                langcode: langcode,
-                country: data.country,
+                langcode: data.country.code,
+                country: data.country.name,
                 timeZone: data.timeZone,
                 isLoading: false,
                 error: null,
@@ -111,15 +107,18 @@ export const useGeoStore = create<GeoState>()(
           if (data.success) {
             const city =
               data.city || data.region || data.country?.name || "Unknown";
-            const country = data.country?.name || "Unknown";
-
+            const countryName = data.country?.name || "Unknown";
+            const countryCode = data.country?.code || "Unknown";
             // Сохраняем данные в кэш
             localStorage.setItem(
               "ipDataCache",
               JSON.stringify({
                 ...data,
                 city,
-                country,
+                country: {
+                  name: countryName,
+                  code: countryCode,
+                },
                 timestamp: Date.now(),
               })
             );
@@ -127,7 +126,7 @@ export const useGeoStore = create<GeoState>()(
               ipData: data,
               coords: data.location,
               city,
-              country,
+              country:countryName,
               timeZone: data.timeZone,
               isLoading: false,
               error: null,

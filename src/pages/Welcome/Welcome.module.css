@@ -4,13 +4,10 @@
   align-items: center;
 }
 
-.welcomeStep {
-  padding: var(--numbers-20) 0 var(--numbers-8) 0;
-}
 
 .welcomeTitle {
-  padding: var(--numbers-20) 0 var(--numbers-4) 0;
-  font-weight: 700;
+  padding: var(--numbers-36) 0 var(--numbers-4) 0;
+  font-weight: var(--font-600);
   font-size: var(--numbers-20);
   text-align: center;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -21,21 +18,11 @@
   color: var(--color-text-secondary);
   text-align: center;
   padding: 0 var(--numbers-32);
-  width: 100%;
-  box-sizing: border-box;
-  line-height: 1.5;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.welcomeImage {
-  object-fit: contain;
-  max-width: 340px;
-  height: auto;
-  display: block;
-}
-
 .welcomeImage img {
-  max-height: 450px;
+  max-height: 500px;
   max-width: 100%;
   height: auto;
   width: auto;
@@ -44,7 +31,6 @@
 
 .welcomeBottom {
   width: 100%;
-  max-width: 420px;
   padding: var(--numbers-8);
   display: flex;
   flex-direction: column;
@@ -82,7 +68,6 @@
   padding: var(--numbers-18) 0;
   font-size: var(--numbers-18);
   font-weight: var(--font-600);
-  font-family: var(--typography-heading);
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.1s ease, background 0.2s ease;

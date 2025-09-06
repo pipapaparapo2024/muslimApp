@@ -30,7 +30,7 @@ import { ScannerShareStory } from "./pages/Scanner/HistoryScanner/scannerShareSt
 import { useGeoStore } from "./hooks/useGeoStore";
 import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
-import { AyahList } from "./pages/Quran/Ayas/AyasList";
+import { AyahList } from "./pages/Quran/ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 
 // Настройка полноэкранного режима и предотвращение свайпа

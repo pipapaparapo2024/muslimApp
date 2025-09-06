@@ -60,12 +60,18 @@ export const useHomeLogic = () => {
       console.log("Отправляем настройки местоположения:", {
         city,
         country,
+        countryCode: langcode,
         langcode,
         timeZone,
       });
 
       try {
-        await sendUserSettings({ city, country, langcode, timeZone });
+        await sendUserSettings({
+          city,
+          countryCode: langcode,
+          langcode,
+          timeZone,
+        });
         console.log("Настройки успешно отправлены");
       } catch (error) {
         console.error("Ошибка при отправке настроек:", error);
@@ -282,7 +288,9 @@ export const useHomeLogic = () => {
         typeof DeviceOrientationEvent !== "undefined" &&
         (DeviceOrientationEvent as any).requestPermission
       ) {
-        const result = await (DeviceOrientationEvent as any).requestPermission();
+        const result = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
         if (result === "granted") {
           localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
           setSensorPermission("granted");

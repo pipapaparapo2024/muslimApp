@@ -4,7 +4,7 @@ import { isErrorWithMessage, quranApi } from "../api/api";
 
 interface UserSettings {
   cityName: string;
-  countryName: string;
+  countryCode: string;
   timeZone: string;
   langCode: string | null;
 }
@@ -17,7 +17,7 @@ interface UserParametersState {
   setWasLogged: (value: boolean) => void;
   sendUserSettings: (locationData: {
     city: string | null;
-    country: string | null;
+    countryCode: string | null;
     langcode: string | null;
     timeZone: string | null;
   }) => Promise<void>;
@@ -45,7 +45,8 @@ export const useUserParametersStore = create<UserParametersState>()(
           // Формируем данные для отправки из полученных locationData
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
-            countryName: locationData.country || "Unknown",
+            countryCode:
+              locationData.countryCode || locationData.langcode || "Unknown", // Код страны
             langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };

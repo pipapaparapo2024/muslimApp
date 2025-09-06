@@ -39,7 +39,7 @@ export const Welcome: React.FC = () => {
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}
           >
-            Попробовать снова
+            Try Again
           </button>
         </div>
       </PageWrapper>
