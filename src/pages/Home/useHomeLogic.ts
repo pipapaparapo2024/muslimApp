@@ -38,7 +38,7 @@ export const useHomeLogic = () => {
     return saved === "granted" ? "granted" : "prompt";
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
-
+  const [, setLoading] = useState(false);
   const geoRequested = useRef(false);
   const ipDataFetched = useRef(false);
   const settingsSentRef = useRef(settingsSent);
@@ -85,32 +85,28 @@ export const useHomeLogic = () => {
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = async () => {
     setIsRefreshing(true);
+    setLoading(true);
 
+    // Очищаем только кэш
     localStorage.removeItem(IP_DATA_CACHE);
     localStorage.removeItem(CACHED_LOCATION);
-
-    setCoords(null);
-    setCity(null);
-    setCountry(null);
-    setTimeZone(null);
-    setError(null);
 
     ipDataFetched.current = false;
     geoRequested.current = false;
 
     try {
+      // ТОЛЬКО IP-based геолокация (покажет координаты VPN)
       await fetchFromIpApi();
       ipDataFetched.current = true;
 
-      const geoStatus = localStorage.getItem(GEO_PERMISSION_STATUS);
-      if (geoStatus === "granted") {
-        await requestGeolocation();
-      }
+      // НЕ запускаем браузерную геолокацию вообще
+      // Это предотвратит перезапись координат реальными
     } catch (error) {
       console.error("Failed to refresh location data:", error);
       setError("Не удалось обновить данные местоположения");
     } finally {
       setIsRefreshing(false);
+      setLoading(false);
     }
   };
 
