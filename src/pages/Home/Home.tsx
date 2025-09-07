@@ -26,12 +26,12 @@ export const Home: React.FC = () => {
 
   return (
     <PageWrapper>
-      <Header
+      {/* <Header
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       />{" "}
       *{city}
-      {country}
+      {country} */}
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (всегда под Header) === */}
       {sensorPermission === "prompt" && (
         <div className={styles.sensorPermissionPrompt}>
