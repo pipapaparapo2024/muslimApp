@@ -71,7 +71,7 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {/* <div className={styles.prayerTimesQiblaContainer}>
+        <div className={styles.prayerTimesQiblaContainer}>
           <PrayerTimes />
 
           <div className={styles.qiblaBlock}>
@@ -108,7 +108,7 @@ export const Home: React.FC = () => {
               </div>
             </div>
           </div>
-        </div> */}
+        </div>
 
         <MenuBlocks />
       </div>
