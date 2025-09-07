@@ -23,6 +23,7 @@ export const Home: React.FC = () => {
     handleCompassClick,
     handleMapClick,
   } = useHomeLogic();
+  console.log("coords: ", coords);
 
   return (
     <PageWrapper>

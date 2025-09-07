@@ -131,7 +131,6 @@ export const useGeoStore = create<GeoState>()(
               isLoading: false,
               error: null,
             });
-            console.log("coords: ",data.location)
           } else {
             throw new Error("API returned success: false");
           }
