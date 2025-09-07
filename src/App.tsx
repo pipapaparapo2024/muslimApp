@@ -22,7 +22,6 @@ import { ModalLanguage } from "./components/modals/modalSettings/ModalLanguage";
 import { History } from "./pages/QnA/History/History";
 import { HistoryScanner } from "./pages/Scanner/HistoryScanner/HistoryScanner";
 
-
 import { ShareStory } from "./pages/QnA/History/shareStory/ShareStory";
 import { swipeBehavior, viewport } from "@telegram-apps/sdk"; // ← Импортируем из SDK
 import { HistoryScannerDetail } from "./pages/Scanner/HistoryScanner/historyScannerDetail/HistoryScannerDetail";
@@ -33,7 +32,7 @@ import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
 import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
-import { AnalyzingPromis, AnalyzingPromise, AnalyzingQna } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
+import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -117,7 +116,7 @@ export const App: React.FC = () => {
           path="/privacy-policy"
           element={<div>Privacy Policy Page</div>}
         />
-        <Route  path="/quran/translation"element={<ChooseTranslation/>}/>
+        <Route path="/quran/translation" element={<ChooseTranslation />} />
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />
         <Route path="/scanner" element={<Scanner />} />
