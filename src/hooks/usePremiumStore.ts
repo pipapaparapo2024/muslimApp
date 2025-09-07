@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { isErrorWithMessage } from "../api/api";
-import { quranApi } from "../api/api"; 
+import { quranApi } from "../api/api";
 
 interface QnAState {
   requestsLeft: number | null;
   hasPremium: boolean;
-  premiumDaysLeft:number|null;
+  premiumDaysLeft: number | null;
   isLoading: boolean;
   error: string | null;
 
@@ -24,24 +24,25 @@ export const usePremiumStore = create<QnAState>((set) => ({
   setRequestsLeft: (n) => set({ requestsLeft: n }),
   setHasPremium: (has) => set({ hasPremium: has }),
 
-
   fetchUserData: async () => {
     set({ isLoading: true, error: null });
 
     try {
       const response = await quranApi.get("/text/requests/amount");
-      const { has_premium, has_requests, responses_left } = response.data;
+      const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } =
+        response.data;
 
-      const updatedRequestsLeft = has_requests ? responses_left : 0;
-
+      const updatedRequestsLeft = hasRequests ? requestsLeft : 0;
+      console.log("hasPremiumrrrrrrrrrrr", hasPremium);
+      console.log("requestsLeftrrrrrrr", requestsLeft);
+      console.log("premiumDaysLeftrrrrrrrrr", premiumDaysLeft);
       set({
         requestsLeft: updatedRequestsLeft,
-        hasPremium: has_premium,
-        premiumDaysLeft: null, 
+        hasPremium: hasPremium,
+        premiumDaysLeft: premiumDaysLeft,
         isLoading: false,
         error: null,
       });
-
     } catch (err: unknown) {
       const message = isErrorWithMessage(err)
         ? err.message

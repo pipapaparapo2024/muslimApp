@@ -17,11 +17,8 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
     usePremiumStore();
   const navigate = useNavigate();
   const getStatusText = () => {
-    console.log("hasPremiumrrrrrrrrrrr", hasPremium);
-    console.log("requestsLeftrrrrrrr", requestsLeft);
-    console.log("premiumDaysLeftrrrrrrrrr", premiumDaysLeft);
     if (isLoading) return t("loading");
-    if (hasPremium) return {premiumDaysLeft} + t("haveRequests");
+    if (hasPremium) return { premiumDaysLeft } + t("haveRequests");
     if (requestsLeft != null && requestsLeft > 0)
       return `${requestsLeft} ${t("requests")}`;
     return t("noRequests");

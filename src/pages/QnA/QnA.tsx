@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
-  
+
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -23,8 +23,8 @@ export const QnA: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
-    console.log("hasPremium",hasPremium)
-    console.log("requestsLeft",requestsLeft)
+    console.log("hasPremium", hasPremium);
+    console.log("requestsLeft", requestsLeft);
   }, [fetchUserData]);
 
   // Предзагрузка изображения
@@ -50,17 +50,18 @@ export const QnA: React.FC = () => {
     return t("buyRequests");
   };
 
-  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
+  const showAskButton =
+    hasPremium || (requestsLeft != null && requestsLeft > 0);
 
   const handleSubmit = async () => {
     if (!question.trim()) return;
 
-    navigate('/qna/analyzing', { 
-      state: { 
+    navigate("/qna/analyzing", {
+      state: {
         question: question.trim(),
         hasPremium: hasPremium,
-        requestsLeft: requestsLeft
-      } 
+        requestsLeft: requestsLeft,
+      },
     });
   };
 
@@ -77,13 +78,13 @@ export const QnA: React.FC = () => {
     <PageWrapper showBackButton={true}>
       <div className={styles.container}>
         <TableRequestsHistory text="/qna/history" />
-        
+
         {/* Центральный контент */}
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <img 
-              src={thinkPerson} 
-              alt="Ask a question" 
+            <img
+              src={thinkPerson}
+              alt="Ask a question"
               onError={() => setImageError(true)}
             />
           </div>
