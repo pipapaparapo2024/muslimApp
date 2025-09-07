@@ -17,8 +17,6 @@ export const AyahList: React.FC = () => {
     error,
     hasNext,
     hasPrev,
-    currentPage,
-    pageAmount,
     fetchAyahs,
     loadMoreAyahs,
     loadPrevAyahs,
@@ -37,18 +35,18 @@ export const AyahList: React.FC = () => {
       try {
         resetAyahs();
         const response = await fetchAyahs(surahId, 1);
-        
-        useSurahListStore.setState({ 
+
+        useSurahListStore.setState({
           ayahs: response.ayahs,
           hasNext: response.hasNext,
           hasPrev: response.hasPrev,
-          pageAmount: response.pageAmount
+          pageAmount: response.pageAmount,
         });
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
-        useSurahListStore.setState({ 
+        useSurahListStore.setState({
           hasNext: false,
-          hasPrev: false 
+          hasPrev: false,
         });
       }
     };
@@ -99,11 +97,6 @@ export const AyahList: React.FC = () => {
             <div className={styles.deskription}>
               {initialSurah?.description}
             </div>
-            {pageAmount > 0 && (
-              <div className={styles.pageInfo}>
-                {t("page")} {currentPage} {t("of")} {pageAmount}
-              </div>
-            )}
           </div>
           <form className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
@@ -114,30 +107,19 @@ export const AyahList: React.FC = () => {
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-            <button
-              type="submit"
-              className={styles.searchButton}
-              disabled={isSearching}
-            >
-              {isSearching ? (
-                <Loader size={20} className={styles.spinner} />
-              ) : (
-                t("search")
-              )}
-            </button>
           </form>
         </div>
 
         <div className={styles.ayatlist}>
           {ayahs.length === 0 ? (
-            <PageWrapper>
+            <PageWrapper showBackButton={true}>
               <LoadingSpinner />
             </PageWrapper>
           ) : (
             <>
               {/* Кнопка загрузки предыдущих аятов */}
               {hasPrev && (
-                <div className={styles.loadPrevContainer}>
+                <div className={styles.loadMoreContainer}>
                   <button
                     className={styles.loadMoreButton}
                     onClick={handleLoadPrev}
@@ -181,11 +163,6 @@ export const AyahList: React.FC = () => {
                     )}
                   </button>
                 </div>
-              )}
-
-              {/* Сообщение о конце суры */}
-              {!hasNext && ayahs.length > 0 && (
-                <div className={styles.endOfSurah}>{t("endOfSurah")}</div>
               )}
             </>
           )}

@@ -128,6 +128,10 @@ const resources = {
       loadingChapters: "Loading chapters...",
       ayahs: "Ayahs",
 
+      //Ayahs 
+      loadPrevious:"Load Previous",
+      loadMore:"Load More",
+      
       //Translation and other
       chooseTranslation: "Choose Translation",
       selectPreferred:
@@ -365,6 +369,9 @@ const resources = {
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
 
+      //Ayahs 
+      loadPrevious:"تحميل السابق",
+      loadMore:"تحميل المزيد",
       //Translation and other
       chooseTranslation: "اختر الترجمة",
       selectPreferred: "اختر ترجمتك المفضلة للقرآن لفهم أفضل.",

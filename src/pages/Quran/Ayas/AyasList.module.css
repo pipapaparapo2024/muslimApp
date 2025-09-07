@@ -59,29 +59,14 @@
   letter-spacing: var(--letter-spacing-wider);
   background: var(--bg-app);
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 .ayasText {
     font-weight: var(--font-400);
 }
 
-/* AyasList.module.css */
-.searchButton {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 8px;
-}
-
-.searchButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 .spinner {
   animation: spin 1s linear infinite;
@@ -92,34 +77,24 @@
   to { transform: rotate(360deg); }
 }
 
-.loadingContainer {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.observerTarget {
-  height: 1px;
-}
 
 /* AyasList.module.css */
 .loadMoreContainer {
   display: flex;
   justify-content: center;
-  padding: 20px;
 }
 
 .loadMoreButton {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--numbers-8);
   background: var(--color-background-semantic-solid-brand);
   color: var(--color-text-inversed);
   border: none;
   border-radius: var(--roundings-medium);
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: var(--numbers-12) var(--numbers-24);
+  font-size: var(--numbers-16);
+  font-weight: var(--font-600);
   cursor: pointer;
   transition: transform 0.1s ease, background 0.2s ease;
 }
@@ -131,20 +106,4 @@
 
 .loadMoreButton:active:not(:disabled) {
   transform: scale(0.98);
-}
-
-.endOfSurah {
-  text-align: center;
-  padding: 20px;
-  color: var(--color-text-secondary);
-  font-style: italic;
-}
-
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
 }
