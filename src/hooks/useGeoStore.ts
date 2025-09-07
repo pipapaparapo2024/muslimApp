@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
 import { isErrorWithMessage } from "../api/api";
+
 export interface IpData {
   success: boolean;
   ip: string;
@@ -42,7 +43,6 @@ interface GeoState {
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
-  hasRequestedGeo: boolean;
 
   fetchFromIpApi: () => Promise<void>;
   setCoords: (coords: { lat: number; lon: number } | null) => void;
@@ -51,7 +51,6 @@ interface GeoState {
   setTimeZone: (timeZone: string | null) => void;
   setError: (error: string | null) => void;
   setLoading: (loading: boolean) => void;
-  setHasRequestedGeo: (requested: boolean) => void;
   reset: () => void;
   getLocationData: () => LocationData;
 }
@@ -68,7 +67,6 @@ export const useGeoStore = create<GeoState>()(
       isLoading: false,
       error: null,
       isInitialized: false,
-      hasRequestedGeo: false,
 
       fetchFromIpApi: async () => {
         // Проверяем есть ли свежие данные в localStorage
@@ -109,6 +107,7 @@ export const useGeoStore = create<GeoState>()(
               data.city || data.region || data.country?.name || "Unknown";
             const countryName = data.country?.name || "Unknown";
             const countryCode = data.country?.code || "Unknown";
+            
             // Сохраняем данные в кэш
             localStorage.setItem(
               "ipDataCache",
@@ -122,11 +121,12 @@ export const useGeoStore = create<GeoState>()(
                 timestamp: Date.now(),
               })
             );
+            
             set({
               ipData: data,
               coords: data.location,
               city,
-              country:countryName,
+              country: countryName,
               timeZone: data.timeZone,
               isLoading: false,
               error: null,
@@ -138,7 +138,7 @@ export const useGeoStore = create<GeoState>()(
           const message = isErrorWithMessage(err)
             ? err.message
             : "Fail to get location";
-          console.error(" Ошибка получения геоданных:", message, err);
+          console.error("❌ Ошибка получения геоданных:", message, err);
           set({
             error: message,
             isLoading: false,
@@ -146,14 +146,12 @@ export const useGeoStore = create<GeoState>()(
         }
       },
 
-      // Остальные методы без изменений
       setCoords: (coords) => set({ coords }),
       setCity: (city) => set({ city }),
       setCountry: (country) => set({ country }),
       setTimeZone: (timeZone) => set({ timeZone }),
       setError: (error) => set({ error }),
       setLoading: (loading) => set({ isLoading: loading }),
-      setHasRequestedGeo: (requested) => set({ hasRequestedGeo: requested }),
 
       reset: () =>
         set({
@@ -163,7 +161,6 @@ export const useGeoStore = create<GeoState>()(
           country: null,
           timeZone: null,
           error: null,
-          hasRequestedGeo: false,
           isLoading: false,
         }),
 

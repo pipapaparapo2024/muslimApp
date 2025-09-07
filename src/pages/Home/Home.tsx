@@ -8,6 +8,7 @@ import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export const Home: React.FC = () => {
   const {
@@ -23,17 +24,15 @@ export const Home: React.FC = () => {
     handleCompassClick,
     handleMapClick,
   } = useHomeLogic();
-  console.log("coords: ", coords);
 
   return (
     <PageWrapper>
-      {/* <Header
+      <Header
         city={city || "Unknown city"}
         country={country || "Unknown country"}
-      />{" "}
-      *{city}
-      {country} */}
-      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (всегда под Header) === */}
+      />
+
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       {sensorPermission === "prompt" && (
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
@@ -47,71 +46,77 @@ export const Home: React.FC = () => {
           </div>
         </div>
       )}
+
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
         <div className={styles.refreshButtonContainer}>
           <button
             className={styles.refreshLocationButton}
             onClick={handleRefreshLocationData}
-            disabled={isRefreshing}
+            disabled={isRefreshing || isLoading}
             title={t("refreshLocation")}
           >
-            refresh
+            {isRefreshing ? "🔄" : "refresh"}
           </button>
         </div>
 
         {isLoading && (
-          <div style={{ padding: "16px", textAlign: "center", color: "#666" }}>
-            {t("detectingLocation")}...
+          <div className={styles.loadingContainer}>
+            <LoadingSpinner />
+            <p>{t("detectingLocation")}...</p>
           </div>
         )}
 
         {error && (
-          <div style={{ padding: "16px", textAlign: "center", color: "red" }}>
+          <div className={styles.errorContainer}>
             {error}
           </div>
         )}
 
-        <div className={styles.prayerTimesQiblaContainer}>
-          <PrayerTimes />
+        {!isLoading && !error && (
+          <>
+            <div className={styles.prayerTimesQiblaContainer}>
+              <PrayerTimes />
 
-          <div className={styles.qiblaBlock}>
-            <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
-            <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
+              <div className={styles.qiblaBlock}>
+                <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
+                <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
 
-            <div className={styles.qiblaBlockRow}>
-              <div onClick={handleMapClick} className={styles.mapContainer}>
-                <QiblaMap onMapClick={handleMapClick} />
-              </div>
-
-              <div
-                onClick={handleCompassClick}
-                className={styles.compassContainer}
-              >
-                <QiblaCompass
-                  permissionGranted={sensorPermission === "granted"}
-                  coords={coords}
-                />
-                {sensorPermission !== "granted" && (
-                  <div className={styles.permissionPrompt}>
-                    <p>{t("compassNeedsAccess")}</p>
-                    <button
-                      className={styles.permissionButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        requestSensorPermission();
-                      }}
-                    >
-                      {t("allow")}
-                    </button>
+                <div className={styles.qiblaBlockRow}>
+                  <div onClick={handleMapClick} className={styles.mapContainer}>
+                    <QiblaMap onMapClick={handleMapClick} />
                   </div>
-                )}
+
+                  <div
+                    onClick={handleCompassClick}
+                    className={styles.compassContainer}
+                  >
+                    <QiblaCompass
+                      permissionGranted={sensorPermission === "granted"}
+                      coords={coords}
+                    />
+                    {sensorPermission !== "granted" && (
+                      <div className={styles.permissionPrompt}>
+                        <p>{t("compassNeedsAccess")}</p>
+                        <button
+                          className={styles.permissionButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            requestSensorPermission();
+                          }}
+                        >
+                          {t("allow")}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <MenuBlocks />
+            <MenuBlocks />
+          </>
+        )}
       </div>
     </PageWrapper>
   );
