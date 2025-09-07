@@ -30,8 +30,8 @@ export const Home: React.FC = () => {
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       /> */}
-      {city}
-      {country}
+      {/* {city}
+      {country} */}
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (всегда под Header) === */}
       {sensorPermission === "prompt" && (
         <div className={styles.sensorPermissionPrompt}>
