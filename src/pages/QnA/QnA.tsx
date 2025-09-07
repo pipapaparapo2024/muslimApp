@@ -23,8 +23,6 @@ export const QnA: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
-    console.log("hasPremium", hasPremium);
-    console.log("requestsLeft", requestsLeft);
   }, [fetchUserData]);
 
   // Предзагрузка изображения

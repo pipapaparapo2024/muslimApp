@@ -19,7 +19,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
 
   const getStatusText = () => {
     if (isLoading) return t("loading");
-    if (hasPremium) return `${premiumDaysLeft} ${t("daysLeft")}`; // Исправлено
+    if (hasPremium) return `${premiumDaysLeft} ${t("daysLeft")}`;
     if (requestsLeft != null && requestsLeft > 0)
       return `${requestsLeft} ${t("requests")}`;
     return t("noRequests");
