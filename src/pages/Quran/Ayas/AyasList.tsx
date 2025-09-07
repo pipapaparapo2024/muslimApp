@@ -75,7 +75,6 @@ export const AyahList: React.FC = () => {
     }
   }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
 
-
   if (error) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/quran">
@@ -109,7 +108,13 @@ export const AyahList: React.FC = () => {
             />
           </form>
         </div>
-
+        {error && (
+          <PageWrapper showBackButton={true} navigateTo="/quran">
+            <div className={styles.errorContainer}>
+              <div className={styles.blockAyas}>Havent Ayah</div>
+            </div>
+          </PageWrapper>
+        )}
         <div className={styles.ayatlist}>
           {ayahs.length === 0 ? (
             <LoadingSpinner />
