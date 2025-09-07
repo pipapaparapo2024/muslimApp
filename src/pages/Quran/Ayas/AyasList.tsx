@@ -110,9 +110,7 @@ export const AyahList: React.FC = () => {
         </div>
         {error && (
           <PageWrapper showBackButton={true} navigateTo="/quran">
-            <div className={styles.errorContainer}>
-              <div className={styles.blockAyas}>Havent Ayah</div>
-            </div>
+            <div className={styles.blockAyas}>Havent Ayah</div>
           </PageWrapper>
         )}
         <div className={styles.ayatlist}>
