@@ -30,35 +30,11 @@ export const usePremiumStore = create<QnAState>((set) => ({
     try {
       const response = await quranApi.get("/text/requests/amount");
       
-      console.log("Full API Response:", response.data);
-      console.log("Response structure:", JSON.stringify(response.data, null, 2));
+      const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } = response.data.data;
 
-      // Проверяем разные возможные структуры ответа
-      let apiData;
+      console.log("Full API Response:", response.data); 
+      console.log("API Data:", response.data.data);
       
-      if (response.data && typeof response.data === 'object') {
-        // Вариант 1: данные в response.data.data
-        if (response.data.data && typeof response.data.data === 'object') {
-          apiData = response.data.data;
-        } 
-        // Вариант 2: данные прямо в response.data
-        else if ('hasPremium' in response.data || 'requestsLeft' in response.data) {
-          apiData = response.data;
-        }
-        // Вариант 3: непонятная структура
-        else {
-          apiData = {};
-        }
-      } else {
-        apiData = {};
-      }
-
-      // Безопасное извлечение данных с значениями по умолчанию
-      const hasPremium = Boolean(apiData.hasPremium);
-      const hasRequests = Boolean(apiData.hasRequests);
-      const requestsLeft = Number(apiData.requestsLeft) || 0;
-      const premiumDaysLeft = Number(apiData.premiumDaysLeft) || 0;
-
       const updatedRequestsLeft = hasRequests ? requestsLeft : 0;
 
       console.log("Parsed values:", {
