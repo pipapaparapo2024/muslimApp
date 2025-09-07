@@ -29,9 +29,12 @@ export const usePremiumStore = create<QnAState>((set) => ({
 
     try {
       const response = await quranApi.get("/text/requests/amount");
-      const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } = response.data;
+      
+      // Правильно деструктурируем ответ - данные находятся в response.data.data
+      const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } = response.data.data;
 
-      console.log("API Response:", response.data); 
+      console.log("Full API Response:", response.data); 
+      console.log("API Data:", response.data.data);
       
       const updatedRequestsLeft = hasRequests ? requestsLeft : 0;
 
@@ -44,8 +47,8 @@ export const usePremiumStore = create<QnAState>((set) => ({
       });
 
       set({
-        requestsLeft: updatedRequestsLeft,
         hasPremium: hasPremium,
+        requestsLeft: updatedRequestsLeft,
         premiumDaysLeft: premiumDaysLeft,
         isLoading: false,
         error: null,
