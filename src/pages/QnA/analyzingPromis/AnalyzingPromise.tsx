@@ -6,7 +6,7 @@ import { useQnAStore } from "../../../hooks/useQnAStore";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import styles from "./AnalyzingPromise.module.css";
 
-export const AnalyzingQna: React.FC = () => {
+export const AnalyzingPromise: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { question } = location.state || {};
