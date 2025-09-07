@@ -97,7 +97,7 @@ export const AyahList: React.FC = () => {
               {initialSurah?.description}
             </div>
           </div>
-          <form className={styles.searchContainer}>
+          <form className={styles.searchContainer} onSubmit={()=>console.log("search bitch 8===D")}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
