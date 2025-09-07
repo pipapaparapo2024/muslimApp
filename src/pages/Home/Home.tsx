@@ -7,7 +7,7 @@ import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
-import { useHomeLogic } from "./useHomeLogic"; 
+import { useHomeLogic } from "./useHomeLogic";
 
 export const Home: React.FC = () => {
   const {
@@ -26,12 +26,12 @@ export const Home: React.FC = () => {
 
   return (
     <PageWrapper>
-      {/* <Header
+      <Header
         city={city || "Unknown city"}
         country={country || "Unknown country"}
-      /> */}
-      {/* {city}
-      {country} */}
+      />{" "}
+      *{city}
+      {country}
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (всегда под Header) === */}
       {sensorPermission === "prompt" && (
         <div className={styles.sensorPermissionPrompt}>
@@ -46,7 +46,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
       )}
-
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
         <div className={styles.refreshButtonContainer}>
