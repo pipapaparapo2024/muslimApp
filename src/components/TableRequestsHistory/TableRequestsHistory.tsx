@@ -16,6 +16,8 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const { requestsLeft, hasPremium, isLoading } = usePremiumStore();
   const navigate = useNavigate();
   const getStatusText = () => {
+    console.log("hasPremiumrrrrrrrrrrr",hasPremium)
+    console.log("requestsLeftrrrrrrr",requestsLeft)
     if (isLoading) return t("loading");
     if (hasPremium) return t("haveRequests");
     if (requestsLeft != null && requestsLeft > 0)
