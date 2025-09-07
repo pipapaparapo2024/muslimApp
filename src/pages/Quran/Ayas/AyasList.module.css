@@ -93,7 +93,7 @@
   border: none;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-12) var(--numbers-24);
-  font-size: var(--numbers-16);
+  font-size: var(--numbers-14);
   font-weight: var(--font-600);
   cursor: pointer;
   transition: transform 0.1s ease, background 0.2s ease;

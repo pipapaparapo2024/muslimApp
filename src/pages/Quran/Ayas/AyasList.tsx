@@ -25,7 +25,6 @@ export const AyahList: React.FC = () => {
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
-  const [isSearching] = useState(false);
 
   // Загрузка первых аятов
   useEffect(() => {
@@ -112,9 +111,7 @@ export const AyahList: React.FC = () => {
 
         <div className={styles.ayatlist}>
           {ayahs.length === 0 ? (
-            <PageWrapper showBackButton={true}>
-              <LoadingSpinner />
-            </PageWrapper>
+            <LoadingSpinner />
           ) : (
             <>
               {/* Кнопка загрузки предыдущих аятов */}
