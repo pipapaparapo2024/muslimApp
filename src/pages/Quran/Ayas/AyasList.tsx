@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { useSurahListStore, type Ayah } from "../../../hooks/useSurahListStore";
+import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
-import { Search, Loader, ChevronDown } from "lucide-react";
+import { Search, Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
@@ -15,9 +15,13 @@ export const AyahList: React.FC = () => {
   const {
     ayahs,
     error,
-    hasMore,
+    hasNext,
+    hasPrev,
+    currentPage,
+    pageAmount,
     fetchAyahs,
     loadMoreAyahs,
+    loadPrevAyahs,
     resetAyahs,
     isLoadingMore,
   } = useSurahListStore();
@@ -32,33 +36,47 @@ export const AyahList: React.FC = () => {
 
       try {
         resetAyahs();
-        const initialAyahs = await fetchAyahs(surahId, 1);
-        useSurahListStore.setState({ ayahs: initialAyahs });
-
-        // Проверяем, есть ли еще аяты для загрузки
-        // Если в первой загрузке меньше 20 аятов - значит это последняя страница
-        if (initialAyahs.length < 20) {
-          useSurahListStore.setState({ hasMore: false });
-        }
+        const response = await fetchAyahs(surahId, 1);
+        
+        useSurahListStore.setState({ 
+          ayahs: response.ayahs,
+          hasNext: response.hasNext,
+          hasPrev: response.hasPrev,
+          pageAmount: response.pageAmount
+        });
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
-        useSurahListStore.setState({ hasMore: false });
+        useSurahListStore.setState({ 
+          hasNext: false,
+          hasPrev: false 
+        });
       }
     };
 
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
 
-  // Загрузка дополнительных аятов
+  // Загрузка следующих аятов
   const handleLoadMore = useCallback(async () => {
-    if (!surahId || !hasMore || isLoadingMore) return;
+    if (!surahId || !hasNext || isLoadingMore) return;
 
     try {
       await loadMoreAyahs(surahId);
     } catch (err) {
       console.error("Error loading more ayahs:", err);
     }
-  }, [surahId, hasMore, isLoadingMore, loadMoreAyahs]);
+  }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
+
+  // Загрузка предыдущих аятов
+  const handleLoadPrev = useCallback(async () => {
+    if (!surahId || !hasPrev || isLoadingMore) return;
+
+    try {
+      await loadPrevAyahs(surahId);
+    } catch (err) {
+      console.error("Error loading previous ayahs:", err);
+    }
+  }, [surahId, hasPrev, isLoadingMore, loadPrevAyahs]);
 
   if (error) {
     return (
@@ -71,7 +89,7 @@ export const AyahList: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton navigateTo="/quran">
+    <PageWrapper showBackButton={true} navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.blockHeader}>
           <div className={styles.text}>
@@ -81,6 +99,11 @@ export const AyahList: React.FC = () => {
             <div className={styles.deskription}>
               {initialSurah?.description}
             </div>
+            {pageAmount > 0 && (
+              <div className={styles.pageInfo}>
+                {t("page")} {currentPage} {t("of")} {pageAmount}
+              </div>
+            )}
           </div>
           <form className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
@@ -112,15 +135,36 @@ export const AyahList: React.FC = () => {
             </PageWrapper>
           ) : (
             <>
-              {ayahs.map((ayah: Ayah) => (
+              {/* Кнопка загрузки предыдущих аятов */}
+              {hasPrev && (
+                <div className={styles.loadPrevContainer}>
+                  <button
+                    className={styles.loadMoreButton}
+                    onClick={handleLoadPrev}
+                    disabled={isLoadingMore}
+                  >
+                    {isLoadingMore ? (
+                      <Loader size={20} className={styles.spinner} />
+                    ) : (
+                      <>
+                        <ChevronUp size={20} />
+                        {t("loadPrevious")}
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Список аятов */}
+              {ayahs.map((ayah) => (
                 <div key={ayah.number} className={styles.blockAyas}>
                   <div className={styles.ayasNember}>{ayah.number}</div>
                   <div className={styles.ayasText}>{ayah.text}</div>
                 </div>
               ))}
 
-              {/* Кнопка загрузки еще */}
-              {hasMore && (
+              {/* Кнопка загрузки следующих аятов */}
+              {hasNext && (
                 <div className={styles.loadMoreContainer}>
                   <button
                     className={styles.loadMoreButton}
@@ -140,7 +184,7 @@ export const AyahList: React.FC = () => {
               )}
 
               {/* Сообщение о конце суры */}
-              {!hasMore && ayahs.length > 0 && (
+              {!hasNext && ayahs.length > 0 && (
                 <div className={styles.endOfSurah}>{t("endOfSurah")}</div>
               )}
             </>

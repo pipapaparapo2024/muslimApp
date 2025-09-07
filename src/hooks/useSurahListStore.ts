@@ -6,6 +6,13 @@ export interface Ayah {
   text: string;
 }
 
+export interface AyahsResponse {
+  ayahs: Ayah[];
+  hasNext: boolean;
+  hasPrev: boolean;
+  pageAmount: number;
+}
+
 export interface Surah {
   id: string;
   name: string;
@@ -31,15 +38,18 @@ interface SurahListState {
   selectedVariant: Variant | null;
   selectedSurah: Surah | null;
 
-  // Упрощенные состояния для пагинации
+  // Обновленные состояния для пагинации
   ayahs: Ayah[];
   currentPage: number;
-  hasMore: boolean;
+  hasNext: boolean;
+  hasPrev: boolean;
+  pageAmount: number;
 
   fetchVariants: () => Promise<void>;
   fetchSurahs: (variantId: string) => Promise<void>;
-  fetchAyahs: (surahId: string, page: number) => Promise<Ayah[]>;
+  fetchAyahs: (surahId: string, page: number) => Promise<AyahsResponse>;
   loadMoreAyahs: (surahId: string) => Promise<void>;
+  loadPrevAyahs: (surahId: string) => Promise<void>;
   resetAyahs: () => void;
   setSelectedSurah: (surah: Surah) => void;
   setSelectedVariant: (variant: Variant) => void;
@@ -115,7 +125,7 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
 const fetchAyahsBySurah = async (
   surahId: string,
   page: number = 1
-): Promise<Ayah[]> => {
+): Promise<AyahsResponse> => {
   try {
     const response = await quranApi.get("/api/v1/quran/ayas", {
       params: {
@@ -128,14 +138,21 @@ const fetchAyahsBySurah = async (
       },
     });
 
-    if (!response.data?.data?.ayas) {
-      throw new Error('Invalid API response structure: missing "data.ayas"');
+    if (!response.data?.data) {
+      throw new Error('Invalid API response structure: missing "data"');
     }
 
-    return response.data.data.ayas.map((ayah: any) => ({
-      number: ayah.number,
-      text: ayah.text,
-    }));
+    const responseData = response.data.data;
+
+    return {
+      ayahs: responseData.ayas.map((ayah: any) => ({
+        number: ayah.number,
+        text: ayah.text,
+      })),
+      hasNext: responseData.hasNext,
+      hasPrev: responseData.hasPrev,
+      pageAmount: responseData.pageAmount,
+    };
   } catch (error) {
     console.error("❌ Failed to fetch ayahs:", error);
     throw error;
@@ -149,12 +166,14 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   variants: [],
   selectedVariant: null,
   selectedSurah: null,
-  isLoadingMore: false, // Добавляем отдельный флаг для загрузки "еще"
-  
-  // Упрощенные состояния
+  isLoadingMore: false,
+
+  // Обновленные состояния
   ayahs: [],
   currentPage: 1,
-  hasMore: true,
+  hasNext: false,
+  hasPrev: false,
+  pageAmount: 0,
 
   fetchVariants: async () => {
     set({ loading: true, error: null });
@@ -186,7 +205,10 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     }
   },
 
-  fetchAyahs: async (surahId: string, page: number = 1): Promise<Ayah[]> => {
+  fetchAyahs: async (
+    surahId: string,
+    page: number = 1
+  ): Promise<AyahsResponse> => {
     try {
       return await fetchAyahsBySurah(surahId, page);
     } catch (error) {
@@ -197,33 +219,59 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   },
 
   loadMoreAyahs: async (surahId: string) => {
-    const { currentPage, ayahs, hasMore } = get();
+    const { currentPage, hasNext } = get();
 
-    if (!hasMore) {
+    if (!hasNext) {
       throw new Error("No more ayahs available");
     }
 
     try {
-      set({ isLoadingMore: true }); // Используем отдельный флаг
+      set({ isLoadingMore: true });
       const nextPage = currentPage + 1;
 
-      const newAyahs = await get().fetchAyahs(surahId, nextPage);
-
-      // Проверяем, если аятов меньше 20 - значит это последняя страница
-      if (newAyahs.length === 0 || newAyahs.length < 20) {
-        set({ hasMore: false, isLoadingMore: false });
-        return;
-      }
+      const response = await get().fetchAyahs(surahId, nextPage);
 
       set({
-        ayahs: [...ayahs, ...newAyahs],
+        ayahs: response.ayahs,
         currentPage: nextPage,
+        hasNext: response.hasNext,
+        hasPrev: response.hasPrev,
+        pageAmount: response.pageAmount,
         isLoadingMore: false,
       });
     } catch (error) {
       set({
         isLoadingMore: false,
-        hasMore: false,
+        error: error instanceof Error ? error.message : "Ошибка загрузки",
+      });
+      throw error;
+    }
+  },
+
+  loadPrevAyahs: async (surahId: string) => {
+    const { currentPage, hasPrev } = get();
+
+    if (!hasPrev) {
+      throw new Error("No previous ayahs available");
+    }
+
+    try {
+      set({ isLoadingMore: true });
+      const prevPage = currentPage - 1;
+
+      const response = await get().fetchAyahs(surahId, prevPage);
+
+      set({
+        ayahs: response.ayahs,
+        currentPage: prevPage,
+        hasNext: response.hasNext,
+        hasPrev: response.hasPrev,
+        pageAmount: response.pageAmount,
+        isLoadingMore: false,
+      });
+    } catch (error) {
+      set({
+        isLoadingMore: false,
         error: error instanceof Error ? error.message : "Ошибка загрузки",
       });
       throw error;
@@ -234,16 +282,16 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     set({
       ayahs: [],
       currentPage: 1,
-      hasMore: true,
+      hasNext: false,
+      hasPrev: false,
+      pageAmount: 0,
       isLoadingMore: false,
     }),
 
   setSelectedSurah: (surah) => set({ selectedSurah: surah }),
-
   setSelectedVariant: (variant) => {
     set({ selectedVariant: variant });
     get().fetchSurahs(variant.id);
   },
-
   clearError: () => set({ error: null }),
 }));
