@@ -13,13 +13,15 @@ interface ClickHistory {
 export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { requestsLeft, hasPremium, isLoading } = usePremiumStore();
+  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft } =
+    usePremiumStore();
   const navigate = useNavigate();
   const getStatusText = () => {
-    console.log("hasPremiumrrrrrrrrrrr",hasPremium)
-    console.log("requestsLeftrrrrrrr",requestsLeft)
+    console.log("hasPremiumrrrrrrrrrrr", hasPremium);
+    console.log("requestsLeftrrrrrrr", requestsLeft);
+    console.log("premiumDaysLeftrrrrrrrrr", premiumDaysLeft);
     if (isLoading) return t("loading");
-    if (hasPremium) return t("haveRequests");
+    if (hasPremium) return {premiumDaysLeft} + t("haveRequests");
     if (requestsLeft != null && requestsLeft > 0)
       return `${requestsLeft} ${t("requests")}`;
     return t("noRequests");
