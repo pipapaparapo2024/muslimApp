@@ -28,7 +28,6 @@ interface SearchHistoryState {
   searchInHistory: (query: string) => Promise<void>;
 }
 
-// Интерфейс для ошибки API
 interface ApiErrorResponse {
   message?: string;
   error?: string;
@@ -54,7 +53,7 @@ export const useHistoryStore = create<SearchHistoryState>()(
         set({ loading: true, error: null });
 
         try {
-          const response = await quranApi.get(`/search-history`, {
+          const response = await quranApi.get(`/text/history`, {
             params: { page, limit },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

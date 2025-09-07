@@ -12,39 +12,31 @@ export const AnalyzingPromise: React.FC = () => {
   const { question } = location.state || {};
   const { askQuestion } = useQnAStore();
   const { fetchUserData } = usePremiumStore();
-  
+
   const [minTimePassed, setMinTimePassed] = useState(false);
 
   useEffect(() => {
     if (!question) {
-      navigate('/qna');
+      navigate("/qna");
       return;
     }
 
     const processQuestion = async () => {
       try {
         setTimeout(() => setMinTimePassed(true), 2000);
-        const answer = await askQuestion(question);
+        const id = await askQuestion(question);
 
         // Ждем пока пройдет минимум 2 секунды
         while (!minTimePassed) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
         // Обновляем данные пользователя (кол-во запросов и т.д.)
         await fetchUserData();
-        // Нужно получить ID из ответа API или сгенерировать его
-        const historyId = Math.random().toString(36).substr(2, 9);
-        navigate(`/qna/history/${historyId}`, {
-          state: {
-            question: question,
-            answer: answer,
-          },
-        });
-
+        navigate(`/qna/history/${id}`);
       } catch (error) {
         console.error("Error asking question:", error);
         if (minTimePassed) {
-          navigate('/qna', { state: { error: "Failed to get answer" } });
+          navigate("/qna", { state: { error: "Failed to get answer" } });
         }
       }
     };
@@ -57,7 +49,9 @@ export const AnalyzingPromise: React.FC = () => {
       <div className={styles.container}>
         <LoadingSpinner />
         <div className={styles.text}>Analyzing your question...</div>
-        <div className={styles.subtext}>Please wait while we process your request</div>
+        <div className={styles.subtext}>
+          Please wait while we process your request
+        </div>
       </div>
     </PageWrapper>
   );
