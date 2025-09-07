@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { isErrorWithMessage } from "../api/api";
-// import { quranApi } from "../../api/api";
+import { quranApi } from "../api/api"; // Раскомментируйте если нужно
 
 interface PremiumTimeLeft {
   days: number;
@@ -64,69 +64,24 @@ export const usePremiumStore = create<QnAState>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // Вариант 1: Без премиума
+      const response = await quranApi.get("/text/requests/amount");
+      const { has_premium, has_requests, responses_left } = response.data;
+
+      const updatedRequestsLeft = has_requests ? responses_left : 0;
+
       set({
-        requestsLeft: 0,
-        hasPremium: false,
-        premiumTimeLeft: null,
+        requestsLeft: updatedRequestsLeft,
+        hasPremium: has_premium,
+        premiumTimeLeft: null, 
         isLoading: false,
         error: null,
       });
-      return;
 
-      // Вариант 2: С премиумом (30 дней)
-      // set({
-      //   requestsLeft: 999,
-      //   hasPremium: true,
-      //   premiumTimeLeft: { days: 30, hours: 0, totalHours: 720 },
-      //   isLoading: false,
-      //   error: null,
-      // });
-      // return;
-
-      // Вариант 3: С премиумом (5 часов)
-
-      set({
-        requestsLeft: 999,
-        hasPremium: true,
-        premiumTimeLeft: { days: 0, hours: 5, totalHours: 5 },
-        isLoading: false,
-        error: null,
-      });
-      return;
-
-      // Вариант 4: Премиум истек
-      // set({
-      //   requestsLeft: 0,
-      //   hasPremium: true,
-      //   premiumTimeLeft: { days: 0, hours: 0, totalHours: 0 },
-      //   isLoading: false,
-      //   error: null,
-      // });
-      // return;
-
-      // const response = await quranApi.get<QnAUserResponse>("/user/qna-status");
-      // const { requestsLeft, hasPremium, premiumEndDate } = response.data;
-
-      // if (typeof requestsLeft !== "number" || typeof hasPremium !== "boolean") {
-      //   throw new Error("Invalid data format from server");
-      // }
-
-      // // Используем реальные данные от сервера
-      // const premiumTimeLeft = get().calculatePremiumTimeLeft(premiumEndDate);
-
-      // set({
-      //   requestsLeft,
-      //   hasPremium,
-      //   premiumTimeLeft,
-      //   isLoading: false,
-      //   error: null,
-      // });
     } catch (err: unknown) {
       const message = isErrorWithMessage(err)
         ? err.message
-        : "Fail to get location";
-      console.error(" Ошибка получения геоданных:", message, err);
+        : "Failed to get user data";
+      console.error("Ошибка получения данных пользователя:", message, err);
       set({
         error: message,
         isLoading: false,

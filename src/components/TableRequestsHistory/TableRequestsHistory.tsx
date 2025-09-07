@@ -28,7 +28,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
         <Clock size={20} strokeWidth={1.5} />
         <span>{t("history")}</span>
       </button>
-      <button className={styles.button} onClick={()=>setShowModal(true)}>
+      <button className={styles.button} onClick={() => setShowModal(true)}>
         <MessageCircle size={20} strokeWidth={1.5} />
         {getStatusText()}
       </button>

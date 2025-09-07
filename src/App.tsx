@@ -33,6 +33,7 @@ import { ScannerFlowManager } from "./pages/Scanner/ScannerFlowManager";
 import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
 import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
+import { AnalyzingQna } from "./pages/QnA/analyzingQna/AnalyzingQna";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -136,6 +137,7 @@ export const App: React.FC = () => {
         />
         <Route path="/scanner/notScanned" element={<NotScaned />} />
         <Route path="/qna" element={<QnA />} />
+        <Route path="/qna/analyzing" element={<AnalyzingQna />} />
         <Route path="/qna/history" element={<History />} />
         <Route path="/qna/history/:id" element={<HistoryDetail />} />
         <Route path="/qna/shareHistory/:id" element={<ShareStory />} />

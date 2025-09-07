@@ -12,7 +12,6 @@ export const History: React.FC = () => {
   const { history } = useHistoryStore();
   const navigate = useNavigate();
 
-  // Функция форматирования даты с переводом
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 

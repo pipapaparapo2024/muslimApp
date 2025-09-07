@@ -8,18 +8,16 @@ import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/Moda
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
-import { useHistoryStore } from "../../hooks/useHistoryStore";
 import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
-  const { addHistory } = useHistoryStore(); // Используем addHistory вместо addToHistory
+  
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [, setImageError] = useState(false);
   const [question, setQuestion] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -45,44 +43,23 @@ export const QnA: React.FC = () => {
 
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return isSubmitting ? t("asking") : t("askQuestion");
+      return t("askQuestion");
     }
     return t("buyRequests");
   };
 
-  const showAskButton =
-    hasPremium || (requestsLeft != null && requestsLeft > 0);
+  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (!question.trim()) return;
 
-    setIsSubmitting(true);
-
-    try {
-      const questionText = question.trim() || "hello world";
-
-      // Имитируем запрос к API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Генерируем ответ (замените на реальный API вызов)
-      const answer = `This is a response to your question: "${questionText}". In a real application, this would come from an AI service.`;
-
-      // Добавляем вопрос и ответ в историю
-      const newHistoryItem = addHistory(questionText, answer);
-
-      // Переходим на страницу деталей этого запроса
-      navigate(`/qna/history/${newHistoryItem.id}`, {
-        state: {
-          question: questionText,
-          answer: answer,
-        },
-      });
-    } catch (error) {
-      console.error("Error asking question:", error);
-      alert("Failed to ask question. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    navigate('/qna/analyzing', { 
+      state: { 
+        question: question.trim(),
+        hasPremium: hasPremium,
+        requestsLeft: requestsLeft
+      } 
+    });
   };
 
   // Пока изображение не загружено — показываем лоадер
@@ -94,25 +71,24 @@ export const QnA: React.FC = () => {
     );
   }
 
-  if (imageError) {
-    console.log("Using fallback image due to error");
-  }
-
   return (
     <PageWrapper showBackButton={true}>
       <div className={styles.container}>
         <TableRequestsHistory text="/qna/history" />
+        
         {/* Центральный контент */}
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <img src={thinkPerson} alt="Ask a question" />
+            <img 
+              src={thinkPerson} 
+              alt="Ask a question" 
+              onError={() => setImageError(true)}
+            />
           </div>
 
           <div className={styles.guidance}>
             <span>{t("needGuidance")}</span>
-            <p>
-              {t("getClearAnswers")}
-            </p>
+            <p>{t("getClearAnswers")}</p>
           </div>
         </div>
 
@@ -132,13 +108,13 @@ export const QnA: React.FC = () => {
             placeholder={t("yourQuestion")}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            disabled={!showAskButton || isSubmitting}
+            disabled={!showAskButton}
             className={styles.input}
           />
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={(showAskButton && !question.trim()) || isSubmitting}
+            disabled={showAskButton && !question.trim()}
             onClick={!showAskButton ? () => setShowModal(true) : undefined}
           >
             {showAskButton ? "" : <Wallet strokeWidth={1.5} />}
