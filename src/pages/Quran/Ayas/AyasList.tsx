@@ -22,6 +22,8 @@ export const AyahList: React.FC = () => {
     loadPrevAyahs,
     resetAyahs,
     isLoadingMore,
+    searchAyahs,
+    searchQuery, // Получаем текущий поисковый запрос из хранилища
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -40,7 +42,9 @@ export const AyahList: React.FC = () => {
           hasNext: response.hasNext,
           hasPrev: response.hasPrev,
           pageAmount: response.pageAmount,
+          searchQuery: "", // Сбрасываем поисковый запрос при загрузке суры
         });
+        setLocalSearchQuery(""); // Сбрасываем локальное состояние поиска
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
         useSurahListStore.setState({
@@ -52,6 +56,30 @@ export const AyahList: React.FC = () => {
 
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
+
+  // Обработчик поиска
+  const handleSearch = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!surahId) return;
+
+    try {
+      await searchAyahs(surahId, localSearchQuery);
+    } catch (err) {
+      console.error("Error searching ayahs:", err);
+    }
+  }, [surahId, localSearchQuery, searchAyahs]);
+
+  // Обработчик сброса поиска
+  const handleClearSearch = useCallback(async () => {
+    if (!surahId || !localSearchQuery) return;
+
+    setLocalSearchQuery("");
+    try {
+      await searchAyahs(surahId, ""); // Пустой запрос сбросит поиск
+    } catch (err) {
+      console.error("Error clearing search:", err);
+    }
+  }, [surahId, localSearchQuery, searchAyahs]);
 
   // Загрузка следующих аятов
   const handleLoadMore = useCallback(async () => {
@@ -96,8 +124,14 @@ export const AyahList: React.FC = () => {
             <div className={styles.deskription}>
               {initialSurah?.description}
             </div>
+            {/* Показываем информацию о поиске */}
+            {searchQuery && (
+              <div className={styles.searchInfo}>
+                {t("searchResultsFor")}: "{searchQuery}"
+              </div>
+            )}
           </div>
-          <form className={styles.searchContainer} onSubmit={()=>console.log("search bitch 8===D")}>
+          <form className={styles.searchContainer} onSubmit={handleSearch}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -106,6 +140,27 @@ export const AyahList: React.FC = () => {
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
+            {localSearchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className={styles.clearSearchButton}
+                title={t("clearSearch")}
+              >
+                ✕
+              </button>
+            )}
+            <button
+              type="submit"
+              className={styles.searchButton}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                <Loader size={20} className={styles.spinner} />
+              ) : (
+                t("search")
+              )}
+            </button>
           </form>
         </div>
 
@@ -159,6 +214,13 @@ export const AyahList: React.FC = () => {
                       </>
                     )}
                   </button>
+                </div>
+              )}
+
+              {/* Сообщение о конце результатов поиска */}
+              {searchQuery && !hasNext && ayahs.length > 0 && (
+                <div className={styles.endOfSearch}>
+                  {t("endOfSearchResults")}
                 </div>
               )}
             </>
