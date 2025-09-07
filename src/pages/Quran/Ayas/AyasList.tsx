@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
-import { Search, Loader, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Loader, ChevronDown } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
@@ -16,10 +16,8 @@ export const AyahList: React.FC = () => {
     ayahs,
     error,
     hasNext,
-    hasPrev,
     fetchAyahs,
     loadMoreAyahs,
-    loadPrevAyahs,
     resetAyahs,
     isLoadingMore,
     searchAyahs,
@@ -77,16 +75,6 @@ export const AyahList: React.FC = () => {
     }
   }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
 
-  // Загрузка предыдущих аятов
-  const handleLoadPrev = useCallback(async () => {
-    if (!surahId || !hasPrev || isLoadingMore) return;
-
-    try {
-      await loadPrevAyahs(surahId);
-    } catch (err) {
-      console.error("Error loading previous ayahs:", err);
-    }
-  }, [surahId, hasPrev, isLoadingMore, loadPrevAyahs]);
 
   if (error) {
     return (
@@ -110,10 +98,7 @@ export const AyahList: React.FC = () => {
               {initialSurah?.description}
             </div>
           </div>
-          <form
-            className={styles.searchContainer}
-            onSubmit={handleSearch}
-          >
+          <form className={styles.searchContainer} onSubmit={handleSearch}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -130,26 +115,6 @@ export const AyahList: React.FC = () => {
             <LoadingSpinner />
           ) : (
             <>
-              {/* Кнопка загрузки предыдущих аятов */}
-              {hasPrev && (
-                <div className={styles.loadMoreContainer}>
-                  <button
-                    className={styles.loadMoreButton}
-                    onClick={handleLoadPrev}
-                    disabled={isLoadingMore}
-                  >
-                    {isLoadingMore ? (
-                      <Loader size={20} className={styles.spinner} />
-                    ) : (
-                      <>
-                        <ChevronUp size={20} />
-                        {t("loadPrevious")}
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
               {/* Список аятов */}
               {ayahs.map((ayah) => (
                 <div key={ayah.number} className={styles.blockAyas}>
