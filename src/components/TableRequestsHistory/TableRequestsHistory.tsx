@@ -16,13 +16,17 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const { requestsLeft, hasPremium, isLoading, premiumDaysLeft } =
     usePremiumStore();
   const navigate = useNavigate();
+
   const getStatusText = () => {
     if (isLoading) return t("loading");
-    if (hasPremium) return { premiumDaysLeft } + t("haveRequests");
+    if (hasPremium) return `${premiumDaysLeft} ${t("daysLeft")}`; // Исправлено
     if (requestsLeft != null && requestsLeft > 0)
       return `${requestsLeft} ${t("requests")}`;
     return t("noRequests");
   };
+
+  console.log("Table values:", { hasPremium, requestsLeft, premiumDaysLeft, isLoading });
+
   return (
     <div className={styles.header}>
       <button className={styles.button} onClick={() => navigate(text)}>

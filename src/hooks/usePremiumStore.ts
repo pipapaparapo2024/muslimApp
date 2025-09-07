@@ -29,13 +29,21 @@ export const usePremiumStore = create<QnAState>((set) => ({
 
     try {
       const response = await quranApi.get("/text/requests/amount");
-      const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } =
-        response.data;
+      const { hasPremium, hasRequests, requestLeft, premiumDaysLeft } = response.data;
 
-      const updatedRequestsLeft = hasRequests ? requestsLeft : 0;
-      console.log("hasPremiumrrrrrrrrrrr", hasPremium);
-      console.log("requestsLeftrrrrrrr", requestsLeft);
-      console.log("premiumDaysLeftrrrrrrrrr", premiumDaysLeft);
+      console.log("API Response:", response.data); // Добавим полный ответ для отладки
+      
+      // Обратите внимание: в API поле называется "requestLeft" (без s)
+      const updatedRequestsLeft = hasRequests ? requestLeft : 0;
+
+      console.log("Parsed values:", {
+        hasPremium,
+        hasRequests,
+        requestLeft,
+        premiumDaysLeft,
+        updatedRequestsLeft
+      });
+
       set({
         requestsLeft: updatedRequestsLeft,
         hasPremium: hasPremium,
