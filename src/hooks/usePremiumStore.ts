@@ -32,8 +32,7 @@ export const usePremiumStore = create<QnAState>((set) => ({
       
       const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } = response.data;
 
-      console.log("Full API Response:", response.data); 
-      console.log("API Data:", response.data.data);
+      console.log("API Data:", response.data);
       
       const updatedRequestsLeft = hasRequests ? requestsLeft : 0;
 
