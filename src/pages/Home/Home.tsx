@@ -32,7 +32,7 @@ export const Home: React.FC = () => {
       />
 
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ (всегда под Header) === */}
-      {sensorPermission === "prompt" && (
+      {/* {sensorPermission === "prompt" && (
         <div className={styles.sensorPermissionPrompt}>
           <div className={styles.sensorPermissionCard}>
             <div className={styles.sensorIcon}>🧭</div>
@@ -44,7 +44,7 @@ export const Home: React.FC = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
