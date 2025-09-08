@@ -121,6 +121,7 @@ export const useGeoStore = create<GeoState>()(
                 timestamp: Date.now(),
               })
             );
+            console.log("response",response)
             console.log("datata0",data)
             set({
               ipData: data,
