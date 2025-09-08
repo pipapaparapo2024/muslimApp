@@ -2,54 +2,22 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { isErrorWithMessage, quranApi } from "../api/api";
 
-// Добавьте импорт для Telegram WebApp
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp: {
-        InitDataUnsafe?: {
-          user?: {
-            language_code?: string;
-          };
-        };
-      };
-    };
-  }
-}
-
-interface UserSettings {
-  cityName: string;
-  countryName: string;
-  timeZone: string;
-  langCode: string | null;
-}
-
 interface UserParametersState {
-  wasLogged: boolean | null;
   settingsSent: boolean;
   isLoading: boolean;
   error: string | null;
-  setWasLogged: (value: boolean) => void;
-  sendUserSettings: (locationData: {
-    city: string | null;
-    countryName: string | null;
-    langcode: string | null;
-    timeZone: string | null;
-  }) => Promise<void>;
-  reset: () => void;
+  sendUserSettings: (countryCode: string | null) => Promise<void>;
 }
 
 export const useUserParametersStore = create<UserParametersState>()(
   persist(
     (set) => ({
-      wasLogged: null,
       settingsSent: false,
       isLoading: false,
       error: null,
 
-      setWasLogged: (value) => set({ wasLogged: value }),
-
-      sendUserSettings: async (locationData) => {
+      sendUserSettings: async (countryCode) => {
+        console.log("🔄 [UserParams] Starting to send user settings:", countryCode);
         set({ isLoading: true, error: null });
 
         try {
@@ -58,20 +26,17 @@ export const useUserParametersStore = create<UserParametersState>()(
             throw new Error("No access token available");
           }
 
-          // Безопасное получение language_code из Telegram WebApp
+          // Получаем language_code из Telegram или используем переданный
           const langCode =
-            window.Telegram?.WebApp?.InitDataUnsafe?.user?.language_code ||
-            null;
+            countryCode ||
+            window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
 
-          // Формируем данные для отправки из полученных locationData
-          const settingsData: UserSettings = {
-            cityName: locationData.city || "Unknown",
-            countryName: locationData.langcode || "Unknown",
-            langCode: locationData.langcode || "Unknown",
-            timeZone: locationData.timeZone || "UTC",
+          // Формируем данные для отправки - только countryCode вместо countryName
+          const settingsData = {
+            langCode: langCode,
           };
 
-          console.log("Отправляем настройки пользователя:", settingsData);
+          console.log("📤 [UserParams] Sending to API:", settingsData);
 
           const response = await quranApi.post(
             "/api/v1/settings/all",
@@ -84,30 +49,31 @@ export const useUserParametersStore = create<UserParametersState>()(
             }
           );
 
-          console.log("Настройки успешно сохранены:", response.data);
-
-          set({ settingsSent: true, wasLogged: true, isLoading: false });
+          console.log(
+            "✅ [UserParams] Settings saved successfully:",
+            response.data
+          );
+          set({ settingsSent: true, isLoading: false });
         } catch (err: unknown) {
           const message = isErrorWithMessage(err)
             ? err.message
-            : "Fail to get location";
-          console.error(" Ошибка получения геоданных:", message, err);
+            : "Failed to send settings";
+          console.error("❌ [UserParams] Error:", message, err);
           set({
             error: message,
             isLoading: false,
           });
+          throw err;
         }
       },
-
-      reset: () =>
-        set({
-          wasLogged: null,
-          settingsSent: false,
-          error: null,
-        }),
     }),
     {
       name: "user-parameters-storage",
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          console.log("💾 [UserParams] State rehydrated from storage");
+        }
+      },
     }
   )
 );

@@ -9,7 +9,7 @@ export interface IpData {
   type: string;
   city?: string;
   region?: string;
-  langcode?: string;
+  langcode?: string | null;
   country: {
     code: string;
     name: string;
@@ -107,7 +107,7 @@ export const useGeoStore = create<GeoState>()(
               data.city || data.region || data.country?.name || "Unknown";
             const countryName = data.country?.name || "Unknown";
             const countryCode = data.country?.code || "Unknown";
-            
+
             // Сохраняем данные в кэш
             localStorage.setItem(
               "ipDataCache",
@@ -121,8 +121,7 @@ export const useGeoStore = create<GeoState>()(
                 timestamp: Date.now(),
               })
             );
-            console.log("response",response)
-            console.log("datata0",data)
+
             set({
               ipData: data,
               coords: data.location,
