@@ -29,7 +29,7 @@ export const HistoryDetail: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} styleHave={true}>
-        <div>Запрос не найден</div>
+        <div>Запрос не найденываываыва</div>
       </PageWrapper>
     );
   }
