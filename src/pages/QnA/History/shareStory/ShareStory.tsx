@@ -78,7 +78,7 @@ export const ShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} navigateTo="/qna">
+    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
         <div className={styles.contentWrapper} ref={imageRef}>
           <img

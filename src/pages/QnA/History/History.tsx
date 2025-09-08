@@ -10,7 +10,7 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinne
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { history, fetchHistory, loading, pagination } = useHistoryStore();
+  const { history, fetchHistory, loading } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -99,33 +99,6 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
-
-        {/* Пагинация */}
-        <div className={styles.pagination}>
-          {pagination.hasPrev && (
-            <button
-              onClick={() => fetchHistory({ page: pagination.page - 1 })}
-              className={styles.paginationButton}
-              disabled={loading}
-            >
-              {t("previous")}
-            </button>
-          )}
-
-          <span className={styles.pageInfo}>
-            {t("page")} {pagination.page} {t("of")} {pagination.pageAmount}
-          </span>
-
-          {pagination.hasNext && (
-            <button
-              onClick={() => fetchHistory({ page: pagination.page + 1 })}
-              className={styles.paginationButton}
-              disabled={loading}
-            >
-              {t("next")}
-            </button>
-          )}
-        </div>
       </div>
     </PageWrapper>
   );
