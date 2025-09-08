@@ -34,7 +34,7 @@ export const useQnAStore = create<QnAState>((set) => ({
 
     try {
       const response = await quranApi.post<QaResponse>(
-        "/text/ask",
+        "/api/v1/qa/text/ask",
         {
           question: question.trim(),
         },
