@@ -9,7 +9,7 @@
 .blockMessages {
   flex-grow: 1;
   display: flex;
-  padding-top: 150px;
+  padding-top: 80px;
   flex-direction: column;
   gap: var(--numbers-8);
   margin-bottom: var(--numbers-20);

@@ -13,7 +13,7 @@ export const History: React.FC = () => {
   const navigate = useNavigate();
   useEffect(() => {
     fetchHistory();
-  }, [history]);
+  }, []);
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
