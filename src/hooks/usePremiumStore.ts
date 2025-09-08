@@ -31,7 +31,7 @@ export const usePremiumStore = create<QnAState>((set) => ({
       const response = await quranApi.get("/api/v1/qa/text/requests/amount");
 
       const { hasPremium, hasRequests, requestsLeft, premiumDaysLeft } =
-        response.data;
+        response.data.data;
 
       console.log("API Data:", response.data);
 
