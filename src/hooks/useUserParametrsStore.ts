@@ -67,7 +67,7 @@ export const useUserParametersStore = create<UserParametersState>()(
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.langcode || "Unknown",
-            langCode: langCode,
+            langCode: locationData.langcode || "Unknown",
             timeZone: locationData.timeZone || "UTC",
           };
 
