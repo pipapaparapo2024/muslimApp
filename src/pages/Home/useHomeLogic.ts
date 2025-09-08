@@ -21,10 +21,6 @@ export const useHomeLogic = () => {
     isLoading,
     error,
     fetchFromIpApi,
-    setCoords,
-    setCity,
-    setCountry,
-    setTimeZone,
     setError,
     setLoading,
   } = useGeoStore();
@@ -75,13 +71,11 @@ export const useHomeLogic = () => {
     setIsRefreshing(true);
     setLoading(true);
 
-    // Очищаем кэш
+    // Очищаем кэш ПЕРЕД запросом
     localStorage.removeItem(IP_DATA_CACHE);
-
     ipDataFetched.current = false;
 
     try {
-      // Только IP-based геолокация
       await fetchFromIpApi();
       ipDataFetched.current = true;
     } catch (error) {
@@ -96,26 +90,7 @@ export const useHomeLogic = () => {
   // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
   useEffect(() => {
     const initializeLocation = async () => {
-      // Проверяем кэш
-      const cached = localStorage.getItem(IP_DATA_CACHE);
-
-      if (cached) {
-        try {
-          const data = JSON.parse(cached);
-          const isFresh = Date.now() - data.timestamp < 24 * 60 * 60 * 1000;
-          if (isFresh && data.location) {
-            setCoords(data.location);
-            setCity(data.city || "Unknown");
-            setCountry(data.country?.name || "Unknown");
-            setTimeZone(data.timeZone || null);
-            return;
-          }
-        } catch (e) {
-          console.warn("Failed to parse cached location", e);
-        }
-      }
-
-      // Загружаем новые данные
+      // Всегда делаем свежий запрос при инициализации
       if (!ipDataFetched.current) {
         try {
           await fetchFromIpApi();
@@ -127,7 +102,7 @@ export const useHomeLogic = () => {
     };
 
     initializeLocation();
-  }, [fetchFromIpApi, setCoords, setCity, setCountry, setTimeZone, setError]);
+  }, [fetchFromIpApi, setError]);
 
   // === ПРОВЕРКА ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
   useEffect(() => {

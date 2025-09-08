@@ -69,30 +69,6 @@ export const useGeoStore = create<GeoState>()(
       isInitialized: false,
 
       fetchFromIpApi: async () => {
-        // Проверяем есть ли свежие данные в localStorage
-        const cachedData = localStorage.getItem("ipDataCache");
-        if (cachedData) {
-          try {
-            const data = JSON.parse(cachedData);
-            // Если данные свежие (менее 24 часов), используем их
-            if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-              set({
-                ipData: data,
-                coords: data.location,
-                city: data.city,
-                langcode: data.country.code,
-                country: data.country.name,
-                timeZone: data.timeZone,
-                isLoading: false,
-                error: null,
-              });
-              return;
-            }
-          } catch (e) {
-            console.warn("Failed to parse cached IP data", e);
-          }
-        }
-
         console.log("🔄 Запрашиваем геоданные с API...");
         set({ isLoading: true, error: null });
 
@@ -108,7 +84,7 @@ export const useGeoStore = create<GeoState>()(
             const countryName = data.country?.name || "Unknown";
             const countryCode = data.country?.code || "Unknown";
 
-            // Сохраняем данные в кэш
+            // Всегда обновляем кэш при успешном запросе
             localStorage.setItem(
               "ipDataCache",
               JSON.stringify({
@@ -127,6 +103,7 @@ export const useGeoStore = create<GeoState>()(
               coords: data.location,
               city,
               country: countryName,
+              langcode: countryCode, // ← ВАЖНО: обновляем langcode!
               timeZone: data.timeZone,
               isLoading: false,
               error: null,
