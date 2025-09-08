@@ -1,6 +1,6 @@
 import React from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
-import styles from "./Friends.module.css"
+import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet } from "lucide-react";
 import { t } from "i18next";
@@ -34,31 +34,33 @@ export const Friends: React.FC = () => {
   });
 
   const handleInvite = async () => {
-    // Проверяем, доступен ли Web Share API и работает ли он корректно
+    // Проверяем, доступен ли Web Share API
     const isShareAPIAvailable = () => {
       return navigator.share && typeof navigator.share === "function";
     };
 
-    // Дополнительная проверка для Android WebView
-    const isAndroidWebView = () => {
-      return (
-        /Android/i.test(navigator.userAgent) &&
-        /WebView/i.test(navigator.userAgent)
+    // Проверяем, является ли устройство мобильным
+    const isMobileDevice = () => {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
       );
     };
 
-    if (isShareAPIAvailable() && !isAndroidWebView()) {
+    if (isShareAPIAvailable() && isMobileDevice()) {
       try {
         await navigator.share({
-          title: "Join me on Muslim App!",
-          text: "Get rewards and unlock features by joining through my link!",
+          title: t("joinMeOnMuslimApp"), // Добавьте перевод
+          text: t("getRewardsAndUnlockFeatures"), // Добавьте перевод
           url: inviteLink,
         });
+        console.log("Share successful");
       } catch (err) {
         console.log("Share canceled or failed:", err);
+        // Если шаринг отменен или не удался, используем копирование
         copyToClipboard();
       }
     } else {
+      // Для десктопов или устройств без поддержки шаринга используем копирование
       copyToClipboard();
     }
   };
@@ -66,14 +68,14 @@ export const Friends: React.FC = () => {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      // Показываем уведомление о копировании
-      alert(t("linkCopied")); // Добавьте перевод для "Link copied to clipboard!"
+      alert(t("linkCopied"));
     } catch (err) {
       console.error("Failed to copy: ", err);
       // Fallback для старых браузеров
       const textArea = document.createElement("textarea");
       textArea.value = inviteLink;
       textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();

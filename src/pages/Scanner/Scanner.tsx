@@ -17,8 +17,7 @@ export const Scanner: React.FC = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [, setImageError] = useState(false);
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null); // Один input для всех устройств
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { isLoading, processImage } = useScannerStore();
 
@@ -43,16 +42,7 @@ export const Scanner: React.FC = () => {
   }, []);
 
   const openCamera = () => {
-    // Проверяем, является ли устройство iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
-    if (isIOS) {
-      // Для iOS используем камеру с capture="environment"
-      cameraInputRef.current?.click();
-    } else {
-      // Для Android и других устройств используем обычный input file
-      fileInputRef.current?.click();
-    }
+    cameraInputRef.current?.click();
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,21 +88,12 @@ export const Scanner: React.FC = () => {
           <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
 
-        {/* Скрытый input для Android и других устройств */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          accept="image/*"
-          onChange={handleFileSelect}
-          style={{ display: "none" }}
-        />
-
-        {/* Скрытый input для iOS с камерой */}
+        {/* Единый input для всех устройств с камерой */}
         <input
           type="file"
           ref={cameraInputRef}
           accept="image/*"
-          capture="environment"
+          capture="environment" 
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />
