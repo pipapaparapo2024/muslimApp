@@ -1,68 +1,32 @@
 import { PageWrapper } from "../../../shared/PageWrapper";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const History: React.FC = () => {
-  const { t, i18n } = useTranslation();
-  const { history, fetchHistory } = useHistoryStore();
+  const { t } = useTranslation();
+  const { history, fetchHistory, loading, pagination } = useHistoryStore();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    fetchHistory();
-  }, []);
-  const formatDateWithTranslation = (dateString: string) => {
-    const date = new Date(dateString);
-
-    // Форматирование обычной даты
-    if (i18n.language === "ar") {
-      // Арабский формат: день месяц год
-      return `${date.getDate()} ${t(
-        getMonthKey(date.getMonth())
-      )} ${date.getFullYear()}`;
-    } else {
-      // Английский формат: месяц день, год
-      return `${t(
-        getMonthKey(date.getMonth())
-      )} ${date.getDate()}, ${date.getFullYear()}`;
-    }
-  };
-
-  const getMonthKey = (monthIndex: number): string => {
-    const months = [
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
-    ];
-    return months[monthIndex];
-  };
-
-  // Группируем запросы по датам с правильным форматированием
-  const groupedHistory = Object.entries(
-    history.reduce((acc, item) => {
-      const dateKey = new Date(item.timestamp).toISOString().split("T")[0];
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
+    const loadHistory = async () => {
+      try {
+        await fetchHistory();
+      } catch (error) {
+        console.error("Error loading history:", error);
+      } finally {
+        setIsLoading(false);
       }
-      acc[dateKey].push(item);
-      return acc;
-    }, {} as Record<string, typeof history>)
-  ).map(([dateKey, promises]) => ({
-    date: formatDateWithTranslation(dateKey),
-    promises,
-  }));
+    };
+
+    loadHistory();
+  }, [fetchHistory]);
 
   const handleShare = (event: React.MouseEvent, promisId: string) => {
     event.stopPropagation();
@@ -70,32 +34,41 @@ export const History: React.FC = () => {
   };
 
   const handleBlockClick = (promisId: string) => {
-    navigate(`/qna/history/${promisId}`, {
-      state: {
-        question: history.find((item) => item.id === promisId)?.question,
-        answer: history.find((item) => item.id === promisId)?.answer,
-      },
-    });
+    navigate(`/qna/history/${promisId}`);
   };
 
-  if (history.length === 0) return <HistoryEmpty />;
+  if (isLoading || loading) {
+    return (
+      <PageWrapper navigateTo="/qna" showBackButton>
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner />
+          <p>{t("loading")}...</p>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // Проверяем, есть ли вообще какие-либо QA элементы
+  const hasHistory = history.some(day => day.qa && day.qa.length > 0);
+
+  if (!hasHistory) return <HistoryEmpty />;
 
   return (
     <PageWrapper navigateTo="/qna" showBackButton>
       <div className={styles.container}>
-        {groupedHistory.map(({ date, promises }) => (
-          <div key={date} className={styles.dateSection}>
-            <div className={styles.dateHeader}>{date}</div>
-            {promises.map((promis) => (
+        {history.map((day) => (
+          <div key={day.date} className={styles.dateSection}>
+            <div className={styles.dateHeader}>{day.date}</div>
+            {day.qa.map((qaItem) => (
               <div
-                key={promis.id}
-                onClick={() => handleBlockClick(promis.id)}
+                key={qaItem.id}
+                onClick={() => handleBlockClick(qaItem.id)}
                 className={styles.blockPromis}
               >
-                <div className={styles.questionPromis}>{promis.question}</div>
-                <div className={styles.answerPromis}>{promis.answer}</div>
+                <div className={styles.questionPromis}>{qaItem.question}</div>
+                <div className={styles.answerPromis}>{qaItem.answer}</div>
                 <button
-                  onClick={(event) => handleShare(event, promis.id)}
+                  onClick={(event) => handleShare(event, qaItem.id)}
                   className={styles.share}
                 >
                   <Share2 size={16} strokeWidth={2} />
@@ -105,6 +78,31 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
+
+        {/* Пагинация */}
+        <div className={styles.pagination}>
+          {pagination.hasPrev && (
+            <button
+              onClick={() => fetchHistory({ page: pagination.page - 1 })}
+              className={styles.paginationButton}
+            >
+              {t("previous")}
+            </button>
+          )}
+          
+          <span className={styles.pageInfo}>
+            {t("page")} {pagination.page} {t("of")} {pagination.pageAmount}
+          </span>
+
+          {pagination.hasNext && (
+            <button
+              onClick={() => fetchHistory({ page: pagination.page + 1 })}
+              className={styles.paginationButton}
+            >
+              {t("next")}
+            </button>
+          )}
+        </div>
       </div>
     </PageWrapper>
   );

@@ -11,36 +11,46 @@ import { t } from "i18next";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
-  const { history } = useHistoryStore();
+  const { getHistoryItem } = useHistoryStore();
 
   const { createScreenshot, shareToTelegramStory, loading, imageRef } =
     useScreenshot();
 
-  const currentItem = history.find((item) => item.id === id);
-
   useEffect(() => {
-    const preloadImage = (src: string): Promise<void> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-        img.onerror = () => {
-          console.warn(`Failed to load image: ${src}`);
-          resolve();
+    const loadData = async () => {
+      if (!id) return;
+
+      try {
+        // Предзагрузка изображения
+        const preloadImage = (src: string): Promise<void> => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => resolve();
+            img.onerror = () => {
+              console.warn(`Failed to load image: ${src}`);
+              resolve();
+            };
+          });
         };
-      });
+
+        // Загрузка элемента истории
+        const item = await getHistoryItem(id);
+        
+        await preloadImage(message);
+        
+        setCurrentItem(item);
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        setIsLoaded(true);
+      }
     };
 
-    preloadImage(message)
-      .then(() => {
-        setIsLoaded(true);
-      })
-      .catch((err) => {
-        console.error("Error during image preloading:", err);
-        setIsLoaded(true);
-      });
-  }, []);
+    loadData();
+  }, [id, getHistoryItem]);
 
   const handleShare = async () => {
     try {
