@@ -1,5 +1,5 @@
 import { PageWrapper } from "../../../shared/PageWrapper";
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next";
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { history } = useHistoryStore();
+  const { history, fetchHistory } = useHistoryStore();
   const navigate = useNavigate();
-
+  useEffect(() => {
+    fetchHistory();
+  }, [history]);
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
