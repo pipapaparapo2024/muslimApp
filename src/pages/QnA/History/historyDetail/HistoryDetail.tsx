@@ -28,9 +28,9 @@ export const HistoryDetail: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         const item = await getHistoryItem(id);
-        
+
         if (item) {
           setCurrentItem(item);
         } else {
@@ -65,10 +65,7 @@ export const HistoryDetail: React.FC = () => {
   if (isLoading) {
     return (
       <PageWrapper showBackButton={true} styleHave={true}>
-        <div className={styles.loadingContainer}>
-          <LoadingSpinner />
-          <div>Загрузка вопроса...</div>
-        </div>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }
@@ -79,7 +76,7 @@ export const HistoryDetail: React.FC = () => {
         <div className={styles.errorContainer}>
           <div>{error || "Запрос не найден"}</div>
           <div>ID: {id}</div>
-          <button 
+          <button
             onClick={() => window.history.back()}
             className={styles.backButton}
           >
@@ -91,7 +88,7 @@ export const HistoryDetail: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} navigateTo="/qna/history" >
+    <PageWrapper showBackButton={true} navigateTo="/qna/history">
       <div className={styles.container}>
         <TableRequestsHistory text="/qna/history" />
         <div className={styles.blockMessages}>

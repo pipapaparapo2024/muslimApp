@@ -32,21 +32,20 @@ export const History: React.FC = () => {
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-      
+
       if (isNaN(date.getTime())) {
         return dateString; // Возвращаем оригинальную строку если дата невалидна
       }
 
       // Опции для форматирования даты
       const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       };
 
       // Форматируем дату в зависимости от языка
       return date.toLocaleDateString(i18n.language, options);
-      
     } catch (error) {
       console.error("Error formatting date:", error, dateString);
       return dateString; // Возвращаем оригинальную строку в случае ошибки
@@ -65,10 +64,7 @@ export const History: React.FC = () => {
   if (isLoading || loading) {
     return (
       <PageWrapper navigateTo="/qna" showBackButton>
-        <div className={styles.loadingContainer}>
-          <LoadingSpinner />
-          <p>{t("loading")}...</p>
-        </div>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }

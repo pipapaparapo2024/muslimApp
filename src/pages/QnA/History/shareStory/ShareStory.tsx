@@ -38,9 +38,9 @@ export const ShareStory: React.FC = () => {
 
         // Загрузка элемента истории
         const item = await getHistoryItem(id);
-        
+
         await preloadImage(message);
-        
+
         setCurrentItem(item);
         setIsLoaded(true);
       } catch (error) {
@@ -78,7 +78,7 @@ export const ShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={false}>
+    <PageWrapper showBackButton={true} navigateTo="/qna">
       <div className={styles.container}>
         <div className={styles.contentWrapper} ref={imageRef}>
           <img
@@ -104,7 +104,7 @@ export const ShareStory: React.FC = () => {
                   loading ? styles.shareButtonDisabled : ""
                 }`}
               >
-                <Upload/> {loading ? t("loading") : t("share")}
+                <Upload /> {loading ? t("loading") : t("share")}
               </button>
             </div>
           </div>
