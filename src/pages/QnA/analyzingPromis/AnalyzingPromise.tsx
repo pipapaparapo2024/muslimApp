@@ -26,10 +26,12 @@ export const AnalyzingPromise: React.FC = () => {
         setTimeout(() => setMinTimePassed(true), 2000);
         const id = await askQuestion(question);
         console.log("id bitch",id)
+
         // Ждем пока пройдет минимум 2 секунды
         while (!minTimePassed) {
           await new Promise((resolve) => setTimeout(resolve, 100));
         }
+
         // Обновляем данные пользователя (кол-во запросов и т.д.)
         await fetchUserData();
         navigate(`/qna/history/${id}`);

@@ -12,8 +12,7 @@ export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { history } = useHistoryStore();
   const currentItem = history.find((item) => item.id === id);
-  console.log("id", id);
-  console.log("currentItem", currentItem);
+
   // Функция копирования текста
   const handleCopy = (text: string) => {
     navigator.clipboard
