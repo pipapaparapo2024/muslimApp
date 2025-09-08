@@ -9,7 +9,7 @@ interface QnAState {
 }
 
 interface QaResponse {
-  id:string;
+  id: string;
   question?: string;
 }
 
@@ -43,7 +43,7 @@ export const useQnAStore = create<QnAState>((set) => ({
           },
         }
       );
-
+      console.log("id qna", response.data.id);
       set({ loading: false });
       return response.data.id;
     } catch (error) {

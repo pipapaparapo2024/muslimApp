@@ -25,7 +25,7 @@ export const AnalyzingPromise: React.FC = () => {
       try {
         setTimeout(() => setMinTimePassed(true), 2000);
         const id = await askQuestion(question);
-
+        console.log("id bitch",id)
         // Ждем пока пройдет минимум 2 секунды
         while (!minTimePassed) {
           await new Promise((resolve) => setTimeout(resolve, 100));

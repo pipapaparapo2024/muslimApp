@@ -59,7 +59,7 @@ export const useHistoryStore = create<SearchHistoryState>()(
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           });
-
+          console.log("RAW RESPONSE:", response.data); 
           set({
             history: response.data.data,
             pagination: {
