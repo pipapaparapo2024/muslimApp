@@ -91,7 +91,7 @@ export const HistoryDetail: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={true}>
+    <PageWrapper showBackButton={true} navigateTo="/qna/history" >
       <div className={styles.container}>
         <TableRequestsHistory text="/qna/history" />
         <div className={styles.blockMessages}>

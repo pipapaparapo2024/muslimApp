@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const History: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { history, fetchHistory, loading, pagination } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -27,6 +27,31 @@ export const History: React.FC = () => {
 
     loadHistory();
   }, [fetchHistory]);
+
+  // Функция для форматирования даты из ISO формата
+  const formatDate = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      
+      if (isNaN(date.getTime())) {
+        return dateString; // Возвращаем оригинальную строку если дата невалидна
+      }
+
+      // Опции для форматирования даты
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+
+      // Форматируем дату в зависимости от языка
+      return date.toLocaleDateString(i18n.language, options);
+      
+    } catch (error) {
+      console.error("Error formatting date:", error, dateString);
+      return dateString; // Возвращаем оригинальную строку в случае ошибки
+    }
+  };
 
   const handleShare = (event: React.MouseEvent, promisId: string) => {
     event.stopPropagation();
@@ -49,7 +74,7 @@ export const History: React.FC = () => {
   }
 
   // Проверяем, есть ли вообще какие-либо QA элементы
-  const hasHistory = history.some(day => day.qa && day.qa.length > 0);
+  const hasHistory = history.some((day) => day.qa && day.qa.length > 0);
 
   if (!hasHistory) return <HistoryEmpty />;
 
@@ -58,7 +83,7 @@ export const History: React.FC = () => {
       <div className={styles.container}>
         {history.map((day) => (
           <div key={day.date} className={styles.dateSection}>
-            <div className={styles.dateHeader}>{day.date}</div>
+            <div className={styles.dateHeader}>{formatDate(day.date)}</div>
             {day.qa.map((qaItem) => (
               <div
                 key={qaItem.id}
@@ -85,11 +110,12 @@ export const History: React.FC = () => {
             <button
               onClick={() => fetchHistory({ page: pagination.page - 1 })}
               className={styles.paginationButton}
+              disabled={loading}
             >
               {t("previous")}
             </button>
           )}
-          
+
           <span className={styles.pageInfo}>
             {t("page")} {pagination.page} {t("of")} {pagination.pageAmount}
           </span>
@@ -98,6 +124,7 @@ export const History: React.FC = () => {
             <button
               onClick={() => fetchHistory({ page: pagination.page + 1 })}
               className={styles.paginationButton}
+              disabled={loading}
             >
               {t("next")}
             </button>
