@@ -43,7 +43,7 @@ export const useQnAStore = create<QnAState>((set) => ({
           },
         }
       );
-      console.log("id qna", response.data.id);
+      console.log("id qna", response);
       set({ loading: false });
       return response.data.id;
     } catch (error) {
