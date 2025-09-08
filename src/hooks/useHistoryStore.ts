@@ -53,7 +53,7 @@ export const useHistoryStore = create<SearchHistoryState>()(
         set({ loading: true, error: null });
 
         try {
-          const response = await quranApi.get(`/text/history`, {
+          const response = await quranApi.get(`/api/v1/qa/text/history`, {
             params: { page, limit },
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
