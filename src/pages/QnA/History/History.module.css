@@ -38,3 +38,79 @@
   transition: transform 0.3s;
   transform: scale(1.02);
 }
+
+
+
+
+
+
+
+
+
+
+/* Добавьте в History.module.css */
+
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  padding: 0 16px;
+}
+
+.loadMoreButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.loadMoreButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f3f4f6;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.paginationInfo {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+  .loadMoreButton {
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 110px;
+  }
+}

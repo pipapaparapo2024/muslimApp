@@ -3,14 +3,21 @@ import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
-import { Share2 } from "lucide-react";
+import { Share2, ChevronDown, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { history, fetchHistory, loading } = useHistoryStore();
+  const { 
+    history, 
+    fetchHistory, 
+    loadMoreHistory, 
+    loading, 
+    isLoadingMore, 
+    pagination 
+  } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,21 +41,19 @@ export const History: React.FC = () => {
       const date = new Date(dateString);
 
       if (isNaN(date.getTime())) {
-        return dateString; // Возвращаем оригинальную строку если дата невалидна
+        return dateString;
       }
 
-      // Опции для форматирования даты
       const options: Intl.DateTimeFormatOptions = {
         year: "numeric",
         month: "long",
         day: "numeric",
       };
 
-      // Форматируем дату в зависимости от языка
       return date.toLocaleDateString(i18n.language, options);
     } catch (error) {
       console.error("Error formatting date:", error, dateString);
-      return dateString; // Возвращаем оригинальную строку в случае ошибки
+      return dateString;
     }
   };
 
@@ -61,10 +66,22 @@ export const History: React.FC = () => {
     navigate(`/qna/history/${promisId}`);
   };
 
+  // Загрузка следующих запросов истории
+  const handleLoadMore = async () => {
+    try {
+      await loadMoreHistory();
+    } catch (error) {
+      console.error("Error loading more history:", error);
+    }
+  };
+
   if (isLoading || loading) {
     return (
       <PageWrapper navigateTo="/qna" showBackButton>
-        <LoadingSpinner />
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner />
+          <p>{t("loading")}...</p>
+        </div>
       </PageWrapper>
     );
   }
@@ -99,6 +116,31 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
+
+        {/* Кнопка загрузки следующих запросов */}
+        {pagination.hasNext && (
+          <div className={styles.loadMoreContainer}>
+            <button
+              className={styles.loadMoreButton}
+              onClick={handleLoadMore}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                <Loader size={20} className={styles.spinner} />
+              ) : (
+                <>
+                  <ChevronDown size={20} />
+                  {t("loadMore")}
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Информация о странице */}
+        <div className={styles.paginationInfo}>
+          {t("page")} {pagination.page} {t("of")} {pagination.pageAmount}
+        </div>
       </div>
     </PageWrapper>
   );

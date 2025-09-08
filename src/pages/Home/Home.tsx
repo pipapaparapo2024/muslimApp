@@ -31,32 +31,26 @@ export const Home: React.FC = () => {
         city={city || "Unknown city"}
         country={country || "Unknown country"}
       />
-    если это строка загружается то это новая версия 
+      если это строка загружается то это новая версия
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-        <div className={styles.sensorPermissionPrompt}>
-          <div className={styles.sensorPermissionCard}>
-            <div className={styles.sensorIcon}>🧭</div>
-            <button
-              className={styles.allowSensorButton}
-              onClick={requestSensorPermission}
-            >
-              Allow
-            </button>
-          </div>
-        </div>
-
+      <div className={styles.sensorPermissionPrompt}>
+        <button
+          className={styles.allowSensorButton}
+          onClick={requestSensorPermission}
+        >
+          Allow
+        </button>
+      </div>
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
-        <div className={styles.refreshButtonContainer}>
-          <button
-            className={styles.refreshLocationButton}
-            onClick={handleRefreshLocationData}
-            disabled={isRefreshing || isLoading}
-            title={t("refreshLocation")}
-          >
-            {isRefreshing ? "🔄" : "refresh"}
-          </button>
-        </div>
+        <button
+          className={styles.refreshLocationButton}
+          onClick={handleRefreshLocationData}
+          disabled={isRefreshing || isLoading}
+          title={t("refreshLocation")}
+        >
+          {isRefreshing ? "🔄" : "refresh"}
+        </button>
 
         {isLoading && (
           <div className={styles.loadingContainer}>
@@ -65,11 +59,7 @@ export const Home: React.FC = () => {
           </div>
         )}
 
-        {error && (
-          <div className={styles.errorContainer}>
-            {error}
-          </div>
-        )}
+        {error && <div className={styles.errorContainer}>{error}</div>}
 
         {!isLoading && !error && (
           <>
@@ -78,7 +68,9 @@ export const Home: React.FC = () => {
 
               <div className={styles.qiblaBlock}>
                 <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
-                <div className={styles.diskFaceKaaba}>{t("useMapForSalah")}</div>
+                <div className={styles.diskFaceKaaba}>
+                  {t("useMapForSalah")}
+                </div>
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
