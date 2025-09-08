@@ -49,12 +49,10 @@ export const AnalyzingPromise: React.FC = () => {
   return (
     <PageWrapper>
       <div className={styles.container}>
-        <div className={styles.text}>
-          <div className={styles.title}>{t("analyzingPromis")}</div>
-          <div className={styles.desk}>{t("checkingPromis")}</div>
-          <div className={styles.image}>
-            <img src={analyz} />
-          </div>
+        <div className={styles.title}>{t("analyzingPromis")}</div>
+        <div className={styles.desk}>{t("checkingPromis")}</div>
+        <div className={styles.image}>
+          <img src={analyz} />
         </div>
       </div>
     </PageWrapper>

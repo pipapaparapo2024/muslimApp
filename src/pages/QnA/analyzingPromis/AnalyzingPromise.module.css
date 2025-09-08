@@ -1,11 +1,6 @@
 .container {
+  text-align: center;
   padding: var(--numbers-20) 0;
-}
-
-.text {
-  max-width: 220px;
-  width: 100%;
-  margin: 0 auto;
 }
 
 .title {
@@ -18,7 +13,6 @@
 .desk {
   font-size: var(--numbers-14);
   color: var(--desk-text);
-  text-align: center;
 }
 
 .image {
