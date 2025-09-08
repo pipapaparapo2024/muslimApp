@@ -26,6 +26,7 @@ interface SearchHistoryState {
   removeFromHistory: (id: string) => Promise<void>;
   clearHistory: () => Promise<void>;
   searchInHistory: (query: string) => Promise<void>;
+  getHistoryItem: (id: string) => Promise<SearchHistoryItem | null>;
 }
 
 interface ApiErrorResponse {
@@ -80,7 +81,36 @@ export const useHistoryStore = create<SearchHistoryState>()(
           set({ loading: false });
         }
       },
+      getHistoryItem: async (id: string): Promise<SearchHistoryItem | null> => {
+        set({ loading: true, error: null });
 
+        try {
+          const response = await quranApi.get(`/api/v1/qa/text/history/${id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+
+          console.log("Single history item response:", response.data);
+
+          // Извлекаем элемент из ответа согласно документации
+          const item = response.data.item || response.data;
+
+          set({ loading: false });
+          return item;
+        } catch (error) {
+          const err = error as AxiosError<ApiErrorResponse>;
+          const errorMessage =
+            err.response?.data?.message ||
+            err.response?.data?.error ||
+            err.message ||
+            "Failed to get history item";
+
+          set({ error: errorMessage, loading: false });
+          console.error("Error fetching history item:", errorMessage);
+          return null;
+        }
+      },
       // Удаление записи из истории
       removeFromHistory: async (id) => {
         try {

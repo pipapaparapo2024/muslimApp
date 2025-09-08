@@ -5,29 +5,65 @@ import { TableRequestsHistory } from "../../../../components/TableRequestsHistor
 import { Copy } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
-import { Share } from "../../../../components/share/Share"; // Импортируйте отдельный компонент
+import { Share } from "../../../../components/share/Share";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { type SearchHistoryItem } from "../../../../hooks/useHistoryStore";
 
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { history, fetchHistory } = useHistoryStore();
+  const { history, fetchHistory, getHistoryItem } = useHistoryStore();
+  const [currentItem, setCurrentItem] = useState<SearchHistoryItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const currentItem = history.find((item) => item.id === id);
+
   useEffect(() => {
-    const loadHistory = async () => {
-      if (history.length === 0) {
-        await fetchHistory();
+    const loadItem = async () => {
+      if (!id) {
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
+
+      try {
+        const localItem = history.find((item) => item.id === id);
+        
+        if (localItem) {
+          setCurrentItem(localItem);
+          setIsLoading(false);
+          return;
+        }
+
+        // Если не найдено локально, загружаем с сервера
+        const item = await getHistoryItem(id);
+        
+        if (item) {
+          setCurrentItem(item);
+          // Добавляем в локальную историю для кэширования
+          if (history.length > 0) {
+            useHistoryStore.setState((state) => ({
+              history: [...state.history, item],
+            }));
+          }
+        } else {
+          // Если не удалось получить по ID, загружаем всю историю
+          if (history.length === 0) {
+            await fetchHistory();
+            const foundInFullHistory = history.find((item) => item.id === id);
+            setCurrentItem(foundInFullHistory || null);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading history item:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    loadHistory();
-  }, [fetchHistory, history.length]);
+    loadItem();
+  }, [id, history, fetchHistory, getHistoryItem]);
+
   console.log("id", id);
-  console.log("history", history);
   console.log("currentItem", currentItem);
-  // Функция копирования текста
+
   const handleCopy = (text: string) => {
     navigator.clipboard
       .writeText(text)
@@ -44,13 +80,16 @@ export const HistoryDetail: React.FC = () => {
     return (
       <PageWrapper>
         <LoadingSpinner />
+        <div>Загрузка вопроса...</div>
       </PageWrapper>
     );
   }
+
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} styleHave={true}>
-        <div>Запрос не найденываываыва</div>
+        <div>Запрос не найден (ID: {id})</div>
+        <button onClick={() => window.history.back()}>Назад</button>
       </PageWrapper>
     );
   }
@@ -77,7 +116,6 @@ export const HistoryDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Используем отдельный компонент Share */}
         <Share shareUrl={`/qna/shareHistory/${id}`} newUrl="/qna" />
       </div>
     </PageWrapper>
