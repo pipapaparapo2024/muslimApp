@@ -46,32 +46,23 @@ export const useHomeLogic = () => {
 
   // === ОТПРАВКА НАСТРОЕК МЕСТОПОЛОЖЕНИЯ ===
   const sendLocationSettings = useCallback(async () => {
-    if (
-      city &&
-      country &&
-      timeZone &&
-      city !== "Unknown" &&
-      country !== "Unknown" &&
-      !settingsSentRef.current
-    ) {
-      console.log("Отправляем настройки местоположения:", {
+    console.log("Отправляем настройки местоположения:", {
+      city,
+      country,
+      langcode,
+      timeZone,
+    });
+
+    try {
+      await sendUserSettings({
         city,
-        country,
+        countryName: country,
         langcode,
         timeZone,
       });
-
-      try {
-        await sendUserSettings({
-          city,
-          countryName: country,
-          langcode,
-          timeZone,
-        });
-        console.log("Настройки успешно отправлены");
-      } catch (error) {
-        console.error("Ошибка при отправке настроек:", error);
-      }
+      console.log("Настройки успешно отправлены");
+    } catch (error) {
+      console.error("Ошибка при отправке настроек:", error);
     }
   }, [city, country, timeZone, langcode, sendUserSettings]);
 
