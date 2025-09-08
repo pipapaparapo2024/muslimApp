@@ -10,13 +10,13 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinne
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { 
-    history, 
-    fetchHistory, 
-    loadMoreHistory, 
-    loading, 
-    isLoadingMore, 
-    pagination 
+  const {
+    history,
+    fetchHistory,
+    loadMoreHistory,
+    loading,
+    isLoadingMore,
+    pagination,
   } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -78,10 +78,7 @@ export const History: React.FC = () => {
   if (isLoading || loading) {
     return (
       <PageWrapper navigateTo="/qna" showBackButton>
-        <div className={styles.loadingContainer}>
-          <LoadingSpinner />
-          <p>{t("loading")}...</p>
-        </div>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }

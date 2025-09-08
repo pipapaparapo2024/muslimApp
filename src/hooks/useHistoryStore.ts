@@ -72,7 +72,10 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
       });
 
       console.log("History response:", response.data);
-
+      console.log("response.data.hasNext",response.data.hasNext)
+      console.log("response.data.hasPrev",response.data.hasPrev)
+      console.log("response.data.pageAmount",response.data.pageAmount)
+      
       set({
         history: response.data.history || [],
         pagination: {
