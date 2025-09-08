@@ -25,6 +25,7 @@ export const HistoryDetail: React.FC = () => {
     loadHistory();
   }, [fetchHistory, history.length]);
   console.log("id", id);
+  console.log("history", history);
   console.log("currentItem", currentItem);
   // Функция копирования текста
   const handleCopy = (text: string) => {
