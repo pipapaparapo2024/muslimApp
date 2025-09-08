@@ -219,7 +219,7 @@ const resources = {
 
       // Analyzing Promis
       analyzingPromis: "Analyzing Promis",
-      checkingPromis:"Checking Promis",
+      checkingPromis:"Checking Promis...",
       // Analyzing Ingredient
       analyzingIngredients: "Analyzing Ingredients…",
       checkingItems:
@@ -454,7 +454,6 @@ const resources = {
       haventChecked: "لم تحقق أي شيء",
       onceYouScan: "بمجرد قيامك بمسح المنتج ضوئيًا، سترى سجلك هنا.",
       // Table Requests History
-      // Table Requests History
       history: "السجل",
       loading: "جاري التحميل...",
       haveRequests: "لديك طلبات",
@@ -463,7 +462,7 @@ const resources = {
 
       // Analyzing Promis
       analyzingPromis: "تحليل الوعود",
-      checkingPromis:"التحقق من الوعود",
+      checkingPromis:"التحقق من الوعود...",
 
       // Analyzing Ingredient
       analyzingIngredients: "جاري تحليل المكونات…",
