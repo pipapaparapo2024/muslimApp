@@ -9,7 +9,9 @@ interface QnAState {
 }
 
 interface QaResponse {
-  id: string;
+  data: {
+    id: string;
+  };
   question?: string;
 }
 
@@ -43,9 +45,9 @@ export const useQnAStore = create<QnAState>((set) => ({
           },
         }
       );
-      console.log("id qna", response);
+      console.log("id qna", response.data.data.id);
       set({ loading: false });
-      return response.data.id;
+      return response.data.data.id;
     } catch (error) {
       const err = error as AxiosError<ApiErrorResponse>;
       const errorMessage =
