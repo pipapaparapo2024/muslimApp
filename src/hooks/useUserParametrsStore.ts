@@ -2,6 +2,21 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { isErrorWithMessage, quranApi } from "../api/api";
 
+// Добавьте импорт для Telegram WebApp
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        InitDataUnsafe?: {
+          user?: {
+            language_code?: string;
+          };
+        };
+      };
+    };
+  }
+}
+
 interface UserSettings {
   cityName: string;
   countryName: string;
@@ -42,11 +57,17 @@ export const useUserParametersStore = create<UserParametersState>()(
           if (!token) {
             throw new Error("No access token available");
           }
+
+          // Безопасное получение language_code из Telegram WebApp
+          const langCode =
+            window.Telegram?.WebApp?.InitDataUnsafe?.user?.language_code ||
+            null;
+
           // Формируем данные для отправки из полученных locationData
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.langcode || "Unknown",
-            langCode: locationData.langcode,
+            langCode: langCode,
             timeZone: locationData.timeZone || "UTC",
           };
 
@@ -65,7 +86,7 @@ export const useUserParametersStore = create<UserParametersState>()(
 
           console.log("Настройки успешно сохранены:", response.data);
 
-          set({ settingsSent: true, wasLogged: true });
+          set({ settingsSent: true, wasLogged: true, isLoading: false });
         } catch (err: unknown) {
           const message = isErrorWithMessage(err)
             ? err.message
