@@ -27,10 +27,10 @@ export const Home: React.FC = () => {
 
   return (
     <PageWrapper>
-      <Header
+      {/* <Header
         city={city || "Unknown city"}
         country={country || "Unknown country"}
-      />
+      /> */}
       если это строка загружается то это новая версия
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       <div className={styles.sensorPermissionPrompt}>
