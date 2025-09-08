@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./HistoryDetail.module.css";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { TableRequestsHistory } from "../../../../components/TableRequestsHistory/TableRequestsHistory";
@@ -7,11 +7,23 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Share } from "../../../../components/share/Share"; // Импортируйте отдельный компонент
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { history } = useHistoryStore();
+  const { history, fetchHistory } = useHistoryStore();
+  const [isLoading, setIsLoading] = useState(true);
   const currentItem = history.find((item) => item.id === id);
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (history.length === 0) {
+        await fetchHistory();
+      }
+      setIsLoading(false);
+    };
+
+    loadHistory();
+  }, [fetchHistory, history.length]);
   console.log("id", id);
   console.log("currentItem", currentItem);
   // Функция копирования текста
@@ -27,6 +39,13 @@ export const HistoryDetail: React.FC = () => {
       });
   };
 
+  if (isLoading) {
+    return (
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
+  }
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} styleHave={true}>
