@@ -12,7 +12,8 @@ export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { history } = useHistoryStore();
   const currentItem = history.find((item) => item.id === id);
-
+  console.log("id", id);
+  console.log("currentItem", currentItem);
   // Функция копирования текста
   const handleCopy = (text: string) => {
     navigator.clipboard
@@ -37,7 +38,7 @@ export const HistoryDetail: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={true}>
       <div className={styles.container}>
-        <TableRequestsHistory text="/qna/history"/>
+        <TableRequestsHistory text="/qna/history" />
         <div className={styles.blockMessages}>
           <div className={styles.blockMessageUser}>
             <div className={styles.nickName}>{t("you")}</div>
@@ -55,12 +56,9 @@ export const HistoryDetail: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Используем отдельный компонент Share */}
-        <Share 
-          shareUrl={`/qna/shareHistory/${id}`}
-          newUrl="/qna"
-        />
+        <Share shareUrl={`/qna/shareHistory/${id}`} newUrl="/qna" />
       </div>
     </PageWrapper>
   );
