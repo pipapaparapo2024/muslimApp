@@ -9,10 +9,8 @@ interface QnAState {
 }
 
 interface QaResponse {
-  answer: string;
   id:string;
   question?: string;
-  source?: string;
 }
 
 interface ApiErrorResponse {
