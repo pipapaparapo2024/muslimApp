@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PageWrapper } from "../../../shared/PageWrapper";
-import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { useQnAStore } from "../../../hooks/useQnAStore";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import styles from "./AnalyzingPromise.module.css";
+import analyz from "../../../assets/image/analyz.png";
+import { t } from "i18next";
 
 export const AnalyzingPromise: React.FC = () => {
   const location = useLocation();
@@ -46,12 +47,14 @@ export const AnalyzingPromise: React.FC = () => {
   }, [question, minTimePassed, navigate, askQuestion, fetchUserData]);
 
   return (
-    <PageWrapper showBackButton={true}>
+    <PageWrapper>
       <div className={styles.container}>
-        <LoadingSpinner />
-        <div className={styles.text}>Analyzing your question...</div>
-        <div className={styles.subtext}>
-          Please wait while we process your request
+        <div className={styles.text}>
+          <div className={styles.title}>{t("analyzingPromis")}</div>
+          <div className={styles.desk}>{t("checkingPromis")}</div>
+          <div className={styles.image}>
+            <img src={analyz} />
+          </div>
         </div>
       </div>
     </PageWrapper>

@@ -1,0 +1,33 @@
+.container {
+  padding: var(--numbers-20) 0;
+}
+
+.text {
+  max-width: 220px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: var(--numbers-20);
+  color: var(--text);
+  text-wrap: nowrap;
+  margin-bottom: var(--numbers-4);
+}
+
+.desk {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+  text-align: center;
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+  margin: var(--numbers-36) 0;
+}
+.countdown {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}

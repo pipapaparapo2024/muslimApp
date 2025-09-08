@@ -128,10 +128,10 @@ const resources = {
       loadingChapters: "Loading chapters...",
       ayahs: "Ayahs",
 
-      //Ayahs 
-      loadPrevious:"Load Previous",
-      loadMore:"Load More",
-      
+      //Ayahs
+      loadPrevious: "Load Previous",
+      loadMore: "Load More",
+
       //Translation and other
       chooseTranslation: "Choose Translation",
       selectPreferred:
@@ -217,6 +217,9 @@ const resources = {
       noRequests: "No Requests",
       requests: "Requests",
 
+      // Analyzing Promis
+      analyzingPromis: "Analyzing Promis",
+      checkingPromis:"Checking Promis",
       // Analyzing Ingredient
       analyzingIngredients: "Analyzing Ingredients…",
       checkingItems:
@@ -369,15 +372,15 @@ const resources = {
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
 
-      //Ayahs 
-      loadPrevious:"تحميل السابق",
-      loadMore:"تحميل المزيد",
+      //Ayahs
+      loadPrevious: "تحميل السابق",
+      loadMore: "تحميل المزيد",
       //Translation and other
       chooseTranslation: "اختر الترجمة",
       selectPreferred: "اختر ترجمتك المفضلة للقرآن لفهم أفضل.",
       makkah: "مكة",
       madinah: "المدينة المنورة",
-      ayahs:"آيات",
+      ayahs: "آيات",
 
       // Date Time Settings
       timeFormat: "تنسيق الوقت",
@@ -457,6 +460,10 @@ const resources = {
       haveRequests: "لديك طلبات",
       noRequests: "لا توجد طلبات",
       requests: "طلبات",
+
+      // Analyzing Promis
+      analyzingPromis: "تحليل الوعود",
+      checkingPromis:"التحقق من الوعود",
 
       // Analyzing Ingredient
       analyzingIngredients: "جاري تحليل المكونات…",
