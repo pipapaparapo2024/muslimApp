@@ -45,7 +45,7 @@ export const useUserParametersStore = create<UserParametersState>()(
           // Формируем данные для отправки из полученных locationData
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
-            countryName: locationData.countryName || "Unknown",
+            countryName: locationData.langcode || "Unknown",
             langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };

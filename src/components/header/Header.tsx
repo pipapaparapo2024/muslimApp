@@ -12,19 +12,17 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ country, city }) => {
   const { formattedDate } = useDataTimeStore();
-  const { hasPremium, premiumTimeLeft, fetchUserData } = usePremiumStore();
+  const { hasPremium, premiumDaysLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { t } = useTranslation();
   const navigate = useNavigate();
   const getButtonText = () => {
     if (!hasPremium) return t("buyPremium");
-    if (!premiumTimeLeft) return t("premiumActive");
+    if (!premiumDaysLeft) return t("premiumActive");
 
-    if (premiumTimeLeft.days > 0) {
-      return `${premiumTimeLeft.days} ${t("daysLeft")}`;
-    } else if (premiumTimeLeft.totalHours > 0) {
-      return `${premiumTimeLeft.totalHours} ${t("hoursLeft")}`;
+    if (premiumDaysLeft > 0) {
+      return `${premiumDaysLeft} ${t("daysLeft")}`;
     } else {
       return t("buyPremium");
     }
@@ -36,12 +34,7 @@ export const Header: React.FC<HeaderProps> = ({ country, city }) => {
 
   const getButtonClassName = () => {
     if (!hasPremium) return styles.buyPremiumButton;
-
-    if (premiumTimeLeft && premiumTimeLeft.totalHours > 0) {
-      return styles.DaysLeftPrem;
-    } else {
-      return styles.DaysLeftPrem;
-    }
+    return styles.DaysLeftPrem;
   };
 
   return (
