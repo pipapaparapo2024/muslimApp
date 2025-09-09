@@ -107,3 +107,75 @@
 .loadMoreButton:active:not(:disabled) {
   transform: scale(0.98);
 }
+
+
+/* AyasList.module.css */
+.searchContainer {
+  position: relative;
+  gap: var(--numbers-8);
+  display: flex;
+  align-items: center;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-16) var(--numbers-12);
+  background-color: var(--bg-app);
+}
+
+.searchNavigation {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  margin-left: var(--numbers-8);
+}
+
+.resultsCount {
+  font-size: var(--numbers-12);
+  color: var(--color-text-secondary);
+  margin-right: var(--numbers-4);
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--roundings-small);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navButton:hover {
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
+}
+
+.searchSpinner {
+  animation: spin 1s linear infinite;
+  margin-left: var(--numbers-8);
+}
+
+.highlightedResult {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--color-background-semantic-solid-brand);
+  z-index: 10;
+}
+
+.noResults {
+  text-align: center;
+  padding: var(--numbers-32);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+@keyframes highlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.blockAyas {
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}

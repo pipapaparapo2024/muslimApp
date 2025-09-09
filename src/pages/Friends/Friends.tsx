@@ -108,36 +108,9 @@ export const Friends: React.FC = () => {
           console.log("Share successful");
         } catch (err) {
           console.log("Share canceled or failed:", err);
-          copyToClipboard();
         }
       } else {
-        copyToClipboard();
       }
-    }
-  };
-
-  const copyToClipboard = async () => {
-    if (!telegram_id) {
-      alert(t("telegramIdNotFound"));
-      return;
-    }
-
-    const inviteLink = `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
-    try {
-      await navigator.clipboard.writeText(inviteLink);
-      alert(t("linkCopied"));
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-      // Fallback для старых браузеров
-      const textArea = document.createElement("textarea");
-      textArea.value = inviteLink;
-      textArea.style.position = "fixed";
-      textArea.style.opacity = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      document.body.removeChild(textArea);
     }
   };
 
