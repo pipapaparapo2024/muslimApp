@@ -9,7 +9,7 @@ const IP_DATA_CACHE = "ipDataCache";
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { settingsSent, sendUserSettings } = useUserParametersStore();
-
+  const geoRequestSent = useRef(false); // ← Новый ref
   // Геоданные из стора
   const {
     langcode,
@@ -110,12 +110,14 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeLocation = async () => {
       // Всегда делаем свежий запрос при инициализации
-      if (!ipDataFetched.current) {
+      if (!ipDataFetched.current && !geoRequestSent.current) {
+        geoRequestSent.current = true; // ← Помечаем как отправленный
         try {
           await fetchFromIpApi();
           ipDataFetched.current = true;
         } catch (_) {
           setError("Не удалось определить местоположение");
+          geoRequestSent.current = false; // ← Разрешаем повторную попытку
         }
       }
     };
