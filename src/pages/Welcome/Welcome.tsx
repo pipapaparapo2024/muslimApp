@@ -12,7 +12,6 @@ export const Welcome: React.FC = () => {
     fade,
     isLoaded,
     isAnimating,
-    isInitializing,
     containerRef,
     authError,
     handleNext,
@@ -20,11 +19,10 @@ export const Welcome: React.FC = () => {
   } = useWelcomeLogic();
 
   // Показываем лоадер при загрузке изображений или инициализации
-  if (!isLoaded || isInitializing) {
+  if (!isLoaded) {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
-        <p>{t("initializingApp")}...</p>
       </PageWrapper>
     );
   }
