@@ -1,9 +1,8 @@
-// pages/Welcome/Welcome.tsx
 import React from "react";
 import styles from "./Welcome.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { useWelcomeLogic } from "./WelcomeLogic"; // ← вся логика здесь
+import { useWelcomeLogic } from "./WelcomeLogic";
 import { t } from "i18next";
 
 export const Welcome: React.FC = () => {
@@ -13,17 +12,19 @@ export const Welcome: React.FC = () => {
     fade,
     isLoaded,
     isAnimating,
+    isInitializing,
     containerRef,
     authError,
     handleNext,
     handleStart,
   } = useWelcomeLogic();
 
-  // Показываем лоадер при загрузке изображений
-  if (!isLoaded) {
+  // Показываем лоадер при загрузке изображений или инициализации
+  if (!isLoaded || isInitializing) {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
+        <p>{t("initializingApp")}...</p>
       </PageWrapper>
     );
   }
@@ -116,4 +117,3 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-

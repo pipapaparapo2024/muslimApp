@@ -2,6 +2,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next";
+import { useGeoStore } from "../../hooks/useGeoStore";
+import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 
 import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
@@ -17,6 +19,23 @@ interface Step {
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  
+  // Подключаем сторы для геоданных и настроек
+  const {
+    city,
+    country,
+    timeZone,
+    langcode,
+    isLoading: isGeoLoading,
+    error: geoError,
+    fetchFromIpApi,
+  } = useGeoStore();
+
+  const {
+    sendUserSettings,
+    isLoading: isSettingsLoading,
+    error: settingsError,
+  } = useUserParametersStore();
 
   const steps: Step[] = [
     {
@@ -45,8 +64,10 @@ export const useWelcomeLogic = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const geoDataFetched = useRef(false);
 
   // Получаем данные авторизации
   const {
@@ -56,21 +77,70 @@ export const useWelcomeLogic = () => {
     wasLogged,
   } = useTelegram();
 
+  // Функция отправки настроек местоположения
+  const sendLocationSettings = useCallback(async () => {
+    if (!city || !country || !timeZone) {
+      console.log("Не все геоданные доступны для отправки");
+      return;
+    }
+
+    console.log("Отправляем настройки местоположения:", {
+      city,
+      country,
+      langcode,
+      timeZone,
+    });
+
+    try {
+      await sendUserSettings({
+        city,
+        countryName: country,
+        langcode,
+        timeZone,
+      });
+      console.log("Настройки успешно отправлены");
+    } catch (error) {
+      console.error("Ошибка при отправке настроек:", error);
+    }
+  }, [city, country, timeZone, langcode, sendUserSettings]);
+
+  // Инициализация геоданных и отправка настроек
+  useEffect(() => {
+    const initializeApp = async () => {
+      if (!geoDataFetched.current) {
+        try {
+          // Получаем геоданные
+          await fetchFromIpApi();
+          geoDataFetched.current = true;
+          
+          // После получения геоданных отправляем настройки
+          if (city && country && timeZone) {
+            await sendLocationSettings();
+          }
+        } catch (error) {
+          console.error("Ошибка инициализации:", error);
+        } finally {
+          setIsInitializing(false);
+        }
+      }
+    };
+
+    initializeApp();
+  }, [fetchFromIpApi, sendLocationSettings, city, country, timeZone]);
+
   // Проверка авторизации — перенаправление
   useEffect(() => {
-    if (!isAuthLoading) {
+    if (!isAuthLoading && !isInitializing) {
       if (isAuthenticated && wasLogged === true) {
         console.log("Пользователь уже логинился, пропускаем онбординг");
         navigate("/home", { replace: true });
       } else if (isAuthenticated && wasLogged === false) {
-        console.log(
-          "Пользователь аутентифицирован, но первый раз — показываем онбординг"
-        );
+        console.log("Пользователь аутентифицирован, но первый раз — показываем онбординг");
       } else if (!isAuthenticated && authError) {
         console.log("Ошибка авторизации:", authError);
       }
     }
-  }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
+  }, [isAuthenticated, isAuthLoading, wasLogged, authError, navigate, isInitializing]);
 
   // Предзагрузка изображений
   useEffect(() => {
@@ -155,7 +225,7 @@ export const useWelcomeLogic = () => {
     navigate("/home", { replace: true });
   }, [isAnimating, navigate]);
 
-  // Обработка свайпов - ПЕРЕМЕЩЕН ПОСЛЕ ОБЪЯВЛЕНИЯ ФУНКЦИЙ
+  // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isLoaded) return;
@@ -193,8 +263,9 @@ export const useWelcomeLogic = () => {
     fade,
     isLoaded,
     isAnimating,
+    isInitializing: isInitializing || isGeoLoading || isSettingsLoading,
     containerRef,
-    authError,
+    authError: authError || geoError || settingsError,
     handleNext,
     handlePrev,
     handleStart,

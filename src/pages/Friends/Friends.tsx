@@ -8,39 +8,38 @@ import { openTelegramLink } from "@telegram-apps/sdk";
 
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
-  
+
   // Получаем Telegram ID напрямую из WebApp
   const getTelegramId = () => {
-    // Способ 1: Из initData (наиболее надежный)
     if (window.Telegram?.WebApp?.initData) {
       const initData = new URLSearchParams(window.Telegram.WebApp.initData);
-      const userStr = initData.get('user');
+      const userStr = initData.get("user");
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
           return user.id;
         } catch (e) {
-          console.error('Error parsing user data:', e);
+          console.error("Error parsing user data:", e);
         }
       }
     }
-    
+
     // Способ 2: Из WebApp (если доступно)
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
       return window.Telegram.WebApp.initDataUnsafe.user.id;
     }
-    
+
     // Способ 3: Из query параметров (резервный)
     const urlParams = new URLSearchParams(window.location.search);
-    const tgWebAppStartParam = urlParams.get('tgWebAppStartParam');
-    if (tgWebAppStartParam && tgWebAppStartParam.startsWith('ref-')) {
-      const refId = tgWebAppStartParam.replace('ref-', '');
+    const tgWebAppStartParam = urlParams.get("tgWebAppStartParam");
+    if (tgWebAppStartParam && tgWebAppStartParam.startsWith("ref-")) {
+      const refId = tgWebAppStartParam.replace("ref-", "");
       if (refId && !isNaN(Number(refId))) {
         return Number(refId);
       }
     }
-    
-    console.warn('Telegram ID not found');
+
+    console.warn("Telegram ID not found");
     return null;
   };
 
@@ -83,9 +82,11 @@ export const Friends: React.FC = () => {
     // Для Android устройств используем Telegram-специфичное открытие
     if (isAndroid() && window.Telegram?.WebApp) {
       if (!referalsText) return;
-      
+
       openTelegramLink(
-        `https://t.me/share/url?url=https://t.me/funnyTestsBot?start=ref-${telegram_id}&text=${encodeURIComponent(referalsText)}`
+        `https://t.me/share/url?url=https://t.me/funnyTestsBot?start=ref-${telegram_id}&text=${encodeURIComponent(
+          referalsText
+        )}`
       );
     } else {
       // Для остальных устройств используем стандартный шаринг
@@ -135,17 +136,6 @@ export const Friends: React.FC = () => {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-
-      try {
-        const successful = document.execCommand("copy");
-        if (successful) {
-          alert(t("linkCopied"));
-        } else {
-          alert(t("copyFailed"));
-        }
-      } catch (_) {
-        alert(t("copyFailed"));
-      }
 
       document.body.removeChild(textArea);
     }
