@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { isErrorWithMessage, quranApi } from "../api/api";
+const LAST_SETTINGS_REQUEST = "lastSettingsRequest"; // ← Добавляем ключ для защиты
 
 interface UserSettings {
   cityName: string;
@@ -35,6 +36,13 @@ export const useUserParametersStore = create<UserParametersState>()(
       setWasLogged: (value) => set({ wasLogged: value }),
 
       sendUserSettings: async (locationData) => {
+        // 🔥 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА НА УРОВНЕ STORE
+        const lastRequest = localStorage.getItem(LAST_SETTINGS_REQUEST);
+        if (lastRequest && Date.now() - parseInt(lastRequest) < 10000) {
+          console.log("Слишком частый запрос настроек, пропускаем");
+          return;
+        }
+
         set({ isLoading: true, error: null });
 
         try {
@@ -42,7 +50,7 @@ export const useUserParametersStore = create<UserParametersState>()(
           if (!token) {
             throw new Error("No access token available");
           }
-          // Формируем данные для отправки из полученных locationData
+
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.countryName || "Unknown",
@@ -64,6 +72,9 @@ export const useUserParametersStore = create<UserParametersState>()(
           );
 
           console.log("Настройки успешно сохранены:", response.data);
+
+          // 🔥 СОХРАНЯЕМ ВРЕМЯ ПОСЛЕДНЕГО ЗАПРОСА
+          localStorage.setItem(LAST_SETTINGS_REQUEST, Date.now().toString());
 
           set({ settingsSent: true, wasLogged: true });
         } catch (err: unknown) {

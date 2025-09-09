@@ -6,7 +6,6 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 // Ключи для localStorage
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const IP_DATA_CACHE = "ipDataCache";
-
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { settingsSent, sendUserSettings } = useUserParametersStore();
@@ -34,14 +33,28 @@ export const useHomeLogic = () => {
 
   const ipDataFetched = useRef(false);
   const settingsSentRef = useRef(settingsSent);
+  const lastSettingsSendRef = useRef(0); // ← Ref для отслеживания времени последней отправки
 
   // Обновляем ref при изменении settingsSent
   useEffect(() => {
     settingsSentRef.current = settingsSent;
-  }, [settingsSent,isRefreshing]);
+  }, [settingsSent, isRefreshing]);
 
   // === ОТПРАВКА НАСТРОЕК МЕСТОПОЛОЖЕНИЯ ===
   const sendLocationSettings = useCallback(async () => {
+    // 🔥 ЗАЩИТА ОТ ЧАСТЫХ ЗАПРОСОВ - не чаще чем раз в 10 секунд
+    const now = Date.now();
+    if (now - lastSettingsSendRef.current < 10000) {
+      console.log("Слишком частый запрос настроек, пропускаем");
+      return;
+    }
+
+    // Проверяем, что все необходимые данные есть
+    if (!city || !country || !timeZone) {
+      console.log("Не все данные доступны для отправки");
+      return;
+    }
+
     console.log("Отправляем настройки местоположения:", {
       city,
       country,
@@ -57,14 +70,17 @@ export const useHomeLogic = () => {
         timeZone,
       });
       console.log("Настройки успешно отправлены");
+      lastSettingsSendRef.current = now; // ← Обновляем время последней отправки
     } catch (error) {
       console.error("Ошибка при отправке настроек:", error);
     }
-  }, [city, country, timeZone, langcode]);
+  }, [city, country, timeZone, langcode, sendUserSettings]);
 
   useEffect(() => {
-    sendLocationSettings();
-  }, [sendLocationSettings,isRefreshing]);
+    if (city && country && timeZone) {
+      sendLocationSettings();
+    }
+  }, [city, country, timeZone, sendLocationSettings]);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
@@ -78,6 +94,9 @@ export const useHomeLogic = () => {
     try {
       await fetchFromIpApi();
       ipDataFetched.current = true;
+
+      // ✅ Данные автоматически отправятся благодаря useEffect выше
+      // который отслеживает изменения city, country, timeZone
     } catch (error) {
       console.error("Failed to refresh location data:", error);
       setError("Не удалось обновить данные местоположения");
@@ -85,7 +104,7 @@ export const useHomeLogic = () => {
       setIsRefreshing(false);
       setLoading(false);
     }
-  }, [setError, setLoading,isRefreshing]);
+  }, [fetchFromIpApi, setError, setLoading]); // ✅ Убрали isRefreshing из зависимостей
 
   // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
   useEffect(() => {
