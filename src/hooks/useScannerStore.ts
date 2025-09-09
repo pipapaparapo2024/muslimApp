@@ -5,7 +5,7 @@ import { quranApi } from "../api/api";
 import { type HistoryItem } from "./useHistoryScannerStore";
 import { isErrorWithMessage } from "../api/api";
 import { AxiosError } from "axios";
-// --- Типы API ---
+
 interface ApiIngredient {
   name: string;
 }

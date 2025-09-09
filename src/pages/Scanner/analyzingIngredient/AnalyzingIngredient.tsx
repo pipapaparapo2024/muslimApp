@@ -11,7 +11,6 @@ export const AnalyzingIngredient: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Таймер обратного отсчета
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {

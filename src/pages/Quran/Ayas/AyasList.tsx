@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
@@ -32,14 +32,17 @@ export const AyahList: React.FC = () => {
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // Поиск по уже загруженным аятам
-  const searchInAyahs = useCallback((query: string): number[] => {
-    if (!query.trim() || ayahs.length === 0) return [];
-    
-    const searchTerm = query.toLowerCase();
-    return ayahs
-      .filter(ayah => ayah.text.toLowerCase().includes(searchTerm))
-      .map(ayah => ayah.number);
-  }, [ayahs]);
+  const searchInAyahs = useCallback(
+    (query: string): number[] => {
+      if (!query.trim() || ayahs.length === 0) return [];
+
+      const searchTerm = query.toLowerCase();
+      return ayahs
+        .filter((ayah) => ayah.text.toLowerCase().includes(searchTerm))
+        .map((ayah) => ayah.number);
+    },
+    [ayahs]
+  );
 
   // Загрузка первых аятов
   useEffect(() => {
@@ -88,7 +91,6 @@ export const AyahList: React.FC = () => {
         setSearchResults(results);
         setCurrentResultIndex(results.length > 0 ? 0 : -1);
         setShowSearchNavigation(results.length > 0);
-        
       } catch (err) {
         console.error("Error searching ayahs:", err);
         setSearchResults([]);
@@ -102,50 +104,55 @@ export const AyahList: React.FC = () => {
   );
 
   // Навигация по результатам поиска
-  const navigateSearchResults = useCallback((direction: 'next' | 'prev') => {
-    if (searchResults.length === 0) return;
+  const navigateSearchResults = useCallback(
+    (direction: "next" | "prev") => {
+      if (searchResults.length === 0) return;
 
-    let newIndex;
-    if (direction === 'next') {
-      newIndex = (currentResultIndex + 1) % searchResults.length;
-    } else {
-      newIndex = (currentResultIndex - 1 + searchResults.length) % searchResults.length;
-    }
+      let newIndex;
+      if (direction === "next") {
+        newIndex = (currentResultIndex + 1) % searchResults.length;
+      } else {
+        newIndex =
+          (currentResultIndex - 1 + searchResults.length) %
+          searchResults.length;
+      }
 
-    setCurrentResultIndex(newIndex);
+      setCurrentResultIndex(newIndex);
 
-    // Прокрутка к найденному элементу
-    const resultNumber = searchResults[newIndex];
-    const element = resultRefs.current.get(resultNumber);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      // Добавляем анимацию
-      element.style.transform = 'scale(1.02)';
-      setTimeout(() => {
-        if (element) {
-          element.style.transform = 'scale(1)';
-        }
-      }, 300);
-    }
-  }, [searchResults, currentResultIndex]);
+      // Прокрутка к найденному элементу
+      const resultNumber = searchResults[newIndex];
+      const element = resultRefs.current.get(resultNumber);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        // Добавляем анимацию
+        element.style.transform = "scale(1.02)";
+        setTimeout(() => {
+          if (element) {
+            element.style.transform = "scale(1)";
+          }
+        }, 300);
+      }
+    },
+    [searchResults, currentResultIndex]
+  );
 
   // Обработка клавиш для навигации
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (showSearchNavigation && searchResults.length > 0) {
-        if (e.key === 'ArrowDown') {
+        if (e.key === "ArrowDown") {
           e.preventDefault();
-          navigateSearchResults('next');
-        } else if (e.key === 'ArrowUp') {
+          navigateSearchResults("next");
+        } else if (e.key === "ArrowUp") {
           e.preventDefault();
-          navigateSearchResults('prev');
+          navigateSearchResults("prev");
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
   // Сброс поиска при изменении запроса
@@ -169,9 +176,12 @@ export const AyahList: React.FC = () => {
   }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
 
   // Проверяем, является ли аят результатом поиска
-  const isAyahInSearchResults = useCallback((ayahNumber: number) => {
-    return searchResults.includes(ayahNumber);
-  }, [searchResults]);
+  const isAyahInSearchResults = useCallback(
+    (ayahNumber: number) => {
+      return searchResults.includes(ayahNumber);
+    },
+    [searchResults]
+  );
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/quran">
@@ -188,10 +198,10 @@ export const AyahList: React.FC = () => {
               </div>
             )}
           </div>
-          
-          <form 
+
+          <form
             ref={searchContainerRef}
-            className={styles.searchContainer} 
+            className={styles.searchContainer}
             onSubmit={handleSearch}
           >
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
@@ -202,7 +212,7 @@ export const AyahList: React.FC = () => {
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
             />
-            
+
             {showSearchNavigation && searchResults.length > 0 && (
               <div className={styles.searchNavigation}>
                 <span className={styles.resultsCount}>
@@ -212,7 +222,7 @@ export const AyahList: React.FC = () => {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigateSearchResults('prev');
+                    navigateSearchResults("prev");
                   }}
                   className={styles.navButton}
                 >
@@ -222,7 +232,7 @@ export const AyahList: React.FC = () => {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    navigateSearchResults('next');
+                    navigateSearchResults("next");
                   }}
                   className={styles.navButton}
                 >
@@ -230,7 +240,7 @@ export const AyahList: React.FC = () => {
                 </button>
               </div>
             )}
-            
+
             {isSearching && (
               <Loader size={16} className={styles.searchSpinner} />
             )}
@@ -250,9 +260,10 @@ export const AyahList: React.FC = () => {
               {/* Список аятов - всегда показываем все аяты */}
               {ayahs.map((ayah, index) => {
                 const isSearchResult = isAyahInSearchResults(ayah.number);
-                const isCurrentResult = isSearchResult && 
+                const isCurrentResult =
+                  isSearchResult &&
                   searchResults[currentResultIndex] === ayah.number;
-                
+
                 return (
                   <div
                     key={ayah.number || index}
@@ -262,12 +273,10 @@ export const AyahList: React.FC = () => {
                       }
                     }}
                     className={`${styles.blockAyas} ${
-                      isSearchResult ? styles.searchResult : ''
-                    } ${
-                      isCurrentResult ? styles.highlightedResult : ''
-                    }`}
+                      isSearchResult ? styles.searchResult : ""
+                    } ${isCurrentResult ? styles.highlightedResult : ""}`}
                     style={{
-                      transition: 'transform 0.3s ease'
+                      transition: "transform 0.3s ease",
                     }}
                   >
                     <div className={styles.ayasNember}>{ayah.number}</div>
