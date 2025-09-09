@@ -38,20 +38,17 @@ export const useHomeLogic = () => {
   // Обновляем ref при изменении settingsSent
   useEffect(() => {
     settingsSentRef.current = settingsSent;
-  }, [settingsSent]);
+  }, [settingsSent,isRefreshing]);
 
   // === ОТПРАВКА НАСТРОЕК МЕСТОПОЛОЖЕНИЯ ===
   const sendLocationSettings = useCallback(async () => {
-    if (!city || !country || !timeZone) {
-      console.log("Не все данные доступны для отправки");
-      return;
-    }
     console.log("Отправляем настройки местоположения:", {
       city,
       country,
       langcode,
       timeZone,
     });
+
     try {
       await sendUserSettings({
         city,
@@ -67,7 +64,7 @@ export const useHomeLogic = () => {
 
   useEffect(() => {
     sendLocationSettings();
-  }, []);
+  }, [sendLocationSettings,isRefreshing]);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
@@ -88,7 +85,7 @@ export const useHomeLogic = () => {
       setIsRefreshing(false);
       setLoading(false);
     }
-  }, [fetchFromIpApi, setError, setLoading]);
+  }, [setError, setLoading,isRefreshing]);
 
   // === ИНИЦИАЛИЗАЦИЯ ГЕОДАННЫХ ===
   useEffect(() => {
