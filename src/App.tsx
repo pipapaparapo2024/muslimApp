@@ -130,10 +130,7 @@ export const App: React.FC = () => {
           path="/scanner/ScannerShareHistory/:id"
           element={<ScannerShareStory />}
         />
-        <Route
-          path="/scanner/scannerFlowManager "
-          element={<ScannerFlowManager />}
-        />
+
         <Route path="/scanner/notScanned" element={<NotScaned />} />
         <Route path="/qna" element={<QnA />} />
         <Route path="/qna/analyzing" element={<AnalyzingPromise />} />
