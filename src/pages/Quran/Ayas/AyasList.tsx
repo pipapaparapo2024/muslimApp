@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
@@ -13,23 +13,33 @@ export const AyahList: React.FC = () => {
   const { surah: initialSurah } = location.state || {};
 
   const {
-    ayahs,
+    ayahs = [],
     error,
     hasNext,
     fetchAyahs,
     loadMoreAyahs,
     resetAyahs,
     isLoadingMore,
-    searchAyahs, // Используем реальную функцию поиска из хранилища
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<number[]>([]); // Храним номера аятов, которые содержат поисковый запрос
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
 
   const searchContainerRef = useRef<HTMLFormElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  // Поиск по уже загруженным аятам
+  const searchInAyahs = useCallback((query: string): number[] => {
+    if (!query.trim() || ayahs.length === 0) return [];
+    
+    const searchTerm = query.toLowerCase();
+    return ayahs
+      .filter(ayah => ayah.text.toLowerCase().includes(searchTerm))
+      .map(ayah => ayah.number);
+  }, [ayahs]);
 
   // Загрузка первых аятов
   useEffect(() => {
@@ -61,49 +71,52 @@ export const AyahList: React.FC = () => {
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
 
-  // Поиск аятов - используем реальную функцию из хранилища
+  // Поиск аятов - локальный поиск по уже загруженным данным
   const handleSearch = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!surahId || !localSearchQuery.trim()) return;
+      if (!localSearchQuery.trim()) {
+        setSearchResults([]);
+        setCurrentResultIndex(-1);
+        setShowSearchNavigation(false);
+        return;
+      }
 
       setIsSearching(true);
       try {
-        // Используем реальную функцию поиска из хранилища
-        await searchAyahs(surahId, localSearchQuery);
-        
-        // После поиска показываем навигацию если есть результаты
-        const hasResults = ayahs.length > 0;
-        setCurrentResultIndex(hasResults ? 0 : -1);
-        setShowSearchNavigation(hasResults);
+        const results = searchInAyahs(localSearchQuery);
+        setSearchResults(results);
+        setCurrentResultIndex(results.length > 0 ? 0 : -1);
+        setShowSearchNavigation(results.length > 0);
         
       } catch (err) {
         console.error("Error searching ayahs:", err);
+        setSearchResults([]);
         setCurrentResultIndex(-1);
         setShowSearchNavigation(false);
       } finally {
         setIsSearching(false);
       }
     },
-    [surahId, localSearchQuery, searchAyahs, ayahs.length]
+    [localSearchQuery, searchInAyahs]
   );
 
   // Навигация по результатам поиска
   const navigateSearchResults = useCallback((direction: 'next' | 'prev') => {
-    if (ayahs.length === 0) return;
+    if (searchResults.length === 0) return;
 
     let newIndex;
     if (direction === 'next') {
-      newIndex = (currentResultIndex + 1) % ayahs.length;
+      newIndex = (currentResultIndex + 1) % searchResults.length;
     } else {
-      newIndex = (currentResultIndex - 1 + ayahs.length) % ayahs.length;
+      newIndex = (currentResultIndex - 1 + searchResults.length) % searchResults.length;
     }
 
     setCurrentResultIndex(newIndex);
 
     // Прокрутка к найденному элементу
-    const result = ayahs[newIndex];
-    const element = resultRefs.current.get(result.number);
+    const resultNumber = searchResults[newIndex];
+    const element = resultRefs.current.get(resultNumber);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
@@ -115,12 +128,12 @@ export const AyahList: React.FC = () => {
         }
       }, 300);
     }
-  }, [ayahs, currentResultIndex]);
+  }, [searchResults, currentResultIndex]);
 
   // Обработка клавиш для навигации
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (showSearchNavigation && ayahs.length > 0) {
+      if (showSearchNavigation && searchResults.length > 0) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
           navigateSearchResults('next');
@@ -133,20 +146,16 @@ export const AyahList: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showSearchNavigation, ayahs, navigateSearchResults]);
+  }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
   // Сброс поиска при изменении запроса
   useEffect(() => {
     if (!localSearchQuery.trim()) {
-      // При очистке поиска загружаем первые аяты снова
-      if (surahId) {
-        resetAyahs();
-        fetchAyahs(surahId, 1);
-      }
+      setSearchResults([]);
       setCurrentResultIndex(-1);
       setShowSearchNavigation(false);
     }
-  }, [localSearchQuery, surahId, resetAyahs, fetchAyahs]);
+  }, [localSearchQuery]);
 
   // Загрузка следующих аятов
   const handleLoadMore = useCallback(async () => {
@@ -158,6 +167,11 @@ export const AyahList: React.FC = () => {
       console.error("Error loading more ayahs:", err);
     }
   }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
+
+  // Проверяем, является ли аят результатом поиска
+  const isAyahInSearchResults = useCallback((ayahNumber: number) => {
+    return searchResults.includes(ayahNumber);
+  }, [searchResults]);
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/quran">
@@ -189,10 +203,10 @@ export const AyahList: React.FC = () => {
               className={styles.searchInput}
             />
             
-            {showSearchNavigation && ayahs.length > 0 && (
+            {showSearchNavigation && searchResults.length > 0 && (
               <div className={styles.searchNavigation}>
                 <span className={styles.resultsCount}>
-                  {currentResultIndex + 1}/{ayahs.length}
+                  {currentResultIndex + 1}/{searchResults.length}
                 </span>
                 <button
                   type="button"
@@ -230,40 +244,40 @@ export const AyahList: React.FC = () => {
               <p>Error: {error}</p>
             </div>
           ) : ayahs.length === 0 ? (
-            localSearchQuery ? (
-              <div className={styles.noResults}>
-                {t("noResultsFound")}
-              </div>
-            ) : (
-              <LoadingSpinner />
-            )
+            <LoadingSpinner />
           ) : (
             <>
-              {/* Список аятов */}
-              {ayahs.map((ayah, index) => (
-                <div
-                  key={ayah.number || index}
-                  ref={(el) => {
-                    if (el && ayah.number) {
-                      resultRefs.current.set(ayah.number, el);
-                    }
-                  }}
-                  className={`${styles.blockAyas} ${
-                    showSearchNavigation && index === currentResultIndex 
-                      ? styles.highlightedResult 
-                      : ''
-                  }`}
-                  style={{
-                    transition: 'transform 0.3s ease'
-                  }}
-                >
-                  <div className={styles.ayasNember}>{ayah.number}</div>
-                  <div className={styles.ayasText}>{ayah.text}</div>
-                </div>
-              ))}
+              {/* Список аятов - всегда показываем все аяты */}
+              {ayahs.map((ayah, index) => {
+                const isSearchResult = isAyahInSearchResults(ayah.number);
+                const isCurrentResult = isSearchResult && 
+                  searchResults[currentResultIndex] === ayah.number;
+                
+                return (
+                  <div
+                    key={ayah.number || index}
+                    ref={(el) => {
+                      if (el && ayah.number) {
+                        resultRefs.current.set(ayah.number, el);
+                      }
+                    }}
+                    className={`${styles.blockAyas} ${
+                      isSearchResult ? styles.searchResult : ''
+                    } ${
+                      isCurrentResult ? styles.highlightedResult : ''
+                    }`}
+                    style={{
+                      transition: 'transform 0.3s ease'
+                    }}
+                  >
+                    <div className={styles.ayasNember}>{ayah.number}</div>
+                    <div className={styles.ayasText}>{ayah.text}</div>
+                  </div>
+                );
+              })}
 
-              {/* Кнопка загрузки следующих аятов (только если не в режиме поиска) */}
-              {hasNext && !localSearchQuery && (
+              {/* Кнопка загрузки следующих аятов */}
+              {hasNext && (
                 <div className={styles.loadMoreContainer}>
                   <button
                     className={styles.loadMoreButton}
