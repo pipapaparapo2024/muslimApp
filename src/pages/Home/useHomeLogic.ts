@@ -63,11 +63,11 @@ export const useHomeLogic = () => {
     } catch (error) {
       console.error("Ошибка при отправке настроек:", error);
     }
-  }, [city, country, timeZone, langcode, sendUserSettings]);
+  }, [city, country, timeZone, langcode]);
 
   useEffect(() => {
     sendLocationSettings();
-  }, [city,country,timeZone]);
+  }, []);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
