@@ -67,7 +67,7 @@ export const useHomeLogic = () => {
 
   useEffect(() => {
     sendLocationSettings();
-  }, [city,country,timeZone]);
+  }, [city, country, timeZone]);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
@@ -105,7 +105,7 @@ export const useHomeLogic = () => {
     };
 
     initializeLocation();
-  }, [fetchFromIpApi, setError]);
+  }, [setError]);
 
   // === ПРОВЕРКА ДОСТУПА К ДАТЧИКАМ ПРИ ЗАГРУЗКЕ ===
   useEffect(() => {
