@@ -103,7 +103,7 @@ export const useGeoStore = create<GeoState>()(
               coords: data.location,
               city,
               country: countryName,
-              langcode: countryCode, // ← ВАЖНО: обновляем langcode!
+              langcode: countryCode,
               timeZone: data.timeZone,
               isLoading: false,
               error: null,

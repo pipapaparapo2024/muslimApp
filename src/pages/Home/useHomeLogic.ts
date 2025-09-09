@@ -64,7 +64,7 @@ export const useHomeLogic = () => {
 
   useEffect(() => {
     sendLocationSettings();
-  }, [sendLocationSettings]);
+  }, []);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
