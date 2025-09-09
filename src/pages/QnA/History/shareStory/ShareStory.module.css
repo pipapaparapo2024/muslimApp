@@ -74,7 +74,7 @@
 }
 
 .nickName {
-  color: var(--text);
+  color: var(--desk-text);
   font-weight: 400;
   font-size: var(--numbers-14);
 }

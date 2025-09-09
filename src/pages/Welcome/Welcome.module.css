@@ -15,7 +15,7 @@
 
 .welcomeDesc {
   font-size: var(--numbers-14);
-  color: var(--color-text-secondary);
+  color: var(--desk-text);
   text-align: center;
   padding: 0 var(--numbers-32);
   transition: opacity 0.3s ease, transform 0.3s ease;

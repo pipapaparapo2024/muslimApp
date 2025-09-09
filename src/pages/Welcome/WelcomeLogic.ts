@@ -1,10 +1,8 @@
-// hooks/useWelcomeLogic.ts
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
-import { useTranslation } from "react-i18next"; // ← добавлено
+import { useTranslation } from "react-i18next";
 
-// Импортируем изображения — они остаются в хуке, потому что используются в steps
 import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
@@ -18,7 +16,7 @@ interface Step {
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation(); // ← переводы здесь
+  const { t } = useTranslation();
 
   const steps: Step[] = [
     {
@@ -65,7 +63,9 @@ export const useWelcomeLogic = () => {
         console.log("Пользователь уже логинился, пропускаем онбординг");
         navigate("/home", { replace: true });
       } else if (isAuthenticated && wasLogged === false) {
-        console.log("Пользователь аутентифицирован, но первый раз — показываем онбординг");
+        console.log(
+          "Пользователь аутентифицирован, но первый раз — показываем онбординг"
+        );
       } else if (!isAuthenticated && authError) {
         console.log("Ошибка авторизации:", authError);
       }
@@ -109,7 +109,53 @@ export const useWelcomeLogic = () => {
     };
   }, [steps]);
 
-  // Обработка свайпов
+  // Функции управления шагами
+  const handleNext = useCallback(async () => {
+    if (isAnimating || step >= steps.length - 1) return;
+
+    setIsAnimating(true);
+    setFade(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    setStep((s) => s + 1);
+    setFade(false);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  }, [isAnimating, step, steps.length]);
+
+  const handlePrev = useCallback(async () => {
+    if (isAnimating || step <= 0) return;
+
+    setIsAnimating(true);
+    setFade(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    setStep((s) => s - 1);
+    setFade(false);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  }, [isAnimating, step]);
+
+  const handleStart = useCallback(async () => {
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+    setFade(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    console.log("Завершаем онбординг, сохраняем в localStorage");
+    localStorage.setItem("onboardingComplete", "1");
+    navigate("/home", { replace: true });
+  }, [isAnimating, navigate]);
+
+  // Обработка свайпов - ПЕРЕМЕЩЕН ПОСЛЕ ОБЪЯВЛЕНИЯ ФУНКЦИЙ
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isLoaded) return;
@@ -139,53 +185,7 @@ export const useWelcomeLogic = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [step, isLoaded, isAnimating]);
-
-  // Функции управления шагами
-  const handleNext = async () => {
-    if (isAnimating || step >= steps.length - 1) return;
-
-    setIsAnimating(true);
-    setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    setStep((s) => s + 1);
-    setFade(false);
-
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const handlePrev = async () => {
-    if (isAnimating || step <= 0) return;
-
-    setIsAnimating(true);
-    setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    setStep((s) => s - 1);
-    setFade(false);
-
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
-  };
-
-  const handleStart = async () => {
-    if (isAnimating) return;
-
-    setIsAnimating(true);
-    setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    console.log("Завершаем онбординг, сохраняем в localStorage");
-    localStorage.setItem("onboardingComplete", "1");
-    navigate("/home", { replace: true });
-  };
+  }, [step, isLoaded, isAnimating, handlePrev, handleNext]);
 
   return {
     steps,
@@ -194,7 +194,7 @@ export const useWelcomeLogic = () => {
     isLoaded,
     isAnimating,
     containerRef,
-    authError, // ← передаём в UI для отображения ошибки
+    authError,
     handleNext,
     handlePrev,
     handleStart,

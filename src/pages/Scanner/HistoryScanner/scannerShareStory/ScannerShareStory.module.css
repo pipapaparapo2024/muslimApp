@@ -101,7 +101,7 @@
   color: var(--text);
 }
 .scanDesk {
-  font-weight: 400;
+  font-weight: var(--font-400);
   margin: var(--numbers-4) 0 var(--numbers-8) 0;
   color: var(--desk-text);
   font-size: var(--numbers-14);
