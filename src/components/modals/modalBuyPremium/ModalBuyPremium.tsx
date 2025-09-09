@@ -47,23 +47,23 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           </button>
         </div>
 
-        <p className={styles.modalDescription}>
-          {t("premiumDescription")}
-        </p>
+        <p className={styles.modalDescription}>{t("premiumDescription")}</p>
 
         <div className={styles.options}>
-          {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map((option) => (
-            <div
-              key={option}
-              className={`${styles.option} ${
-                selectedRequests === option ? styles.selected : ""
-              }`}
-              onClick={() => onSelectRequests(option)}
-            >
-              <div>{t(option.toLowerCase().replace(" ", ""))}</div>
-              {selectedRequests === option && <Check size={20} />}
-            </div>
-          ))}
+          {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map(
+            (option) => (
+              <div
+                key={option}
+                className={`${styles.option} ${
+                  selectedRequests === option ? styles.selected : ""
+                }`}
+                onClick={() => onSelectRequests(option)}
+              >
+                <div>{t(option.replace(" ", ""))}</div>
+                {selectedRequests === option && <Check size={20} />}
+              </div>
+            )
+          )}
         </div>
 
         <div className={styles.priceBlocks}>

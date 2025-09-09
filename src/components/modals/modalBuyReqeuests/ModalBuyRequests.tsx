@@ -50,7 +50,11 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         <p className={styles.modalDescription}>{t("requestsDescription")}</p>
 
         <div className={styles.options}>
-          {[`10 ${t("requestsPrem")}`, `100 ${t("requestsPrem")}`, `1000 ${t("requestsPrem")}`].map((option) => (
+          {[
+            `10 ${t("requestsPrem")}`,
+            `100 ${t("requestsPrem")}`,
+            `1000 ${t("requestsPrem")}`,
+          ].map((option) => (
             <div
               key={option}
               className={`${styles.option} ${
@@ -58,7 +62,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               }`}
               onClick={() => onSelectRequests(option)}
             >
-              <div>{t(option.toLowerCase().replace(" ", ""))}</div>
+              <div>{t(option.replace(" ", ""))}</div>
               {selectedRequests === option && <Check size={20} />}
             </div>
           ))}
