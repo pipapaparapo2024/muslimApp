@@ -42,13 +42,16 @@ export const useHomeLogic = () => {
 
   // === ОТПРАВКА НАСТРОЕК МЕСТОПОЛОЖЕНИЯ ===
   const sendLocationSettings = useCallback(async () => {
+    if (!city || !country || !timeZone) {
+      console.log("Не все данные доступны для отправки");
+      return;
+    }
     console.log("Отправляем настройки местоположения:", {
       city,
       country,
       langcode,
       timeZone,
     });
-
     try {
       await sendUserSettings({
         city,
@@ -64,7 +67,7 @@ export const useHomeLogic = () => {
 
   useEffect(() => {
     sendLocationSettings();
-  }, []);
+  }, [city,country,timeZone]);
 
   // === ОБНОВЛЕНИЕ ГЕОЛОКАЦИИ ===
   const handleRefreshLocationData = useCallback(async () => {
