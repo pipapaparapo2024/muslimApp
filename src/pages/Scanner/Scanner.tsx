@@ -28,12 +28,14 @@ export const Scanner: React.FC = () => {
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [cameraActive, setCameraActive] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false); // Новое состояние для отслеживания готовности камеры
 
   // --- ФУНКЦИИ ---
   const startCamera = async () => {
     setErrorMsg("");
     setImageUrl(null);
     setStarting(true);
+    setCameraReady(false); // Сбрасываем готовность камеры
 
     try {
       stopCamera();
@@ -52,8 +54,10 @@ export const Scanner: React.FC = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         videoRef.current.setAttribute("playsinline", "true");
+        
+        // Ждем пока видео будет готово к воспроизведению
         await videoRef.current.play();
-        setCameraActive(true); // Активируем камеру только после успешного запуска
+        setCameraActive(true);
       }
     } catch (e: any) {
       setErrorMsg(e?.message || "Камера недоступна");
@@ -61,6 +65,18 @@ export const Scanner: React.FC = () => {
     } finally {
       setStarting(false);
     }
+  };
+
+  // Обработчик события, когда видео готово к воспроизведению
+  const handleVideoCanPlay = () => {
+    setCameraReady(true);
+  };
+
+  // Обработчик ошибок видео
+  const handleVideoError = () => {
+    setErrorMsg("Ошибка загрузки видео");
+    setCameraReady(false);
+    setCameraActive(false);
   };
 
   const stopCamera = () => {
@@ -72,6 +88,7 @@ export const Scanner: React.FC = () => {
       videoRef.current.srcObject = null;
     }
     setCameraActive(false);
+    setCameraReady(false);
   };
 
   const handleScanClick = async () => {
@@ -83,15 +100,9 @@ export const Scanner: React.FC = () => {
   };
 
   const capture = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current || !cameraReady) return;
     const video = videoRef.current;
     
-    // Проверяем, что видео готово
-    if (video.readyState !== video.HAVE_ENOUGH_DATA) {
-      setErrorMsg("Камера не готова. Попробуйте еще раз.");
-      return;
-    }
-
     const canvas = canvasRef.current;
     const w = video.videoWidth;
     const h = video.videoHeight;
@@ -161,13 +172,15 @@ export const Scanner: React.FC = () => {
   // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
+      if (starting) return t("startingCamera");
+      if (cameraActive && !cameraReady) return t("cameraLoading");
       return cameraActive ? t("scanPicture") : t("startCamera");
     }
     return t("buyRequests");
   };
 
   const showScanButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
-  const isButtonDisabled = isLoading || starting || isUploading;
+  const isButtonDisabled = isLoading || starting || isUploading || (cameraActive && !cameraReady);
 
   if (!imageLoaded) {
     return (
@@ -189,6 +202,8 @@ export const Scanner: React.FC = () => {
               className={`${styles.videoElement} ${imageUrl ? styles.hidden : ''}`}
               playsInline
               muted
+              onCanPlay={handleVideoCanPlay}
+              onError={handleVideoError}
             />
             {imageUrl && (
               <img
@@ -197,10 +212,10 @@ export const Scanner: React.FC = () => {
                 className={styles.previewImage}
               />
             )}
-            {(starting || isUploading) && (
+            {(starting || (cameraActive && !cameraReady)) && (
               <div className={styles.cameraLoading}>
                 <LoadingSpinner /> 
-                {starting ? "Запуск камеры..." : "Обработка изображения..."}
+                {starting ? "Запуск камеры..." : "Камера загружается..."}
               </div>
             )}
           </div>
@@ -230,8 +245,8 @@ export const Scanner: React.FC = () => {
             onClick={showScanButton ? handleScanClick : handleBuyRequests}
             disabled={isButtonDisabled}
           >
-            {(starting || isUploading) ? (
-              <LoadingSpinner size={20} />
+            {(starting || isUploading || (cameraActive && !cameraReady)) ? (
+              <LoadingSpinner />
             ) : showScanButton ? (
               <Camera size={24} />
             ) : (
@@ -245,18 +260,16 @@ export const Scanner: React.FC = () => {
         {errorMsg && (
           <div className={styles.errorContainer}>
             <p className={styles.errorText}>{errorMsg}</p>
-            {errorMsg && (
-              <button
-                className={styles.retryButton}
-                onClick={() => {
-                  setErrorMsg("");
-                  setCameraActive(false);
-                  setImageUrl(null);
-                }}
-              >
-                Попробовать снова
-              </button>
-            )}
+            <button
+              className={styles.retryButton}
+              onClick={() => {
+                setErrorMsg("");
+                stopCamera();
+                setImageUrl(null);
+              }}
+            >
+              Попробовать снова
+            </button>
           </div>
         )}
 
