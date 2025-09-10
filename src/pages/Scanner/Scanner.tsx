@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./Scanner.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
-import { Camera, TriangleAlert, Wallet } from "lucide-react";
+import { Camera, TriangleAlert, Wallet, X } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import scanner from "../../assets/image/scanner.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
@@ -14,10 +14,11 @@ import { t } from "i18next";
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
+  const [showCameraConfirmModal, setShowCameraConfirmModal] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [, setImageError] = useState(false);
   const navigate = useNavigate();
-  const cameraInputRef = useRef<HTMLInputElement>(null); // Один input для всех устройств
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { isLoading, processImage } = useScannerStore();
 
@@ -25,7 +26,6 @@ export const Scanner: React.FC = () => {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Предзагрузка изображения scanner
   useEffect(() => {
     const img = new Image();
     img.src = scanner;
@@ -42,7 +42,16 @@ export const Scanner: React.FC = () => {
   }, []);
 
   const openCamera = () => {
+    setShowCameraConfirmModal(true);
+  };
+
+  const handleCameraConfirm = () => {
+    setShowCameraConfirmModal(false);
     cameraInputRef.current?.click();
+  };
+
+  const handleCameraCancel = () => {
+    setShowCameraConfirmModal(false);
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +97,6 @@ export const Scanner: React.FC = () => {
           <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
 
-        {/* Единый input для всех устройств с камерой */}
         <input
           type="file"
           ref={cameraInputRef}
@@ -98,14 +106,13 @@ export const Scanner: React.FC = () => {
           style={{ display: "none" }}
         />
 
-        {/* Центральный контент */}
         <div className={styles.content}>
           <div className={styles.illustration}>
             <img src={scanner} alt={t("instantHalalCheck")} />
           </div>
 
           <div className={styles.halalCheck}>
-            <span>{("instantHalalCheck")}</span>
+            <span>{t("instantHalalCheck")}</span>
             <p>{t("takePhotoCheck")}</p>
             <p className={styles.warning}>
               <TriangleAlert
@@ -119,7 +126,6 @@ export const Scanner: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка сканирования */}
         <div className={styles.scanButtonContainer}>
           <button
             className={styles.submitButton}
@@ -135,6 +141,45 @@ export const Scanner: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Модальное окно подтверждения использования камеры */}
+      {showCameraConfirmModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.cameraConfirmModal}>
+            <div className={styles.modalHeader}>
+              <h3>{t("cameraAccess")}</h3>
+              <button 
+                className={styles.closeButton} 
+                onClick={handleCameraCancel}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className={styles.modalContent}>
+              <p>{t("cameraAccessDescription")}</p>
+              <div className={styles.cameraIcon}>
+                <Camera size={48} />
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button 
+                className={styles.cancelButton} 
+                onClick={handleCameraCancel}
+              >
+                {t("cancel")}
+              </button>
+              <button 
+                className={styles.confirmButton} 
+                onClick={handleCameraConfirm}
+              >
+                {t("allowCamera")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BuyRequestsModal
         isOpen={showModal}
