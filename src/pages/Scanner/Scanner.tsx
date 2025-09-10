@@ -1,322 +1,369 @@
-import React, { useEffect, useRef, useState } from "react";
-import styles from "./Scanner.module.css";
-import { PageWrapper } from "../../shared/PageWrapper";
-import { usePremiumStore } from "../../hooks/usePremiumStore";
-import { Camera, TriangleAlert, Wallet } from "lucide-react";
-import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
-import scanner from "../../assets/image/scanner.png";
-import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
-import { useScannerStore } from "../../hooks/useScannerStore";
-import { useNavigate } from "react-router-dom";
-import { t } from "i18next";
+// import React, { useCallback, useEffect, useRef, useState } from "react";
+// import styles from "./Scanner.module.css";
+// import { PageWrapper } from "../../shared/PageWrapper";
+// import { usePremiumStore } from "../../hooks/usePremiumStore";
+// import { Camera, TriangleAlert, Wallet } from "lucide-react";
+// import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
+// import scanner from "../../assets/image/scanner.png";
+// import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+// import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
+// import { useScannerStore } from "../../hooks/useScannerStore";
+// import { useNavigate } from "react-router-dom";
+// import { t } from "i18next";
 
-export const Scanner: React.FC = () => {
-  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
-  const [showModal, setShowModal] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [, setImageError] = useState(false);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [cameraError, setCameraError] = useState<string>('');
-  const navigate = useNavigate();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const { isLoading, processImage } = useScannerStore();
-  const [selectedRequests, setSelectedRequests] = useState("10");
-  
+// export const Scanner: React.FC = () => {
+//   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
+//   const [showModal, setShowModal] = useState(false);
+//   const [imageLoaded, setImageLoaded] = useState(false);
+//   const [, setImageError] = useState(false);
+//   const navigate = useNavigate();
+//   const cameraInputRef = useRef<HTMLInputElement>(null);
+//   const { isLoading, processImage } = useScannerStore();
+//   const fileInputRef = useRef<HTMLInputElement>(null);
+//   const openFilePicker = useCallback(() => {
+//     if (fileInputRef.current) {
+//       fileInputRef.current.click();
+//     }
+//   }, []);
+//   useEffect(() => {
+//     fetchUserData();
+//   }, [fetchUserData]);
+
+//   useEffect(() => {
+//     const img = new Image();
+//     img.src = scanner;
+
+//     img.onload = () => {
+//       setImageLoaded(true);
+//     };
+
+//     img.onerror = () => {
+//       console.error("Failed to load scanner image:", scanner);
+//       setImageError(true);
+//       setImageLoaded(true);
+//     };
+//   }, []);
+
+//   const handleFileSelect = async (
+//     event: React.ChangeEvent<HTMLInputElement>
+//   ) => {
+//     const file = event.target.files?.[0];
+//     if (file) {
+//       navigate("/scanner/analyze");
+
+//       setTimeout(async () => {
+//         try {
+//           await processImage(file);
+//         } catch (error) {
+//           console.error("Ошибка обработки:", error);
+//         }
+//       }, 100);
+//     }
+
+//     if (event.target) {
+//       event.target.value = "";
+//     }
+//   };
+
+//   const getButtonText = () => {
+//     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
+//       return t("scanPicture");
+//     }
+//     return t("buyRequests");
+//   };
+
+//   const showAskButton =
+//     hasPremium || (requestsLeft != null && requestsLeft > 0);
+
+//   if (!imageLoaded) {
+//     return (
+//       <PageWrapper>
+//         <LoadingSpinner />
+//       </PageWrapper>
+//     );
+//   }
+
+//   return (
+//     <PageWrapper showBackButton navigateTo="/home">
+//       <div className={styles.container}>
+//         <div className={styles.table}>
+//           <TableRequestsHistory text="/scanner/historyScanner" />
+//         </div>
+
+//         {/* Input для браузеров и fallback */}
+//         <input
+//           type="file"
+//           ref={cameraInputRef}
+//           accept="image/*"
+//           capture="environment"
+//           onChange={handleFileSelect}
+//           style={{ display: "none" }}
+//         />
+
+//         {/* Центральный контент */}
+//         <div className={styles.content}>
+//           <div className={styles.illustration}>
+//             <img src={scanner} alt={t("instantHalalCheck")} />
+//           </div>
+
+//           <div className={styles.halalCheck}>
+//             <span>{t("instantHalalCheck")}</span>
+//             <p>{t("takePhotoCheck")}</p>
+//             <p className={styles.warning}>
+//               <TriangleAlert
+//                 strokeWidth={1.5}
+//                 size={18}
+//                 color="white"
+//                 fill="#F59E0B"
+//               />
+//               {t("informationalOnly")}
+//             </p>
+//           </div>
+//         </div>
+
+//         {/* Кнопка сканирования */}
+//         <div className={styles.scanButtonContainer}>
+//           <button
+//             className={styles.submitButton}
+//             onClick={showAskButton ? openFilePicker : () => setShowModal(true)}
+//             disabled={isLoading}
+//           >
+//             {showAskButton ? (
+//               <Camera strokeWidth={1.5} />
+//             ) : (
+//               <Wallet strokeWidth={1.5} />
+//             )}
+//             {getButtonText()}
+//           </button>
+//           <input
+//             ref={fileInputRef}
+//             type="file"
+//             accept="image/*"
+//             onChange={handleFileSelect}
+//             style={{ display: "none" }}
+//           />
+//         </div>
+//       </div>
+
+//       <BuyRequestsModal
+//         isOpen={showModal}
+//         onClose={() => setShowModal(false)}
+//         selectedRequests={selectedRequests}
+//         onSelectRequests={setSelectedRequests}
+//       />
+//     </PageWrapper>
+//   );
+// };import React, { useState, useEffect } from "react";
+import { Camera, X, Image } from "lucide-react";
+import "./TelegramCamera.css";
+import { useEffect, useState } from "react";
+
+interface TelegramCameraProps {
+  onPhotoTaken: (file: File) => void;
+  onClose?: () => void;
+}
+
+// Хук для доступа к Telegram Web App
+const useTelegram = () => {
+  const [webApp, setWebApp] = useState<any>(null);
+
   useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = scanner;
-
-    img.onload = () => {
-      setImageLoaded(true);
-    };
-
-    img.onerror = () => {
-      console.error("Failed to load scanner image:", scanner);
-      setImageError(true);
-      setImageLoaded(true);
-    };
+    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+      setWebApp(window.Telegram.WebApp);
+      
+      // Не используем expand() так как его может не быть в типах
+      // Telegram Web App автоматически занимает весь экран в TWA
+    }
   }, []);
 
-  // Функция открытия камеры из первого кода
-  const openCamera = async () => {
+  return { webApp };
+};
+
+export const TelegramCamera: React.FC<TelegramCameraProps> = ({
+  onPhotoTaken,
+  onClose,
+}) => {
+  const { webApp } = useTelegram();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  // Проверяем доступность Telegram Camera API
+  const isCameraAvailable = webApp && typeof webApp.showCamera === 'function';
+  const isPhotoPickerAvailable = webApp && typeof webApp.showPhotoPicker === 'function';
+
+  const openTelegramCamera = async () => {
+    if (!isCameraAvailable) {
+      setError("Камера недоступна в этой версии Telegram");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
     try {
-      setIsCameraOpen(true);
-      setCameraError('');
-
-      // Проверяем поддержку getUserMedia
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setCameraError('Ваш браузер не поддерживает камеру');
-        return;
-      }
-
-      // Пытаемся сначала использовать заднюю камеру
-      let constraints: MediaStreamConstraints = { 
-        video: {
-          facingMode: 'environment', // Задняя камера
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+      // Используем нативное API Telegram для открытия камеры
+      webApp.showCamera(
+        (photoData: string) => {
+          // Фото получено в base64
+          handlePhotoData(photoData);
+          setIsLoading(false);
         },
-        audio: false 
-      };
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        handleStreamSuccess(stream);
-      } catch (backCameraError) {
-        console.log('Задняя камера недоступна, пробуем переднюю:', backCameraError);
-        
-        // Если задняя камера недоступна, пробуем переднюю
-        constraints = { 
-          video: {
-            facingMode: 'user', // Передняя камера
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          },
-          audio: false 
-        };
-
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia(constraints);
-          handleStreamSuccess(stream);
-        } catch (frontCameraError) {
-          console.log('Передняя камера тоже недоступна:', frontCameraError);
-          
-          // Пробуем без специфичных настроек
-          try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            handleStreamSuccess(stream);
-          } catch (finalError) {
-            throw finalError;
-          }
+        (error: string) => {
+          console.error("Camera error:", error);
+          setError("Не удалось открыть камеру");
+          setIsLoading(false);
+        },
+        {
+          format: "jpg",
+          quality: 0.8,
+          allowGallery: true,
+          cameraPosition: "back",
         }
+      );
+    } catch (err) {
+      console.error("Error opening camera:", err);
+      setError("Ошибка при открытии камеры");
+      setIsLoading(false);
+    }
+  };
+
+  const handlePhotoData = (base64Data: string) => {
+    try {
+      // Убираем префикс data:image/jpeg;base64, если есть
+      const base64WithoutPrefix = base64Data.startsWith('data:') 
+        ? base64Data.split(',')[1] 
+        : base64Data;
+      
+      const byteString = atob(base64WithoutPrefix);
+      const mimeType = 'image/jpeg';
+
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
       }
 
-    } catch (error) {
-      console.error('Ошибка доступа к камере:', error);
-      setCameraError('Не удалось получить доступ к камере. Проверьте разрешения.');
-      setIsCameraOpen(false);
+      const blob = new Blob([ab], { type: mimeType });
+      const file = new File([blob], "telegram-camera.jpg", { type: mimeType });
+
+      onPhotoTaken(file);
+    } catch (err) {
+      console.error("Error processing photo:", err);
+      setError("Ошибка обработки фото");
     }
   };
 
-  const handleStreamSuccess = (stream: MediaStream) => {
-    streamRef.current = stream;
-    setCameraError('');
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream;
-      videoRef.current.play().catch(playError => {
-        console.error('Ошибка воспроизведения видео:', playError);
-      });
-    }
-  };
-
-  const closeCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => {
-        track.stop();
-      });
-      streamRef.current = null;
+  const openGallery = () => {
+    if (!isPhotoPickerAvailable) {
+      setError("Галерея недоступна в этой версии Telegram");
+      return;
     }
 
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
-    setIsCameraOpen(false);
-  };
-
-  const takePhoto = async () => {
-    if (!videoRef.current) return;
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    
-    if (context && videoRef.current.videoWidth > 0) {
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // Конвертируем canvas в Blob
-      canvas.toBlob(async (blob) => {
-        if (blob) {
-          // Создаем File из Blob
-          const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
-          
-          // Закрываем камеру
-          closeCamera();
-          
-          // Переходим на страницу анализа
-          navigate("/scanner/analyze");
-
-          // Обрабатываем изображение
-          setTimeout(async () => {
-            try {
-              await processImage(file);
-            } catch (error) {
-              console.error('Ошибка обработки:', error);
-            }
-          }, 100);
+    webApp.showPhotoPicker(
+      (photos: string[]) => {
+        if (photos && photos.length > 0) {
+          handlePhotoData(photos[0]);
         }
-      }, 'image/jpeg', 0.8);
-    }
+      },
+      (error: string) => {
+        console.error("Gallery error:", error);
+        setError("Не удалось открыть галерею");
+      },
+      {
+        maxCount: 1,
+        mediaType: "photo",
+      }
+    );
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      navigate("/scanner/analyze");
-
-      setTimeout(async () => {
-        try {
-          await processImage(file);
-        } catch (error) {
-          console.error("Ошибка обработки:", error);
-        }
-      }, 100);
+  // Автоматически открываем камеру при монтировании компонента
+  useEffect(() => {
+    if (isCameraAvailable) {
+      openTelegramCamera();
     }
+  }, [isCameraAvailable]);
 
-    if (event.target) {
-      event.target.value = "";
-    }
-  };
-
-  const getButtonText = () => {
-    if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return t("scanPicture");
-    }
-    return t("buyRequests");
-  };
-
-  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
-
-  if (!imageLoaded) {
+  if (!webApp) {
     return (
-      <PageWrapper>
-        <LoadingSpinner />
-      </PageWrapper>
+      <div className="telegram-camera-fallback">
+        <p>Telegram Web App не доступен</p>
+        <button onClick={onClose} className="close-btn">
+          Закрыть
+        </button>
+      </div>
     );
   }
 
   return (
-    <PageWrapper showBackButton navigateTo="/home">
-      <div className={styles.container}>
-        <div className={styles.table}>
-          <TableRequestsHistory text="/scanner/historyScanner" />
-        </div>
+    <div className="telegram-camera">
+      <div className="telegram-camera__header">
+        <h3>📷 Сделайте фото</h3>
+        <button className="close-btn" onClick={onClose}>
+          <X size={20} />
+        </button>
+      </div>
 
-        {/* Модальное окно камеры */}
-        {isCameraOpen && (
-          <div className={styles.cameraModal}>
-            <div className={styles.cameraContainer}>
-              <video 
-                ref={videoRef}
-                className={styles.cameraPreview}
-                playsInline
-                autoPlay
-                muted
-              />
-              
-              {cameraError && (
-                <div className={styles.errorMessage}>
-                  {cameraError}
-                  <button onClick={openCamera} className={styles.retryButton}>
-                    Повторить
-                  </button>
-                </div>
+      <div className="telegram-camera__content">
+        {isLoading ? (
+          <div className="loading">
+            <div className="spinner"></div>
+            <p>Открываем камеру...</p>
+          </div>
+        ) : error ? (
+          <div className="error">
+            <p>{error}</p>
+            <div className="error-actions">
+              {isCameraAvailable && (
+                <button onClick={openTelegramCamera} className="retry-btn">
+                  Попробовать снова
+                </button>
               )}
+              {isPhotoPickerAvailable && (
+                <button onClick={openGallery} className="gallery-btn">
+                  <Image size={16} />
+                  Из галереи
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="camera-ready">
+            <div className="camera-placeholder">
+              <Camera size={48} />
+              <p>Камера готова к использованию</p>
+            </div>
 
-              <div className={styles.cameraControls}>
-                <button onClick={takePhoto} className={styles.takePhotoBtn}>
-                  📷 Сделать фото
+            <div className="camera-actions">
+              {isCameraAvailable && (
+                <button onClick={openTelegramCamera} className="camera-btn">
+                  <Camera size={20} />
+                  Открыть камеру
                 </button>
-                <button onClick={closeCamera} className={styles.closeCameraBtn}>
-                  ✕ Закрыть
+              )}
+              
+              {isPhotoPickerAvailable && (
+                <button onClick={openGallery} className="gallery-btn">
+                  <Image size={20} />
+                  Выбрать из галереи
                 </button>
-              </div>
+              )}
             </div>
           </div>
         )}
-
-        {/* Основной контент */}
-        <div className={styles.content}>
-          <div className={styles.illustration}>
-            <img src={scanner} alt={t("instantHalalCheck")} />
-          </div>
-
-          <div className={styles.halalCheck}>
-            <span>{t("instantHalalCheck")}</span>
-            <p>{t("takePhotoCheck")}</p>
-            <p className={styles.warning}>
-              <TriangleAlert
-                strokeWidth={1.5}
-                size={18}
-                color="white"
-                fill="#F59E0B"
-              />
-              {t("informationalOnly")}
-            </p>
-          </div>
-        </div>
-
-        {/* Кнопки сканирования */}
-        <div className={styles.scanButtonContainer}>
-          {showAskButton ? (
-            <>
-              <button
-                className={styles.submitButton}
-                onClick={openCamera}
-                disabled={isLoading}
-              >
-                <Camera strokeWidth={1.5} />
-                {t("scanWithCamera")}
-              </button>
-              
-              <button
-                className={styles.submitButtonSecondary}
-                onClick={() => document.getElementById('file-input')?.click()}
-                disabled={isLoading}
-              >
-                <Wallet strokeWidth={1.5} />
-                {t("chooseFromGallery")}
-              </button>
-            </>
-          ) : (
-            <button
-              className={styles.submitButton}
-              onClick={() => setShowModal(true)}
-              disabled={isLoading}
-            >
-              <Wallet strokeWidth={1.5} />
-              {t("buyRequests")}
-            </button>
-          )}
-          
-          <input
-            id="file-input"
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-          />
-        </div>
       </div>
 
-      <BuyRequestsModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        selectedRequests={selectedRequests}
-        onSelectRequests={setSelectedRequests}
-      />
-    </PageWrapper>
+      {!isCameraAvailable && (
+        <div className="version-warning">
+          <p>⚠️ Для работы камеры обновите Telegram до последней версии</p>
+          {isPhotoPickerAvailable && (
+            <button onClick={openGallery} className="gallery-btn">
+              <Image size={16} />
+              Выбрать из галереи
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
-
-
-
-
