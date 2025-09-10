@@ -5,32 +5,6 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
 
-interface TelegramWebApp {
-  WebApp?: {
-    showPopup: (params: {
-      title: string;
-      message: string;
-      buttons: Array<{ type: string; text?: string }>;
-    }) => void;
-    showAlert: (message: string) => void;
-    showConfirm: (
-      title: string,
-      message: string,
-      callback: (result: boolean) => void
-    ) => void;
-    openTelegramLink: (url: string) => void;
-    platform: string;
-    version: string;
-    initDataUnsafe?: {
-      user?: {
-        id: number;
-        first_name: string;
-        last_name?: string;
-        username?: string;
-      };
-    };
-  };
-}
 const shareViaTelegram = () => {
   const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
@@ -39,11 +13,6 @@ const shareViaTelegram = () => {
 
   window.open(shareUrl, "_blank");
 };
-declare global {
-  interface Window {
-    Telegram?: TelegramWebApp;
-  }
-}
 
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
