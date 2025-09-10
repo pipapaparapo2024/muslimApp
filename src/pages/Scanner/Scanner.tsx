@@ -154,20 +154,39 @@
 //     </PageWrapper>
 //   );
 // };import React, { useState, useEffect } from "react";
-
 import React, { useState, useRef, useEffect } from 'react';
+import { PageWrapper } from "../../shared/PageWrapper";
+import { usePremiumStore } from "../../hooks/usePremiumStore";
+import { Camera, TriangleAlert, Wallet } from "lucide-react";
+import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
+import { useScannerStore } from "../../hooks/useScannerStore";
+import { useNavigate } from "react-router-dom";
+import { t } from "i18next";
+import styles from "./Scanner.module.css";
 
-interface CameraButtonProps {
+interface ScannerProps {
   onPhotoTaken?: (photoData: string) => void;
 }
 
-export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+export const Scanner: React.FC<ScannerProps> = ({ onPhotoTaken }) => {
+  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
+  const [showModal, setShowModal] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { isLoading, processImage } = useScannerStore();
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const [selectedRequests, setSelectedRequests] = useState("1"); // Изменено на string
+
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
 
   // Проверяем поддержку mediaDevices
   const isMediaDevicesSupported = (): boolean => {
@@ -248,6 +267,42 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
     startCamera();
   };
 
+  const handleProcessPhoto = async () => {
+    if (photoPreview) {
+      try {
+        // Конвертируем data URL в Blob
+        const response = await fetch(photoPreview);
+        const blob = await response.blob();
+        
+        // Создаем File из Blob
+        const file = new File([blob], "scanned-image.png", { type: "image/png" });
+        
+        // Перенаправляем на страницу анализа
+        navigate("/scanner/analyze");
+        
+        // Обрабатываем изображение
+        setTimeout(async () => {
+          try {
+            await processImage(file);
+          } catch (error) {
+            console.error("Ошибка обработки:", error);
+          }
+        }, 100);
+      } catch (error) {
+        console.error("Ошибка конвертации фото:", error);
+      }
+    }
+  };
+
+  const getButtonText = () => {
+    if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
+      return t("scanPicture");
+    }
+    return t("buyRequests");
+  };
+
+  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
+
   // Останавливаем камеру при размонтировании компонента
   useEffect(() => {
     return () => {
@@ -259,143 +314,177 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
 
   if (photoPreview) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-        <img 
-          src={photoPreview} 
-          alt="Предпросмотр" 
-          style={{ 
-            maxWidth: '300px', 
-            maxHeight: '400px', 
-            border: '2px solid #ddd',
-            borderRadius: '10px'
-          }} 
-        />
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={retakePhoto}
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            📷 Переснять
-          </button>
-          <button 
-            onClick={clearPhoto}
-            style={{
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            ❌ Отмена
-          </button>
+      <PageWrapper showBackButton navigateTo="/home">
+        <div className={styles.container}>
+          <div className={styles.table}>
+            <TableRequestsHistory text="/scanner/historyScanner" />
+          </div>
+
+          <div className={styles.content}>
+            <div className={styles.photoPreview}>
+              <img 
+                src={photoPreview} 
+                alt="Предпросмотр" 
+                className={styles.previewImage}
+              />
+            </div>
+
+            <div className={styles.halalCheck}>
+              <span>{t("instantHalalCheck")}</span>
+              <p>{t("takePhotoCheck")}</p>
+              <p className={styles.warning}>
+                <TriangleAlert
+                  strokeWidth={1.5}
+                  size={18}
+                  color="white"
+                  fill="#F59E0B"
+                />
+                {t("informationalOnly")}
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.scanButtonContainer}>
+            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
+              <button 
+                onClick={handleProcessPhoto}
+                className={styles.submitButton}
+                disabled={isLoading}
+              >
+                {isLoading ? <LoadingSpinner /> : t("processPhoto")}
+              </button>
+              <button 
+                onClick={retakePhoto}
+                className={styles.secondaryButton}
+              >
+                📷 {t("retakePhoto")}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </PageWrapper>
     );
   }
 
   if (isCameraActive) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            height: '300px',
-            border: '2px solid #007bff',
-            borderRadius: '10px',
-            objectFit: 'cover'
-          }}
-        />
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-        
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={takePhoto}
-            style={{
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              padding: '15px 30px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            📸 Сделать фото
-          </button>
-          <button 
-            onClick={stopCamera}
-            style={{
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              padding: '15px 20px',
-              borderRadius: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            ❌ Отмена
-          </button>
+      <PageWrapper showBackButton navigateTo="/home">
+        <div className={styles.container}>
+          <div className={styles.table}>
+            <TableRequestsHistory text="/scanner/historyScanner" />
+          </div>
+
+          <div className={styles.content}>
+            <div className={styles.cameraPreview}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={styles.videoElement}
+              />
+              <canvas ref={canvasRef} style={{ display: 'none' }} />
+            </div>
+
+            <div className={styles.halalCheck}>
+              <span>{t("instantHalalCheck")}</span>
+              <p>{t("takePhotoCheck")}</p>
+              <p className={styles.warning}>
+                <TriangleAlert
+                  strokeWidth={1.5}
+                  size={18}
+                  color="white"
+                  fill="#F59E0B"
+                />
+                {t("informationalOnly")}
+              </p>
+            </div>
+          </div>
+
+          <div className={styles.scanButtonContainer}>
+            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column', width: '100%' }}>
+              <button 
+                onClick={takePhoto}
+                className={styles.submitButton}
+              >
+                📸 {t("takePhoto")}
+              </button>
+              <button 
+                onClick={stopCamera}
+                className={styles.secondaryButton}
+              >
+                ❌ {t("cancel")}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-      {cameraError && (
-        <div style={{ 
-          color: '#dc3545', 
-          backgroundColor: '#f8d7da',
-          padding: '10px',
-          borderRadius: '5px',
-          marginBottom: '10px',
-          textAlign: 'center'
-        }}>
-          {cameraError}
+    <PageWrapper showBackButton navigateTo="/home">
+      <div className={styles.container}>
+        <div className={styles.table}>
+          <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
-      )}
-      
-      <button 
-        onClick={startCamera}
-        disabled={!isMediaDevicesSupported()}
-        style={{
-          backgroundColor: isMediaDevicesSupported() ? '#007bff' : '#6c757d',
-          color: 'white',
-          border: 'none',
-          padding: '15px 30px',
-          borderRadius: '5px',
-          cursor: isMediaDevicesSupported() ? 'pointer' : 'not-allowed',
-          fontSize: '16px'
-        }}
-      >
-        📷 {isMediaDevicesSupported() ? 'Открыть камеру' : 'Камера не поддерживается'}
-      </button>
 
-      {!isMediaDevicesSupported() && (
-        <div style={{ 
-          color: '#6c757d', 
-          fontSize: '14px',
-          textAlign: 'center',
-          maxWidth: '300px'
-        }}>
-          Ваш браузер не поддерживает прямой доступ к камере. 
-          Попробуйте использовать современный браузер (Chrome, Safari, Firefox).
+        <div className={styles.content}>
+          <div className={styles.illustration}>
+            <div className={styles.cameraPlaceholder}>
+              <Camera size={64} />
+            </div>
+          </div>
+
+          <div className={styles.halalCheck}>
+            <span>{t("instantHalalCheck")}</span>
+            <p>{t("takePhotoCheck")}</p>
+            <p className={styles.warning}>
+              <TriangleAlert
+                strokeWidth={1.5}
+                size={18}
+                color="white"
+                fill="#F59E0B"
+              />
+              {t("informationalOnly")}
+            </p>
+          </div>
         </div>
-      )}
-    </div>
+
+        <div className={styles.scanButtonContainer}>
+          {cameraError && (
+            <div className={styles.errorMessage}>
+              {cameraError}
+            </div>
+          )}
+          
+          <button
+            className={styles.submitButton}
+            onClick={showAskButton ? startCamera : () => setShowModal(true)}
+            disabled={!isMediaDevicesSupported()}
+          >
+            {showAskButton ? (
+              <Camera strokeWidth={1.5} />
+            ) : (
+              <Wallet strokeWidth={1.5} />
+            )}
+            {getButtonText()}
+          </button>
+
+          {!isMediaDevicesSupported() && (
+            <div className={styles.browserWarning}>
+              {t("browserNotSupported")}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <BuyRequestsModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        selectedRequests={selectedRequests}
+        onSelectRequests={setSelectedRequests}
+      />
+    </PageWrapper>
   );
 };
