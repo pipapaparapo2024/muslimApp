@@ -160,13 +160,11 @@ import React, { useState, useEffect, useRef } from 'react';
 
 export const Scanner: React.FC = () => {
   const [cameraError, setCameraError] = useState<string>('');
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
-    // Автоматически открываем камеру при монтировании компонента
-    openCamera();
-    
     // Очистка при размонтировании
     return () => {
       closeCamera();
@@ -175,6 +173,9 @@ export const Scanner: React.FC = () => {
 
   const openCamera = async () => {
     try {
+      setIsCameraOpen(true);
+      setCameraError('');
+
       // Проверяем поддержку getUserMedia
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setCameraError('Ваш браузер не поддерживает камеру');
@@ -226,6 +227,7 @@ export const Scanner: React.FC = () => {
     } catch (error) {
       console.error('Ошибка доступа к камере:', error);
       setCameraError('Не удалось получить доступ к камере. Проверьте разрешения.');
+      setIsCameraOpen(false);
     }
   };
 
@@ -252,6 +254,8 @@ export const Scanner: React.FC = () => {
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
+
+    setIsCameraOpen(false);
   };
 
   const takePhoto = () => {
@@ -277,39 +281,55 @@ export const Scanner: React.FC = () => {
       <div className="container">
         <h1>📷 Сканер</h1>
         
-        <div className="camera-container">
-          <video 
-            ref={videoRef}
-            className="camera-preview"
-            playsInline // Важно для iOS
-            autoPlay // Автоматическое воспроизведение
-            muted // Без звука для автозапуска
-          />
-          
-          {cameraError && (
-            <div className="error-message">
-              {cameraError}
-              <button onClick={openCamera} className="retry-button">
-                Повторить
+        {!isCameraOpen ? (
+          <div className="camera-closed">
+            <button 
+              className="open-camera-btn"
+              onClick={openCamera}
+            >
+              📸 Открыть камеру
+            </button>
+            
+            <div className="instructions">
+              <p>Нажмите кнопку чтобы открыть камеру</p>
+              <small>Работает на Android и iOS</small>
+            </div>
+          </div>
+        ) : (
+          <div className="camera-container">
+            <video 
+              ref={videoRef}
+              className="camera-preview"
+              playsInline // Важно для iOS
+              autoPlay // Автоматическое воспроизведение
+              muted // Без звука для автозапуска
+            />
+            
+            {cameraError && (
+              <div className="error-message">
+                {cameraError}
+                <button onClick={openCamera} className="retry-button">
+                  Повторить
+                </button>
+              </div>
+            )}
+
+            <div className="camera-controls">
+              <button onClick={takePhoto} className="take-photo-btn">
+                📷 Сделать фото
+              </button>
+              <button onClick={closeCamera} className="close-camera-btn">
+                ✕ Закрыть
               </button>
             </div>
-          )}
-
-          <div className="camera-controls">
-            <button onClick={takePhoto} className="take-photo-btn">
-              📷 Сделать фото
-            </button>
-            <button onClick={closeCamera} className="close-camera-btn">
-              ✕ Закрыть
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-// Стили (добавьте в ваш CSS файл)
+// Стили
 const styles = `
 .app {
   min-height: 100vh;
@@ -329,8 +349,48 @@ const styles = `
 
 h1 {
   color: white;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-size: 24px;
+}
+
+.camera-closed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.open-camera-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  font-weight: 600;
+}
+
+.open-camera-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.instructions {
+  color: white;
+}
+
+.instructions p {
+  margin: 5px 0;
+  color: #ccc;
+  font-size: 16px;
+}
+
+.instructions small {
+  color: #888;
+  font-size: 14px;
 }
 
 .camera-container {
@@ -383,7 +443,7 @@ h1 {
   flex-wrap: wrap;
 }
 
-.take-photo-btn, .switch-camera-btn, .close-camera-btn {
+.take-photo-btn, .close-camera-btn {
   background: rgba(255, 255, 255, 0.9);
   color: #000;
   border: none;
@@ -394,23 +454,9 @@ h1 {
   transition: all 0.2s ease;
 }
 
-.take-photo-btn:hover, .switch-camera-btn:hover, .close-camera-btn:hover {
+.take-photo-btn:hover, .close-camera-btn:hover {
   background: white;
   transform: scale(1.05);
-}
-
-.instructions {
-  margin-top: 20px;
-  color: white;
-}
-
-.instructions p {
-  margin: 5px 0;
-  color: #ccc;
-}
-
-.instructions small {
-  color: #888;
 }
 
 /* Адаптивность для мобильных устройств */
@@ -423,9 +469,14 @@ h1 {
     bottom: 10px;
   }
   
-  .take-photo-btn, .switch-camera-btn, .close-camera-btn {
+  .take-photo-btn, .close-camera-btn {
     padding: 10px 16px;
     font-size: 14px;
+  }
+  
+  .open-camera-btn {
+    padding: 14px 28px;
+    font-size: 16px;
   }
 }
 `;
