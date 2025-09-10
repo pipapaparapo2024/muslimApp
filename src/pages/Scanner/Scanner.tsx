@@ -154,215 +154,102 @@
 //     </PageWrapper>
 //   );
 // };import React, { useState, useEffect } from "react";
-import { Camera, X, Image } from "lucide-react";
-import { useEffect, useState } from "react";
 
-interface TelegramCameraProps {
-  onPhotoTaken: (file: File) => void;
-  onClose?: () => void;
+import React from 'react';
+
+interface CameraButtonProps {
+  onPhotoTaken?: (photo: string) => void;
+  buttonText?: string;
 }
 
-// Хук для доступа к Telegram Web App
-const useTelegram = () => {
-  const [webApp, setWebApp] = useState<any>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      setWebApp(window.Telegram.WebApp);
-      
-      // Не используем expand() так как его может не быть в типах
-      // Telegram Web App автоматически занимает весь экран в TWA
-    }
-  }, []);
-
-  return { webApp };
-};
-
-export const Scanner: React.FC<TelegramCameraProps> = ({
+export const Scanner: React.FC<CameraButtonProps> = ({
   onPhotoTaken,
-  onClose,
+  buttonText = "📷 Открыть камеру"
 }) => {
-  const { webApp } = useTelegram();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-
-  // Проверяем доступность Telegram Camera API
-  const isCameraAvailable = webApp && typeof webApp.showCamera === 'function';
-  const isPhotoPickerAvailable = webApp && typeof webApp.showPhotoPicker === 'function';
-
-  const openTelegramCamera = async () => {
-    if (!isCameraAvailable) {
-      setError("Камера недоступна в этой версии Telegram");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-
-    try {
-      // Используем нативное API Telegram для открытия камеры
-      webApp.showCamera(
-        (photoData: string) => {
-          // Фото получено в base64
-          handlePhotoData(photoData);
-          setIsLoading(false);
-        },
-        (error: string) => {
-          console.error("Camera error:", error);
-          setError("Не удалось открыть камеру");
-          setIsLoading(false);
-        },
-        {
-          format: "jpg",
-          quality: 0.8,
-          allowGallery: true,
-          cameraPosition: "back",
-        }
-      );
-    } catch (err) {
-      console.error("Error opening camera:", err);
-      setError("Ошибка при открытии камеры");
-      setIsLoading(false);
-    }
-  };
-
-  const handlePhotoData = (base64Data: string) => {
-    try {
-      // Убираем префикс data:image/jpeg;base64, если есть
-      const base64WithoutPrefix = base64Data.startsWith('data:') 
-        ? base64Data.split(',')[1] 
-        : base64Data;
+  const openCamera = () => {
+    // Проверяем, что мы в Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      const webApp = window.Telegram.WebApp;
       
-      const byteString = atob(base64WithoutPrefix);
-      const mimeType = 'image/jpeg';
-
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      const blob = new Blob([ab], { type: mimeType });
-      const file = new File([blob], "telegram-camera.jpg", { type: mimeType });
-
-      onPhotoTaken(file);
-    } catch (err) {
-      console.error("Error processing photo:", err);
-      setError("Ошибка обработки фото");
-    }
-  };
-
-  const openGallery = () => {
-    if (!isPhotoPickerAvailable) {
-      setError("Галерея недоступна в этой версии Telegram");
-      return;
-    }
-
-    webApp.showPhotoPicker(
-      (photos: string[]) => {
-        if (photos && photos.length > 0) {
-          handlePhotoData(photos[0]);
+      // Для Telegram WebApp используем стандартный input с атрибутом capture
+      // так как прямого API для камеры может не быть
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment'; // Используем основную камеру
+      
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && onPhotoTaken) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            onPhotoTaken(event.target?.result as string);
+            webApp.showAlert("Фото сделано успешно!");
+          };
+          reader.readAsDataURL(file);
         }
-      },
-      (error: string) => {
-        console.error("Gallery error:", error);
-        setError("Не удалось открыть галерею");
-      },
-      {
-        maxCount: 1,
-        mediaType: "photo",
-      }
-    );
-  };
-
-  // Автоматически открываем камеру при монтировании компонента
-  useEffect(() => {
-    if (isCameraAvailable) {
-      openTelegramCamera();
+      };
+      
+      input.click();
+    } else {
+      // Если не в Telegram, используем стандартный input file
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'camera';
+      
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file && onPhotoTaken) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            onPhotoTaken(event.target?.result as string);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      
+      input.click();
     }
-  }, [isCameraAvailable]);
-
-  if (!webApp) {
-    return (
-      <div className="telegram-camera-fallback">
-        <p>Telegram Web App не доступен</p>
-        <button onClick={onClose} className="close-btn">
-          Закрыть
-        </button>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="telegram-camera">
-      <div className="telegram-camera__header">
-        <h3>📷 Сделайте фото</h3>
-        <button className="close-btn" onClick={onClose}>
-          <X size={20} />
-        </button>
-      </div>
-
-      <div className="telegram-camera__content">
-        {isLoading ? (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Открываем камеру...</p>
-          </div>
-        ) : error ? (
-          <div className="error">
-            <p>{error}</p>
-            <div className="error-actions">
-              {isCameraAvailable && (
-                <button onClick={openTelegramCamera} className="retry-btn">
-                  Попробовать снова
-                </button>
-              )}
-              {isPhotoPickerAvailable && (
-                <button onClick={openGallery} className="gallery-btn">
-                  <Image size={16} />
-                  Из галереи
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="camera-ready">
-            <div className="camera-placeholder">
-              <Camera size={48} />
-              <p>Камера готова к использованию</p>
-            </div>
-
-            <div className="camera-actions">
-              {isCameraAvailable && (
-                <button onClick={openTelegramCamera} className="camera-btn">
-                  <Camera size={20} />
-                  Открыть камеру
-                </button>
-              )}
-              
-              {isPhotoPickerAvailable && (
-                <button onClick={openGallery} className="gallery-btn">
-                  <Image size={20} />
-                  Выбрать из галереи
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {!isCameraAvailable && (
-        <div className="version-warning">
-          <p>⚠️ Для работы камеры обновите Telegram до последней версии</p>
-          {isPhotoPickerAvailable && (
-            <button onClick={openGallery} className="gallery-btn">
-              <Image size={16} />
-              Выбрать из галереи
-            </button>
-          )}
-        </div>
-      )}
-    </div>
+    <button
+      onClick={openCamera}
+      style={{
+        padding: '12px 24px',
+        backgroundColor: '#007bff',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontSize: '16px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+        transition: 'all 0.2s ease',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        minWidth: '160px',
+        justifyContent: 'center'
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.backgroundColor = '#0056b3';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.backgroundColor = '#007bff';
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.transform = 'translateY(1px)';
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+    >
+      <span style={{ fontSize: '18px' }}>📷</span>
+      {buttonText}
+    </button>
   );
 };
