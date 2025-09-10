@@ -155,12 +155,12 @@ export const Scanner: React.FC = () => {
           </button>
         </div>
 
-        {/* Инструкция для пользователей */}
+        {/* Инструкция для пользователей
         {window.Telegram?.WebApp && (
           <div className={styles.telegramTip}>
             <p>📱 Нажмите кнопку выше чтобы открыть камеру Telegram</p>
           </div>
-        )}
+        )} */}
       </div>
 
       <BuyRequestsModal
