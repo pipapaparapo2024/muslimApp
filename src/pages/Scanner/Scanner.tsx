@@ -154,7 +154,8 @@
 //     </PageWrapper>
 //   );
 // };import React, { useState, useEffect } from "react";
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 
 interface CameraButtonProps {
   onPhotoTaken?: (photoData: string) => void;
@@ -162,95 +163,129 @@ interface CameraButtonProps {
 
 export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
-  const openCamera = () => {
-    if (isMobileDevice()) {
-      // Пытаемся открыть камеру напрямую
-      if (cameraInputRef.current) {
-        cameraInputRef.current.click();
+  // Проверяем поддержку mediaDevices
+  const isMediaDevicesSupported = (): boolean => {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  };
+
+  const startCamera = async () => {
+    if (!isMediaDevicesSupported()) {
+      setCameraError('Ваш браузер не поддерживает доступ к камере');
+      return;
+    }
+
+    try {
+      setCameraError(null);
+      setIsCameraActive(true);
+      
+      // Запрашиваем доступ к камере
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment', // Используем заднюю камеру
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
       }
-    } else {
-      alert('Камера доступна только на мобильных устройствах');
+    } catch (error) {
+      console.error('Ошибка доступа к камере:', error);
+      setCameraError('Не удалось получить доступ к камере. Проверьте разрешения.');
+      setIsCameraActive(false);
     }
   };
 
-  const isMobileDevice = (): boolean => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-  };
-
-  const isIOS = (): boolean => {
-    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  };
-
-  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileSelection(event, true);
-  };
-
-  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>, fromCamera: boolean = false) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        const photoData = e.target?.result as string;
-        setPhotoPreview(photoData);
-        onPhotoTaken?.(photoData);
-      };
-      
-      reader.readAsDataURL(file);
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
-    
-    // Сбрасываем значение input
-    if (event.target) {
-      event.target.value = '';
+    setIsCameraActive(false);
+  };
+
+  const takePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+
+      // Устанавливаем размеры canvas как у видео
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Рисуем текущий кадр видео на canvas
+      context?.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Конвертируем в data URL
+      const photoData = canvas.toDataURL('image/png');
+      setPhotoPreview(photoData);
+      onPhotoTaken?.(photoData);
+      
+      // Останавливаем камеру после съемки
+      stopCamera();
     }
   };
 
   const clearPhoto = () => {
     setPhotoPreview(null);
+    setCameraError(null);
   };
 
-  return (
-    <div className="camera-container">
-      {/* Input для камеры - только фото */}
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        style={{ display: 'none' }}
-        onChange={handleCameraCapture}
-      />
+  const retakePhoto = () => {
+    clearPhoto();
+    startCamera();
+  };
 
-      {/* Input для галереи (как fallback) */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={(e) => handleFileSelection(e, false)}
-      />
+  // Останавливаем камеру при размонтировании компонента
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
-      {photoPreview ? (
-        <div className="photo-preview">
-          <img src={photoPreview} alt="Предпросмотр" className="preview-image" />
-          <button onClick={clearPhoto} className="retake-button">
-            Сделать новое фото
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <button onClick={openCamera} className="camera-button">
-            📷 Сделать фото
+  if (photoPreview) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+        <img 
+          src={photoPreview} 
+          alt="Предпросмотр" 
+          style={{ 
+            maxWidth: '300px', 
+            maxHeight: '400px', 
+            border: '2px solid #ddd',
+            borderRadius: '10px'
+          }} 
+        />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={retakePhoto}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            📷 Переснять
           </button>
           <button 
-            onClick={() => fileInputRef.current?.click()} 
-            className="gallery-button"
+            onClick={clearPhoto}
             style={{
               backgroundColor: '#6c757d',
               color: 'white',
@@ -260,8 +295,105 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
               cursor: 'pointer'
             }}
           >
-            🖼️ Выбрать из галереи
+            ❌ Отмена
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isCameraActive) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          style={{
+            width: '100%',
+            maxWidth: '400px',
+            height: '300px',
+            border: '2px solid #007bff',
+            borderRadius: '10px',
+            objectFit: 'cover'
+          }}
+        />
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={takePhoto}
+            style={{
+              backgroundColor: '#28a745',
+              color: 'white',
+              border: 'none',
+              padding: '15px 30px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '16px'
+            }}
+          >
+            📸 Сделать фото
+          </button>
+          <button 
+            onClick={stopCamera}
+            style={{
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '15px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            ❌ Отмена
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+      {cameraError && (
+        <div style={{ 
+          color: '#dc3545', 
+          backgroundColor: '#f8d7da',
+          padding: '10px',
+          borderRadius: '5px',
+          marginBottom: '10px',
+          textAlign: 'center'
+        }}>
+          {cameraError}
+        </div>
+      )}
+      
+      <button 
+        onClick={startCamera}
+        disabled={!isMediaDevicesSupported()}
+        style={{
+          backgroundColor: isMediaDevicesSupported() ? '#007bff' : '#6c757d',
+          color: 'white',
+          border: 'none',
+          padding: '15px 30px',
+          borderRadius: '5px',
+          cursor: isMediaDevicesSupported() ? 'pointer' : 'not-allowed',
+          fontSize: '16px'
+        }}
+      >
+        📷 {isMediaDevicesSupported() ? 'Открыть камеру' : 'Камера не поддерживается'}
+      </button>
+
+      {!isMediaDevicesSupported() && (
+        <div style={{ 
+          color: '#6c757d', 
+          fontSize: '14px',
+          textAlign: 'center',
+          maxWidth: '300px'
+        }}>
+          Ваш браузер не поддерживает прямой доступ к камере. 
+          Попробуйте использовать современный браузер (Chrome, Safari, Firefox).
         </div>
       )}
     </div>
