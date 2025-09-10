@@ -24,7 +24,7 @@ export const Scanner: React.FC<ScannerProps> = ({ onPhotoTaken }) => {
 
   const handleScanClick = () => {
     if (showAskButton) {
-      navigate('/camera'); // Переход на отдельную страницу камеры
+      navigate('/scanner/camera'); // Переход на отдельную страницу камеры
     } else {
       setShowModal(true);
     }

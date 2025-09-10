@@ -33,6 +33,7 @@ import { NotScaned } from "./pages/Scanner/notScaned/NotScaned";
 import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
+import { CameraPage } from "./pages/Scanner/cameraPage/CameraPage";
 
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
@@ -116,6 +117,7 @@ export const App: React.FC = () => {
           path="/privacy-policy"
           element={<div>Privacy Policy Page</div>}
         />
+        <Route path="/scanner/camera" element={<CameraPage/>}/>
         <Route path="/quran/translation" element={<ChooseTranslation />} />
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />
