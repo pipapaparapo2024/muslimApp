@@ -22,6 +22,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
+      это новая версия
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       <div className={styles.sensorPermissionPrompt}>
         <button
