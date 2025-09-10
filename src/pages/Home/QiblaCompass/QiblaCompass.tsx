@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import kaaba from "../../../assets/icons/kaaba.svg";
 import sun from "../../../assets/icons/sun_.svg";
 import { useGeoStore } from "../../../hooks/useGeoStore";
+
 const KAABA_COORDS = {
   lat: 21.422487,
   lon: 39.826206,
@@ -19,6 +20,23 @@ interface QiblaCompassProps {
   coords?: { lat: number; lon: number } | null;
 }
 
+// Функция для определения платформы
+const getPlatform = (): 'ios' | 'android' | 'other' => {
+  const userAgent = navigator.userAgent || navigator.vendor;
+  
+  // iOS detection
+  if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+    return 'ios';
+  }
+  
+  // Android detection
+  if (/android/i.test(userAgent)) {
+    return 'android';
+  }
+  
+  return 'other';
+};
+
 export const QiblaCompass: React.FC<QiblaCompassProps> = ({
   size = 120,
   showAngle = false,
@@ -31,6 +49,12 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
 
   const [heading, setHeading] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [platform, setPlatform] = useState<'ios' | 'android' | 'other'>('other');
+
+  // Определяем платформу при монтировании
+  useEffect(() => {
+    setPlatform(getPlatform());
+  }, []);
 
   // --- Подписка на deviceorientation ---
   useEffect(() => {
@@ -41,9 +65,36 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
       let newHeading: number | null = null;
 
       if (iosEvent.webkitCompassHeading !== undefined) {
-        newHeading = iosEvent.webkitCompassHeading; // iOS
+        // iOS - используем встроенный компас
+        newHeading = iosEvent.webkitCompassHeading;
       } else if (event.alpha !== null) {
-        newHeading = (360 - event.alpha) % 360; // Android
+        // Android и другие устройства
+        if (platform === 'android') {
+          // Улучшенная формула для Android
+          const alpha = event.alpha; // 0-360
+          const beta = event.beta || 0; // -180 to 180
+          const gamma = event.gamma || 0; // -90 to 90
+          
+          // Более точный расчет для Android
+          const phi = (beta * Math.PI) / 180;
+          const theta = (gamma * Math.PI) / 180;
+          const psi = (alpha * Math.PI) / 180;
+          
+          const headingRad = Math.atan2(
+            Math.sin(psi) * Math.cos(phi),
+            Math.cos(psi) * Math.cos(phi) * Math.cos(theta) + 
+            Math.sin(phi) * Math.sin(theta) * Math.sin(psi)
+          );
+          
+          let headingDeg = (headingRad * 180) / Math.PI;
+          headingDeg = (headingDeg + 360) % 360;
+          
+          // Корректировка для Android (часто требуется смещение)
+          newHeading = (headingDeg + 360) % 360;
+        } else {
+          // Стандартная формула для других устройств
+          newHeading = (360 - event.alpha) % 360;
+        }
       }
 
       if (newHeading !== null) {
@@ -55,7 +106,7 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
     return () => {
       window.removeEventListener("deviceorientation", handleOrientation, true);
     };
-  }, [permissionGranted]);
+  }, [permissionGranted, platform]);
 
   // --- Обновление времени (часовая стрелка) ---
   useEffect(() => {
@@ -258,6 +309,10 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           {kaabaRelativeAngle.toFixed(1)}°
           <div style={{ color: "#888", fontWeight: 400, fontSize: "16px" }}>
             Qibla angle of your location
+          </div>
+          {/* Отладочная информация */}
+          <div style={{ color: "#ccc", fontWeight: 300, fontSize: "12px", marginTop: "5px" }}>
+            Platform: {platform} | Heading: {heading.toFixed(1)}°
           </div>
         </div>
       )}
