@@ -235,17 +235,10 @@ export const Friends: React.FC = () => {
   };
 
   return (
-    <div className="app">
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="buttons-container">
-            <button
-              onClick={shareViaTelegram}
-              className="share-button telegram"
-            >
-              📧 Telegram
-            </button>
-        </div>
-      </div>
+    <div className="buttons-container">
+      <button onClick={shareViaTelegram} className="share-button telegram">
+        📧 Telegram
+      </button>
     </div>
   );
 };

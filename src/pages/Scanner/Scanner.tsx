@@ -272,17 +272,6 @@ export const Scanner: React.FC = () => {
     }
   };
 
-  const switchCamera = async () => {
-    // Закрываем текущую камеру
-    closeCamera();
-    
-    // Ждем немного перед переключением
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // Открываем камеру снова (автоматически попробует другую камеру)
-    openCamera();
-  };
-
   return (
     <div className="app">
       <div className="container">
@@ -310,18 +299,10 @@ export const Scanner: React.FC = () => {
             <button onClick={takePhoto} className="take-photo-btn">
               📷 Сделать фото
             </button>
-            <button onClick={switchCamera} className="switch-camera-btn">
-              🔄 Переключить камеру
-            </button>
             <button onClick={closeCamera} className="close-camera-btn">
               ✕ Закрыть
             </button>
           </div>
-        </div>
-
-        <div className="instructions">
-          <p>Наведите камеру на QR-код или объект</p>
-          <small>Работает на Android и iOS</small>
         </div>
       </div>
     </div>
