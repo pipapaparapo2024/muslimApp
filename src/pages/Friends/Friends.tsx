@@ -9,37 +9,10 @@ import { openTelegramLink } from "@telegram-apps/sdk";
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
 
-  // Получаем Telegram ID напрямую из WebApp
   const getTelegramId = () => {
-    if (window.Telegram?.WebApp?.initData) {
-      const initData = new URLSearchParams(window.Telegram.WebApp.initData);
-      const userStr = initData.get("user");
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          return user.id;
-        } catch (e) {
-          console.error("Error parsing user data:", e);
-        }
-      }
-    }
-
-    // Способ 2: Из WebApp (если доступно)
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
       return window.Telegram.WebApp.initDataUnsafe.user.id;
     }
-
-    // Способ 3: Из query параметров (резервный)
-    const urlParams = new URLSearchParams(window.location.search);
-    const tgWebAppStartParam = urlParams.get("tgWebAppStartParam");
-    if (tgWebAppStartParam && tgWebAppStartParam.startsWith("ref-")) {
-      const refId = tgWebAppStartParam.replace("ref-", "");
-      if (refId && !isNaN(Number(refId))) {
-        return Number(refId);
-      }
-    }
-
-    console.warn("Telegram ID not found");
     return null;
   };
 
@@ -53,15 +26,16 @@ export const Friends: React.FC = () => {
     fetchFriends();
   }, [fetchFriends]);
 
-  // Подсчитываем количество приглашенных и купивших друзей
+  // Подсчет статистики
   const invitedCount = friends.filter(
     (friend) => friend.status === "invited" || friend.status === "purchased"
   ).length;
+
   const purchasedCount = friends.filter(
     (friend) => friend.status === "purchased"
   ).length;
 
-  // Сортируем друзей: сначала purchased, потом invited
+  // Сортировка друзей
   const sortedFriends = [...friends].sort((a, b) => {
     if (a.status === "purchased" && b.status !== "purchased") return -1;
     if (a.status !== "purchased" && b.status === "purchased") return 1;
@@ -69,48 +43,49 @@ export const Friends: React.FC = () => {
   });
 
   const handleInvite = async () => {
-    // if (!telegram_id) {
-    //   alert(t("telegramIdNotFound"));
-    //   return;
-    // }
+    const shareUrl = `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
 
-    // Проверяем, является ли устройство Android
-    const isAndroid = () => {
-      return /Android/i.test(navigator.userAgent);
-    };
+    // Определяем тип устройства
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
 
-    // Для Android устройств используем Telegram-специфичное открытие
-    if (isAndroid() && window.Telegram?.WebApp) {
-      if (!referalsText) return;
-
+    // Для Android используем Telegram-специфичное открытие
+    if (isAndroid && window.Telegram?.WebApp) {
       openTelegramLink(
-        `https://t.me/share/url?url=https://t.me/funnyTestsBot?start=ref-${telegram_id}&text=${encodeURIComponent(
-          referalsText
-        )}`
+        `https://t.me/share/url?url=${encodeURIComponent(
+          shareUrl
+        )}&text=${encodeURIComponent(referalsText)}`
       );
-    } else {
-      // Для остальных устройств используем стандартный шаринг
-      const isShareAPIAvailable = () => {
-        return navigator.share && typeof navigator.share === "function";
-      };
+      return;
+    }
 
-      const isMobileDevice = () => {
-        return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      };
-
-      if (isShareAPIAvailable() && isMobileDevice()) {
-        try {
-          await navigator.share({
-            title: t("joinMeOnMuslimApp"),
-            text: t("getRewardsAndUnlockFeatures"),
-            url: `https://t.me/funnyTestsBot?start=ref-${telegram_id}`,
-          });
-          console.log("Share successful");
-        } catch (err) {
-          console.log("Share canceled or failed:", err);
-        }
-      } else {
+    // Для iOS и других устройств используем Web Share API
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: t("joinMeOnMuslimApp"),
+          text: t("getRewardsAndUnlockFeatures"),
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.log("Share canceled or failed:", err);
       }
+    } else {
+      // Fallback для браузеров без поддержки Web Share API
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          alert(t("linkCopiedToClipboard"));
+        })
+        .catch(() => {
+          // Резервный вариант для старых браузеров
+          const textArea = document.createElement("textarea");
+          textArea.value = shareUrl;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.body.removeChild(textArea);
+          alert(t("linkCopiedToClipboard"));
+        });
     }
   };
 
@@ -143,14 +118,7 @@ export const Friends: React.FC = () => {
             </div>
           </div>
           {invitedCount >= requestsGoal && (
-            <button
-              className={styles.rewardBtn}
-              onClick={() => {
-                alert("Congratulations! You've earned free requests!");
-              }}
-            >
-              {t("getReward")}
-            </button>
+            <button className={styles.rewardBtn}>{t("getReward")}</button>
           )}
         </div>
 
@@ -161,9 +129,7 @@ export const Friends: React.FC = () => {
             <div className={styles.progressBarContainer}>
               <div
                 className={styles.progressBar}
-                style={{
-                  width: `${(purchasedCount / premiumGoal) * 100}%`,
-                }}
+                style={{ width: `${(purchasedCount / premiumGoal) * 100}%` }}
               />
             </div>
             <div className={styles.progressLabel}>
@@ -171,14 +137,7 @@ export const Friends: React.FC = () => {
             </div>
           </div>
           {purchasedCount >= premiumGoal && (
-            <button
-              className={styles.rewardBtn}
-              onClick={() => {
-                alert("Congratulations! You've unlocked Premium!");
-              }}
-            >
-              {t("getReward")}
-            </button>
+            <button className={styles.rewardBtn}>{t("getReward")}</button>
           )}
         </div>
 
