@@ -221,94 +221,30 @@
 //   );
 // };
 
-import React, { useState } from 'react';
-import type _ from 'lodash';
+import React from "react";
+import type _ from "lodash";
 
 export const Friends: React.FC = () => {
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
-
-  const copyInviteLink = () => {
-    const inviteLink = window.location.href;
-    
-    navigator.clipboard.writeText(inviteLink)
-      .then(() => {
-        alert('Ссылка скопирована! Отправьте её друзьям 👋');
-      })
-      .catch(_ => {
-        // Fallback для старых браузеров
-        const textArea = document.createElement('textarea');
-        textArea.value = inviteLink;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.body.removeChild(textArea);
-        alert('Ссылка скопирована! Отправьте её друзьям 👋');
-      });
-  };
-
   const shareViaTelegram = () => {
-    const shareText = 'Присоединяйся к нашему крутому приложению! 🚀';
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`;
-    
-    window.open(shareUrl, '_blank');
-  };
+    const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      window.location.href
+    )}&text=${encodeURIComponent(shareText)}`;
 
-  const shareViaNative = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Приглашение в приложение',
-        text: 'Присоединяйся к нашему крутому приложению! 🚀',
-        url: window.location.href,
-      })
-      .catch(error => {
-        console.log('Ошибка sharing:', error);
-      });
-    } else {
-      copyInviteLink();
-    }
+    window.open(shareUrl, "_blank");
   };
 
   return (
     <div className="app">
-      <div className="container">
-        <h1>🎉 Мое Приложение</h1>
-        <p>Приглашайте друзей и получайте бонусы!</p>
-        
-        <button 
-          className="invite-button"
-          onClick={() => setIsInviteOpen(true)}
-        >
-          📨 Пригласить друзей
-        </button>
-
-        {isInviteOpen && (
-          <div className="modal-overlay" onClick={() => setIsInviteOpen(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2>👋 Пригласить друзей</h2>
-              <p>Поделись ссылкой с друзьями!</p>
-              
-              <div className="buttons-container">
-                <button onClick={shareViaNative} className="share-button">
-                  📤 Поделиться
-                </button>
-                
-                <button onClick={copyInviteLink} className="share-button">
-                  📋 Скопировать ссылку
-                </button>
-                
-                <button onClick={shareViaTelegram} className="share-button telegram">
-                  📧 Telegram
-                </button>
-              </div>
-
-              <button 
-                onClick={() => setIsInviteOpen(false)}
-                className="close-button"
-              >
-                Закрыть
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="buttons-container">
+            <button
+              onClick={shareViaTelegram}
+              className="share-button telegram"
+            >
+              📧 Telegram
+            </button>
+        </div>
       </div>
     </div>
   );

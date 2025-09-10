@@ -156,13 +156,22 @@
 //   );
 // };
 
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export const Scanner: React.FC = () => {
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string>('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    // Автоматически открываем камеру при монтировании компонента
+    openCamera();
+    
+    // Очистка при размонтировании
+    return () => {
+      closeCamera();
+    };
+  }, []);
 
   const openCamera = async () => {
     try {
@@ -172,22 +181,46 @@ export const Scanner: React.FC = () => {
         return;
       }
 
-      // Запрашиваем доступ к камере
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      // Пытаемся сначала использовать заднюю камеру
+      let constraints: MediaStreamConstraints = { 
         video: {
-          facingMode: 'environment' // Используем заднюю камеру
+          facingMode: 'environment', // Задняя камера
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
         },
         audio: false 
-      });
-      
-      setIsCameraOpen(true);
-      setCameraError('');
+      };
 
-      // Получаем видео элемент и устанавливаем поток
-      const video = document.getElementById('camera-preview') as HTMLVideoElement;
-      if (video) {
-        video.srcObject = stream;
-        video.play();
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        handleStreamSuccess(stream);
+      } catch (backCameraError) {
+        console.log('Задняя камера недоступна, пробуем переднюю:', backCameraError);
+        
+        // Если задняя камера недоступна, пробуем переднюю
+        constraints = { 
+          video: {
+            facingMode: 'user', // Передняя камера
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false 
+        };
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          handleStreamSuccess(stream);
+        } catch (frontCameraError) {
+          console.log('Передняя камера тоже недоступна:', frontCameraError);
+          
+          // Пробуем без специфичных настроек
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            handleStreamSuccess(stream);
+          } catch (finalError) {
+            throw finalError;
+          }
+        }
       }
 
     } catch (error) {
@@ -196,82 +229,231 @@ export const Scanner: React.FC = () => {
     }
   };
 
-  const closeCamera = () => {
-    // Останавливаем все видео потоки
-    const video = document.getElementById('camera-preview') as HTMLVideoElement;
-    if (video && video.srcObject) {
-      const stream = video.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
-      video.srcObject = null;
+  const handleStreamSuccess = (stream: MediaStream) => {
+    streamRef.current = stream;
+    setCameraError('');
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(playError => {
+        console.error('Ошибка воспроизведения видео:', playError);
+      });
     }
-    setIsCameraOpen(false);
+  };
+
+  const closeCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+      });
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
   };
 
   const takePhoto = () => {
-    const video = document.getElementById('camera-preview') as HTMLVideoElement;
-    const canvas = document.getElementById('photo-canvas') as HTMLCanvasElement;
+    if (!videoRef.current) return;
+
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
     
-    if (video && canvas) {
-      const context = canvas.getContext('2d');
-      if (context) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Здесь можно сохранить или отправить фото
-        const imageData = canvas.toDataURL('image/png');
-        console.log('Фото сделано:', imageData);
-        alert('Фото сделано! Проверьте консоль для данных.');
-      }
+    if (context && videoRef.current.videoWidth > 0) {
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      
+      // Здесь можно сохранить или отправить фото
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      console.log('Фото сделано:', imageData);
+      alert('Фото сделано! Проверьте консоль для данных.');
     }
+  };
+
+  const switchCamera = async () => {
+    // Закрываем текущую камеру
+    closeCamera();
+    
+    // Ждем немного перед переключением
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Открываем камеру снова (автоматически попробует другую камеру)
+    openCamera();
   };
 
   return (
     <div className="app">
       <div className="container">
-        <h1>📷 Камера в TWA</h1>
+        <h1>📷 Сканер</h1>
         
-        {!isCameraOpen ? (
-          <>
-            <button 
-              className="camera-button"
-              onClick={openCamera}
-            >
-              📸 Открыть камеру
-            </button>
-            
-            {cameraError && (
-              <div className="error-message">
-                {cameraError}
-              </div>
-            )}
+        <div className="camera-container">
+          <video 
+            ref={videoRef}
+            className="camera-preview"
+            playsInline // Важно для iOS
+            autoPlay // Автоматическое воспроизведение
+            muted // Без звука для автозапуска
+          />
+          
+          {cameraError && (
+            <div className="error-message">
+              {cameraError}
+              <button onClick={openCamera} className="retry-button">
+                Повторить
+              </button>
+            </div>
+          )}
 
-            <div className="instructions">
-              <p>Нажмите кнопку чтобы открыть камеру</p>
-              <small>Работает на Android и iOS</small>
-            </div>
-          </>
-        ) : (
-          <div className="camera-container">
-            <video 
-              id="camera-preview" 
-              className="camera-preview"
-              playsInline // Важно для iOS
-            />
-            
-            <canvas id="photo-canvas" style={{display: 'none'}} />
-            
-            <div className="camera-controls">
-              <button onClick={takePhoto} className="take-photo-btn">
-                📷 Сделать фото
-              </button>
-              <button onClick={closeCamera} className="close-camera-btn">
-                ✕ Закрыть
-              </button>
-            </div>
+          <div className="camera-controls">
+            <button onClick={takePhoto} className="take-photo-btn">
+              📷 Сделать фото
+            </button>
+            <button onClick={switchCamera} className="switch-camera-btn">
+              🔄 Переключить камеру
+            </button>
+            <button onClick={closeCamera} className="close-camera-btn">
+              ✕ Закрыть
+            </button>
           </div>
-        )}
+        </div>
+
+        <div className="instructions">
+          <p>Наведите камеру на QR-код или объект</p>
+          <small>Работает на Android и iOS</small>
+        </div>
       </div>
     </div>
   );
 };
+
+// Стили (добавьте в ваш CSS файл)
+const styles = `
+.app {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 100%;
+  text-align: center;
+}
+
+h1 {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.camera-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+}
+
+.camera-preview {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  background: #222;
+}
+
+.error-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.retry-button {
+  background: white;
+  color: #ff0000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.camera-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.take-photo-btn, .switch-camera-btn, .close-camera-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.take-photo-btn:hover, .switch-camera-btn:hover, .close-camera-btn:hover {
+  background: white;
+  transform: scale(1.05);
+}
+
+.instructions {
+  margin-top: 20px;
+  color: white;
+}
+
+.instructions p {
+  margin: 5px 0;
+  color: #ccc;
+}
+
+.instructions small {
+  color: #888;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+  .camera-preview {
+    height: 300px;
+  }
+  
+  .camera-controls {
+    bottom: 10px;
+  }
+  
+  .take-photo-btn, .switch-camera-btn, .close-camera-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+`;
+
+// Добавляем стили в документ
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}
+
+export default Scanner;
