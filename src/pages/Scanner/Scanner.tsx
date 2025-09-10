@@ -200,7 +200,6 @@ declare global {
 }
 
 export const Scanner: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cameraVisible, setCameraVisible] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -246,43 +245,6 @@ export const Scanner: React.FC = () => {
     reader.readAsDataURL(file);
   }, []);
 
-  const openCamera = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
-      if (!isMobile) {
-        alert('Функция камеры доступна только на мобильных устройствах');
-        return;
-      }
-
-      const hasPermission = await requestCameraPermission();
-      if (!hasPermission) return;
-
-      // Создаем input для камеры
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'camera'; // Это заставляет открыть камеру вместо галереи
-      
-      input.onchange = (event) => {
-        const files = (event.target as HTMLInputElement).files;
-        if (files && files[0]) {
-          handlePhotoTaken(files[0]);
-        }
-      };
-
-      input.click();
-      
-    } catch (error) {
-      console.error('Ошибка при открытии камеры:', error);
-      alert('Не удалось открыть камеру');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [requestCameraPermission, handlePhotoTaken]);
-
   const openFilePicker = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -298,45 +260,6 @@ export const Scanner: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', textAlign: 'center' }}>
-      <button
-        onClick={openCamera}
-        disabled={isLoading}
-        style={{
-          backgroundColor: isLoading ? '#6c757d' : '#0088cc',
-          color: 'white',
-          padding: '15px 25px',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          cursor: isLoading ? 'not-allowed' : 'pointer',
-          margin: '10px',
-          minWidth: '200px',
-          transition: 'background-color 0.2s ease'
-        }}
-        onMouseOver={(e) => {
-          if (!isLoading) {
-            e.currentTarget.style.backgroundColor = '#0066a4';
-          }
-        }}
-        onMouseOut={(e) => {
-          if (!isLoading) {
-            e.currentTarget.style.backgroundColor = '#0088cc';
-          }
-        }}
-      >
-        {isLoading ? (
-          <>
-            <span style={{ marginRight: '8px' }}>⏳</span>
-            Загрузка...
-          </>
-        ) : (
-          <>
-            <span style={{ marginRight: '8px' }}>📷</span>
-            Открыть камеру
-          </>
-        )}
-      </button>
 
       <button
         onClick={openFilePicker}
