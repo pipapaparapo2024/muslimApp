@@ -161,18 +161,17 @@ interface CameraButtonProps {
 }
 
 export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
-  // const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const openCamera = () => {
     if (isMobileDevice()) {
-      // Для мобильных устройств используем input с камерой
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
+      // Пытаемся открыть камеру напрямую
+      if (cameraInputRef.current) {
+        cameraInputRef.current.click();
       }
     } else {
-      // Для десктопа или если камера не доступна
       alert('Камера доступна только на мобильных устройствах');
     }
   };
@@ -183,7 +182,15 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
     );
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const isIOS = (): boolean => {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  };
+
+  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileSelection(event, true);
+  };
+
+  const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>, fromCamera: boolean = false) => {
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
@@ -198,7 +205,7 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
       reader.readAsDataURL(file);
     }
     
-    // Сбрасываем значение input для возможности повторного выбора того же файла
+    // Сбрасываем значение input
     if (event.target) {
       event.target.value = '';
     }
@@ -210,14 +217,23 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
 
   return (
     <div className="camera-container">
-      {/* Скрытый input для камеры */}
+      {/* Input для камеры - только фото */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={handleCameraCapture}
+      />
+
+      {/* Input для галереи (как fallback) */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment" // Используем заднюю камеру
         style={{ display: 'none' }}
-        onChange={handleFileChange}
+        onChange={(e) => handleFileSelection(e, false)}
       />
 
       {photoPreview ? (
@@ -228,9 +244,25 @@ export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
           </button>
         </div>
       ) : (
-        <button onClick={openCamera} className="camera-button">
-          📷 Открыть камеру
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <button onClick={openCamera} className="camera-button">
+            📷 Сделать фото
+          </button>
+          <button 
+            onClick={() => fileInputRef.current?.click()} 
+            className="gallery-button"
+            style={{
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            🖼️ Выбрать из галереи
+          </button>
+        </div>
       )}
     </div>
   );
