@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./Scanner.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
-import { Camera, TriangleAlert, Wallet, X } from "lucide-react";
+import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import scanner from "../../assets/image/scanner.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
@@ -10,11 +10,11 @@ import { TableRequestsHistory } from "../../components/TableRequestsHistory/Tabl
 import { useScannerStore } from "../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import { openTelegramLink } from "@telegram-apps/sdk";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
-  const [showCameraConfirmModal, setShowCameraConfirmModal] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [, setImageError] = useState(false);
   const navigate = useNavigate();
@@ -41,17 +41,28 @@ export const Scanner: React.FC = () => {
     };
   }, []);
 
-  const openCamera = () => {
-    setShowCameraConfirmModal(true);
-  };
+  const openCamera = async () => {
+    // Проверяем, находимся ли мы в Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      try {
+        // Для Telegram используем специальный метод открытия камеры
+        openTelegramLink('tg://camera');
+        
+        // Слушаем событие возврата из камеры (правильная сигнатура)
+        window.Telegram.WebApp.onEvent('viewportChanged', () => {
+          // Камера закрылась, можно обработать результат
+          console.log('Camera closed');
+        });
 
-  const handleCameraConfirm = () => {
-    setShowCameraConfirmModal(false);
-    cameraInputRef.current?.click();
-  };
-
-  const handleCameraCancel = () => {
-    setShowCameraConfirmModal(false);
+      } catch (error) {
+        console.error('Error opening Telegram camera:', error);
+        // Fallback на стандартный input
+        cameraInputRef.current?.click();
+      }
+    } else {
+      // Для браузера используем стандартный input
+      cameraInputRef.current?.click();
+    }
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +108,7 @@ export const Scanner: React.FC = () => {
           <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
 
+        {/* Input для браузеров и fallback */}
         <input
           type="file"
           ref={cameraInputRef}
@@ -106,6 +118,7 @@ export const Scanner: React.FC = () => {
           style={{ display: "none" }}
         />
 
+        {/* Центральный контент */}
         <div className={styles.content}>
           <div className={styles.illustration}>
             <img src={scanner} alt={t("instantHalalCheck")} />
@@ -126,6 +139,7 @@ export const Scanner: React.FC = () => {
           </div>
         </div>
 
+        {/* Кнопка сканирования */}
         <div className={styles.scanButtonContainer}>
           <button
             className={styles.submitButton}
@@ -140,46 +154,14 @@ export const Scanner: React.FC = () => {
             {getButtonText()}
           </button>
         </div>
-      </div>
 
-      {/* Модальное окно подтверждения использования камеры */}
-      {showCameraConfirmModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.cameraConfirmModal}>
-            <div className={styles.modalHeader}>
-              <h3>{t("cameraAccess")}</h3>
-              <button 
-                className={styles.closeButton} 
-                onClick={handleCameraCancel}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className={styles.modalContent}>
-              <p>{t("cameraAccessDescription")}</p>
-              <div className={styles.cameraIcon}>
-                <Camera size={48} />
-              </div>
-            </div>
-
-            <div className={styles.modalActions}>
-              <button 
-                className={styles.cancelButton} 
-                onClick={handleCameraCancel}
-              >
-                {t("cancel")}
-              </button>
-              <button 
-                className={styles.confirmButton} 
-                onClick={handleCameraConfirm}
-              >
-                {t("allowCamera")}
-              </button>
-            </div>
+        {/* Инструкция для пользователей */}
+        {window.Telegram?.WebApp && (
+          <div className={styles.telegramTip}>
+            <p>📱 Нажмите кнопку выше чтобы открыть камеру Telegram</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <BuyRequestsModal
         isOpen={showModal}
