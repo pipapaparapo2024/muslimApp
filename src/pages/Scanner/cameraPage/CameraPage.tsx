@@ -1,8 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, RotateCcw, Send, X } from "lucide-react";
-import { useScannerStore } from '../../../hooks/useScannerStore';
+import { useScannerStore } from "../../../hooks/useScannerStore";
 import styles from "./CameraPage.module.css";
+import { PageWrapper } from "../../../shared/PageWrapper";
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,11 +19,11 @@ export const CameraPage: React.FC = () => {
       setCameraError(null);
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment',
+          facingMode: "environment",
           width: { ideal: 1280 },
-          height: { ideal: 720 }
+          height: { ideal: 720 },
         },
-        audio: false
+        audio: false,
       });
 
       streamRef.current = stream;
@@ -31,13 +32,13 @@ export const CameraPage: React.FC = () => {
         await videoRef.current.play();
       }
     } catch (error) {
-      setCameraError('Не удалось получить доступ к камере');
+      setCameraError("Не удалось получить доступ к камере");
     }
   };
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
     }
   };
 
@@ -45,13 +46,13 @@ export const CameraPage: React.FC = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
 
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context?.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const photoData = canvas.toDataURL('image/png');
+      const photoData = canvas.toDataURL("image/png");
       setPhotoPreview(photoData);
       stopCamera();
     }
@@ -67,10 +68,12 @@ export const CameraPage: React.FC = () => {
       try {
         const response = await fetch(photoPreview);
         const blob = await response.blob();
-        const file = new File([blob], "scanned-image.png", { type: "image/png" });
-        
+        const file = new File([blob], "scanned-image.png", {
+          type: "image/png",
+        });
+
         navigate("/scanner/analyze");
-        
+
         setTimeout(async () => {
           try {
             await processImage(file);
@@ -91,53 +94,63 @@ export const CameraPage: React.FC = () => {
 
   if (photoPreview) {
     return (
-      <div className={styles.cameraContainer}>
-        <div className={styles.previewContainer}>
-          <img src={photoPreview} alt="Preview" className={styles.previewImage} />
+      <PageWrapper>
+        <div className={styles.cameraContainer}>
+          <div className={styles.previewContainer}>
+            <img
+              src={photoPreview}
+              alt="Preview"
+              className={styles.previewImage}
+            />
+          </div>
+
+          <div className={styles.controls}>
+            <button onClick={retakePhoto} className={styles.againButton}>
+              <RotateCcw size={20} />
+              Again
+            </button>
+            <button
+              onClick={handleProcessPhoto}
+              className={styles.sendButton}
+              disabled={isLoading}
+            >
+              <Send size={20} />
+              Send
+            </button>
+          </div>
         </div>
-        
-        <div className={styles.controls}>
-          <button onClick={retakePhoto} className={styles.againButton}>
-            <RotateCcw size={20} />
-            Again
-          </button>
-          <button onClick={handleProcessPhoto} className={styles.sendButton} disabled={isLoading}>
-            <Send size={20} />
-            Send
-          </button>
-        </div>
-      </div>
+      </PageWrapper>
     );
   }
 
   return (
-    <div className={styles.cameraContainer}>
-      <button className={styles.closeButton} onClick={() => navigate(-1)}>
-        <X size={24} />
-      </button>
-
-      <div className={styles.videoContainer}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className={styles.videoElement}
-        />
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-        
-        {cameraError && (
-          <div className={styles.errorMessage}>
-            {cameraError}
-          </div>
-        )}
-      </div>
-
-      <div className={styles.captureButtonContainer}>
-        <button onClick={takePhoto} className={styles.captureButton}>
-          <Camera size={32} />
+    <PageWrapper>
+      <div className={styles.cameraContainer}>
+        <button className={styles.closeButton} onClick={() => navigate(-1)}>
+          <X size={24} />
         </button>
+
+        <div className={styles.videoContainer}>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className={styles.videoElement}
+          />
+          <canvas ref={canvasRef} style={{ display: "none" }} />
+
+          {cameraError && (
+            <div className={styles.errorMessage}>{cameraError}</div>
+          )}
+        </div>
+
+        <div className={styles.captureButtonContainer}>
+          <button onClick={takePhoto} className={styles.captureButton}>
+            <Camera size={32} />
+          </button>
+        </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 };

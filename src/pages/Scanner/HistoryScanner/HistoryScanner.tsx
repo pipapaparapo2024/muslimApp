@@ -15,19 +15,12 @@ export const HistoryScanner: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (history.length === 0) {
-      fetchHistory();
-    }
-  }, [fetchHistory, history.length]);
+    fetchHistory(1);
+  }, [fetchHistory]);
 
-  // Исправленная функция форматирования даты
   const formatDateWithTranslation = (dateString: string) => {
-    // Парсим дату из формата "YYYY-MM-DD"
-    const [year, month, day] = dateString.split('-').map(Number);
-    const date = new Date(year, month - 1, day); // month - 1 потому что месяцы в JS от 0 до 11
+    const date = new Date(dateString);
     
-
-    // Форматирование обычной даты
     if (i18n.language === "ar") {
       // Арабский формат: день месяц год
       return `${date.getDate()} ${t(getMonthKey(date.getMonth()))} ${date.getFullYear()}`;
@@ -39,23 +32,12 @@ export const HistoryScanner: React.FC = () => {
 
   const getMonthKey = (monthIndex: number): string => {
     const months = [
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
+      "january", "february", "march", "april", "may", "june",
+      "july", "august", "september", "october", "november", "december",
     ];
     return months[monthIndex];
   };
 
-  // Альтернативная группировка истории с правильным форматированием дат
   const groupedHistory = Object.entries(historyUtils.groupByDate(history)).map(
     ([dateKey, scans]) => ({
       date: formatDateWithTranslation(dateKey),
@@ -70,6 +52,10 @@ export const HistoryScanner: React.FC = () => {
 
   const handleScanClick = (scanId: string) => {
     navigate(`/scanner/historyScanner/${scanId}`);
+  };
+
+  const isHaram = (qaItem: any): boolean => {
+    return qaItem.haranProducts?.some((product: any) => product.isHaran) || false;
   };
 
   if (isLoading) {
@@ -95,15 +81,15 @@ export const HistoryScanner: React.FC = () => {
                 className={styles.blockScan}
               >
                 <div>
-                  <div className={styles.scanTitle}>{t("ingredients")}</div>
-                  <div className={styles.scanDesk}>{scan.composition}</div>
+                  <div className={styles.scanTitle}>{t("product")}</div>
+                  <div className={styles.scanDesk}>{scan.name}</div>
                 </div>
                 <div className={styles.scanAnalysis}>
-                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                  <div className={styles.scanDesk}>{scan.analysis}</div>
+                  <div className={styles.scanTitle}>{t("description")}</div>
+                  <div className={styles.scanDesk}>{scan.description}</div>
                 </div>
                 <div className={styles.blockUnderInfo}>
-                  {scan.result == true ? (
+                  {isHaram(scan) ? (
                     <div className={`${styles.accessBlock} ${styles.haram}`}>
                       <CircleX size={16} strokeWidth={2} /> {t("haram")}
                     </div>

@@ -6,6 +6,7 @@ import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/Moda
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
+import analyze from "../../assets/image/analyz.png";
 import styles from "./Scanner.module.css";
 
 export const Scanner: React.FC = () => {
@@ -45,9 +46,7 @@ export const Scanner: React.FC = () => {
 
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <div className={styles.cameraPlaceholder}>
-              <Camera size={64} />
-            </div>
+            <img src={analyze} />
           </div>
 
           <div className={styles.halalCheck}>

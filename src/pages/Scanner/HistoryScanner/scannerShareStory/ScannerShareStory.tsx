@@ -4,21 +4,20 @@ import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
-import { useHistoryStore } from "../../../../hooks/useHistoryScannerStore";
+import { useHistoryStore, type QaItem } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import { useHtmlExport,SCANNER_HTML_STYLES } from "../../../../hooks/useHtmlExport";
+import { useHtmlExport, SCANNER_HTML_STYLES } from "../../../../hooks/useHtmlExport";
 import { CircleCheck, CircleX, Upload, Download } from "lucide-react";
 import { t } from "i18next";
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string }>();
-  const { history } = useHistoryStore();
+  const { fetchHistoryItem } = useHistoryStore();
+  const [currentItem, setCurrentItem] = useState<QaItem | null>(null);
 
   const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
   const { loading: htmlLoading, exportHtml } = useHtmlExport();
-
-  const currentItem = history.find((item) => item.id === id);
 
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
@@ -33,15 +32,28 @@ export const ScannerShareStory: React.FC = () => {
       });
     };
 
-    preloadImage(message)
-      .then(() => {
-        setIsLoaded(true);
-      })
-      .catch((err) => {
-        console.error("Error during image preloading:", err);
-        setIsLoaded(true);
-      });
-  }, []);
+    const loadItem = async () => {
+      if (!id) return;
+
+      const item = await fetchHistoryItem(id);
+      if (item) {
+        setCurrentItem(item);
+      }
+
+      preloadImage(message)
+        .then(() => setIsLoaded(true))
+        .catch((err) => {
+          console.error("Error during image preloading:", err);
+          setIsLoaded(true);
+        });
+    };
+
+    loadItem();
+  }, [id, fetchHistoryItem]);
+
+  const isHaram = (): boolean => {
+    return currentItem?.haranProducts?.some(product => product.isHaran) || false;
+  };
 
   const handleShare = async () => {
     try {
@@ -80,7 +92,7 @@ export const ScannerShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>Read more about it</div>
+        <div>{t("itemNotFound")}</div>
       </PageWrapper>
     );
   }
@@ -92,7 +104,7 @@ export const ScannerShareStory: React.FC = () => {
           <img src={message} alt="Message background" />
           <div className={styles.blockScan}>
             <div className={styles.blockAccess}>
-              {currentItem.result == true ? (
+              {isHaram() ? (
                 <div className={`${styles.accessBlock} ${styles.haram}`}>
                   <CircleX size={24} strokeWidth={1.5} /> {t("haram")}
                 </div>
@@ -103,22 +115,23 @@ export const ScannerShareStory: React.FC = () => {
                 </div>
               )}
             </div>
+            
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("ingredients")}</div>
-              <div className={styles.scanDesk}>{currentItem.composition}</div>
+              <div className={styles.scanTitle}>{t("productName")}</div>
+              <div className={styles.scanDesk}>{currentItem.name}</div>
             </div>
+
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("analysisResult")}</div>
-              <div className={styles.scanDesk}>{currentItem.analysis}</div>
+              <div className={styles.scanTitle}>{t("description")}</div>
+              <div className={styles.scanDesk}>{currentItem.description}</div>
             </div>
+
             <div className={styles.buttonsContainer}>
               <button
                 type="button"
                 onClick={handleShare}
                 disabled={loading}
-                className={`${styles.shareButton} ${
-                  loading ? styles.shareButtonDisabled : ""
-                }`}
+                className={`${styles.shareButton} ${loading ? styles.shareButtonDisabled : ""}`}
               >
                 <Upload /> {loading ? t("loading") : t("share")}
               </button>
@@ -127,9 +140,7 @@ export const ScannerShareStory: React.FC = () => {
                 type="button"
                 onClick={handleExportHtml}
                 disabled={htmlLoading}
-                className={`${styles.exportButton} ${
-                  htmlLoading ? styles.exportButtonDisabled : ""
-                }`}
+                className={`${styles.exportButton} ${htmlLoading ? styles.exportButtonDisabled : ""}`}
               >
                 <Download /> {htmlLoading ? t("loading") : t("exportHtml")}
               </button>
