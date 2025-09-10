@@ -23,18 +23,17 @@ export const Scanner: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [facingMode, ] = useState<"user" | "environment">("environment");
-  const [, setIsUploading] = useState(false);
+  const [facingMode] = useState<"user" | "environment">("environment");
+  const [isUploading, setIsUploading] = useState(false);
   const [starting, setStarting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [cameraActive, setCameraActive] = useState(false); // Новое состояние для управления камерой
+  const [cameraActive, setCameraActive] = useState(false);
 
   // --- ФУНКЦИИ ---
   const startCamera = async () => {
     setErrorMsg("");
     setImageUrl(null);
     setStarting(true);
-    setCameraActive(true);
 
     try {
       stopCamera();
@@ -54,11 +53,11 @@ export const Scanner: React.FC = () => {
         videoRef.current.srcObject = mediaStream;
         videoRef.current.setAttribute("playsinline", "true");
         await videoRef.current.play();
+        setCameraActive(true); // Активируем камеру только после успешного запуска
       }
     } catch (e: any) {
       setErrorMsg(e?.message || "Камера недоступна");
       stopCamera();
-      setCameraActive(false);
     } finally {
       setStarting(false);
     }
@@ -75,17 +74,24 @@ export const Scanner: React.FC = () => {
     setCameraActive(false);
   };
 
-  const handleScanClick = () => {
+  const handleScanClick = async () => {
     if (cameraActive) {
-      capture();
+      await capture();
     } else {
-      startCamera();
+      await startCamera();
     }
   };
 
   const capture = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
+    
+    // Проверяем, что видео готово
+    if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+      setErrorMsg("Камера не готова. Попробуйте еще раз.");
+      return;
+    }
+
     const canvas = canvasRef.current;
     const w = video.videoWidth;
     const h = video.videoHeight;
@@ -107,7 +113,7 @@ export const Scanner: React.FC = () => {
         }
       }, "image/jpeg", 0.92);
     } else {
-      setErrorMsg("Camera not ready, try again.");
+      setErrorMsg("Камера не готова. Попробуйте еще раз.");
     }
   };
 
@@ -120,18 +126,25 @@ export const Scanner: React.FC = () => {
       await processImage(imageFile);
       navigate("/scanner/analyze");
     } catch (e: any) {
-      const errorMessage = e?.message || "Ошибка сканирования :( повторите позже";
+      const errorMessage = e?.message || "Ошибка сканирования. Пожалуйста, попробуйте позже.";
       setErrorMsg(errorMessage);
       console.error("Upload error:", e);
+      
+      // Даем возможность повторить
+      setImageUrl(null);
+      setCameraActive(false);
     } finally {
       setIsUploading(false);
     }
   };
 
+  const handleBuyRequests = () => {
+    setShowModal(true);
+  };
+
   // --- HOOKS ---
   useEffect(() => {
     fetchUserData();
-    // Убрали автоматический запуск камеры
     return () => stopCamera();
   }, []);
 
@@ -154,6 +167,7 @@ export const Scanner: React.FC = () => {
   };
 
   const showScanButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
+  const isButtonDisabled = isLoading || starting || isUploading;
 
   if (!imageLoaded) {
     return (
@@ -167,7 +181,7 @@ export const Scanner: React.FC = () => {
   return (
     <PageWrapper showBackButton navigateTo="/home">
       <div className={styles.container}>
-        {/* Контейнер камеры/превью (только когда активна) */}
+        {/* Контейнер камеры/превью */}
         {cameraActive && (
           <div className={styles.cameraContainer}>
             <video
@@ -183,16 +197,17 @@ export const Scanner: React.FC = () => {
                 className={styles.previewImage}
               />
             )}
-            {starting && (
+            {(starting || isUploading) && (
               <div className={styles.cameraLoading}>
-                <LoadingSpinner /> Init camera…
+                <LoadingSpinner /> 
+                {starting ? "Запуск камеры..." : "Обработка изображения..."}
               </div>
             )}
           </div>
         )}
 
-        {/* Центральный контент (показываем когда камера не активна) */}
-        {!cameraActive && (
+        {/* Центральный контент */}
+        {!cameraActive && !imageUrl && (
           <div className={styles.content}>
             <div className={styles.illustration}>
               <img src={scanner} alt={t("instantHalalCheck")} />
@@ -208,14 +223,16 @@ export const Scanner: React.FC = () => {
           </div>
         )}
 
-        {/* Кнопка сканирования/запуска камеры */}
+        {/* Кнопка */}
         <div className={styles.scanButtonContainer}>
           <button
             className={styles.submitButton}
-            onClick={showScanButton ? handleScanClick : () => setShowModal(true)}
-            disabled={isLoading || starting}
+            onClick={showScanButton ? handleScanClick : handleBuyRequests}
+            disabled={isButtonDisabled}
           >
-            {showScanButton ? (
+            {(starting || isUploading) ? (
+              <LoadingSpinner size={20} />
+            ) : showScanButton ? (
               <Camera size={24} />
             ) : (
               <Wallet size={24} />
@@ -225,9 +242,25 @@ export const Scanner: React.FC = () => {
         </div>
 
         {/* Отображение ошибок */}
-        {errorMsg && <p className={styles.errorText}>{errorMsg}</p>}
+        {errorMsg && (
+          <div className={styles.errorContainer}>
+            <p className={styles.errorText}>{errorMsg}</p>
+            {errorMsg && (
+              <button
+                className={styles.retryButton}
+                onClick={() => {
+                  setErrorMsg("");
+                  setCameraActive(false);
+                  setImageUrl(null);
+                }}
+              >
+                Попробовать снова
+              </button>
+            )}
+          </div>
+        )}
 
-        {/* Скрытый canvas для захвата кадра */}
+        {/* Скрытый canvas */}
         <canvas ref={canvasRef} style={{ display: 'none' }} />
       </div>
 
