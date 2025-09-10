@@ -199,7 +199,7 @@ declare global {
   }
 }
 
-const TelegramCameraButton: React.FC = () => {
+export const Scanner: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cameraVisible, setCameraVisible] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -409,5 +409,3 @@ const TelegramCameraButton: React.FC = () => {
     </div>
   );
 };
-
-export default TelegramCameraButton;
