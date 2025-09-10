@@ -46,7 +46,7 @@ export const Friends: React.FC = () => {
     const shareUrl = `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
 
     // Определяем тип устройства
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAndroid = /Android/i.test(navigator.userAgent);
 
     // Для Android используем Telegram-специфичное открытие
