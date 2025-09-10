@@ -283,7 +283,6 @@ export const Scanner: React.FC = () => {
           e.currentTarget.style.backgroundColor = '#28a745';
         }}
       >
-        <span style={{ marginRight: '8px' }}>🖼️</span>
         Выбрать из галереи
       </button>
 
@@ -295,7 +294,7 @@ export const Scanner: React.FC = () => {
         style={{ display: 'none' }}
       />
 
-      {cameraVisible && (
+      {/* {cameraVisible && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -328,7 +327,7 @@ export const Scanner: React.FC = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
