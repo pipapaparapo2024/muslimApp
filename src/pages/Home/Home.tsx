@@ -4,6 +4,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import { MenuBlocks } from "./MenuBlocks/MenuBlocks";
 import { PrayerTimes } from "./PrayerTimes/PrayerTimes";
 import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
+import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
@@ -12,23 +13,15 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export const Home: React.FC = () => {
   const {
-    city,
-    country,
-    coords,
-    isLoading,
-    error,
     sensorPermission,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
   } = useHomeLogic();
-
+  const { isLoading,error } = useGeoStore();
   return (
     <PageWrapper>
-      <Header
-        city={city || "Unknown city"}
-        country={country || "Unknown country"}
-      />
+      <Header />
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       <div className={styles.sensorPermissionPrompt}>
         <button
@@ -71,7 +64,6 @@ export const Home: React.FC = () => {
                   >
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
-                      coords={coords}
                     />
                     {sensorPermission !== "granted" && (
                       <div className={styles.permissionPrompt}>

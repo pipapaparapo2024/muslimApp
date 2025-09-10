@@ -5,22 +5,19 @@ import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-interface HeaderProps {
-  city: string;
-  country: string;
-}
+import { useGeoStore } from "../../hooks/useGeoStore";
 
-export const Header: React.FC<HeaderProps> = ({ country, city }) => {
+export const Header: React.FC = () => {
   const { formattedDate } = useDataTimeStore();
   const { hasPremium, premiumDaysLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { city, country } = useGeoStore();
   const getButtonText = () => {
     if (!hasPremium) return t("buyPremium");
     if (!premiumDaysLeft) return t("premiumActive");
-
     if (premiumDaysLeft > 0) {
       return `${premiumDaysLeft} ${t("daysLeft")}`;
     } else {

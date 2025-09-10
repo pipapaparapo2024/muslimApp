@@ -20,7 +20,6 @@ export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   
-  // Подключаем сторы для геоданных и настроек
   const {
     city,
     country,
@@ -104,7 +103,7 @@ export const useWelcomeLogic = () => {
     }
   }, [city, country, timeZone, langcode, sendUserSettings]);
 
-  // Инициализация геоданных и отправка настроек
+  // Инициализация геоданных и отправка настроек - ОДИН ЗАПРОС
   useEffect(() => {
     const initializeApp = async () => {
       if (!geoDataFetched.current) {

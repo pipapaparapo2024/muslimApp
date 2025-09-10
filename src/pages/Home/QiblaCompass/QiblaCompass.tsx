@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import kaaba from "../../../assets/icons/kaaba.svg";
 import sun from "../../../assets/icons/sun_.svg";
-
+import { useGeoStore } from "../../../hooks/useGeoStore";
 const KAABA_COORDS = {
   lat: 21.422487,
   lon: 39.826206,
@@ -23,8 +23,8 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
   size = 120,
   showAngle = false,
   permissionGranted,
-  coords: externalCoords,
 }) => {
+  const { coords: externalCoords } = useGeoStore();
   const scale = size / BASE_SIZE;
   const iconSize = Math.round(BASE_ICON_SIZE * scale);
   const ringGap = Math.round(BASE_RING_GAP * scale);
@@ -39,7 +39,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
     const handleOrientation = (event: DeviceOrientationEvent) => {
       const iosEvent = event as unknown as { webkitCompassHeading?: number };
       let newHeading: number | null = null;
-
 
       if (iosEvent.webkitCompassHeading !== undefined) {
         newHeading = iosEvent.webkitCompassHeading; // iOS
@@ -227,7 +226,13 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           zIndex: 5,
         }}
       >
-        <svg width={iconSize - 4} height={iconSize - 4} viewBox="0 0 14 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg
+          width={iconSize - 4}
+          height={iconSize - 4}
+          viewBox="0 0 14 15"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
           <path
             d="M12.0006 8.5321L10.3014 5.13375C8.81704 2.16495 8.07482 0.680572 6.89947 0.680587C5.72417 0.680558 4.98197 2.16495 3.49757 5.13374L1.79838 8.53212C0.600328 10.9282 0.00130948 12.1263 0.185183 12.8208C0.360102 13.4816 0.876148 13.9976 1.53687 14.1725C2.23145 14.1725 3.42949 13.7574 5.82558 12.5593C6.2103 12.367 6.40269 12.2708 6.60401 12.2309C6.79909 12.1923 6.99991 12.1923 7.195 12.2309C7.3963 12.2708 7.5887 12.367 7.97339 12.5593C10.3695 13.7574 11.5676 14.3564 12.2621 14.1725C12.9228 13.9976 13.4389 13.4816 13.6138 12.8208C13.7977 12.1263 13.1987 10.9282 12.0006 8.5321Z"
             fill="var(--bg-surface)"
@@ -254,7 +259,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
           <div style={{ color: "#888", fontWeight: 400, fontSize: "16px" }}>
             Qibla angle of your location
           </div>
-          
         </div>
       )}
     </div>
