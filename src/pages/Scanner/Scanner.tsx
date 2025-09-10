@@ -155,7 +155,7 @@
 //     </PageWrapper>
 //   );
 // };
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef } from "react";
 
 interface PhotoData {
   uri: string;
@@ -204,18 +204,18 @@ export const Scanner: React.FC = () => {
 
   const requestCameraPermission = useCallback(async (): Promise<boolean> => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      alert('Ваш браузер не поддерживает доступ к камере');
+      alert("Ваш браузер не поддерживает доступ к камере");
       return false;
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       // Освобождаем поток сразу после проверки разрешения
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
-      console.error('Ошибка доступа к камере:', error);
-      alert('Не удалось получить доступ к камере. Проверьте разрешения.');
+      console.error("Ошибка доступа к камере:", error);
+      alert("Не удалось получить доступ к камере. Проверьте разрешения.");
       return false;
     }
   }, []);
@@ -227,20 +227,20 @@ export const Scanner: React.FC = () => {
         uri: URL.createObjectURL(file),
         base64: event.target?.result as string,
         type: file.type,
-        name: file.name
+        name: file.name,
       };
 
-      console.log('Фото сделано:', photoData);
+      console.log("Фото сделано:", photoData);
 
       // Вместо sendData используем другой метод или просто логируем
       if (window.Telegram?.WebApp) {
         // Альтернатива: показываем popup с информацией о фото
         window.Telegram.WebApp.showPopup({
-          title: 'Фото сделано',
+          title: "Фото сделано",
           message: `Фото "${file.name}" успешно обработано`,
-          buttons: [{ type: 'ok' }]
+          buttons: [{ type: "ok" }],
         });
-        
+
         // Или используем showAlert
         // window.Telegram.WebApp.showAlert('Фото успешно обработано!');
       }
@@ -248,42 +248,44 @@ export const Scanner: React.FC = () => {
     reader.readAsDataURL(file);
   }, []);
 
-  const openCamera = useCallback(async () => {
-    setIsLoading(true);
+const openCamera = useCallback(async () => {
+  setIsLoading(true);
 
-    try {
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      
-      if (!isMobile) {
-        alert('Функция камеры доступна только на мобильных устройствах');
-        return;
-      }
-
-      const hasPermission = await requestCameraPermission();
-      if (!hasPermission) return;
-
-      // Создаем input для камеры
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'camera'; // Это заставляет открыть камеру вместо галереи
-      
-      input.onchange = (event) => {
-        const files = (event.target as HTMLInputElement).files;
-        if (files && files[0]) {
-          handlePhotoTaken(files[0]);
-        }
-      };
-
-      input.click();
-      
-    } catch (error) {
-      console.error('Ошибка при открытии камеры:', error);
-      alert('Не удалось открыть камеру');
-    } finally {
-      setIsLoading(false);
+  try {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (!isMobile) {
+      alert('Функция камеры доступна только на мобильных устройствах');
+      return;
     }
-  }, [requestCameraPermission, handlePhotoTaken]);
+
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+
+    // Создаем input для камеры с явным указанием типа
+    const input = document.createElement('input') as HTMLInputElement;
+    input.type = 'file';
+    input.accept = 'image/*';
+    
+    // Используем setAttribute правильно
+    input.setAttribute('capture', 'camera');
+    
+    input.onchange = (event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files && files[0]) {
+        handlePhotoTaken(files[0]);
+      }
+    };
+
+    input.click();
+    
+  } catch (error) {
+    console.error('Ошибка при открытии камеры:', error);
+    alert('Не удалось открыть камеру');
+  } finally {
+    setIsLoading(false);
+  }
+}, [requestCameraPermission, handlePhotoTaken]);
 
   const openFilePicker = useCallback(() => {
     if (fileInputRef.current) {
@@ -291,50 +293,53 @@ export const Scanner: React.FC = () => {
     }
   }, []);
 
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files[0]) {
-      handlePhotoTaken(files[0]);
-    }
-  }, [handlePhotoTaken]);
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (files && files[0]) {
+        handlePhotoTaken(files[0]);
+      }
+    },
+    [handlePhotoTaken]
+  );
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
+    <div style={{ padding: "20px", textAlign: "center" }}>
       <button
         onClick={openCamera}
         disabled={isLoading}
         style={{
-          backgroundColor: isLoading ? '#6c757d' : '#0088cc',
-          color: 'white',
-          padding: '15px 25px',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          cursor: isLoading ? 'not-allowed' : 'pointer',
-          margin: '10px',
-          minWidth: '200px',
-          transition: 'background-color 0.2s ease'
+          backgroundColor: isLoading ? "#6c757d" : "#0088cc",
+          color: "white",
+          padding: "15px 25px",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "16px",
+          fontWeight: "bold",
+          cursor: isLoading ? "not-allowed" : "pointer",
+          margin: "10px",
+          minWidth: "200px",
+          transition: "background-color 0.2s ease",
         }}
         onMouseOver={(e) => {
           if (!isLoading) {
-            e.currentTarget.style.backgroundColor = '#0066a4';
+            e.currentTarget.style.backgroundColor = "#0066a4";
           }
         }}
         onMouseOut={(e) => {
           if (!isLoading) {
-            e.currentTarget.style.backgroundColor = '#0088cc';
+            e.currentTarget.style.backgroundColor = "#0088cc";
           }
         }}
       >
         {isLoading ? (
           <>
-            <span style={{ marginRight: '8px' }}>⏳</span>
+            <span style={{ marginRight: "8px" }}>⏳</span>
             Загрузка...
           </>
         ) : (
           <>
-            <span style={{ marginRight: '8px' }}>📷</span>
+            <span style={{ marginRight: "8px" }}>📷</span>
             Открыть камеру
           </>
         )}
@@ -343,26 +348,26 @@ export const Scanner: React.FC = () => {
       <button
         onClick={openFilePicker}
         style={{
-          backgroundColor: '#28a745',
-          color: 'white',
-          padding: '15px 25px',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          cursor: 'pointer',
-          margin: '10px',
-          minWidth: '200px',
-          transition: 'background-color 0.2s ease'
+          backgroundColor: "#28a745",
+          color: "white",
+          padding: "15px 25px",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "16px",
+          fontWeight: "bold",
+          cursor: "pointer",
+          margin: "10px",
+          minWidth: "200px",
+          transition: "background-color 0.2s ease",
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = '#218838';
+          e.currentTarget.style.backgroundColor = "#218838";
         }}
         onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = '#28a745';
+          e.currentTarget.style.backgroundColor = "#28a745";
         }}
       >
-        <span style={{ marginRight: '8px' }}>🖼️</span>
+        <span style={{ marginRight: "8px" }}>🖼️</span>
         Выбрать из галереи
       </button>
 
@@ -371,36 +376,40 @@ export const Scanner: React.FC = () => {
         type="file"
         accept="image/*"
         onChange={handleFileSelect}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
       />
 
       {cameraVisible && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'black',
-          zIndex: 1000
-        }}>
-          <div style={{
-            position: 'absolute',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: '10px'
-          }}>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "black",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: "10px",
+            }}
+          >
             <button
               onClick={() => setCameraVisible(false)}
               style={{
-                padding: '10px 20px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
+                padding: "10px 20px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
               }}
             >
               Закрыть
