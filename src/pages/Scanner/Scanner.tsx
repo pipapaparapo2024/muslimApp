@@ -154,102 +154,84 @@
 //     </PageWrapper>
 //   );
 // };import React, { useState, useEffect } from "react";
-
-import React from 'react';
+import React, { useState, useRef } from 'react';
 
 interface CameraButtonProps {
-  onPhotoTaken?: (photo: string) => void;
-  buttonText?: string;
+  onPhotoTaken?: (photoData: string) => void;
 }
 
-export const Scanner: React.FC<CameraButtonProps> = ({
-  onPhotoTaken,
-  buttonText = "📷 Открыть камеру"
-}) => {
+export const Scanner: React.FC<CameraButtonProps> = ({ onPhotoTaken }) => {
+  // const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const openCamera = () => {
-    // Проверяем, что мы в Telegram WebApp
-    if (window.Telegram?.WebApp) {
-      const webApp = window.Telegram.WebApp;
-      
-      // Для Telegram WebApp используем стандартный input с атрибутом capture
-      // так как прямого API для камеры может не быть
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment'; // Используем основную камеру
-      
-      input.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file && onPhotoTaken) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            onPhotoTaken(event.target?.result as string);
-            webApp.showAlert("Фото сделано успешно!");
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-      
-      input.click();
+    if (isMobileDevice()) {
+      // Для мобильных устройств используем input с камерой
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
     } else {
-      // Если не в Telegram, используем стандартный input file
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'camera';
-      
-      input.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        if (file && onPhotoTaken) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            onPhotoTaken(event.target?.result as string);
-          };
-          reader.readAsDataURL(file);
-        }
-      };
-      
-      input.click();
+      // Для десктопа или если камера не доступна
+      alert('Камера доступна только на мобильных устройствах');
     }
   };
 
+  const isMobileDevice = (): boolean => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const photoData = e.target?.result as string;
+        setPhotoPreview(photoData);
+        onPhotoTaken?.(photoData);
+      };
+      
+      reader.readAsDataURL(file);
+    }
+    
+    // Сбрасываем значение input для возможности повторного выбора того же файла
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
+  const clearPhoto = () => {
+    setPhotoPreview(null);
+  };
+
   return (
-    <button
-      onClick={openCamera}
-      style={{
-        padding: '12px 24px',
-        backgroundColor: '#007bff',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        fontSize: '16px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        transition: 'all 0.2s ease',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        minWidth: '160px',
-        justifyContent: 'center'
-      }}
-      onMouseOver={(e) => {
-        e.currentTarget.style.backgroundColor = '#0056b3';
-        e.currentTarget.style.transform = 'translateY(-1px)';
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.backgroundColor = '#007bff';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }}
-      onMouseDown={(e) => {
-        e.currentTarget.style.transform = 'translateY(1px)';
-      }}
-      onMouseUp={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-      }}
-    >
-      <span style={{ fontSize: '18px' }}>📷</span>
-      {buttonText}
-    </button>
+    <div className="camera-container">
+      {/* Скрытый input для камеры */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment" // Используем заднюю камеру
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
+      {photoPreview ? (
+        <div className="photo-preview">
+          <img src={photoPreview} alt="Предпросмотр" className="preview-image" />
+          <button onClick={clearPhoto} className="retake-button">
+            Сделать новое фото
+          </button>
+        </div>
+      ) : (
+        <button onClick={openCamera} className="camera-button">
+          📷 Открыть камеру
+        </button>
+      )}
+    </div>
   );
 };

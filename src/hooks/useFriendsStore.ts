@@ -1,6 +1,22 @@
 import { create } from "zustand";
-import axios from "axios";
-// import { quranApi } from "../../api/api";
+import { quranApi } from "../api/api";
+
+interface ReferralUser {
+  status: string;
+  userName: string;
+}
+
+interface ReferralResponse {
+  data: {
+    users: ReferralUser[];
+  };
+  status: string;
+}
+
+interface ReferralLinkResponse {
+  url: string;
+}
+
 interface Friend {
   id: string;
   name: string;
@@ -13,9 +29,11 @@ interface Friend {
 
 interface FriendsState {
   friends: Friend[];
+  referralLink: string;
   loading: boolean;
   error: string | null;
   fetchFriends: () => Promise<void>;
+  fetchReferralLink: () => Promise<void>;
   addFriend: (friendData: Omit<Friend, "id" | "invitedDate">) => Promise<void>;
   updateFriendStatus: (
     id: string,
@@ -23,6 +41,7 @@ interface FriendsState {
     purchasedDate?: string
   ) => Promise<void>;
 }
+
 // Вспомогательная функция для безопасной проверки ошибки
 function isErrorWithMessage(error: unknown): error is { message: string } {
   return (
@@ -32,67 +51,32 @@ function isErrorWithMessage(error: unknown): error is { message: string } {
     typeof (error as { message: string }).message === "string"
   );
 }
-// Тестовые данные друзей
-const mockFriends: Friend[] = [
-  {
-    id: "1",
-    name: "Ахмед Рахимов",
-    email: "ahmed@example.com",
-    status: "invited",
-    invitedDate: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    name: "Мария Сулейманова",
-    email: "maria@example.com",
-    status: "purchased",
-    invitedDate: "2024-01-10T14:20:00Z",
-  },
-  {
-    id: "3",
-    name: "Ибрагим Каримов",
-    email: "ibragim@example.com",
-    status: "purchased",
-    invitedDate: "2024-01-05T09:15:00Z",
-    purchasedDate: "2024-01-12T16:45:00Z",
-  },
-  {
-    id: "4",
-    name: "Аиша Юсупова",
-    email: "aisha@example.com",
-    status: "purchased",
-    invitedDate: "2024-01-03T11:00:00Z",
-    purchasedDate: "2024-01-08T13:20:00Z",
-  },
-  {
-    id: "5",
-    name: "Мухаммад Алиев",
-    email: "muhammad@example.com",
-    status: "invited",
-    invitedDate: "2024-01-20T08:45:00Z",
-  },
-];
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
   friends: [],
+  referralLink: "",
   loading: false,
   error: null,
 
-  // Получить список друзей с бэкенда
+  // Получить список рефералов с бэкенда
   fetchFriends: async () => {
     set({ loading: true, error: null });
     try {
+      const res = await quranApi.get<ReferralResponse>("/referal/bonuses/users");
+      // Преобразуем данные из API в формат Friend
+      const friendsData: Friend[] = res.data.data.users.map((user, index) => ({
+        id: index.toString(),
+        name: user.userName,
+        email: "", // Email не приходит из API, оставляем пустым
+        status: user.status as "invited" | "purchased",
+        invitedDate: new Date().toISOString(), // Дата не приходит из API
+      }));
+      
       set({
-        friends: mockFriends,
+        friends: friendsData,
         loading: false,
         error: null,
       });
-      // const res = await quranApi.get("/api/friends/list");
-      // set({
-      //   friends: res.data.friends || [],
-      //   loading: false,
-      //   error: null,
-      // });
     } catch (err: unknown) {
       const message = isErrorWithMessage(err)
         ? err.message
@@ -104,13 +88,34 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     }
   },
 
+  // Получить реферальную ссылку
+  fetchReferralLink: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await quranApi.post<ReferralLinkResponse>("/referal/create");
+      set({
+        referralLink: res.data.url,
+        loading: false,
+        error: null,
+      });
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Fail to get location";
+      set({
+        loading: false,
+        error: message || "Ошибка загрузки реферальной ссылки",
+      });
+    }
+  },
+
   // Добавить нового друга (приглашение)
   addFriend: async (friendData) => {
     set({ loading: true, error: null });
     try {
       const newFriend = {
         ...friendData,
-        id: Date.now().toString(), // Временный ID, на бэкенде будет заменен
+        id: Date.now().toString(),
         invitedDate: new Date().toISOString(),
       };
 
@@ -119,9 +124,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         friends: [...state.friends, newFriend],
         loading: false,
       }));
-
-      // Отправка на сервер
-      await axios.post("/api/friends/invite", newFriend);
 
       // Перезагружаем актуальные данные
       await get().fetchFriends();
@@ -136,7 +138,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     }
   },
 
-  // Обновить статус друга (например, после покупки)
+  // Обновить статус друга
   updateFriendStatus: async (id, status, purchasedDate) => {
     set({ loading: true, error: null });
     try {
@@ -147,9 +149,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         ),
         loading: false,
       }));
-
-      // Отправка на сервер
-      await axios.patch(`/api/friends/update/${id}`, { status, purchasedDate });
 
       // Перезагружаем актуальные данные
       await get().fetchFriends();
