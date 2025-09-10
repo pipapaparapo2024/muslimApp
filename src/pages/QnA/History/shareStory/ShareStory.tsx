@@ -6,7 +6,8 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import { Upload } from "lucide-react";
+import { useHtmlExport,QNA_HTML_STYLES } from "../../../../hooks/useHtmlExport";
+import { Upload, Download } from "lucide-react";
 import { t } from "i18next";
 
 export const ShareStory: React.FC = () => {
@@ -15,15 +16,14 @@ export const ShareStory: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
 
-  const { createScreenshot, shareToTelegramStory, loading, imageRef } =
-    useScreenshot();
+  const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
+  const { loading: htmlLoading, exportHtml } = useHtmlExport();
 
   useEffect(() => {
     const loadData = async () => {
       if (!id) return;
 
       try {
-        // Предзагрузка изображения
         const preloadImage = (src: string): Promise<void> => {
           return new Promise((resolve) => {
             const img = new Image();
@@ -36,9 +36,7 @@ export const ShareStory: React.FC = () => {
           });
         };
 
-        // Загрузка элемента истории
         const item = await getHistoryItem(id);
-
         await preloadImage(message);
 
         setCurrentItem(item);
@@ -61,6 +59,23 @@ export const ShareStory: React.FC = () => {
     }
   };
 
+  const handleExportHtml = async () => {
+    if (!currentItem) return;
+    
+    try {
+      const htmlFileUrl = await exportHtml({
+        type: 'qna',
+        data: currentItem,
+        styles: QNA_HTML_STYLES
+      });
+      
+      window.open(htmlFileUrl, '_blank');
+    } catch (error) {
+      console.error("Failed to export HTML:", error);
+      alert(t('exportFailed'));
+    }
+  };
+
   if (!isLoaded) {
     return (
       <PageWrapper showBackButton={true}>
@@ -72,7 +87,7 @@ export const ShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>Запрос не найден</div>
+        <div>{t('requestNotFound')}</div>
       </PageWrapper>
     );
   }
@@ -95,7 +110,7 @@ export const ShareStory: React.FC = () => {
               <div className={styles.nickName}>@MuslimBot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
-            <div>
+            <div className={styles.buttonsContainer}>
               <button
                 type="button"
                 onClick={handleShare}
@@ -105,6 +120,17 @@ export const ShareStory: React.FC = () => {
                 }`}
               >
                 <Upload /> {loading ? t("loading") : t("share")}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleExportHtml}
+                disabled={htmlLoading}
+                className={`${styles.exportButton} ${
+                  htmlLoading ? styles.exportButtonDisabled : ""
+                }`}
+              >
+                <Download /> {htmlLoading ? t("loading") : t("exportHtml")}
               </button>
             </div>
           </div>

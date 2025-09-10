@@ -105,7 +105,7 @@ export const Scanner: React.FC = () => {
           </div>
 
           <div className={styles.halalCheck}>
-            <span>Instant Halal Check</span>
+            <span>{t("instantHalalCheck")}</span>
             <p>{t("takePhotoCheck")}</p>
             <p className={styles.warning}>
               <TriangleAlert

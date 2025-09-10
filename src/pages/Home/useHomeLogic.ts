@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 
-// Ключи для localStorage
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
 
-  // Геоданные из стора
   const {
     coords,
     city,
@@ -185,7 +183,6 @@ export const useHomeLogic = () => {
   }, [navigate]);
 
   return {
-    // Состояния
     sensorPermission,
     isRefreshing,
     coords,
@@ -195,7 +192,6 @@ export const useHomeLogic = () => {
     isLoading,
     error,
 
-    // Обработчики
     requestSensorPermission,
     handleRefreshLocationData,
     handleCompassClick,

@@ -17,9 +17,7 @@ export const Home: React.FC = () => {
     coords,
     isLoading,
     error,
-    isRefreshing,
     sensorPermission,
-    handleRefreshLocationData,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
@@ -42,19 +40,10 @@ export const Home: React.FC = () => {
       </div>
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
-        <button
-          className={styles.refreshLocationButton}
-          onClick={handleRefreshLocationData}
-          disabled={isRefreshing || isLoading}
-          title={t("refreshLocation")}
-        >
-          {isRefreshing ? "🔄" : "refresh"}
-        </button>
 
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
-            <p>{t("detectingLocation")}...</p>
           </div>
         )}
 

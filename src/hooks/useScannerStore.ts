@@ -25,7 +25,6 @@ interface ApiHistoryItem extends ApiScanResponse {
   imageUrl: string;
 }
 
-// --- Zustand Store ---
 interface ScannerState {
   isLoading: boolean;
   error: string | null;
@@ -116,7 +115,7 @@ export const useScannerStore = create<ScannerState>()(
           formData.append("type", "ingredients_scan");
 
           const response = await quranApi.post<ApiScanResponse>(
-            "/api/v1/scanner/analyze",
+            "/api/v1/scanner/scan",
             formData,
             {
               headers: {

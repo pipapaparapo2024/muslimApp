@@ -87,7 +87,7 @@ export const SettingPrayerTimes: React.FC = () => {
           {prayers.map((prayer) => (
             <div key={prayer.id} className={styles.prayerItem}>
               <div className={styles.prayerHeader}>
-                <div className={styles.prayerName}>{prayer.name}</div>
+                <div className={styles.prayerName}>{t(prayer.name)}</div>
                 <div className={styles.headerIconInfo}>
                   <Info
                   size={18}

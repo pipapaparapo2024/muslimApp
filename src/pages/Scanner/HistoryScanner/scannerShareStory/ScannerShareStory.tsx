@@ -6,7 +6,8 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import { CircleCheck, CircleX, Upload } from "lucide-react";
+import { useHtmlExport,SCANNER_HTML_STYLES } from "../../../../hooks/useHtmlExport";
+import { CircleCheck, CircleX, Upload, Download } from "lucide-react";
 import { t } from "i18next";
 
 export const ScannerShareStory: React.FC = () => {
@@ -14,8 +15,8 @@ export const ScannerShareStory: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { history } = useHistoryStore();
 
-  const { createScreenshot, shareToTelegramStory, loading, imageRef } =
-    useScreenshot();
+  const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
+  const { loading: htmlLoading, exportHtml } = useHtmlExport();
 
   const currentItem = history.find((item) => item.id === id);
 
@@ -48,6 +49,23 @@ export const ScannerShareStory: React.FC = () => {
       await shareToTelegramStory(imageUrl);
     } catch (error) {
       console.error("Failed to share:", error);
+    }
+  };
+
+  const handleExportHtml = async () => {
+    if (!currentItem) return;
+    
+    try {
+      const htmlFileUrl = await exportHtml({
+        type: 'scanner',
+        data: currentItem,
+        styles: SCANNER_HTML_STYLES
+      });
+      
+      window.open(htmlFileUrl, '_blank');
+    } catch (error) {
+      console.error("Failed to export HTML:", error);
+      alert(t('exportFailed'));
     }
   };
 
@@ -93,16 +111,29 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.scanTitle}>{t("analysisResult")}</div>
               <div className={styles.scanDesk}>{currentItem.analysis}</div>
             </div>
-            <button
-              type="button"
-              onClick={handleShare}
-              disabled={loading}
-              className={`${styles.shareButton} ${
-                loading ? styles.shareButtonDisabled : ""
-              }`}
-            >
-              <Upload /> {loading ? t("loading") : t("share")}
-            </button>
+            <div className={styles.buttonsContainer}>
+              <button
+                type="button"
+                onClick={handleShare}
+                disabled={loading}
+                className={`${styles.shareButton} ${
+                  loading ? styles.shareButtonDisabled : ""
+                }`}
+              >
+                <Upload /> {loading ? t("loading") : t("share")}
+              </button>
+              
+              <button
+                type="button"
+                onClick={handleExportHtml}
+                disabled={htmlLoading}
+                className={`${styles.exportButton} ${
+                  htmlLoading ? styles.exportButtonDisabled : ""
+                }`}
+              >
+                <Download /> {htmlLoading ? t("loading") : t("exportHtml")}
+              </button>
+            </div>
           </div>
         </div>
       </div>

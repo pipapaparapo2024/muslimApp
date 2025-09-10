@@ -9,9 +9,10 @@ import { useScannerStore } from "../../../../hooks/useScannerStore";
 import { Share } from "../../../../components/share/Share";
 import { type HistoryItem } from "../../../../hooks/useHistoryScannerStore";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 
 interface HistoryScannerDetailProps {
-  result?: HistoryItem; // Указываем правильный тип
+  result?: HistoryItem; 
 }
 
 export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
@@ -50,7 +51,7 @@ export const HistoryScannerDetail: React.FC<HistoryScannerDetailProps> = ({
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>{t("loading")}</div>
+        <LoadingSpinner/>
       </PageWrapper>
     );
   }
