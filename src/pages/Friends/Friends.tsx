@@ -2,9 +2,8 @@ import React, { useState, useCallback } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
-import { Check, Wallet, Share, Copy } from "lucide-react";
+import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
-import { openTelegramLink } from "@telegram-apps/sdk";
 
 interface TelegramWebApp {
   WebApp?: {
@@ -41,8 +40,8 @@ declare global {
 
 export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
+  const [isLoading, ] = useState<boolean>(false);
+  const [copied, ] = useState<boolean>(false);
 
   const getTelegramId = () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
@@ -88,99 +87,26 @@ export const Friends: React.FC = () => {
     return `${referalsText}\n\n${link}`;
   }, [referalsText, generateInviteLink]);
 
-  // Копирование ссылки в буфер обмена
-  const copyToClipboard = useCallback(async (text: string) => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        // Fallback для старых браузеров
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Ошибка копирования:', error);
-      alert(t("linkCopiedToClipboard"));
-    }
-  }, [t]);
-
-  // Открытие нативного шаринга
-  const nativeShare = useCallback(async () => {
-    const shareData = {
-      title: t("inviteFriends"),
-      text: generateShareText(),
-      url: generateInviteLink()
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        throw new Error('Web Share API not supported');
-      }
-    } catch (error) {
-      // Fallback к копированию ссылки
-      copyToClipboard(generateShareText());
-    }
-  }, [generateShareText, generateInviteLink, copyToClipboard, t]);
-
   // Прямое открытие в Telegram (как в первом коде)
   const openInTelegram = useCallback(() => {
     const shareText = generateShareText();
     const telegramUrl = `tg://msg?text=${encodeURIComponent(shareText)}`;
-    
+
     // Пытаемся открыть в приложении Telegram
     window.location.href = telegramUrl;
-    
+
     // Fallback на web версию через 500ms
     setTimeout(() => {
       if (!document.hidden) {
-        window.open(`https://t.me/share/url?url=${encodeURIComponent(generateInviteLink())}&text=${encodeURIComponent(referalsText)}`, '_blank');
+        window.open(
+          `https://t.me/share/url?url=${encodeURIComponent(
+            generateInviteLink()
+          )}&text=${encodeURIComponent(referalsText)}`,
+          "_blank"
+        );
       }
     }, 500);
   }, [generateShareText, generateInviteLink, referalsText]);
-
-  // Основная функция приглашения (объединенная)
-  const handleInvite = useCallback(async () => {
-    setIsLoading(true);
-
-    try {
-      const webApp = window.Telegram?.WebApp;
-      // const shareText = generateShareText();
-      const inviteLink = generateInviteLink();
-
-      // Проверяем, находимся ли мы в Telegram WebApp
-      if (webApp) {
-        // Используем метод из @telegram-apps/sdk для лучшей совместимости
-        openTelegramLink(
-          `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(referalsText)}`
-        );
-      } else {
-        // Вне Telegram пробуем нативный шаринг
-        await nativeShare();
-      }
-
-    } catch (error) {
-      console.error('Ошибка при открытии диалога:', error);
-      
-      // Fallback - копируем ссылку
-      copyToClipboard(generateShareText());
-    } finally {
-      setIsLoading(false);
-    }
-  }, [generateShareText, generateInviteLink, referalsText, nativeShare, copyToClipboard]);
-
-  // Проверка платформы
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   if (loading) return <div>{t("loading")}</div>;
   if (error) return <div>{error}</div>;
@@ -192,10 +118,10 @@ export const Friends: React.FC = () => {
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("earnRewards")}</div>
           <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
-          
-          <button 
-            className={`${styles.inviteBtn} ${isLoading ? styles.loading : ''}`} 
-            onClick={handleInvite}
+
+          <button
+            className={`${styles.inviteBtn} ${isLoading ? styles.loading : ""}`}
+            onClick={openInTelegram}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -209,26 +135,6 @@ export const Friends: React.FC = () => {
                 {t("inviteFriends")}
               </>
             )}
-          </button>
-
-          {/* Дополнительные кнопки для мобильных устройств */}
-          {isMobile && (
-            <button 
-              className={styles.telegramBtn}
-              onClick={openInTelegram}
-            >
-              <span>📱</span>
-              {t("openInTelegram")}
-            </button>
-          )}
-
-          {/* Кнопка для копирования ссылки */}
-          <button 
-            className={styles.copyBtn}
-            onClick={() => copyToClipboard(generateInviteLink())}
-          >
-            <Copy size={16} />
-            {t("copyLink")}
           </button>
         </div>
 
