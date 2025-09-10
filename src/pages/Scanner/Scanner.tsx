@@ -159,7 +159,6 @@
 
 
 import React, { useState } from 'react';
-import './App.css';
 
 export const Scanner: React.FC = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);

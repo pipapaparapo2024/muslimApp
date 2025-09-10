@@ -222,7 +222,6 @@
 // };
 
 import React, { useState } from 'react';
-import './App.css';
 import type _ from 'lodash';
 
 export const Friends: React.FC = () => {
