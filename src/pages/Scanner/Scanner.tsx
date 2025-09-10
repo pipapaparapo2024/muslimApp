@@ -155,268 +155,124 @@
 //     </PageWrapper>
 //   );
 // };
-import React, { useState, useCallback, useRef } from "react";
 
-interface PhotoData {
-  uri: string;
-  base64?: string;
-  type: string;
-  name: string;
-}
 
-interface TelegramWebApp {
-  WebApp?: {
-    showPopup: (params: {
-      title: string;
-      message: string;
-      buttons: Array<{ type: string; text?: string }>;
-    }) => void;
-    showAlert: (message: string) => void;
-    showConfirm: (
-      title: string,
-      message: string,
-      callback: (result: boolean) => void
-    ) => void;
-    openTelegramLink: (url: string) => void;
-    platform: string;
-    version: string;
-    initDataUnsafe?: {
-      user?: {
-        id: number;
-        first_name: string;
-        last_name?: string;
-        username?: string;
-      };
-    };
-  };
-}
 
-declare global {
-  interface Window {
-    Telegram?: TelegramWebApp;
-  }
-}
+import React, { useState } from 'react';
+import './App.css';
 
 export const Scanner: React.FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [cameraVisible, setCameraVisible] = useState<boolean>(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<string>('');
 
-  const requestCameraPermission = useCallback(async (): Promise<boolean> => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      alert("Ваш браузер не поддерживает доступ к камере");
-      return false;
-    }
-
+  const openCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      // Освобождаем поток сразу после проверки разрешения
-      stream.getTracks().forEach((track) => track.stop());
-      return true;
+      // Проверяем поддержку getUserMedia
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError('Ваш браузер не поддерживает камеру');
+        return;
+      }
+
+      // Запрашиваем доступ к камере
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: {
+          facingMode: 'environment' // Используем заднюю камеру
+        },
+        audio: false 
+      });
+      
+      setIsCameraOpen(true);
+      setCameraError('');
+
+      // Получаем видео элемент и устанавливаем поток
+      const video = document.getElementById('camera-preview') as HTMLVideoElement;
+      if (video) {
+        video.srcObject = stream;
+        video.play();
+      }
+
     } catch (error) {
-      console.error("Ошибка доступа к камере:", error);
-      alert("Не удалось получить доступ к камере. Проверьте разрешения.");
-      return false;
+      console.error('Ошибка доступа к камере:', error);
+      setCameraError('Не удалось получить доступ к камере. Проверьте разрешения.');
     }
-  }, []);
+  };
 
-  const handlePhotoTaken = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const photoData: PhotoData = {
-        uri: URL.createObjectURL(file),
-        base64: event.target?.result as string,
-        type: file.type,
-        name: file.name,
-      };
-
-      console.log("Фото сделано:", photoData);
-
-      // Вместо sendData используем другой метод или просто логируем
-      if (window.Telegram?.WebApp) {
-        // Альтернатива: показываем popup с информацией о фото
-        window.Telegram.WebApp.showPopup({
-          title: "Фото сделано",
-          message: `Фото "${file.name}" успешно обработано`,
-          buttons: [{ type: "ok" }],
-        });
-
-        // Или используем showAlert
-        // window.Telegram.WebApp.showAlert('Фото успешно обработано!');
-      }
-    };
-    reader.readAsDataURL(file);
-  }, []);
-
-const openCamera = useCallback(async () => {
-  setIsLoading(true);
-
-  try {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    if (!isMobile) {
-      alert('Функция камеры доступна только на мобильных устройствах');
-      return;
+  const closeCamera = () => {
+    // Останавливаем все видео потоки
+    const video = document.getElementById('camera-preview') as HTMLVideoElement;
+    if (video && video.srcObject) {
+      const stream = video.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      video.srcObject = null;
     }
+    setIsCameraOpen(false);
+  };
 
-    const hasPermission = await requestCameraPermission();
-    if (!hasPermission) return;
-
-    // Создаем input для камеры с явным указанием типа
-    const input = document.createElement('input') as HTMLInputElement;
-    input.type = 'file';
-    input.accept = 'image/*';
+  const takePhoto = () => {
+    const video = document.getElementById('camera-preview') as HTMLVideoElement;
+    const canvas = document.getElementById('photo-canvas') as HTMLCanvasElement;
     
-    // Используем setAttribute правильно
-    input.setAttribute('capture', 'camera');
-    
-    input.onchange = (event) => {
-      const files = (event.target as HTMLInputElement).files;
-      if (files && files[0]) {
-        handlePhotoTaken(files[0]);
+    if (video && canvas) {
+      const context = canvas.getContext('2d');
+      if (context) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Здесь можно сохранить или отправить фото
+        const imageData = canvas.toDataURL('image/png');
+        console.log('Фото сделано:', imageData);
+        alert('Фото сделано! Проверьте консоль для данных.');
       }
-    };
-
-    input.click();
-    
-  } catch (error) {
-    console.error('Ошибка при открытии камеры:', error);
-    alert('Не удалось открыть камеру');
-  } finally {
-    setIsLoading(false);
-  }
-}, [requestCameraPermission, handlePhotoTaken]);
-
-  const openFilePicker = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
     }
-  }, []);
-
-  const handleFileSelect = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (files && files[0]) {
-        handlePhotoTaken(files[0]);
-      }
-    },
-    [handlePhotoTaken]
-  );
+  };
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      <button
-        onClick={openCamera}
-        disabled={isLoading}
-        style={{
-          backgroundColor: isLoading ? "#6c757d" : "#0088cc",
-          color: "white",
-          padding: "15px 25px",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "16px",
-          fontWeight: "bold",
-          cursor: isLoading ? "not-allowed" : "pointer",
-          margin: "10px",
-          minWidth: "200px",
-          transition: "background-color 0.2s ease",
-        }}
-        onMouseOver={(e) => {
-          if (!isLoading) {
-            e.currentTarget.style.backgroundColor = "#0066a4";
-          }
-        }}
-        onMouseOut={(e) => {
-          if (!isLoading) {
-            e.currentTarget.style.backgroundColor = "#0088cc";
-          }
-        }}
-      >
-        {isLoading ? (
+    <div className="app">
+      <div className="container">
+        <h1>📷 Камера в TWA</h1>
+        
+        {!isCameraOpen ? (
           <>
-            <span style={{ marginRight: "8px" }}>⏳</span>
-            Загрузка...
+            <button 
+              className="camera-button"
+              onClick={openCamera}
+            >
+              📸 Открыть камеру
+            </button>
+            
+            {cameraError && (
+              <div className="error-message">
+                {cameraError}
+              </div>
+            )}
+
+            <div className="instructions">
+              <p>Нажмите кнопку чтобы открыть камеру</p>
+              <small>Работает на Android и iOS</small>
+            </div>
           </>
         ) : (
-          <>
-            <span style={{ marginRight: "8px" }}>📷</span>
-            Открыть камеру
-          </>
-        )}
-      </button>
-
-      <button
-        onClick={openFilePicker}
-        style={{
-          backgroundColor: "#28a745",
-          color: "white",
-          padding: "15px 25px",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "16px",
-          fontWeight: "bold",
-          cursor: "pointer",
-          margin: "10px",
-          minWidth: "200px",
-          transition: "background-color 0.2s ease",
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = "#218838";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = "#28a745";
-        }}
-      >
-        <span style={{ marginRight: "8px" }}>🖼️</span>
-        Выбрать из галереи
-      </button>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileSelect}
-        style={{ display: "none" }}
-      />
-
-      {cameraVisible && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "black",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              bottom: "20px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              gap: "10px",
-            }}
-          >
-            <button
-              onClick={() => setCameraVisible(false)}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              Закрыть
-            </button>
+          <div className="camera-container">
+            <video 
+              id="camera-preview" 
+              className="camera-preview"
+              playsInline // Важно для iOS
+            />
+            
+            <canvas id="photo-canvas" style={{display: 'none'}} />
+            
+            <div className="camera-controls">
+              <button onClick={takePhoto} className="take-photo-btn">
+                📷 Сделать фото
+              </button>
+              <button onClick={closeCamera} className="close-camera-btn">
+                ✕ Закрыть
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

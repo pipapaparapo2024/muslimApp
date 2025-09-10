@@ -220,222 +220,97 @@
 //     </PageWrapper>
 //   );
 // };
-import React, { useState, useCallback } from "react";
 
-interface TelegramWebApp {
-  WebApp?: {
-    showPopup: (params: {
-      title: string;
-      message: string;
-      buttons: Array<{ type: string; text?: string }>;
-    }) => void;
-    showAlert: (message: string) => void;
-    showConfirm: (
-      title: string,
-      message: string,
-      callback: (result: boolean) => void
-    ) => void;
-    openTelegramLink: (url: string) => void;
-    platform: string;
-    version: string;
-    initDataUnsafe?: {
-      user?: {
-        id: number;
-        first_name: string;
-        last_name?: string;
-        username?: string;
-      };
-    };
+import React, { useState } from 'react';
+import './App.css';
+import type _ from 'lodash';
+
+export const Friends: React.FC = () => {
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+
+  const copyInviteLink = () => {
+    const inviteLink = window.location.href;
+    
+    navigator.clipboard.writeText(inviteLink)
+      .then(() => {
+        alert('Ссылка скопирована! Отправьте её друзьям 👋');
+      })
+      .catch(_ => {
+        // Fallback для старых браузеров
+        const textArea = document.createElement('textarea');
+        textArea.value = inviteLink;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.body.removeChild(textArea);
+        alert('Ссылка скопирована! Отправьте её друзьям 👋');
+      });
   };
-}
 
-declare global {
-  interface Window {
-    Telegram?: TelegramWebApp;
-  }
-}
-
-interface InviteFriendProps {
-  botUsername?: string;
-  referralCode?: string;
-  inviteText?: string;
-}
-
-export const Friends: React.FC<InviteFriendProps> = ({
-  botUsername = "your_bot_username",
-  referralCode = "REF123",
-  inviteText = "Присоединяйся к нашему чату!",
-}) => {
-  const [copied, ] = useState<boolean>(false);
-
-  // Генерация ссылки для приглашения
-  const generateInviteLink = useCallback((): string => {
-    const baseUrl = `https://t.me/${botUsername}?start=${referralCode}`;
-    return baseUrl;
-  }, [botUsername, referralCode]);
-
-  // Генерация текста для шаринга
-  const generateShareText = useCallback((): string => {
-    const link = generateInviteLink();
-    return `${inviteText}\n\n${link}`;
-  }, [inviteText, generateInviteLink]);
-  
-  // ПРАВИЛЬНОЕ открытие в Telegram для Android
-  const openInTelegram = useCallback(() => {
-    const shareText = generateShareText();
-    const inviteLink = generateInviteLink();
+  const shareViaTelegram = () => {
+    const shareText = 'Присоединяйся к нашему крутому приложению! 🚀';
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`;
     
-    // Создаем iframe для безопасного открытия deeplink'а
-    const openTelegramDeeplink = () => {
-      try {
-        // Пытаемся открыть через deeplink
-        const telegramUrl = `tg://msg?text=${encodeURIComponent(shareText)}`;
-        
-        // Создаем невидимый iframe для обхода блокировок
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = telegramUrl;
-        document.body.appendChild(iframe);
-        
-        // Удаляем iframe через короткое время
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 100);
-        
-      } catch (error) {
-        console.error('Error opening Telegram deeplink:', error);
-      }
-    };
+    window.open(shareUrl, '_blank');
+  };
 
-    // Запускаем открытие deeplink'а
-    openTelegramDeeplink();
-
-    // Fallback: если через 300ms приложение не открылось, показываем web версию
-    setTimeout(() => {
-      // Проверяем, остались ли мы на той же странице
-      if (!document.hidden && window.location.href !== 'about:blank') {
-        // Открываем web версию Telegram
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(inviteText)}`,
-          "_blank"
-        );
-      }
-    }, 300);
-  }, [generateShareText, generateInviteLink, inviteText]);
-
-  // Альтернативный метод для Android через user gesture
-  const openInTelegramAndroid = useCallback(() => {
-    const shareText = generateShareText();
-    const inviteLink = generateInviteLink();
-    
-    // Этот метод работает лучше на Android благодаря прямому user gesture
-    const telegramUrl = `tg://msg?text=${encodeURIComponent(shareText)}`;
-    
-    // Пытаемся открыть через window.location (работает в некоторых браузерах)
-    window.location.href = telegramUrl;
-    
-    // Дублируем через window.open для надежности
-    const newWindow = window.open(telegramUrl, '_blank');
-    
-    // Если оба метода не сработали, fallback на web версию
-    setTimeout(() => {
-      if (!document.hidden && (!newWindow || newWindow.closed)) {
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(inviteText)}`,
-          "_blank"
-        );
-      }
-    }, 500);
-  }, [generateShareText, generateInviteLink, inviteText]);
-
-  // Универсальный метод открытия Telegram
-  const handleOpenTelegram = useCallback(() => {
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    
-    if (isAndroid) {
-      // Для Android используем специальный метод
-      openInTelegramAndroid();
+  const shareViaNative = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Приглашение в приложение',
+        text: 'Присоединяйся к нашему крутому приложению! 🚀',
+        url: window.location.href,
+      })
+      .catch(error => {
+        console.log('Ошибка sharing:', error);
+      });
     } else {
-      // Для iOS и других используем стандартный метод
-      openInTelegram();
+      copyInviteLink();
     }
-  }, [openInTelegram, openInTelegramAndroid]);
+  };
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        textAlign: "center",
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      }}
-    >
-      <button
-        onClick={handleOpenTelegram}
-        style={{
-          backgroundColor: "#28a745",
-          color: "white",
-          padding: "12px 24px",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "14px",
-          cursor: "pointer",
-          margin: "5px",
-          transition: "background-color 0.2s ease",
-          minWidth: "200px"
-        }}
-        onMouseOver={(e) => {
-          e.currentTarget.style.backgroundColor = "#218838";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.backgroundColor = "#28a745";
-        }}
-        onTouchStart={(e) => {
-          // Добавляем touch feedback для мобильных устройств
-          e.currentTarget.style.transform = "scale(0.98)";
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
-        }}
-      >
-        📱 Открыть в Telegram
-      </button>
-
-      {copied && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "#28a745",
-            color: "white",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            zIndex: 1000,
-            animation: "fadeInOut 2s ease-in-out",
-          }}
+    <div className="app">
+      <div className="container">
+        <h1>🎉 Мое Приложение</h1>
+        <p>Приглашайте друзей и получайте бонусы!</p>
+        
+        <button 
+          className="invite-button"
+          onClick={() => setIsInviteOpen(true)}
         >
-          ✅ Ссылка скопирована!
-        </div>
-      )}
+          📨 Пригласить друзей
+        </button>
 
-      <style>
-        {`
-          @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -20px); }
-            10% { opacity: 1; transform: translate(-50%, 0); }
-            90% { opacity: 1; transform: translate(-50%, 0); }
-            100% { opacity: 0; transform: translate(-50%, -20px); }
-          }
-          
-          /* Улучшаем feedback для мобильных устройств */
-          button:active {
-            transform: scale(0.98);
-          }
-        `}
-      </style>
+        {isInviteOpen && (
+          <div className="modal-overlay" onClick={() => setIsInviteOpen(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>👋 Пригласить друзей</h2>
+              <p>Поделись ссылкой с друзьями!</p>
+              
+              <div className="buttons-container">
+                <button onClick={shareViaNative} className="share-button">
+                  📤 Поделиться
+                </button>
+                
+                <button onClick={copyInviteLink} className="share-button">
+                  📋 Скопировать ссылку
+                </button>
+                
+                <button onClick={shareViaTelegram} className="share-button telegram">
+                  📧 Telegram
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setIsInviteOpen(false)}
+                className="close-button"
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
