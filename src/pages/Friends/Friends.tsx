@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
@@ -49,16 +49,6 @@ export const Friends: React.FC = () => {
   const { friends, loading, error, fetchFriends } = useFriendsStore();
   const [isLoading] = useState<boolean>(false);
   const [copied] = useState<boolean>(false);
-
-  const getTelegramId = () => {
-    if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-      return window.Telegram.WebApp.initDataUnsafe.user.id;
-    }
-    return null;
-  };
-
-  const telegram_id = getTelegramId();
-  const referalsText = t("joinMeOnMuslimApp");
 
   const requestsGoal = 10;
   const premiumGoal = 10;
