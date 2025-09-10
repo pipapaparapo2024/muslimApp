@@ -1,9 +1,228 @@
-import React, { useState, useCallback } from "react";
-import { PageWrapper } from "../../shared/PageWrapper";
-import styles from "./Friends.module.css";
-import { useFriendsStore } from "../../hooks/useFriendsStore";
-import { Check, Wallet, Share } from "lucide-react";
-import { t } from "i18next";
+// import React, { useState, useCallback } from "react";
+// import { PageWrapper } from "../../shared/PageWrapper";
+// import styles from "./Friends.module.css";
+// import { useFriendsStore } from "../../hooks/useFriendsStore";
+// import { Check, Wallet, Share } from "lucide-react";
+// import { t } from "i18next";
+
+// interface TelegramWebApp {
+//   WebApp?: {
+//     showPopup: (params: {
+//       title: string;
+//       message: string;
+//       buttons: Array<{ type: string; text?: string }>;
+//     }) => void;
+//     showAlert: (message: string) => void;
+//     showConfirm: (
+//       title: string,
+//       message: string,
+//       callback: (result: boolean) => void
+//     ) => void;
+//     openTelegramLink: (url: string) => void;
+//     platform: string;
+//     version: string;
+//     initDataUnsafe?: {
+//       user?: {
+//         id: number;
+//         first_name: string;
+//         last_name?: string;
+//         username?: string;
+//       };
+//     };
+//   };
+// }
+
+// declare global {
+//   interface Window {
+//     Telegram?: TelegramWebApp;
+//   }
+// }
+
+// export const Friends: React.FC = () => {
+//   const { friends, loading, error, fetchFriends } = useFriendsStore();
+//   const [isLoading, ] = useState<boolean>(false);
+//   const [copied, ] = useState<boolean>(false);
+
+//   const getTelegramId = () => {
+//     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+//       return window.Telegram.WebApp.initDataUnsafe.user.id;
+//     }
+//     return null;
+//   };
+
+//   const telegram_id = getTelegramId();
+//   const referalsText = t("joinMeOnMuslimApp");
+
+//   const requestsGoal = 10;
+//   const premiumGoal = 10;
+
+//   React.useEffect(() => {
+//     fetchFriends();
+//   }, [fetchFriends]);
+
+//   // Подсчет статистики
+//   const invitedCount = friends.filter(
+//     (friend) => friend.status === "invited" || friend.status === "purchased"
+//   ).length;
+
+//   const purchasedCount = friends.filter(
+//     (friend) => friend.status === "purchased"
+//   ).length;
+
+//   // Сортировка друзей
+//   const sortedFriends = [...friends].sort((a, b) => {
+//     if (a.status === "purchased" && b.status !== "purchased") return -1;
+//     if (a.status !== "purchased" && b.status === "purchased") return 1;
+//     return 0;
+//   });
+
+//   // Генерация ссылки для приглашения
+//   const generateInviteLink = useCallback((): string => {
+//     return `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
+//   }, [telegram_id]);
+
+//   // Генерация текста для шаринга
+//   const generateShareText = useCallback((): string => {
+//     const link = generateInviteLink();
+//     return `${referalsText}\n\n${link}`;
+//   }, [referalsText, generateInviteLink]);
+
+//   // Прямое открытие в Telegram (как в первом коде)
+//   const openInTelegram = useCallback(() => {
+//     const shareText = generateShareText();
+//     const telegramUrl = `tg://msg?text=${encodeURIComponent(shareText)}`;
+
+//     // Пытаемся открыть в приложении Telegram
+//     window.location.href = telegramUrl;
+
+//     // Fallback на web версию через 500ms
+//     setTimeout(() => {
+//       if (!document.hidden) {
+//         window.open(
+//           `https://t.me/share/url?url=${encodeURIComponent(
+//             generateInviteLink()
+//           )}&text=${encodeURIComponent(referalsText)}`,
+//           "_blank"
+//         );
+//       }
+//     }, 500);
+//   }, [generateShareText, generateInviteLink, referalsText]);
+
+//   if (loading) return <div>{t("loading")}</div>;
+//   if (error) return <div>{error}</div>;
+
+//   return (
+//     <PageWrapper showBackButton>
+//       <div className={styles.friendsContainer}>
+//         {/* Карточка приглашения с улучшенным дизайном */}
+//         <div className={styles.card}>
+//           <div className={styles.cardTitle}>{t("earnRewards")}</div>
+//           <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
+
+//           <button
+//             className={`${styles.inviteBtn} ${isLoading ? styles.loading : ""}`}
+//             onClick={openInTelegram}
+//             disabled={isLoading}
+//           >
+//             {isLoading ? (
+//               <>
+//                 <span>⏳</span>
+//                 {t("loading")}
+//               </>
+//             ) : (
+//               <>
+//                 <Share size={18} />
+//                 {t("inviteFriends")}
+//               </>
+//             )}
+//           </button>
+//         </div>
+
+//         {/* Остальные карточки без изменений */}
+//         <div className={styles.card}>
+//           <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
+//           <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
+//           <div className={styles.progressSection}>
+//             <div className={styles.progressBarContainer}>
+//               <div
+//                 className={styles.progressBar}
+//                 style={{ width: `${(invitedCount / requestsGoal) * 100}%` }}
+//               />
+//             </div>
+//             <div className={styles.progressLabel}>
+//               {invitedCount}/{requestsGoal}
+//             </div>
+//           </div>
+//           {invitedCount >= requestsGoal && (
+//             <button className={styles.rewardBtn}>{t("getReward")}</button>
+//           )}
+//         </div>
+
+//         <div className={styles.card}>
+//           <div className={styles.cardTitle}>{t("unlockPremium")}</div>
+//           <div className={styles.cardDesc}>{t("unlockPremiumDesc")}</div>
+//           <div className={styles.progressSection}>
+//             <div className={styles.progressBarContainer}>
+//               <div
+//                 className={styles.progressBar}
+//                 style={{ width: `${(purchasedCount / premiumGoal) * 100}%` }}
+//               />
+//             </div>
+//             <div className={styles.progressLabel}>
+//               {purchasedCount}/{premiumGoal}
+//             </div>
+//           </div>
+//           {purchasedCount >= premiumGoal && (
+//             <button className={styles.rewardBtn}>{t("getReward")}</button>
+//           )}
+//         </div>
+
+//         {/* Уведомление о копировании */}
+//         {copied && (
+//           <div className={styles.copyNotification}>
+//             ✅ {t("linkCopiedToClipboard")}
+//           </div>
+//         )}
+
+//         <div className={styles.emptyInvitations}>
+//           <div className={styles.emptyTitle}>{t("yourInvitations")}</div>
+//           {sortedFriends.length === 0 ? (
+//             <div className={styles.emptyDesc}>{t("noFriendsYet")}</div>
+//           ) : (
+//             <div className={styles.friendsList}>
+//               {sortedFriends.map((friend) => (
+//                 <div key={friend.id} className={styles.friendItem}>
+//                   <div className={styles.friendName}>{friend.name}</div>
+//                   <div className={styles.friendStatus}>
+//                     {friend.status === "invited" && (
+//                       <div
+//                         className={`${styles.accepted} ${styles.checkBlock}`}
+//                       >
+//                         <Check size={16} />
+//                         {t("accepted")}
+//                       </div>
+//                     )}
+//                     {friend.status === "purchased" && (
+//                       <div
+//                         className={`${styles.purchased} ${styles.checkBlock}`}
+//                       >
+//                         <Wallet size={16} />
+//                         {t("purchased")}
+//                       </div>
+//                     )}
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </PageWrapper>
+//   );
+// };
+
+
+import React, { useState, useCallback } from 'react';
 
 interface TelegramWebApp {
   WebApp?: {
@@ -38,185 +257,240 @@ declare global {
   }
 }
 
-export const Friends: React.FC = () => {
-  const { friends, loading, error, fetchFriends } = useFriendsStore();
-  const [isLoading, ] = useState<boolean>(false);
-  const [copied, ] = useState<boolean>(false);
+interface InviteFriendProps {
+  botUsername?: string;
+  referralCode?: string;
+  inviteText?: string;
+}
 
-  const getTelegramId = () => {
-    if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-      return window.Telegram.WebApp.initDataUnsafe.user.id;
-    }
-    return null;
-  };
-
-  const telegram_id = getTelegramId();
-  const referalsText = t("joinMeOnMuslimApp");
-
-  const requestsGoal = 10;
-  const premiumGoal = 10;
-
-  React.useEffect(() => {
-    fetchFriends();
-  }, [fetchFriends]);
-
-  // Подсчет статистики
-  const invitedCount = friends.filter(
-    (friend) => friend.status === "invited" || friend.status === "purchased"
-  ).length;
-
-  const purchasedCount = friends.filter(
-    (friend) => friend.status === "purchased"
-  ).length;
-
-  // Сортировка друзей
-  const sortedFriends = [...friends].sort((a, b) => {
-    if (a.status === "purchased" && b.status !== "purchased") return -1;
-    if (a.status !== "purchased" && b.status === "purchased") return 1;
-    return 0;
-  });
+export const Friends: React.FC<InviteFriendProps> = ({
+  botUsername = 'your_bot_username',
+  referralCode = 'REF123',
+  inviteText = 'Присоединяйся к нашему чату!'
+}) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
 
   // Генерация ссылки для приглашения
   const generateInviteLink = useCallback((): string => {
-    return `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
-  }, [telegram_id]);
+    const baseUrl = `https://t.me/${botUsername}?start=${referralCode}`;
+    return baseUrl;
+  }, [botUsername, referralCode]);
 
   // Генерация текста для шаринга
   const generateShareText = useCallback((): string => {
     const link = generateInviteLink();
-    return `${referalsText}\n\n${link}`;
-  }, [referalsText, generateInviteLink]);
+    return `${inviteText}\n\n${link}`;
+  }, [inviteText, generateInviteLink]);
 
-  // Прямое открытие в Telegram (как в первом коде)
+  // Копирование ссылки в буфер обмена
+  const copyToClipboard = useCallback(async (text: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback для старых браузеров
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Ошибка копирования:', error);
+    }
+  }, []);
+
+  // Открытие нативного шаринга
+  const nativeShare = useCallback(async () => {
+    const shareData = {
+      title: 'Приглашение в Telegram',
+      text: inviteText,
+      url: generateInviteLink()
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        throw new Error('Web Share API not supported');
+      }
+    } catch (error) {
+      // Fallback к копированию ссылки
+      copyToClipboard(generateShareText());
+    }
+  }, [inviteText, generateInviteLink, generateShareText, copyToClipboard]);
+
+  // Открытие диалога приглашения
+  const openInviteDialog = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const webApp = window.Telegram?.WebApp;
+      const inviteLink = generateInviteLink();
+
+      // Проверяем, находимся ли мы в Telegram WebApp
+      if (webApp) {
+        webApp.showPopup({
+          title: 'Пригласить друзей',
+          message: `Скопируйте ссылку и отправьте друзьям:\n\n${inviteLink}`,
+          buttons: [
+            { type: 'default', text: 'Копировать ссылку' },
+            { type: 'cancel' }
+          ]
+        });
+
+        // В Telegram WebApp можно также использовать открытие ссылок
+        // webApp.openTelegramLink(`tg://msg?text=${encodeURIComponent(shareText)}`);
+        
+      } else {
+        // Вне Telegram пробуем нативный шаринг
+        await nativeShare();
+      }
+
+    } catch (error) {
+      console.error('Ошибка при открытии диалога:', error);
+      
+      // Fallback - показываем модальное окно с ссылкой
+      const shareText = generateShareText();
+      copyToClipboard(shareText);
+      
+      alert('Ссылка для приглашения скопирована в буфер обмена!');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [generateShareText, generateInviteLink, nativeShare, copyToClipboard]);
+
+  // Прямое открытие в Telegram
   const openInTelegram = useCallback(() => {
     const shareText = generateShareText();
     const telegramUrl = `tg://msg?text=${encodeURIComponent(shareText)}`;
-
+    
     // Пытаемся открыть в приложении Telegram
     window.location.href = telegramUrl;
-
+    
     // Fallback на web версию через 500ms
     setTimeout(() => {
       if (!document.hidden) {
-        window.open(
-          `https://t.me/share/url?url=${encodeURIComponent(
-            generateInviteLink()
-          )}&text=${encodeURIComponent(referalsText)}`,
-          "_blank"
-        );
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(generateInviteLink())}&text=${encodeURIComponent(inviteText)}`, '_blank');
       }
     }, 500);
-  }, [generateShareText, generateInviteLink, referalsText]);
+  }, [generateShareText, generateInviteLink, inviteText]);
 
-  if (loading) return <div>{t("loading")}</div>;
-  if (error) return <div>{error}</div>;
+  // Проверка платформы
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   return (
-    <PageWrapper showBackButton>
-      <div className={styles.friendsContainer}>
-        {/* Карточка приглашения с улучшенным дизайном */}
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("earnRewards")}</div>
-          <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
+    <div style={{
+      padding: '20px',
+      textAlign: 'center',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      <button
+        onClick={openInviteDialog}
+        disabled={isLoading}
+        style={{
+          backgroundColor: isLoading ? '#6c757d' : '#0088cc',
+          color: 'white',
+          padding: '16px 32px',
+          border: 'none',
+          borderRadius: '12px',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          margin: '10px',
+          minWidth: '250px',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 12px rgba(0, 136, 204, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px'
+        }}
+        onMouseOver={(e) => {
+          if (!isLoading) {
+            e.currentTarget.style.backgroundColor = '#0066a4';
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 136, 204, 0.4)';
+          }
+        }}
+        onMouseOut={(e) => {
+          if (!isLoading) {
+            e.currentTarget.style.backgroundColor = '#0088cc';
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 136, 204, 0.3)';
+          }
+        }}
+      >
+        {isLoading ? (
+          <>
+            <span>⏳</span>
+            Загрузка...
+          </>
+        ) : (
+          <>
+            <span>👥</span>
+            Пригласить друзей
+          </>
+        )}
+      </button>
 
+      {copied && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#28a745',
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 1000,
+          animation: 'fadeInOut 2s ease-in-out'
+        }}>
+          ✅ Ссылка скопирована!
+        </div>
+      )}
+
+      {/* Дополнительные опции для мобильных устройств */}
+      {isMobile && (
+        <div style={{ marginTop: '20px' }}>
           <button
-            className={`${styles.inviteBtn} ${isLoading ? styles.loading : ""}`}
             onClick={openInTelegram}
-            disabled={isLoading}
+            style={{
+              backgroundColor: '#28a745',
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              margin: '5px',
+              transition: 'background-color 0.2s ease'
+            }}
           >
-            {isLoading ? (
-              <>
-                <span>⏳</span>
-                {t("loading")}
-              </>
-            ) : (
-              <>
-                <Share size={18} />
-                {t("inviteFriends")}
-              </>
-            )}
+            📱 Открыть в Telegram
           </button>
         </div>
+      )}
 
-        {/* Остальные карточки без изменений */}
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
-          <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
-          <div className={styles.progressSection}>
-            <div className={styles.progressBarContainer}>
-              <div
-                className={styles.progressBar}
-                style={{ width: `${(invitedCount / requestsGoal) * 100}%` }}
-              />
-            </div>
-            <div className={styles.progressLabel}>
-              {invitedCount}/{requestsGoal}
-            </div>
-          </div>
-          {invitedCount >= requestsGoal && (
-            <button className={styles.rewardBtn}>{t("getReward")}</button>
-          )}
-        </div>
-
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("unlockPremium")}</div>
-          <div className={styles.cardDesc}>{t("unlockPremiumDesc")}</div>
-          <div className={styles.progressSection}>
-            <div className={styles.progressBarContainer}>
-              <div
-                className={styles.progressBar}
-                style={{ width: `${(purchasedCount / premiumGoal) * 100}%` }}
-              />
-            </div>
-            <div className={styles.progressLabel}>
-              {purchasedCount}/{premiumGoal}
-            </div>
-          </div>
-          {purchasedCount >= premiumGoal && (
-            <button className={styles.rewardBtn}>{t("getReward")}</button>
-          )}
-        </div>
-
-        {/* Уведомление о копировании */}
-        {copied && (
-          <div className={styles.copyNotification}>
-            ✅ {t("linkCopiedToClipboard")}
-          </div>
-        )}
-
-        <div className={styles.emptyInvitations}>
-          <div className={styles.emptyTitle}>{t("yourInvitations")}</div>
-          {sortedFriends.length === 0 ? (
-            <div className={styles.emptyDesc}>{t("noFriendsYet")}</div>
-          ) : (
-            <div className={styles.friendsList}>
-              {sortedFriends.map((friend) => (
-                <div key={friend.id} className={styles.friendItem}>
-                  <div className={styles.friendName}>{friend.name}</div>
-                  <div className={styles.friendStatus}>
-                    {friend.status === "invited" && (
-                      <div
-                        className={`${styles.accepted} ${styles.checkBlock}`}
-                      >
-                        <Check size={16} />
-                        {t("accepted")}
-                      </div>
-                    )}
-                    {friend.status === "purchased" && (
-                      <div
-                        className={`${styles.purchased} ${styles.checkBlock}`}
-                      >
-                        <Wallet size={16} />
-                        {t("purchased")}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </PageWrapper>
+      <style>
+        {`
+          @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; transform: translate(-50%, 0); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+          }
+        `}
+      </style>
+    </div>
   );
 };
