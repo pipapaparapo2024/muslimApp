@@ -155,7 +155,6 @@
 //   );
 // };import React, { useState, useEffect } from "react";
 import { Camera, X, Image } from "lucide-react";
-import "./TelegramCamera.css";
 import { useEffect, useState } from "react";
 
 interface TelegramCameraProps {
@@ -179,7 +178,7 @@ const useTelegram = () => {
   return { webApp };
 };
 
-export const TelegramCamera: React.FC<TelegramCameraProps> = ({
+export const Scanner: React.FC<TelegramCameraProps> = ({
   onPhotoTaken,
   onClose,
 }) => {
