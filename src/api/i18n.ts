@@ -66,6 +66,8 @@ const resources = {
       takePhotoCheck:
         "Take a photo of the product's ingredients to check if it's halal or haram. You'll get a quick result with a short explanation.",
       informationalOnly: "The result is for informational purposes only.",
+      androidCameraTip: "If the gallery opens, select “Camera” in the menu 📷",
+      onlyImagesAllowed: "Please select an image.",
 
       //Modal Language
       languageModal: "Language",
@@ -219,7 +221,7 @@ const resources = {
 
       // Analyzing Promis
       analyzingPromis: "Analyzing Promis",
-      checkingPromis:"Checking Promis...",
+      checkingPromis: "Checking Promis...",
       // Analyzing Ingredient
       analyzingIngredients: "Analyzing Ingredients…",
       checkingItems:
@@ -285,7 +287,6 @@ const resources = {
       haventAskedQuestions:
         "أنت لم تطرح أي أسئلة يا فييت. ابدأ في طلب رؤية إجاباتك السابقة هنا.",
       // Текст кнопок
-      // Текст кнопок
       buyPremium: "شراء Premium",
       premiumActive: "Premium مفعل",
       daysLeft: "يوم متبقي",
@@ -315,7 +316,8 @@ const resources = {
       takePhotoCheck:
         "التقط صورة لمكونات المنتج للتحقق مما إذا كانت حلالاً أم حراماً. ستحصل على نتيجة سريعة مع شرح موجز.",
       informationalOnly: "النتيجة لأغراض إعلامية فقط.",
-
+      androidCameraTip: "إذا تم فتح المعرض، فحدد الكاميرا في القائمة",
+      onlyImagesAllowed: "الرجاء اختيار صورة.",
       //Modal Language
       languageModal: "لغة",
       selectLanguages: "اختر لغتك المفضلة للتطبيق.",
@@ -462,7 +464,7 @@ const resources = {
 
       // Analyzing Promis
       analyzingPromis: "تحليل الوعود",
-      checkingPromis:"التحقق من الوعود...",
+      checkingPromis: "التحقق من الوعود...",
 
       // Analyzing Ingredient
       analyzingIngredients: "جاري تحليل المكونات…",
@@ -475,6 +477,8 @@ const resources = {
       analysisCouldntComplete:
         "لم يكتمل تحليل الصورة. يرجى المحاولة مرة أخرى أو التحقق من اتصالك.",
       scanFirstProduct: "مسح المنتج الأول",
+
+      //Scaner IOS Android
 
       // Scanner words
       copy: "نسخ",

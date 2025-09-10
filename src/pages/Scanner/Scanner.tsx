@@ -15,17 +15,19 @@ export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [, setImageError] = useState(false);
   const navigate = useNavigate();
-  const cameraInputRef = useRef<HTMLInputElement>(null); // Один input для всех устройств
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { isLoading, processImage } = useScannerStore();
+
+  // Определяем Android
+  const isAndroid = /Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
 
-  // Предзагрузка изображения scanner
+  // Предзагрузка изображения
   useEffect(() => {
     const img = new Image();
     img.src = scanner;
@@ -36,8 +38,7 @@ export const Scanner: React.FC = () => {
 
     img.onerror = () => {
       console.error("Failed to load scanner image:", scanner);
-      setImageError(true);
-      setImageLoaded(true);
+      setImageLoaded(true); // Всё равно показываем интерфейс
     };
   }, []);
 
@@ -45,20 +46,29 @@ export const Scanner: React.FC = () => {
     cameraInputRef.current?.click();
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      navigate("/scanner/analyze");
+    if (!file) return;
 
-      setTimeout(async () => {
-        try {
-          await processImage(file);
-        } catch (error) {
-          console.error("Ошибка обработки:", error);
-        }
-      }, 100);
+    // Опционально: валидация типа файла (если нужно)
+    if (!file.type.startsWith("image/")) {
+      alert(t("onlyImagesAllowed"));
+      return;
     }
 
+    navigate("/scanner/analyze");
+
+    setTimeout(async () => {
+      try {
+        await processImage(file);
+      } catch (error) {
+        console.error("Ошибка обработки:", error);
+      }
+    }, 100);
+
+    // Сбрасываем значение input, чтобы можно было выбрать тот же файл снова
     if (event.target) {
       event.target.value = "";
     }
@@ -71,7 +81,8 @@ export const Scanner: React.FC = () => {
     return t("buyRequests");
   };
 
-  const showAskButton = hasPremium || (requestsLeft != null && requestsLeft > 0);
+  const showAskButton =
+    hasPremium || (requestsLeft != null && requestsLeft > 0);
 
   if (!imageLoaded) {
     return (
@@ -88,12 +99,12 @@ export const Scanner: React.FC = () => {
           <TableRequestsHistory text="/scanner/historyScanner" />
         </div>
 
-        {/* Единый input для всех устройств с камерой */}
+        {/* Input для камеры — работает на iOS и частично на Android */}
         <input
           type="file"
           ref={cameraInputRef}
           accept="image/*"
-          capture="environment" 
+          capture="environment" // ← Ключевой атрибут для открытия камеры
           onChange={handleFileSelect}
           style={{ display: "none" }}
         />
@@ -134,6 +145,9 @@ export const Scanner: React.FC = () => {
             {getButtonText()}
           </button>
         </div>
+
+        {/* Подсказка для Android */}
+        {isAndroid && <div className={styles.tip}>{t("androidCameraTip")}</div>}
       </div>
 
       <BuyRequestsModal
