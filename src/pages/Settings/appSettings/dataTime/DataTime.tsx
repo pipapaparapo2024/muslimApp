@@ -44,7 +44,7 @@ export const DataTime: React.FC = () => {
   };
 
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton navigateTo="/settings">
       {/* Time Format */}
       <div className={styles.timeFormat}>
         <div className={styles.titleTime}>{t("timeFormat")}</div>
