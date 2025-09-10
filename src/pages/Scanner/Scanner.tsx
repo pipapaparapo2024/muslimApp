@@ -20,7 +20,7 @@ export const Scanner: React.FC = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { isLoading, processImage } = useScannerStore();
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const openFilePicker = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -44,7 +44,6 @@ export const Scanner: React.FC = () => {
       setImageLoaded(true);
     };
   }, []);
-
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -137,6 +136,13 @@ export const Scanner: React.FC = () => {
             )}
             {getButtonText()}
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+          />
         </div>
       </div>
 
