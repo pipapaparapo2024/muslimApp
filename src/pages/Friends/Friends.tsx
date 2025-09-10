@@ -17,7 +17,7 @@ export const Friends: React.FC = () => {
   };
 
   const telegram_id = getTelegramId();
-  const referalsText = "http://yandex.ru";
+  const referalsText = "Присоединяйся к Muslim App!";
 
   const requestsGoal = 10;
   const premiumGoal = 10;
@@ -45,16 +45,11 @@ export const Friends: React.FC = () => {
   const handleInvite = async () => {
     const shareUrl = `https://t.me/funnyTestsBot?start=ref-${telegram_id}`;
 
-    // Определяем тип устройства
-    // const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isAndroid = /Android/i.test(navigator.userAgent);
-
-    // Для Android используем Telegram-специфичное открытие
-    if (isAndroid && window.Telegram?.WebApp) {
+    // Для Telegram используем специальный метод
+    if (window.Telegram?.WebApp) {
+      // ПРАВИЛЬНЫЙ ФОРМАТ URL для Android
       openTelegramLink(
-        `https://t.me/share/url?url=${encodeURIComponent(
-          shareUrl
-        )}&text=${encodeURIComponent(referalsText)}`
+        `https://t.me/share/url?url=${shareUrl}&text=${encodeURIComponent(referalsText)}`
       );
       return;
     }
@@ -64,29 +59,35 @@ export const Friends: React.FC = () => {
       try {
         await navigator.share({
           title: t("joinMeOnMuslimApp"),
-          text: t("getRewardsAndUnlockFeatures"),
+          text: `${t("getRewardsAndUnlockFeatures")}\n\n${referalsText}`,
           url: shareUrl,
         });
       } catch (err) {
         console.log("Share canceled or failed:", err);
+        // Fallback на копирование ссылки
+        copyToClipboard(shareUrl);
       }
     } else {
-      // Fallback для браузеров без поддержки Web Share API
-      navigator.clipboard
-        .writeText(shareUrl)
-        .then(() => {
-          alert(t("linkCopiedToClipboard"));
-        })
-        .catch(() => {
-          // Резервный вариант для старых браузеров
-          const textArea = document.createElement("textarea");
-          textArea.value = shareUrl;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.body.removeChild(textArea);
-          alert(t("linkCopiedToClipboard"));
-        });
+      copyToClipboard(shareUrl);
     }
+  };
+
+  // Функция для копирования в буфер обмена
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        alert(t("linkCopiedToClipboard"));
+      })
+      .catch(() => {
+        // Резервный вариант
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert(t("linkCopiedToClipboard"));
+      });
   };
 
   if (loading) return <div>{t("loading")}</div>;
@@ -103,6 +104,7 @@ export const Friends: React.FC = () => {
           </button>
         </div>
 
+        {/* Остальной код без изменений */}
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
           <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
