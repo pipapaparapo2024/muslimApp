@@ -69,10 +69,10 @@ export const Friends: React.FC = () => {
   });
 
   const handleInvite = async () => {
-    if (!telegram_id) {
-      alert(t("telegramIdNotFound"));
-      return;
-    }
+    // if (!telegram_id) {
+    //   alert(t("telegramIdNotFound"));
+    //   return;
+    // }
 
     // Проверяем, является ли устройство Android
     const isAndroid = () => {
