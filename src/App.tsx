@@ -52,9 +52,6 @@ export const App: React.FC = () => {
   const { isThemeReady } = useTheme();
   const { isLanguageReady } = useLanguage();
   const { isInitialized: isGeoInitialized } = useGeoStore();
-  const invitedCount = friends.filter(
-    (friend) => friend.status === "invited" || friend.status === "purchased"
-  ).length;
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       // Запрещаем поворот экрана
@@ -99,7 +96,7 @@ export const App: React.FC = () => {
       <Routes>
         <Route
           path="/welcome-friends"
-          element={invitedCount > 0 ? <Friends /> : <WelcomeFriends />}
+          element={friends.length > 0 ? <Friends /> : <WelcomeFriends />}
         />
         <Route path="/friends" element={<Friends />} />
         <Route path="/home" element={<Home />} />

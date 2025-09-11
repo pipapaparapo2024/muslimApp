@@ -72,7 +72,6 @@ export const WelcomeFriends: React.FC = () => {
             {t("inviteFriendsToEarnRewards")}
           </div>
         </div>
-        <div>{referralLink}</div>
         <div className={styles.friendsImageWrapper}>
           <img
             src={friendsImage}

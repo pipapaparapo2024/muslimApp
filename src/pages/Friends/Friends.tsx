@@ -23,7 +23,7 @@ export const Friends: React.FC = () => {
   useEffect(() => {
     fetchReferralLink();
   }, []);
-  
+
   useEffect(() => {
     fetchFriends();
     fetchReferralLink();
@@ -54,17 +54,17 @@ export const Friends: React.FC = () => {
 
   // Подсчет статистики
   const invitedCount = friends.filter(
-    (friend) => friend.status === "invited" || friend.status === "purchased"
+    (friend) => friend.status === "Accepted" || friend.status === "Purchased"
   ).length;
 
   const purchasedCount = friends.filter(
-    (friend) => friend.status === "purchased"
+    (friend) => friend.status === "Purchased"
   ).length;
 
   // Сортировка друзей
   const sortedFriends = [...friends].sort((a, b) => {
-    if (a.status === "purchased" && b.status !== "purchased") return -1;
-    if (a.status !== "purchased" && b.status === "purchased") return 1;
+    if (a.status === "Purchased" && b.status !== "Purchased") return -1;
+    if (a.status !== "Purchased" && b.status === "Purchased") return 1;
     return 0;
   });
 
@@ -167,16 +167,13 @@ export const Friends: React.FC = () => {
             <div className={styles.emptyDesc}>{t("noFriendsYet")}</div>
           ) : (
             <div className={styles.friendsList}>
-              {sortedFriends.map((friend) => (
-                <div key={friend.id} className={styles.friendItem}>
+              {sortedFriends.map((friend, id) => (
+                <div key={id} className={styles.friendItem}>
                   <div className={styles.friendInfo}>
-                    <div className={styles.friendName}>{friend.name}</div>
-                    {friend.email && (
-                      <div className={styles.friendEmail}>{friend.email}</div>
-                    )}
+                    <div className={styles.friendName}>{friend.userName}</div>
                   </div>
                   <div className={styles.friendStatus}>
-                    {friend.status === "invited" && (
+                    {friend.status === "Accepted" && (
                       <div
                         className={`${styles.accepted} ${styles.checkBlock}`}
                       >
@@ -184,7 +181,7 @@ export const Friends: React.FC = () => {
                         {t("accepted")}
                       </div>
                     )}
-                    {friend.status === "purchased" && (
+                    {friend.status === "Purchased" && (
                       <div
                         className={`${styles.purchased} ${styles.checkBlock}`}
                       >
