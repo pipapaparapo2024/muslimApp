@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
-import { Check, Wallet, Share, Copy } from "lucide-react";
+import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
 
 export const Friends: React.FC = () => {
@@ -15,7 +15,6 @@ export const Friends: React.FC = () => {
     fetchReferralLink,
   } = useFriendsStore();
   const [isLoading] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
 
   const requestsGoal = 10;
   const premiumGoal = 10;
@@ -38,18 +37,6 @@ export const Friends: React.FC = () => {
     )}&text=${encodeURIComponent(shareText)}`;
 
     window.open(shareUrl, "_blank");
-  };
-
-  const copyReferralLink = async () => {
-    if (!referralLink) return;
-
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
   };
 
   // Подсчет статистики
