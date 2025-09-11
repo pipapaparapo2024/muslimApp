@@ -51,7 +51,7 @@ export const MenuBlocks: React.FC = () => {
       icon: muslim,
       title: t("friends"),
       description: t("shareApp"),
-      path: friends.length > 0 ? "/welcomeFriends" : "/friends",
+      path: friends.length > 0 ? "/friends" : "/welcomeFriends",
     },
     {
       id: "settings",
