@@ -93,7 +93,6 @@ export const Friends: React.FC = () => {
           >
             {isLoading ? (
               <>
-                <span>⏳</span>
                 {t("loading")}
               </>
             ) : (
