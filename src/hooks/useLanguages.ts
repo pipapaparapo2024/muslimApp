@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import i18n from "../api/i18n"; 
+import i18n from "../api/i18n";
 import { quranApi } from "../api/api";
 
 const LANGUAGE_KEY = "preferred-language";
@@ -23,7 +23,7 @@ export const useLanguage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
-
+      console.log("lang", lang);
       await quranApi.post(
         "api/v1/settings/languages",
         { language: lang },
