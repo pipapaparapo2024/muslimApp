@@ -23,7 +23,7 @@ export const useLanguage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
-      console.log("lang", lang);
+      console.log("langlanglang", lang);
       await quranApi.post(
         "api/v1/settings/languages",
         { language: lang },
