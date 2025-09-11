@@ -17,7 +17,6 @@ export const useLanguage = () => {
     html.setAttribute("lang", lang);
   };
 
-  // УБРАТЬ fetchLanguageFromBackend - он больше не нужен здесь
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
