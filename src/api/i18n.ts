@@ -118,6 +118,10 @@ const resources = {
       purchased: "Purchased",
       getReward: "Get Reward",
 
+      //Welcome Friends
+      inviteFriendsToEarnRewards:
+        "Invite friends to earn rewards and unlock exclusive features — it's easy and rewarding.",
+
       // Settings дополнительные
       selected: "Selected",
 
@@ -362,6 +366,10 @@ const resources = {
       accepted: "مقبول",
       purchased: "تم الشراء",
       getReward: "احصل على المكافأة",
+
+      //Welcome Friends
+      inviteFriendsToEarnRewards:
+        "قم بدعوة الأصدقاء لكسب المكافآت وفتح الميزات الحصرية - إنه أمر سهل ومجزٍ.",
 
       // Settings дополнительные
       selected: "محدد",

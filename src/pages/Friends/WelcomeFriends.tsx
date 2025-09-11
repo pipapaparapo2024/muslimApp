@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./WelcomeFriends.module.css";
-import { useNavigate } from "react-router-dom";
 import friendsImage from "../../assets/image/Friiends.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-
-const inviteLink = "https://ff6cd8e75312.ngrok-free.app"; // TODO: Replace with real invite link
+import { t } from "i18next";
+import { useFriendsStore } from "../../hooks/useFriendsStore";
 
 export const WelcomeFriends: React.FC = () => {
-  const navigate = useNavigate();
+  const { referralLink } = useFriendsStore();
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   useEffect(() => {
     // Функция для предзагрузки одного изображения
     const preloadImage = (src: string): Promise<void> => {
@@ -39,30 +38,15 @@ export const WelcomeFriends: React.FC = () => {
       });
   }, []);
 
-  const handleInvite = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Join me on Muslim App!",
-          text: "Get rewards and unlock features by joining through my link!",
-          url: inviteLink,
-        });
-        // После успешной отправки переходим на страницу друзей
-        navigate("/friends");
-      } catch (err) {
-        console.log("Share canceled or failed:", err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(inviteLink);
-        alert("Link copied to clipboard!");
-        // После копирования переходим на страницу друзей
-        navigate("/friends");
-      } catch (err) {
-        console.error("Failed to copy: ", err);
-        alert("Failed to copy link. Please manually copy it.");
-      }
-    }
+  const shareViaTelegram = () => {
+    if (!referralLink) return;
+
+    const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
+      referralLink
+    )}&text=${encodeURIComponent(shareText)}`;
+
+    window.open(shareUrl, "_blank");
   };
 
   if (!isLoaded) {
@@ -81,8 +65,7 @@ export const WelcomeFriends: React.FC = () => {
             You haven't invited any friends yet
           </div>
           <div className={styles.subtitle}>
-            Invite friends to earn rewards and unlock exclusive features — it's
-            easy and rewarding.
+            {t("inviteFriendsToEarnRewards")}
           </div>
         </div>
 
@@ -95,11 +78,8 @@ export const WelcomeFriends: React.FC = () => {
         </div>
 
         <div className={styles.welcomeBottom}>
-          <button
-            className={styles.inviteButton}
-            onClick={handleInvite}
-          >
-            Invite Friends
+          <button className={styles.inviteButton} onClick={shareViaTelegram}>
+            {t("inviteFriends")}
           </button>
         </div>
       </div>

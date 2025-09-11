@@ -99,7 +99,7 @@ export const Friends: React.FC = () => {
             ) : (
               <>
                 <Share size={18} />
-                {t("shareViaTelegram")}
+                {t("inviteFriends")}
               </>
             )}
           </button>
