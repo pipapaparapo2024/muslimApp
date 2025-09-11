@@ -7,8 +7,12 @@ import { t } from "i18next";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 
 export const WelcomeFriends: React.FC = () => {
-  const { referralLink } = useFriendsStore();
+  const { referralLink, fetchReferralLink } = useFriendsStore();
   const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchReferralLink();
+  }, []);
 
   useEffect(() => {
     // Функция для предзагрузки одного изображения
@@ -39,7 +43,7 @@ export const WelcomeFriends: React.FC = () => {
   }, []);
 
   const shareViaTelegram = () => {
-    // if (!referralLink) return;
+    if (!referralLink) return;
 
     const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(

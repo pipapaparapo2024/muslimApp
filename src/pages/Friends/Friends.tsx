@@ -6,13 +6,24 @@ import { Check, Wallet, Share, Copy } from "lucide-react";
 import { t } from "i18next";
 
 export const Friends: React.FC = () => {
-  const { friends, referralLink, loading, error, fetchFriends, fetchReferralLink } = useFriendsStore();
-  const [isLoading, ] = useState<boolean>(false);
+  const {
+    friends,
+    referralLink,
+    loading,
+    error,
+    fetchFriends,
+    fetchReferralLink,
+  } = useFriendsStore();
+  const [isLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
 
   const requestsGoal = 10;
   const premiumGoal = 10;
 
+  useEffect(() => {
+    fetchReferralLink();
+  }, []);
+  
   useEffect(() => {
     fetchFriends();
     fetchReferralLink();
@@ -20,7 +31,7 @@ export const Friends: React.FC = () => {
 
   const shareViaTelegram = () => {
     if (!referralLink) return;
-    
+
     const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
@@ -31,13 +42,13 @@ export const Friends: React.FC = () => {
 
   const copyReferralLink = async () => {
     if (!referralLink) return;
-    
+
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error("Failed to copy:", err);
     }
   };
 
@@ -67,7 +78,7 @@ export const Friends: React.FC = () => {
         <div className={styles.card}>
           <div className={styles.cardTitle}>{t("yourReferralLink")}</div>
           <div className={styles.cardDesc}>{t("shareLinkDesc")}</div>
-          
+
           {referralLink && (
             <div className={styles.referralLinkContainer}>
               <input
@@ -92,9 +103,7 @@ export const Friends: React.FC = () => {
             disabled={isLoading || !referralLink}
           >
             {isLoading ? (
-              <>
-                {t("loading")}
-              </>
+              <>{t("loading")}</>
             ) : (
               <>
                 <Share size={18} />
@@ -168,13 +177,17 @@ export const Friends: React.FC = () => {
                   </div>
                   <div className={styles.friendStatus}>
                     {friend.status === "invited" && (
-                      <div className={`${styles.accepted} ${styles.checkBlock}`}>
+                      <div
+                        className={`${styles.accepted} ${styles.checkBlock}`}
+                      >
                         <Check size={16} />
                         {t("accepted")}
                       </div>
                     )}
                     {friend.status === "purchased" && (
-                      <div className={`${styles.purchased} ${styles.checkBlock}`}>
+                      <div
+                        className={`${styles.purchased} ${styles.checkBlock}`}
+                      >
                         <Wallet size={16} />
                         {t("purchased")}
                       </div>
