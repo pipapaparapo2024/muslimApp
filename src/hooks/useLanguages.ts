@@ -1,119 +1,128 @@
 import { useState, useEffect } from "react";
-import { useGeoStore } from "./useGeoStore";
-import i18n from "../api/i18n";
-import { t } from "i18next";
+import i18n from "../api/i18n"; // Ваш файл с инициализацией i18n
+import { quranApi } from "../api/api";
 
 const LANGUAGE_KEY = "preferred-language";
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
-const ARABIC_SPEAKING_COUNTRIES = new Set([
-  "Algeria",
-  "Bahrain",
-  "Chad",
-  "Comoros",
-  "Djibouti",
-  "Egypt",
-  "Iraq",
-  "Jordan",
-  "Kuwait",
-  "Lebanon",
-  "Libya",
-  "Mali",
-  "Mauritania",
-  "Morocco",
-  "Oman",
-  "Palestine",
-  "Qatar",
-  "Saudi Arabia",
-  "Somalia",
-  "Sudan",
-  "Syria",
-  "Tunisia",
-  "United Arab Emirates",
-  "Yemen",
-]);
-
 export const useLanguage = () => {
-  const [language, setLanguage] = useState<Language>("en");
-  const [isInitialized, setIsInitialized] = useState(false);
-  const { country, isInitialized: isGeoInitialized } = useGeoStore();
-  const [isChanging, setIsChanging] = useState(false); // 🔥 Новое состояние
-  const getDefaultLanguage = (): Language => {
-    if (country && ARABIC_SPEAKING_COUNTRIES.has(country)) {
-      return "ar";
-    }
-    return "en";
-  };
+  const [language, setLanguage] = useState<Language>(i18n.language as Language);
+  const [isInitialized, setIsInitialized] = useState(i18n.isInitialized);
+  const [isChanging, setIsChanging] = useState(false);
 
   const applyLanguageStyles = (lang: Language) => {
     const html = document.documentElement;
-
-    // Удаляем все предыдущие классы языков
     html.classList.remove("en", "ar");
-
-    // Добавляем только языковой класс
     html.classList.add(lang);
-
-    // Устанавливаем языковой атрибут
     html.setAttribute("lang", lang);
-
   };
+
+  const fetchLanguageFromBackend = async (): Promise<Language> => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return "en";
+
+      const response = await quranApi.get("/api/v1/languages", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const backendLanguage = response.data.language;
+      return SUPPORTED_LANGUAGES.includes(backendLanguage) ? backendLanguage : "en";
+    } catch (error) {
+      console.error("Error fetching language:", error);
+      return "en";
+    }
+  };
+
+  const setLanguageOnBackend = async (lang: Language): Promise<void> => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      await quranApi.post(
+        "/api/v1/languages",
+        { language: lang },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (error) {
+      console.error("Error setting language:", error);
+    }
+  };
+
   const changeLanguageComplete = async (newLang: Language) => {
     if (!SUPPORTED_LANGUAGES.includes(newLang) || isChanging) return;
 
     setIsChanging(true);
     try {
-      // 1. Сначала применяем стили СИНХРОННО
+      // 1. Применяем стили
       applyLanguageStyles(newLang);
-
-      // 2. Затем обновляем состояние и localStorage
-      setLanguage(newLang);
+      
+      // 2. Обновляем localStorage
       localStorage.setItem(LANGUAGE_KEY, newLang);
-
-      // 3. Асинхронно меняем язык в i18n (не блокирует UI)
-      i18n
-        .changeLanguage(newLang)
-        .then(() => console.log("i18n language changed to:", newLang))
-        .catch((err) => {
-          console.error("Language change error:", err);
-        });
+      
+      // 3. Устанавливаем на бекенде
+      await setLanguageOnBackend(newLang);
+      
+      // 4. Меняем язык в i18n
+      await i18n.changeLanguage(newLang);
+      
+      // 5. Обновляем состояние
+      setLanguage(newLang);
+      
     } catch (error) {
       console.error("Error changing language:", error);
     } finally {
       setIsChanging(false);
     }
   };
+
   useEffect(() => {
     const initializeLanguage = async () => {
-      const saved = localStorage.getItem(LANGUAGE_KEY) as Language;
-      const defaultLang = getDefaultLanguage();
-      const finalLang =
-        saved && SUPPORTED_LANGUAGES.includes(saved) ? saved : defaultLang;
-
       try {
-        // Используем ту же функцию для инициализации
-        await changeLanguageComplete(finalLang);
+        const token = localStorage.getItem("accessToken");
+        let targetLanguage: Language = "en";
+
+        if (token) {
+          // Пробуем получить язык с бекенда
+          targetLanguage = await fetchLanguageFromBackend();
+        } else {
+          // Fallback на сохраненный язык
+          const saved = localStorage.getItem(LANGUAGE_KEY) as Language;
+          if (saved && SUPPORTED_LANGUAGES.includes(saved)) {
+            targetLanguage = saved;
+          }
+        }
+
+        // Применяем язык, если он отличается от текущего
+        if (targetLanguage !== i18n.language) {
+          await changeLanguageComplete(targetLanguage);
+        }
+        
         setIsInitialized(true);
       } catch (error) {
-        console.error("Error initializing language:", error);
+        console.error("Language initialization error:", error);
         setIsInitialized(true);
       }
     };
 
-
-
-    if (isGeoInitialized) {
+    // Ждем инициализации i18n перед запуском
+    if (i18n.isInitialized) {
       initializeLanguage();
+    } else {
+      i18n.on('initialized', initializeLanguage);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGeoInitialized]);
+
+    return () => {
+      i18n.off('initialized', initializeLanguage);
+    };
+  }, []);
 
   return {
     language,
     changeLanguage: changeLanguageComplete,
-    languageLabel: language === "ar" ? t("arabic") : t("english"),
+    languageLabel: language === "ar" ? i18n.t("arabic") : i18n.t("english"),
     isLanguageReady: isInitialized,
-    isChanging, // 🔥 Возвращаем состояние изменения
+    isChanging,
   };
 };
