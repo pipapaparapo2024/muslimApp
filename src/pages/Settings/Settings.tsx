@@ -31,7 +31,6 @@ export const Settings: React.FC = () => {
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   const { city, country } = useGeoStore();
-  console.log("Current language:", i18n.language);
   const visiblePrayers = prayers.filter((p) => p.showOnMain);
   // Временная проверка
   useEffect(() => {
