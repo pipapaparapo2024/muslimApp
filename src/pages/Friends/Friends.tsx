@@ -76,26 +76,8 @@ export const Friends: React.FC = () => {
       <div className={styles.friendsContainer}>
         {/* Карточка с реферальной ссылкой */}
         <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("yourReferralLink")}</div>
-          <div className={styles.cardDesc}>{t("shareLinkDesc")}</div>
-
-          {referralLink && (
-            <div className={styles.referralLinkContainer}>
-              <input
-                type="text"
-                value={referralLink}
-                readOnly
-                className={styles.referralInput}
-              />
-              <button
-                onClick={copyReferralLink}
-                className={styles.copyButton}
-                title={t("copyLink")}
-              >
-                <Copy size={16} />
-              </button>
-            </div>
-          )}
+          <div className={styles.cardTitle}>{t("earnRewards")}</div>
+          <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
 
           <button
             className={`${styles.inviteBtn} ${isLoading ? styles.loading : ""}`}
@@ -152,13 +134,6 @@ export const Friends: React.FC = () => {
             <button className={styles.rewardBtn}>{t("getReward")}</button>
           )}
         </div>
-
-        {/* Уведомление о копировании */}
-        {copied && (
-          <div className={styles.copyNotification}>
-            ✅ {t("linkCopiedToClipboard")}
-          </div>
-        )}
 
         {/* Список приглашенных друзей */}
         <div className={styles.emptyInvitations}>

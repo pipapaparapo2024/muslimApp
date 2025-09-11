@@ -21,6 +21,9 @@ export const MenuBlocks: React.FC = () => {
   useEffect(() => {
     fetchFriends();
   }, []);
+  const hasInvitedFriends = friends.some(
+    (friend) => friend.status === "Accepted" || friend.status === "Purchased"
+  );
   const menuItems = [
     {
       id: "quran",
@@ -48,7 +51,7 @@ export const MenuBlocks: React.FC = () => {
       icon: muslim,
       title: t("friends"),
       description: t("shareApp"),
-      path: `${friends.length > 0 ? "/welcomeFriends" : "/friends"}`,
+      path: hasInvitedFriends ? "/welcomeFriends" : "/friends",
     },
     {
       id: "settings",
