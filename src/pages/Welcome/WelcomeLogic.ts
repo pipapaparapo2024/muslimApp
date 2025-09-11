@@ -115,7 +115,7 @@ export const useWelcomeLogic = () => {
       console.log("✅ Настройки отправлены");
       console.log("🔄 Шаг 3: Получение языка...");
       const userLanguage = await fetchLanguageFromBackend();
-      
+      console.log("userLanguage",userLanguage)
       // Меняем язык только если получили корректный с бэкенда
       if (userLanguage) {
         i18n.changeLanguage(userLanguage);
