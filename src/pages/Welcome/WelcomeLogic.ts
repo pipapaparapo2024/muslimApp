@@ -11,20 +11,19 @@ import qnaImage from "../../assets/image/get.png";
 import i18n from "../../api/i18n";
 import { quranApi } from "../../api/api";
 
-// ✅ ДОБАВИТЬ ЭТИ ОПРЕДЕЛЕНИЯ
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 type Language = (typeof SUPPORTED_LANGUAGES)[number];
-
 
 interface Step {
   title: string;
   desc: string;
   image: string;
 }
-const fetchLanguageFromBackend = async (): Promise<Language> => {
+
+const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
     const token = localStorage.getItem("accessToken");
-    if (!token) return "en";
+    if (!token) return null;
 
     const response = await quranApi.get("api/v1/settings/languages", {
       headers: { Authorization: `Bearer ${token}` },
@@ -33,12 +32,13 @@ const fetchLanguageFromBackend = async (): Promise<Language> => {
     const backendLanguage = response.data.language;
     return SUPPORTED_LANGUAGES.includes(backendLanguage)
       ? backendLanguage
-      : "en";
+      : null;
   } catch (error) {
     console.error("Error fetching language:", error);
-    return "en";
+    return null;
   }
 };
+
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -114,9 +114,17 @@ export const useWelcomeLogic = () => {
 
       console.log("✅ Настройки отправлены");
       console.log("🔄 Шаг 3: Получение языка...");
-      const userLanguage = await fetchLanguageFromBackend(); // Используем локальную функцию
-      i18n.changeLanguage(userLanguage);
-      console.log("✅ Язык получен");
+      const userLanguage = await fetchLanguageFromBackend();
+      
+      // Меняем язык только если получили корректный с бэкенда
+      if (userLanguage) {
+        i18n.changeLanguage(userLanguage);
+        console.log("✅ Язык получен с бэкенда:", userLanguage);
+      } else {
+        console.log("ℹ️ Язык с бэкенда не получен, используем язык по умолчанию из i18n");
+        // Не устанавливаем принудительно 'en', используем тот, что уже есть в i18n
+      }
+      
       setInitializationStatus("complete");
     } catch (error) {
       console.error("❌ Ошибка инициализации:", error);
