@@ -63,7 +63,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         status: user.status as "Accepted" | "Purchased",
         invitedDate: new Date().toISOString(), 
       }));
-
+      console.log("res",res)
       set({
         friends: friendsData,
         loading: false,
@@ -87,7 +87,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       const res = await quranApi.post<ReferralLinkResponse>(
         "/api/v1/referal/create"
       );
-      console.log("referralLink", res.data.data.url);
       set({
         referralLink: res.data.data.url,
         loading: false,
