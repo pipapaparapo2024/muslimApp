@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { useFriendsStore } from "./hooks/useFriendsStore";
 import { useTheme } from "./hooks/useTheme";
 
 import { Home } from "./pages/Home/Home";
@@ -48,7 +47,6 @@ if (swipeBehavior.mount.isAvailable()) {
 }
 
 export const App: React.FC = () => {
-  const { friends, fetchFriends } = useFriendsStore();
   const { isThemeReady } = useTheme();
   const { isLanguageReady } = useLanguage();
   const { isInitialized: isGeoInitialized } = useGeoStore();
@@ -76,8 +74,7 @@ export const App: React.FC = () => {
     };
 
     initializeApp();
-    fetchFriends();
-  }, [fetchFriends]);
+  }, []);
 
   // Показываем пустой экран до полной инициализации темы
   if (!isThemeReady || !isLanguageReady || !isGeoInitialized) {
@@ -94,10 +91,7 @@ export const App: React.FC = () => {
   return (
     <div>
       <Routes>
-        <Route
-          path="/welcome-friends"
-          element={friends.length > 0 ? <Friends /> : <WelcomeFriends />}
-        />
+        <Route path="/welcomeFriends" element={<WelcomeFriends />} />
         <Route path="/friends" element={<Friends />} />
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Welcome />} />
@@ -114,7 +108,7 @@ export const App: React.FC = () => {
           path="/privacy-policy"
           element={<div>Privacy Policy Page</div>}
         />
-        <Route path="/scanner/camera" element={<CameraPage/>}/>
+        <Route path="/scanner/camera" element={<CameraPage />} />
         <Route path="/quran/translation" element={<ChooseTranslation />} />
         <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
         <Route path="/contact-us" element={<div>Contact Us Page</div>} />

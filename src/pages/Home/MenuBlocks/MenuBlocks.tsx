@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MenuBlocks.module.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { useTranslation } from "react-i18next";
+import { useFriendsStore } from "../../../hooks/useFriendsStore";
 
 // Импорты иконок
 import Quaran from "../../../assets/icons/quaran1.svg";
@@ -16,7 +17,10 @@ export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { t } = useTranslation();
-
+  const { friends, fetchFriends } = useFriendsStore();
+  useEffect(() => {
+    fetchFriends();
+  }, []);
   const menuItems = [
     {
       id: "quran",
@@ -44,7 +48,7 @@ export const MenuBlocks: React.FC = () => {
       icon: muslim,
       title: t("friends"),
       description: t("shareApp"),
-      path: "/welcome-friends",
+      path: `${friends.length > 0 ? "/welcomeFriends" : "/friends"}`,
     },
     {
       id: "settings",
@@ -68,7 +72,11 @@ export const MenuBlocks: React.FC = () => {
           onClick={() => handleNavigation(item.path)}
         >
           <div className={styles.contentWrapper}>
-            <img src={item.icon} alt={item.title} className={styles.iconImage} />
+            <img
+              src={item.icon}
+              alt={item.title}
+              className={styles.iconImage}
+            />
             <div>
               <div className={styles.menuTitle}>{item.title}</div>
               <div className={styles.menuDesc}>{item.description}</div>
