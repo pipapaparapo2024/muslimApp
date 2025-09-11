@@ -20,7 +20,7 @@ export const MenuBlocks: React.FC = () => {
   const { friends, fetchFriends } = useFriendsStore();
   useEffect(() => {
     fetchFriends();
-  }, [friends]);
+  }, []);
   const menuItems = [
     {
       id: "quran",

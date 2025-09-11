@@ -102,7 +102,7 @@ export const useScannerStore = create<ScannerState>()(
           controller.abort();
           setError("Превышено время обработки. Попробуйте еще раз.");
           setShowAnalyzing(false);
-        }, 12000);
+        }, 10000);
 
         try {
           const reader = new FileReader();
