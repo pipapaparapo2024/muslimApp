@@ -1,17 +1,18 @@
-import { PageWrapper } from "../../../shared/PageWrapper";
 import React, { useEffect } from "react";
+import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./HistoryScanner.module.css";
-import { useHistoryStore } from "../../../hooks/useHistoryScannerStore";
+import { useHistoryScannerStore } from "../../../hooks/useHistoryScannerStore";
 import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
-import { Share2, CircleCheck, CircleX } from "lucide-react";
+import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { historyUtils } from "../../../hooks/useHistoryScannerStore";
 import { useTranslation } from "react-i18next";
+import { getStatusIcon, getStatusClassName, getStatusTranslationKey } from "../productStatus"
 
 export const HistoryScanner: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { history, isLoading, fetchHistory } = useHistoryStore();
+  const { history, isLoading, fetchHistory } = useHistoryScannerStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,10 +23,8 @@ export const HistoryScanner: React.FC = () => {
     const date = new Date(dateString);
     
     if (i18n.language === "ar") {
-      // Арабский формат: день месяц год
       return `${date.getDate()} ${t(getMonthKey(date.getMonth()))} ${date.getFullYear()}`;
     } else {
-      // Английский формат: месяц день, год
       return `${t(getMonthKey(date.getMonth()))} ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
@@ -54,10 +53,6 @@ export const HistoryScanner: React.FC = () => {
     navigate(`/scanner/historyScanner/${scanId}`);
   };
 
-  const isHaram = (qaItem: any): boolean => {
-    return qaItem.haranProducts?.some((product: any) => product.isHaran) || false;
-  };
-
   if (isLoading) {
     return (
       <PageWrapper navigateTo="/scanner" showBackButton>
@@ -82,23 +77,17 @@ export const HistoryScanner: React.FC = () => {
               >
                 <div>
                   <div className={styles.scanTitle}>{t("product")}</div>
-                  <div className={styles.scanDesk}>{scan.name}</div>
+                  <div className={styles.scanDesk}>{scan.name || t("unknownProduct")}</div>
                 </div>
                 <div className={styles.scanAnalysis}>
                   <div className={styles.scanTitle}>{t("description")}</div>
-                  <div className={styles.scanDesk}>{scan.description}</div>
+                  <div className={styles.scanDesk}>{scan.description || t("noDescription")}</div>
                 </div>
                 <div className={styles.blockUnderInfo}>
-                  {isHaram(scan) ? (
-                    <div className={`${styles.accessBlock} ${styles.haram}`}>
-                      <CircleX size={16} strokeWidth={2} /> {t("haram")}
-                    </div>
-                  ) : (
-                    <div className={`${styles.accessBlock} ${styles.halal}`}>
-                      <CircleCheck size={16} strokeWidth={2} />
-                      {t("halal")}
-                    </div>
-                  )}
+                  <div className={`${styles.accessBlock} ${getStatusClassName(scan.status, styles)}`}>
+                    {getStatusIcon(scan.status, 16)}
+                    {t(getStatusTranslationKey(scan.status))}
+                  </div>
                   <button
                     onClick={(event) => handleShare(event, scan.id)}
                     className={styles.share}

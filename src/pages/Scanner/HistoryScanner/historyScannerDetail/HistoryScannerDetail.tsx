@@ -1,19 +1,20 @@
+// components/HistoryScannerDetail.tsx
 import React, { useEffect, useState } from "react";
 import styles from "./HistoryScannerDetail.module.css";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { TableRequestsHistory } from "../../../../components/TableRequestsHistory/TableRequestsHistory";
-import { CircleCheck, CircleX } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useHistoryStore, type QaItem } from "../../../../hooks/useHistoryScannerStore";
 import { Share } from "../../../../components/share/Share";
+import { useNavigate, useParams } from "react-router-dom";
+import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+import { getStatusIcon, getStatusClassName, getStatusTranslationKey } from "../../productStatus";
 
 export const HistoryScannerDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { fetchHistoryItem } = useHistoryStore();
-  const [currentItem, setCurrentItem] = useState<QaItem | null>(null);
+  const { fetchHistoryItem } = useHistoryScannerStore();
+  const [currentItem, setCurrentItem] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,10 +39,6 @@ export const HistoryScannerDetail: React.FC = () => {
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
 
-  const isHaram = (): boolean => {
-    return currentItem?.haranProducts?.some(product => product.isHaran) || false;
-  };
-
   if (isLoading) {
     return (
       <PageWrapper showBackButton={true}>
@@ -64,31 +61,25 @@ export const HistoryScannerDetail: React.FC = () => {
         <TableRequestsHistory text="/scanner/historyScanner" />
         <div className={styles.blockScan}>
           <div className={styles.blockAccess}>
-            {isHaram() ? (
-              <div className={`${styles.accessBlock} ${styles.haram}`}>
-                <CircleX size={24} strokeWidth={1.5} /> {t("haram")}
-              </div>
-            ) : (
-              <div className={`${styles.accessBlock} ${styles.halal}`}>
-                <CircleCheck size={24} strokeWidth={1.5} />
-                {t("halal")}
-              </div>
-            )}
+            <div className={`${styles.accessBlock} ${getStatusClassName(currentItem.status, styles)}`}>
+              {getStatusIcon(currentItem.status)}
+              {t(getStatusTranslationKey(currentItem.status))}
+            </div>
           </div>
           
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("productName")}</div>
-            <div className={styles.scanDesk}>{currentItem.name}</div>
+            <div className={styles.scanDesk}>{currentItem.name || t("unknownProduct")}</div>
           </div>
 
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("type")}</div>
-            <div className={styles.scanDesk}>{currentItem.type}</div>
+            <div className={styles.scanDesk}>{currentItem.type || t("unknownType")}</div>
           </div>
 
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("description")}</div>
-            <div className={styles.scanDesk}>{currentItem.description}</div>
+            <div className={styles.scanDesk}>{currentItem.description || t("noDescription")}</div>
           </div>
 
           {currentItem.products && currentItem.products.length > 0 && (
@@ -100,10 +91,10 @@ export const HistoryScannerDetail: React.FC = () => {
             </div>
           )}
 
-          {currentItem.haranProducts && currentItem.haranProducts.length > 0 && (
+          {currentItem.haramProducts && currentItem.haramProducts.length > 0 && (
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("haranProducts")}</div>
-              {currentItem.haranProducts.map((product, index) => (
+              <div className={styles.scanTitle}>{t("haramProducts")}</div>
+              {currentItem.haramProducts.map((product: any, index: number) => (
                 <div key={index} className={styles.haranProduct}>
                   <strong>{product.name}:</strong> {product.reason}
                   {product.source && <div><small>{t("source")}: {product.source}</small></div>}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { Camera, TriangleAlert, Wallet } from "lucide-react";
@@ -15,7 +15,7 @@ export const Scanner: React.FC = () => {
   const navigate = useNavigate();
   const [selectedRequests, setSelectedRequests] = useState("1");
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchUserData();
   }, [fetchUserData]);
 
