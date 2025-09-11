@@ -23,7 +23,7 @@ export const useLanguage = () => {
       const token = localStorage.getItem("accessToken");
       if (!token) return "en";
 
-      const response = await quranApi.get("/api/v1/languages", {
+      const response = await quranApi.get("api/v1/settings/languages", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -43,7 +43,7 @@ export const useLanguage = () => {
       if (!token) return;
 
       await quranApi.post(
-        "/api/v1/languages",
+        "api/v1/settings/languages",
         { language: lang },
         { headers: { Authorization: `Bearer ${token}` } }
       );
