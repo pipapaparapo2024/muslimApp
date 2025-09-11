@@ -14,7 +14,10 @@ interface ReferralResponse {
 }
 
 interface ReferralLinkResponse {
-  url: string;
+  data: {
+    url: string;
+  };
+  status: string;
 }
 
 interface Friend {
@@ -62,7 +65,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchFriends: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await quranApi.get<ReferralResponse>("/referal/bonuses/users");
+      const res = await quranApi.get<ReferralResponse>(
+        "/referal/bonuses/users"
+      );
       // Преобразуем данные из API в формат Friend
       const friendsData: Friend[] = res.data.data.users.map((user, index) => ({
         id: index.toString(),
@@ -71,7 +76,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         status: user.status as "invited" | "purchased",
         invitedDate: new Date().toISOString(), // Дата не приходит из API
       }));
-      
+
       set({
         friends: friendsData,
         loading: false,
@@ -92,10 +97,12 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchReferralLink: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await quranApi.post<ReferralLinkResponse>("/api/v1/referal/create");
-      console.log("referralLink",res.data.url)
+      const res = await quranApi.post<ReferralLinkResponse>(
+        "/api/v1/referal/create"
+      );
+      console.log("referralLink", res.data.data.url);
       set({
-        referralLink: res.data.url,
+        referralLink: res.data.data.url,
         loading: false,
         error: null,
       });
