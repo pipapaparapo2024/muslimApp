@@ -92,7 +92,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchReferralLink: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await quranApi.post<ReferralLinkResponse>("/referal/create");
+      const res = await quranApi.post<ReferralLinkResponse>("/api/v1/referal/create");
       set({
         referralLink: res.data.url,
         loading: false,
