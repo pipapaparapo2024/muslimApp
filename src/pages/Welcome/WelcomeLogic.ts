@@ -28,7 +28,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     const response = await quranApi.get("api/v1/settings/languages", {
       headers: { Authorization: `Bearer ${token}` },
     });
-
+    console.log("response",response)
     const backendLanguage = response.data.language;
     return SUPPORTED_LANGUAGES.includes(backendLanguage)
       ? backendLanguage
