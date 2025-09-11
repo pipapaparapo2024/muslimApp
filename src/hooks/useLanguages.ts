@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import i18n from "../api/i18n"; // Ваш файл с инициализацией i18n
 import { quranApi } from "../api/api";
 
@@ -28,13 +28,15 @@ export const useLanguage = () => {
       });
 
       const backendLanguage = response.data.language;
-      return SUPPORTED_LANGUAGES.includes(backendLanguage) ? backendLanguage : "en";
+      return SUPPORTED_LANGUAGES.includes(backendLanguage)
+        ? backendLanguage
+        : "en";
     } catch (error) {
       console.error("Error fetching language:", error);
       return "en";
     }
   };
-
+  const getLanguage = useCallback(fetchLanguageFromBackend, []);
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -57,19 +59,18 @@ export const useLanguage = () => {
     try {
       // 1. Применяем стили
       applyLanguageStyles(newLang);
-      
+
       // 2. Обновляем localStorage
       localStorage.setItem(LANGUAGE_KEY, newLang);
-      
+
       // 3. Устанавливаем на бекенде
       await setLanguageOnBackend(newLang);
-      
+
       // 4. Меняем язык в i18n
       await i18n.changeLanguage(newLang);
-      
+
       // 5. Обновляем состояние
       setLanguage(newLang);
-      
     } catch (error) {
       console.error("Error changing language:", error);
     } finally {
@@ -98,7 +99,7 @@ export const useLanguage = () => {
         if (targetLanguage !== i18n.language) {
           await changeLanguageComplete(targetLanguage);
         }
-        
+
         setIsInitialized(true);
       } catch (error) {
         console.error("Language initialization error:", error);
@@ -110,11 +111,11 @@ export const useLanguage = () => {
     if (i18n.isInitialized) {
       initializeLanguage();
     } else {
-      i18n.on('initialized', initializeLanguage);
+      i18n.on("initialized", initializeLanguage);
     }
 
     return () => {
-      i18n.off('initialized', initializeLanguage);
+      i18n.off("initialized", initializeLanguage);
     };
   }, []);
 
@@ -124,5 +125,6 @@ export const useLanguage = () => {
     languageLabel: language === "ar" ? i18n.t("arabic") : i18n.t("english"),
     isLanguageReady: isInitialized,
     isChanging,
+    getLanguage,
   };
 };

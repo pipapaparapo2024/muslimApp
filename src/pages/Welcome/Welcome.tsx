@@ -19,26 +19,24 @@ export const Welcome: React.FC = () => {
   } = useWelcomeLogic();
 
   // Показываем лоадер во время инициализации
-  if (initializationStatus === 'pending' || initializationStatus === 'loading') {
+  if (
+    initializationStatus === "pending" ||
+    initializationStatus === "loading"
+  ) {
     return (
       <PageWrapper showBackButton={true}>
-        <div className={styles.loadingContainer}>
-          <LoadingSpinner />
-          <p className={styles.loadingText}>
-            {initializationStatus === 'pending' ? 'Подготовка...' : 'Загрузка данных...'}
-          </p>
-        </div>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }
 
   // Показываем ошибку если что-то пошло не так
-  if (initializationStatus === 'error' || error) {
+  if (initializationStatus === "error" || error) {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
           <h2>Ошибка инициализации</h2>
-          <p>{error || 'Неизвестная ошибка'}</p>
+          <p>{error || "Неизвестная ошибка"}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}

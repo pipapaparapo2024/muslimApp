@@ -8,6 +8,8 @@ import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
+import { useLanguage } from "../../hooks/useLanguages";
+import i18n from "../../api/i18n";
 
 interface Step {
   title: string;
@@ -24,9 +26,11 @@ export const useWelcomeLogic = () => {
     isLoading: isGeoLoading,
     langcode,
   } = useGeoStore();
-  const { sendUserSettings, isLoading: isSettingsLoading, fetchUserLanguage } =
-    useUserParametersStore();
-  
+  const {
+    sendUserSettings,
+    isLoading: isSettingsLoading,
+  } = useUserParametersStore();
+  const { getLanguage } = useLanguage();
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
@@ -54,30 +58,33 @@ export const useWelcomeLogic = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [initializationStatus, setInitializationStatus] = useState<'pending' | 'loading' | 'complete' | 'error'>('pending');
+  const [initializationStatus, setInitializationStatus] = useState<
+    "pending" | "loading" | "complete" | "error"
+  >("pending");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { isAuthenticated, isLoading: isAuthLoading, error: authError, wasLogged } = useTelegram();
+  const {
+    isAuthenticated,
+    isLoading: isAuthLoading,
+    error: authError,
+    wasLogged,
+  } = useTelegram();
 
   // Основная функция инициализации
   const initializeApp = useCallback(async () => {
-    if (initializationStatus !== 'pending') return;
-    
-    setInitializationStatus('loading');
+    if (initializationStatus !== "pending") return;
+
+    setInitializationStatus("loading");
     setErrorMessage(null);
-    
+
     try {
       console.log("🔄 Шаг 1: Получение геоданных...");
-      
-      // 1. Получаем геоданные
       await fetchFromIpApi();
-      
+
       console.log("✅ Геоданные получены");
       console.log("🔄 Шаг 2: Отправка настроек...");
-      
-      // 2. Отправляем настройки
       const locationData = getLocationData();
       await sendUserSettings({
         city: locationData.city,
@@ -85,22 +92,28 @@ export const useWelcomeLogic = () => {
         langcode: langcode,
         timeZone: locationData.timeZone,
       });
-      
+
       console.log("✅ Настройки отправлены");
       console.log("🔄 Шаг 3: Получение языка...");
-      
-      // 3. Получаем язык пользователя
-      await fetchUserLanguage();
-      
+      const userLanguage = await getLanguage();
+      i18n.changeLanguage(userLanguage);
       console.log("✅ Язык получен");
-      setInitializationStatus('complete');
-      
+      setInitializationStatus("complete");
     } catch (error) {
       console.error("❌ Ошибка инициализации:", error);
-      setInitializationStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Unknown initialization error');
+      setInitializationStatus("error");
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unknown initialization error"
+      );
     }
-  }, [fetchFromIpApi, getLocationData, sendUserSettings, langcode, fetchUserLanguage, initializationStatus]);
+  }, [
+    fetchFromIpApi,
+    getLocationData,
+    sendUserSettings,
+    langcode,
+    getLanguage,
+    initializationStatus,
+  ]);
 
   // Запуск инициализации при монтировании
   useEffect(() => {
@@ -109,7 +122,7 @@ export const useWelcomeLogic = () => {
 
   // Проверка авторизации после успешной инициализации
   useEffect(() => {
-    if (initializationStatus === 'complete' && !isAuthLoading) {
+    if (initializationStatus === "complete" && !isAuthLoading) {
       if (isAuthenticated && wasLogged === true) {
         console.log("✅ Пользователь уже логинился, переходим на главную");
         navigate("/home", { replace: true });
@@ -118,16 +131,23 @@ export const useWelcomeLogic = () => {
         // Продолжаем показывать welcome
       } else if (!isAuthenticated && authError) {
         console.log("❌ Ошибка авторизации:", authError);
-        setInitializationStatus('error');
+        setInitializationStatus("error");
         setErrorMessage(authError);
       }
     }
-  }, [initializationStatus, isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
+  }, [
+    initializationStatus,
+    isAuthenticated,
+    isAuthLoading,
+    wasLogged,
+    authError,
+    navigate,
+  ]);
 
   // Предзагрузка изображений (только после успешной инициализации)
   useEffect(() => {
-    if (initializationStatus !== 'complete') return;
-    
+    if (initializationStatus !== "complete") return;
+
     let isMounted = true;
 
     const preloadImages = () => {
@@ -212,7 +232,7 @@ export const useWelcomeLogic = () => {
   // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !isLoaded || initializationStatus !== 'complete') return;
+    if (!container || !isLoaded || initializationStatus !== "complete") return;
 
     let startX = 0;
     let endX = 0;
@@ -239,13 +259,21 @@ export const useWelcomeLogic = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length, initializationStatus]);
+  }, [
+    step,
+    isLoaded,
+    isAnimating,
+    handlePrev,
+    handleNext,
+    steps.length,
+    initializationStatus,
+  ]);
 
   return {
     steps,
     step,
     fade,
-    isLoaded: isLoaded && initializationStatus === 'complete',
+    isLoaded: isLoaded && initializationStatus === "complete",
     isAnimating,
     containerRef,
     error: errorMessage || authError,

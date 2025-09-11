@@ -26,7 +26,6 @@ interface UserParametersState {
     timeZone: string | null;
   }) => Promise<void>;
   setUserLanguage: (languageId: string) => Promise<void>;
-  fetchUserLanguage: () => Promise<string>;
   reset: () => void;
 }
 
@@ -119,45 +118,6 @@ export const useUserParametersStore = create<UserParametersState>()(
           console.error("Ошибка установки языка:", message, err);
           set({ error: message, isLoading: false });
           throw err;
-        }
-      },
-
-      fetchUserLanguage: async (): Promise<string> => {
-        set({ isLoading: true, error: null });
-
-        try {
-          const token = localStorage.getItem("accessToken");
-          if (!token) {
-            throw new Error("No access token available");
-          }
-
-          const response = await quranApi.get("/languages", {
-            params: { page: 1 },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          const languages = response.data.data.languages;
-          const selectedLanguage = languages.find((lang: any) => lang.selected);
-          
-          const finalLanguage = selectedLanguage?.id || "en";
-          
-          console.log("Получен язык с бэкенда:", finalLanguage);
-          set({ currentLanguage: finalLanguage });
-          localStorage.setItem(LANGUAGE_KEY, finalLanguage);
-          
-          return finalLanguage;
-        } catch (err: unknown) {
-          const message = isErrorWithMessage(err)
-            ? err.message
-            : "Failed to fetch language";
-          console.error("Ошибка получения языка:", message, err);
-          set({ error: message, isLoading: false });
-          
-          // Возвращаем язык из localStorage или дефолтный
-          const saved = localStorage.getItem(LANGUAGE_KEY);
-          return saved || "en";
         }
       },
 
