@@ -25,7 +25,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     const token = localStorage.getItem("accessToken");
     if (!token) return null;
 
-    const response = await quranApi.get("api/v1/settings/languages", {
+    const response = await quranApi.get("api/v1/settings/languages/selected", {
       headers: { Authorization: `Bearer ${token}` },
     });
     console.log("response",response)
