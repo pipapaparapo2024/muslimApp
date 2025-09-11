@@ -19,7 +19,7 @@ interface Step {
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { fetchFromIpApi, getLocationData, isLoading: isGeoLoading } = useGeoStore();
+  const { fetchFromIpApi, getLocationData, isLoading: isGeoLoading, langcode } = useGeoStore();
   const { sendUserSettings, isLoading: isSettingsLoading } = useUserParametersStore();
 
   const steps: Step[] = [
@@ -136,7 +136,13 @@ export const useWelcomeLogic = () => {
 
     try {
       const locationData = getLocationData();
-      const langcode = useGeoStore.getState().langcode;
+      
+      console.log("Отправляем настройки:", {
+        city: locationData.city,
+        countryName: locationData.country,
+        langcode: langcode,
+        timeZone: locationData.timeZone,
+      });
 
       await sendUserSettings({
         city: locationData.city,
@@ -148,8 +154,9 @@ export const useWelcomeLogic = () => {
       console.log("Настройки пользователя успешно отправлены на бекенд");
     } catch (error) {
       console.error("Ошибка отправки настроек пользователя:", error);
+      throw error; // Пробрасываем ошибку дальше
     }
-  }, [getLocationData, sendUserSettings, isSettingsLoading]);
+  }, [getLocationData, sendUserSettings, isSettingsLoading, langcode]);
 
   // Функции управления шагами
   const handleNext = useCallback(async () => {
@@ -197,9 +204,10 @@ export const useWelcomeLogic = () => {
     // Отправляем настройки пользователя перед переходом
     try {
       await sendUserSettingsToBackend();
+      console.log("Настройки успешно отправлены, переходим на /home");
     } catch (error) {
       console.error("Ошибка при отправке настроек:", error);
-      // Продолжаем несмотря на ошибку
+      // Продолжаем несмотря на ошибку, но логируем
     }
 
     localStorage.setItem("onboardingComplete", "1");

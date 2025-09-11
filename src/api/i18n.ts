@@ -129,6 +129,7 @@ const resources = {
       holyQuran: "Holy Quran",
       discoverChapters: "Discover the Quran's 114 chapters",
       searchChapters: "Search Chapters",
+      searchInAyahs: "Search Ayahs",
       translation: "Translation:",
       noChaptersFound: "No chapters found for",
       loadingChapters: "Loading chapters...",
@@ -381,6 +382,7 @@ const resources = {
       translation: "الترجمة:",
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
+      searchInAyahs: "بحث الآيات",
 
       //Ayahs
       loadPrevious: "تحميل السابق",
