@@ -307,7 +307,7 @@ const resources = {
       in: "في",
       minutes: "دقيقة",
       // Qibla
-      faceTheKaaba: "توجه towards الكعبة",
+      faceTheKaaba: "مواجهة الكعبة",
       useMapForSalah: "استخدم الخريطة لمحاذاة نفسك بشكل صحيح للصلاة.",
 
       // QnA
