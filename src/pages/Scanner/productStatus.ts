@@ -1,52 +1,52 @@
-import { ProductStatus } from '../../hooks/useScannerStore';
+import { type ProductStatusType } from '../../hooks/useScannerStore';
 import { CircleCheck, CircleX, TriangleAlert, HelpCircle } from 'lucide-react';
 import React from 'react';
 
-export const isHaram = (status: ProductStatus): boolean => {
-  return status === ProductStatus.HARAM;
+export const isHaram = (status: ProductStatusType): boolean => {
+  return status === "haram";
 };
 
-export const isHalal = (status: ProductStatus): boolean => {
-  return status === ProductStatus.HALAL;
+export const isHalal = (status: ProductStatusType): boolean => {
+  return status === "halal";
 };
 
-export const needsAttention = (status: ProductStatus): boolean => {
-  return [ProductStatus.WARNING, ProductStatus.NEEDS_INFO].includes(status);
+export const needsAttention = (status: ProductStatusType): boolean => {
+  return status === "warning" || status === "needs_info";
 };
 
-export const getStatusTranslationKey = (status: ProductStatus): string => {
-  const translationMap = {
-    [ProductStatus.HALAL]: "halal",
-    [ProductStatus.HARAM]: "haram",
-    [ProductStatus.WARNING]: "warning",
-    [ProductStatus.NEEDS_INFO]: "needsInfo",
-    [ProductStatus.UNKNOWN]: "unknown"
+export const getStatusTranslationKey = (status: ProductStatusType): string => {
+  const translationMap: Record<ProductStatusType, string> = {
+    "halal": "halal",
+    "haram": "haram",
+    "warning": "warning",
+    "needs_info": "needsInfo",
+    "unknown": "unknown"
   };
   return translationMap[status];
 };
 
-export const getStatusIcon = (status: ProductStatus, size: number = 24): React.ReactElement => {
+export const getStatusIcon = (status: ProductStatusType, size: number = 24): React.ReactElement => {
   switch (status) {
-    case ProductStatus.HALAL:
-      return <CircleCheck size={size} strokeWidth={1.5} />;
-    case ProductStatus.HARAM:
-      return <CircleX size={size} strokeWidth={1.5} />;
-    case ProductStatus.WARNING:
-      return <TriangleAlert size={size} strokeWidth={1.5} />;
-    case ProductStatus.NEEDS_INFO:
-      return <HelpCircle size={size} strokeWidth={1.5} />;
+    case "halal":
+      return React.createElement(CircleCheck, { size, strokeWidth: 1.5 });
+    case "haram":
+      return React.createElement(CircleX, { size, strokeWidth: 1.5 });
+    case "warning":
+      return React.createElement(TriangleAlert, { size, strokeWidth: 1.5 });
+    case "needs_info":
+      return React.createElement(HelpCircle, { size, strokeWidth: 1.5 });
     default:
-      return <HelpCircle size={size} strokeWidth={1.5} />;
+      return React.createElement(HelpCircle, { size, strokeWidth: 1.5 });
   }
 };
 
-export const getStatusClassName = (status: ProductStatus, styles: any): string => {
-  const classMap = {
-    [ProductStatus.HALAL]: styles.halal,
-    [ProductStatus.HARAM]: styles.haram,
-    [ProductStatus.WARNING]: styles.warning,
-    [ProductStatus.NEEDS_INFO]: styles.needsInfo,
-    [ProductStatus.UNKNOWN]: styles.unknown
+export const getStatusClassName = (status: ProductStatusType, styles: any): string => {
+  const classMap: Record<ProductStatusType, string> = {
+    "halal": styles.halal,
+    "haram": styles.haram,
+    "warning": styles.warning,
+    "needs_info": styles.needsInfo,
+    "unknown": styles.unknown
   };
   return classMap[status] || styles.unknown;
 };
