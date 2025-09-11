@@ -2,6 +2,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next";
+import { useGeoStore } from "../../hooks/useGeoStore";
+import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 
 import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
@@ -17,6 +19,8 @@ interface Step {
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { fetchFromIpApi, getLocationData, isLoading: isGeoLoading } = useGeoStore();
+  const { sendUserSettings, isLoading: isSettingsLoading } = useUserParametersStore();
 
   const steps: Step[] = [
     {
@@ -45,6 +49,7 @@ export const useWelcomeLogic = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [geoDataFetched, setGeoDataFetched] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +60,22 @@ export const useWelcomeLogic = () => {
     error: authError,
     wasLogged,
   } = useTelegram();
+
+  // Получение геоданных при загрузке компонента
+  useEffect(() => {
+    const fetchGeoData = async () => {
+      if (!geoDataFetched && !isGeoLoading) {
+        try {
+          await fetchFromIpApi();
+          setGeoDataFetched(true);
+        } catch (error) {
+          console.error("Ошибка получения геоданных:", error);
+        }
+      }
+    };
+
+    fetchGeoData();
+  }, [fetchFromIpApi, geoDataFetched, isGeoLoading]);
 
   // Проверка авторизации — перенаправление
   useEffect(() => {
@@ -109,6 +130,27 @@ export const useWelcomeLogic = () => {
     };
   }, [steps]);
 
+  // Функция отправки настроек пользователя
+  const sendUserSettingsToBackend = useCallback(async () => {
+    if (isSettingsLoading) return;
+
+    try {
+      const locationData = getLocationData();
+      const langcode = useGeoStore.getState().langcode;
+
+      await sendUserSettings({
+        city: locationData.city,
+        countryName: locationData.country,
+        langcode: langcode,
+        timeZone: locationData.timeZone,
+      });
+
+      console.log("Настройки пользователя успешно отправлены на бекенд");
+    } catch (error) {
+      console.error("Ошибка отправки настроек пользователя:", error);
+    }
+  }, [getLocationData, sendUserSettings, isSettingsLoading]);
+
   // Функции управления шагами
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
@@ -151,11 +193,20 @@ export const useWelcomeLogic = () => {
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     console.log("Завершаем онбординг, сохраняем в localStorage");
+    
+    // Отправляем настройки пользователя перед переходом
+    try {
+      await sendUserSettingsToBackend();
+    } catch (error) {
+      console.error("Ошибка при отправке настроек:", error);
+      // Продолжаем несмотря на ошибку
+    }
+
     localStorage.setItem("onboardingComplete", "1");
     navigate("/home", { replace: true });
-  }, [isAnimating, navigate]);
+  }, [isAnimating, navigate, sendUserSettingsToBackend]);
 
-  // Обработка свайпов - ПЕРЕМЕЩЕН ПОСЛЕ ОБЪЯВЛЕНИЯ ФУНКЦИЙ
+  // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isLoaded) return;
@@ -185,7 +236,7 @@ export const useWelcomeLogic = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [step, isLoaded, isAnimating, handlePrev, handleNext]);
+  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length]);
 
   return {
     steps,
@@ -198,5 +249,7 @@ export const useWelcomeLogic = () => {
     handleNext,
     handlePrev,
     handleStart,
+    isGeoLoading,
+    isSettingsLoading,
   };
 };
