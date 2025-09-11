@@ -4,7 +4,7 @@ import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
-import { useHistoryStore, type QaItem } from "../../../../hooks/useHistoryScannerStore";
+import { useHistoryScannerStore,type QaItem } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { useHtmlExport, SCANNER_HTML_STYLES } from "../../../../hooks/useHtmlExport";
 import { CircleCheck, CircleX, Upload, Download } from "lucide-react";
@@ -13,7 +13,7 @@ import { t } from "i18next";
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string }>();
-  const { fetchHistoryItem } = useHistoryStore();
+  const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<QaItem | null>(null);
 
   const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
