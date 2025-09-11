@@ -26,7 +26,7 @@ export const useLanguage = () => {
       console.log("langlanglang", lang);
       await quranApi.post(
         "api/v1/settings/languages",
-        { language: lang },
+        { languageId: lang },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (error) {
