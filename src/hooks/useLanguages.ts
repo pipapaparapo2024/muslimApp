@@ -7,44 +7,11 @@ const LANGUAGE_KEY = "preferred-language";
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
-const ARABIC_SPEAKING_COUNTRIES = new Set([
-  "Algeria",
-  "Bahrain",
-  "Chad",
-  "Comoros",
-  "Djibouti",
-  "Egypt",
-  "Iraq",
-  "Jordan",
-  "Kuwait",
-  "Lebanon",
-  "Libya",
-  "Mali",
-  "Mauritania",
-  "Morocco",
-  "Oman",
-  "Palestine",
-  "Qatar",
-  "Saudi Arabia",
-  "Somalia",
-  "Sudan",
-  "Syria",
-  "Tunisia",
-  "United Arab Emirates",
-  "Yemen",
-]);
-
 export const useLanguage = () => {
   const [language, setLanguage] = useState<Language>("en");
   const [isInitialized, setIsInitialized] = useState(false);
-  const { country, isInitialized: isGeoInitialized } = useGeoStore();
+  const { isInitialized: isGeoInitialized } = useGeoStore();
   const [isChanging, setIsChanging] = useState(false); // 🔥 Новое состояние
-  const getDefaultLanguage = (): Language => {
-    if (country && ARABIC_SPEAKING_COUNTRIES.has(country)) {
-      return "ar";
-    }
-    return "en";
-  };
 
   const applyLanguageStyles = (lang: Language) => {
     const html = document.documentElement;

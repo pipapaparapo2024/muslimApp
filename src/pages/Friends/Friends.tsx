@@ -4,6 +4,7 @@ import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export const Friends: React.FC = () => {
   const {
@@ -55,7 +56,12 @@ export const Friends: React.FC = () => {
     return 0;
   });
 
-  if (loading) return <div>{t("loading")}</div>;
+  if (loading)
+    return (
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
   if (error) return <div>{error}</div>;
 
   return (
