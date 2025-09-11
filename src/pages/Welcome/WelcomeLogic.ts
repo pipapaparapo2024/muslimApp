@@ -8,15 +8,37 @@ import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
-import { useLanguage } from "../../hooks/useLanguages";
 import i18n from "../../api/i18n";
+import { quranApi } from "../../api/api";
+
+// ✅ ДОБАВИТЬ ЭТИ ОПРЕДЕЛЕНИЯ
+const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
+type Language = (typeof SUPPORTED_LANGUAGES)[number];
+
 
 interface Step {
   title: string;
   desc: string;
   image: string;
 }
+const fetchLanguageFromBackend = async (): Promise<Language> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return "en";
 
+    const response = await quranApi.get("api/v1/settings/languages", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const backendLanguage = response.data.language;
+    return SUPPORTED_LANGUAGES.includes(backendLanguage)
+      ? backendLanguage
+      : "en";
+  } catch (error) {
+    console.error("Error fetching language:", error);
+    return "en";
+  }
+};
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -26,11 +48,8 @@ export const useWelcomeLogic = () => {
     isLoading: isGeoLoading,
     langcode,
   } = useGeoStore();
-  const {
-    sendUserSettings,
-    isLoading: isSettingsLoading,
-  } = useUserParametersStore();
-  const { getLanguage } = useLanguage();
+  const { sendUserSettings, isLoading: isSettingsLoading } =
+    useUserParametersStore();
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
@@ -95,7 +114,7 @@ export const useWelcomeLogic = () => {
 
       console.log("✅ Настройки отправлены");
       console.log("🔄 Шаг 3: Получение языка...");
-      const userLanguage = await getLanguage();
+      const userLanguage = await fetchLanguageFromBackend(); // Используем локальную функцию
       i18n.changeLanguage(userLanguage);
       console.log("✅ Язык получен");
       setInitializationStatus("complete");
@@ -111,7 +130,6 @@ export const useWelcomeLogic = () => {
     getLocationData,
     sendUserSettings,
     langcode,
-    getLanguage,
     initializationStatus,
   ]);
 
