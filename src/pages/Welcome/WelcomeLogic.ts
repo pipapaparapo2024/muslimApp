@@ -132,8 +132,6 @@ export const useWelcomeLogic = () => {
 
   // Функция отправки настроек пользователя
   const sendUserSettingsToBackend = useCallback(async () => {
-    if (isSettingsLoading) return;
-
     try {
       const locationData = getLocationData();
       
