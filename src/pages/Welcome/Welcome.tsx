@@ -4,7 +4,6 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useWelcomeLogic } from "./WelcomeLogic";
 import { t } from "i18next";
-
 export const Welcome: React.FC = () => {
   const {
     steps,
@@ -13,34 +12,49 @@ export const Welcome: React.FC = () => {
     isLoaded,
     isAnimating,
     containerRef,
-    authError,
+    error,
+    initializationStatus,
     handleNext,
     handleStart,
   } = useWelcomeLogic();
 
-  // Показываем лоадер при загрузке изображений или инициализации
-  if (!isLoaded) {
+  // Показываем лоадер во время инициализации
+  if (initializationStatus === 'pending' || initializationStatus === 'loading') {
     return (
       <PageWrapper showBackButton={true}>
-        <LoadingSpinner />
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner />
+          <p className={styles.loadingText}>
+            {initializationStatus === 'pending' ? 'Подготовка...' : 'Загрузка данных...'}
+          </p>
+        </div>
       </PageWrapper>
     );
   }
 
-  // Показываем ошибку если авторизация не удалась
-  if (authError) {
+  // Показываем ошибку если что-то пошло не так
+  if (initializationStatus === 'error' || error) {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
-          <h2>Ошибка авторизации</h2>
-          <p>{authError}</p>
+          <h2>Ошибка инициализации</h2>
+          <p>{error || 'Неизвестная ошибка'}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}
           >
-            Try Again
+            Попробовать снова
           </button>
         </div>
+      </PageWrapper>
+    );
+  }
+
+  // Показываем лоадер при загрузке изображений
+  if (!isLoaded) {
+    return (
+      <PageWrapper showBackButton={true}>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }

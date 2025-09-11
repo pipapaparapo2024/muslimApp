@@ -24,8 +24,9 @@ export const useWelcomeLogic = () => {
     isLoading: isGeoLoading,
     langcode,
   } = useGeoStore();
-  const { sendUserSettings, isLoading: isSettingsLoading } =
+  const { sendUserSettings, isLoading: isSettingsLoading, fetchUserLanguage } =
     useUserParametersStore();
+  
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
@@ -53,98 +54,80 @@ export const useWelcomeLogic = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [geoDataFetched, setGeoDataFetched] = useState(false);
-  const [settingsSent, setSettingsSent] = useState(false);
+  const [initializationStatus, setInitializationStatus] = useState<'pending' | 'loading' | 'complete' | 'error'>('pending');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Получаем данные авторизации
-  const {
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    error: authError,
-    wasLogged,
-  } = useTelegram();
+  const { isAuthenticated, isLoading: isAuthLoading, error: authError, wasLogged } = useTelegram();
 
-  // Функция отправки настроек пользователя
-  const sendUserSettingsToBackend = useCallback(async () => {
-    if (settingsSent || isSettingsLoading) return;
-
+  // Основная функция инициализации
+  const initializeApp = useCallback(async () => {
+    if (initializationStatus !== 'pending') return;
+    
+    setInitializationStatus('loading');
+    setErrorMessage(null);
+    
     try {
+      console.log("🔄 Шаг 1: Получение геоданных...");
+      
+      // 1. Получаем геоданные
+      await fetchFromIpApi();
+      
+      console.log("✅ Геоданные получены");
+      console.log("🔄 Шаг 2: Отправка настроек...");
+      
+      // 2. Отправляем настройки
       const locationData = getLocationData();
-
-      console.log("Отправляем настройки:", {
-        city: locationData.city,
-        countryName: locationData.country,
-        langcode: langcode,
-        timeZone: locationData.timeZone,
-      });
-
       await sendUserSettings({
         city: locationData.city,
         countryName: locationData.country,
         langcode: langcode,
         timeZone: locationData.timeZone,
       });
-
-      console.log("Настройки пользователя успешно отправлены на бекенд");
-      setSettingsSent(true);
+      
+      console.log("✅ Настройки отправлены");
+      console.log("🔄 Шаг 3: Получение языка...");
+      
+      // 3. Получаем язык пользователя
+      await fetchUserLanguage();
+      
+      console.log("✅ Язык получен");
+      setInitializationStatus('complete');
+      
     } catch (error) {
-      console.error("Ошибка отправки настроек пользователя:", error);
-      throw error;
+      console.error("❌ Ошибка инициализации:", error);
+      setInitializationStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Unknown initialization error');
     }
-  }, [
-    getLocationData,
-    sendUserSettings,
-    isSettingsLoading,
-    langcode,
-    settingsSent,
-  ]);
+  }, [fetchFromIpApi, getLocationData, sendUserSettings, langcode, fetchUserLanguage, initializationStatus]);
 
-  // Получение геоданных и отправка настроек при загрузке компонента
+  // Запуск инициализации при монтировании
   useEffect(() => {
-    const initialize = async () => {
-      if (!geoDataFetched && !isGeoLoading) {
-        try {
-          await fetchFromIpApi();
-          setGeoDataFetched(true);
+    initializeApp();
+  }, [initializeApp]);
 
-          // Сразу отправляем настройки после получения геоданных
-          await sendUserSettingsToBackend();
-        } catch (error) {
-          console.error("Ошибка инициализации:", error);
-        }
-      }
-    };
-
-    initialize();
-  }, [fetchFromIpApi, geoDataFetched, isGeoLoading, sendUserSettingsToBackend]);
-
-  // Проверка авторизации — перенаправление
+  // Проверка авторизации после успешной инициализации
   useEffect(() => {
-    if (!isAuthLoading && settingsSent) {
+    if (initializationStatus === 'complete' && !isAuthLoading) {
       if (isAuthenticated && wasLogged === true) {
-        console.log("Пользователь уже логинился, пропускаем онбординг");
+        console.log("✅ Пользователь уже логинился, переходим на главную");
         navigate("/home", { replace: true });
       } else if (isAuthenticated && wasLogged === false) {
-        console.log(
-          "Пользователь аутентифицирован, но первый раз — показываем онбординг"
-        );
+        console.log("✅ Пользователь аутентифицирован, показываем онбординг");
+        // Продолжаем показывать welcome
       } else if (!isAuthenticated && authError) {
-        console.log("Ошибка авторизации:", authError);
+        console.log("❌ Ошибка авторизации:", authError);
+        setInitializationStatus('error');
+        setErrorMessage(authError);
       }
     }
-  }, [
-    isAuthenticated,
-    isAuthLoading,
-    wasLogged,
-    authError,
-    navigate,
-    settingsSent,
-  ]);
+  }, [initializationStatus, isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
 
-  // Предзагрузка изображений
+  // Предзагрузка изображений (только после успешной инициализации)
   useEffect(() => {
+    if (initializationStatus !== 'complete') return;
+    
     let isMounted = true;
 
     const preloadImages = () => {
@@ -178,7 +161,7 @@ export const useWelcomeLogic = () => {
     return () => {
       isMounted = false;
     };
-  }, [steps]);
+  }, [initializationStatus, steps]);
 
   // Функции управления шагами
   const handleNext = useCallback(async () => {
@@ -229,7 +212,7 @@ export const useWelcomeLogic = () => {
   // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !isLoaded) return;
+    if (!container || !isLoaded || initializationStatus !== 'complete') return;
 
     let startX = 0;
     let endX = 0;
@@ -256,21 +239,21 @@ export const useWelcomeLogic = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length]);
+  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length, initializationStatus]);
 
   return {
     steps,
     step,
     fade,
-    isLoaded,
+    isLoaded: isLoaded && initializationStatus === 'complete',
     isAnimating,
     containerRef,
-    authError,
+    error: errorMessage || authError,
+    initializationStatus,
     handleNext,
     handlePrev,
     handleStart,
     isGeoLoading,
     isSettingsLoading,
-    settingsSent,
   };
 };
