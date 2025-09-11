@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import en from "../../../assets/icons/united-king.svg";
 import ar from "../../../assets/icons/saudi-arab.svg";
 import { t } from "i18next";
+
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -24,15 +25,11 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     { code: "ar", name: t("arabic"), url: ar },
   ] as const;
 
-  // В ModalLanguage компоненте
-  const handleSelect = async (lang: "en" | "ar") => {
-    try {
-      await onLanguageChange?.(lang);
-      onClose?.();
-    } catch (error) {
-      console.error("Error changing language:", error);
-    }
+  const handleSelect = (lang: "en" | "ar") => {
+    onLanguageChange?.(lang);
+    onClose?.();
   };
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

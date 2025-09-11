@@ -5,6 +5,7 @@ import { quranApi } from "../api/api";
 const LANGUAGE_KEY = "preferred-language";
 const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 type Language = (typeof SUPPORTED_LANGUAGES)[number];
+
 export const useLanguage = () => {
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
   const [isInitialized, setIsInitialized] = useState(i18n.isInitialized);
@@ -15,6 +16,7 @@ export const useLanguage = () => {
     html.classList.remove("en", "ar");
     html.classList.add(lang);
     html.setAttribute("lang", lang);
+    html.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
   };
 
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
@@ -32,7 +34,7 @@ export const useLanguage = () => {
     }
   };
 
-  const changeLanguageComplete = async (newLang: Language) => {
+  const changeLanguage = async (newLang: Language) => {
     if (!SUPPORTED_LANGUAGES.includes(newLang) || isChanging) return;
 
     setIsChanging(true);
@@ -52,7 +54,6 @@ export const useLanguage = () => {
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
-        // УПРОЩЕННАЯ ИНИЦИАЛИЗАЦИЯ - только из localStorage
         const saved = localStorage.getItem(LANGUAGE_KEY) as Language;
         const targetLanguage =
           saved && SUPPORTED_LANGUAGES.includes(saved) ? saved : "en";
@@ -83,10 +84,9 @@ export const useLanguage = () => {
 
   return {
     language,
-    changeLanguage: changeLanguageComplete,
+    changeLanguage,
     languageLabel: language === "ar" ? i18n.t("arabic") : i18n.t("english"),
     isLanguageReady: isInitialized,
     isChanging,
-    // УБРАТЬ getLanguage - он больше не нужен
   };
 };

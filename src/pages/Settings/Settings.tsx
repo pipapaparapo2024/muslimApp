@@ -227,9 +227,7 @@ export const Settings: React.FC = () => {
         isOpen={isLanguageModalOpen}
         currentLanguage={language}
         onClose={() => setIsLanguageModalOpen(false)}
-        onLanguageChange={(lang) => {
-          changeLanguage(lang);
-        }}
+        onLanguageChange={changeLanguage} // Просто передаем функцию напрямую
       />
 
       {/* ✅ Theme Modal — управляемый */}
