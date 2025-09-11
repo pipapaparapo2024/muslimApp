@@ -3,6 +3,7 @@
   padding: 0;
   -webkit-tap-highlight-color: transparent;
   transition: background-color 0.3s ease;
+  font-family: var(--typography-body);
 }
 html,
 body,
