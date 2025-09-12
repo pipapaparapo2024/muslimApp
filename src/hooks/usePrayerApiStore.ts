@@ -65,7 +65,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
 
           const data = response.data;
-
+          
           if (data.status === "ok" && data.data?.praysettings) {
             set({ prayers: data.data.praysettings, isLoading: false });
           } else {
