@@ -14,11 +14,13 @@ export const Friends: React.FC = () => {
     error,
     fetchFriends,
     fetchReferralLink,
+    fetchBonusesStatus,
+    purchasedHas,
+    purchasedNeeded,
+    totalHas,
+    totalNeeded,
   } = useFriendsStore();
   const [isLoading] = useState<boolean>(false);
-
-  const requestsGoal = 10;
-  const premiumGoal = 10;
 
   useEffect(() => {
     fetchReferralLink();
@@ -27,6 +29,7 @@ export const Friends: React.FC = () => {
   useEffect(() => {
     fetchFriends();
     fetchReferralLink();
+    fetchBonusesStatus();
   }, [fetchFriends, fetchReferralLink]);
 
   const shareViaTelegram = () => {
@@ -39,15 +42,6 @@ export const Friends: React.FC = () => {
 
     window.open(shareUrl, "_blank");
   };
-
-  // Подсчет статистики
-  const invitedCount = friends.filter(
-    (friend) => friend.status === "Accepted" || friend.status === "Purchased"
-  ).length;
-
-  const purchasedCount = friends.filter(
-    (friend) => friend.status === "Purchased"
-  ).length;
 
   // Сортировка друзей
   const sortedFriends = [...friends].sort((a, b) => {
@@ -96,14 +90,14 @@ export const Friends: React.FC = () => {
             <div className={styles.progressBarContainer}>
               <div
                 className={styles.progressBar}
-                style={{ width: `${(invitedCount / requestsGoal) * 100}%` }}
+                style={{ width: `${(totalHas / totalNeeded) * 100}%` }}
               />
             </div>
             <div className={styles.progressLabel}>
-              {invitedCount}/{requestsGoal}
+              {totalHas}/{totalNeeded}
             </div>
           </div>
-          {invitedCount >= requestsGoal && (
+          {totalHas >= totalNeeded && (
             <button className={styles.rewardBtn}>{t("getReward")}</button>
           )}
         </div>
@@ -116,14 +110,14 @@ export const Friends: React.FC = () => {
             <div className={styles.progressBarContainer}>
               <div
                 className={styles.progressBar}
-                style={{ width: `${(purchasedCount / premiumGoal) * 100}%` }}
+                style={{ width: `${(purchasedHas / purchasedNeeded) * 100}%` }}
               />
             </div>
             <div className={styles.progressLabel}>
-              {purchasedCount}/{premiumGoal}
+              {purchasedHas}/{purchasedNeeded}
             </div>
           </div>
-          {purchasedCount >= premiumGoal && (
+          {purchasedHas >= purchasedNeeded && (
             <button className={styles.rewardBtn}>{t("getReward")}</button>
           )}
         </div>

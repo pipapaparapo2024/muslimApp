@@ -32,6 +32,17 @@ interface FriendsState {
   fetchFriends: () => Promise<void>;
   fetchReferralLink: () => Promise<void>;
   addFriend: (friendData: Omit<Friend, "id" | "invitedDate">) => Promise<void>;
+
+  purchasedHas: number;
+  purchasedNeeded: number;
+  totalHas: number;
+  totalNeeded: number;
+
+  setPurchasedHas: (n: number) => void;
+  setPurchasedNeeded: (n: number) => void;
+  setTotalHas: (n: number) => void;
+  setTotalNeeded: (n: number) => void;
+  fetchBonusesStatus: () => Promise<void>;
 }
 
 // Вспомогательная функция для безопасной проверки ошибки
@@ -50,6 +61,15 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   loading: false,
   error: null,
 
+  purchasedHas: 0,
+  purchasedNeeded: 10,
+  totalHas: 0,
+  totalNeeded: 10,
+
+  setPurchasedHas: (n) => set({ purchasedHas: n }),
+  setPurchasedNeeded: (n) => set({ purchasedNeeded: n }),
+  setTotalHas: (n) => set({ totalHas: n }),
+  setTotalNeeded: (n) => set({ totalNeeded: n }),
   // Получить список рефералов с бэкенда
   fetchFriends: async () => {
     set({ loading: true, error: null });
@@ -61,9 +81,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       const friendsData: Friend[] = res.data.data.users.map((user) => ({
         userName: user.userName,
         status: user.status as "Accepted" | "Purchased",
-        invitedDate: new Date().toISOString(), 
+        invitedDate: new Date().toISOString(),
       }));
-      console.log("res",res)
+      console.log("res", res);
       set({
         friends: friendsData,
         loading: false,
@@ -79,7 +99,28 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       });
     }
   },
-
+  fetchBonusesStatus: async () => {
+    try {
+      const response = await quranApi.get("/api/v1/referal/bonuses/status");
+      console.log("response", response);
+      console.log("response.data.data.status", response.data.data.status);
+      set({
+        purchasedHas: response.data.data.status.purchasedHas,
+        purchasedNeeded: response.data.data.status.purchasedNeeded,
+        totalHas: response.data.data.status.totalHas,
+        totalNeeded: response.data.data.status.totalNeeded,
+      });
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Failed to get user data";
+      console.error("Ошибка получения данных пользователя:", message, err);
+      set({
+        loading: false,
+        error: message || "Ошибка загрузки прогресса друзей",
+      });
+    }
+  },
   // Получить реферальную ссылку
   fetchReferralLink: async () => {
     set({ loading: true, error: null });
