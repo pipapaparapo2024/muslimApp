@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// Функция для форматирования даты по строковому шаблону
 export const formatDate = (date: Date, format: string): string => {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -28,6 +27,7 @@ interface DataTimeState {
   set24Hour: (value: boolean) => void;
   setAutoTime: (value: boolean) => void;
   setSelectedDateFormat: (format: string) => void;
+  updateFormattedDate: () => void;
   reset: () => void;
 }
 
@@ -42,6 +42,10 @@ export const useDataTimeStore = create<DataTimeState>()(
 
         set24Hour: (value) => set({ is24Hour: value }),
         setAutoTime: (value) => set({ isAutoTime: value }),
+        updateFormattedDate: () =>
+          set((state) => ({
+            formattedDate: formatDate(new Date(), state.selectedDateFormat),
+          })),
         setSelectedDateFormat: (format) =>
           set(() => {
             const formatted = formatDate(new Date(), format);

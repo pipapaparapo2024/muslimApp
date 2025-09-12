@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useGeoStore } from "../../hooks/useGeoStore";
 
 export const Header: React.FC = () => {
-  const { formattedDate } = useDataTimeStore();
+  const { formattedDate, updateFormattedDate } = useDataTimeStore();
   const { hasPremium, premiumDaysLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
@@ -27,6 +27,11 @@ export const Header: React.FC = () => {
   useEffect(() => {
     fetchUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Обновляем дату при каждом рендере
+  useEffect(() => {
+    updateFormattedDate();
+    console.log("updateFormattedDate")
   }, []);
 
   const getButtonClassName = () => {
