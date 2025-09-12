@@ -28,9 +28,9 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageCode;
+    console.log("response",response)
     console.log("backendLanguage", backendLanguage);
     return backendLanguage;
-    return null;
   } catch (error) {
     console.error("Error fetching language:", error);
     return null;
