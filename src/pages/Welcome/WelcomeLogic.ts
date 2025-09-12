@@ -28,7 +28,6 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageName;
-    console.log("backendLanguage", backendLanguage);
 
     if (backendLanguage.includes("English")) {
       return "en";
@@ -84,6 +83,8 @@ export const useWelcomeLogic = () => {
   } = useTelegram();
 
   const initializeApp = useCallback(async () => {
+    if (initializationStatus !== "pending") return;
+
     setInitializationStatus("loading");
     setErrorMessage(null);
 
