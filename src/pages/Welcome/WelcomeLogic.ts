@@ -27,15 +27,9 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const backendLanguage = response.data.data.language.name;
-    console.log("response",response)
+    const backendLanguage = response.data.data.language.languageCode;
     console.log("backendLanguage", backendLanguage);
-    if (backendLanguage.includes("English")) {
-      return "en";
-    } else if (backendLanguage.includes("Simple Arabic")) {
-      return "ar";
-    }
-
+    return backendLanguage;
     return null;
   } catch (error) {
     console.error("Error fetching language:", error);
