@@ -127,8 +127,10 @@
 //     </PageWrapper>
 //   );
 // };
-import { useNavigate } from "react-router-dom"
-export const Welcome:React.FC=()=>{
-  const navigate=useNavigate()
-  return<div onClick={()=>navigate("/home")}>dfgdfg</div>
-}
+import { useNavigate } from "react-router-dom";
+export const Welcome: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <div onClick={() => navigate("/home")}>аааааааааааааааааааааааааа</div>
+  );
+};
