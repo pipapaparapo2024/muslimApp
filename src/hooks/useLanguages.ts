@@ -4,6 +4,9 @@ import { quranApi } from "../api/api";
 export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
+const arabId = "7b64a96d-1dc9-4cd0-b3f0-59cbfbc9fdf7";
+const enId = "1e5a0c2e-8e6b-4e76-8fc0-2b0f5a933b4a";
+let langId = "";
 export interface LanguageData {
   code: Language;
   name: string;
@@ -32,9 +35,11 @@ export const useLanguage = () => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
+      if (lang == "ar") langId = arabId;
+      else if (lang == "en") langId = enId;
       await quranApi.post(
         "api/v1/settings/languages",
-        { languageId: lang },
+        { languageId: langId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (error) {
@@ -44,7 +49,7 @@ export const useLanguage = () => {
 
   const changeLanguage = async (newLang: Language) => {
     setIsChanging(true);
-    console.log("newLang",newLang)
+    console.log("newLang", newLang);
     try {
       applyLanguageStyles(newLang);
       localStorage.setItem(LANGUAGE_KEY, newLang);
@@ -67,8 +72,10 @@ export const useLanguage = () => {
       }
     };
 
-    i18n.on('languageChanged', handleLanguageChanged);
-    return () => { i18n.off('languageChanged', handleLanguageChanged); };
+    i18n.on("languageChanged", handleLanguageChanged);
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
   }, []);
 
   return {
