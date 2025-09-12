@@ -21,6 +21,7 @@ export const useLanguage = () => {
 
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
+      console.log("langlang",lang)
       const token = localStorage.getItem("accessToken");
       if (!token) return;
       console.log("langlanglang", lang);
