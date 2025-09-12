@@ -83,7 +83,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         status: user.status as "Accepted" | "Purchased",
         invitedDate: new Date().toISOString(),
       }));
-      console.log("res", res);
       set({
         friends: friendsData,
         loading: false,
