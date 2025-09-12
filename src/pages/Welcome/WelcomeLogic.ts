@@ -29,7 +29,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
       headers: { Authorization: `Bearer ${token}` },
     });
     const backendLanguage = response.data.data.language.languageName;
-       // Преобразуем English → en, Arabic → ar
+    console.log("backendLanguage",backendLanguage)
     if (backendLanguage.toLowerCase().includes('English')) {
       return 'en';
     } else if (backendLanguage.toLowerCase().includes('Arabic')) {
