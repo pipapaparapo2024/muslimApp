@@ -48,6 +48,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
           const data = response.data;
           console.log("response",data)
+          console.log("--------------------")
           console.log("data.status",data.status)
           console.log("data.data?.prayers",data.data?.prayers)
           if (data.status === "ok" && data.data?.prayers) {
