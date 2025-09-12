@@ -10,7 +10,7 @@ import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import i18n from "../../api/i18n";
 import { quranApi } from "../../api/api";
-import {type Language, applyLanguageStyles } from "../../hooks/useLanguages";
+import { type Language, applyLanguageStyles } from "../../hooks/useLanguages";
 
 interface Step {
   title: string;
