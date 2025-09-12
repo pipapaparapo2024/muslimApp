@@ -37,6 +37,7 @@ export const useLanguage = () => {
       if (!token) return;
       if (lang == "ar") langId = arabId;
       else if (lang == "en") langId = enId;
+      console.log("langId",langId)
       await quranApi.post(
         "api/v1/settings/languages",
         { languageId: langId },
