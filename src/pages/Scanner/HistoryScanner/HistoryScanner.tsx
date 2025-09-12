@@ -8,7 +8,43 @@ import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { historyUtils } from "../../../hooks/useHistoryScannerStore";
 import { useTranslation } from "react-i18next";
-import { getStatusIcon, getStatusClassName, getStatusTranslationKey } from "../productStatus"
+import { 
+  getStatusIcon, 
+  getStatusClassName, 
+  getStatusTranslationKey,
+} from "../productStatus";
+import { type ProductStatusType } from "../../../hooks/useScannerStore";
+// Функция для преобразования строки в ProductStatusType
+const toProductStatusType = (status: string): ProductStatusType => {
+  const validStatuses: ProductStatusType[] = ["halal", "haram", "warning", "needs_info", "unknown"];
+  return validStatuses.includes(status as ProductStatusType) 
+    ? status as ProductStatusType 
+    : "unknown";
+};
+
+// Helper function to extract the status value from the status object
+const getStatusValue = (statusObj: any): ProductStatusType => {
+  if (typeof statusObj === 'string') return toProductStatusType(statusObj);
+  
+  // If it's an object with status values, try to find the actual status
+  if (typeof statusObj === 'object' && statusObj !== null) {
+    // Check common status property names
+    if (statusObj.status) return toProductStatusType(statusObj.status);
+    if (statusObj.value) return toProductStatusType(statusObj.value);
+    if (statusObj.name) return toProductStatusType(statusObj.name);
+    
+    // If it's an object like {HALAL: "halal", HARAM: "haram", ...}, 
+    // find which property has a truthy value
+    const statusKeys = Object.keys(statusObj);
+    for (const key of statusKeys) {
+      if (statusObj[key] && typeof statusObj[key] === 'string') {
+        return toProductStatusType(statusObj[key]);
+      }
+    }
+  }
+  
+  return "unknown";
+};
 
 export const HistoryScanner: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -69,35 +105,38 @@ export const HistoryScanner: React.FC = () => {
         {groupedHistory.map(({ date, scans }) => (
           <div key={date} className={styles.dateSection}>
             <div className={styles.dateHeader}>{date}</div>
-            {scans.map((scan) => (
-              <div
-                key={scan.id}
-                onClick={() => handleScanClick(scan.id)}
-                className={styles.blockScan}
-              >
-                <div>
-                  <div className={styles.scanTitle}>{t("product")}</div>
-                  <div className={styles.scanDesk}>{scan.name || t("unknownProduct")}</div>
-                </div>
-                <div className={styles.scanAnalysis}>
-                  <div className={styles.scanTitle}>{t("description")}</div>
-                  <div className={styles.scanDesk}>{scan.description || t("noDescription")}</div>
-                </div>
-                <div className={styles.blockUnderInfo}>
-                  <div className={`${styles.accessBlock} ${getStatusClassName(scan.status, styles)}`}>
-                    {getStatusIcon(scan.status, 16)}
-                    {t(getStatusTranslationKey(scan.status))}
+            {scans.map((scan) => {
+              const status = getStatusValue(scan.status);
+              return (
+                <div
+                  key={scan.id}
+                  onClick={() => handleScanClick(scan.id)}
+                  className={styles.blockScan}
+                >
+                  <div>
+                    <div className={styles.scanTitle}>{t("product")}</div>
+                    <div className={styles.scanDesk}>{scan.name || t("unknownProduct")}</div>
                   </div>
-                  <button
-                    onClick={(event) => handleShare(event, scan.id)}
-                    className={styles.share}
-                  >
-                    <Share2 size={16} strokeWidth={2} />
-                    {t("share")}
-                  </button>
+                  <div className={styles.scanAnalysis}>
+                    <div className={styles.scanTitle}>{t("description")}</div>
+                    <div className={styles.scanDesk}>{scan.description || t("noDescription")}</div>
+                  </div>
+                  <div className={styles.blockUnderInfo}>
+                    <div className={`${styles.accessBlock} ${getStatusClassName(status, styles)}`}>
+                      {getStatusIcon(status, 16)}
+                      {t(getStatusTranslationKey(status))}
+                    </div>
+                    <button
+                      onClick={(event) => handleShare(event, scan.id)}
+                      className={styles.share}
+                    >
+                      <Share2 size={16} strokeWidth={2} />
+                      {t("share")}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ))}
       </div>

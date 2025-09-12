@@ -11,7 +11,6 @@ import { SurahList } from "./pages/Quran/SurahList/SurahList";
 import { QiblaCompassPage } from "./pages/Home/QiblaCompassPage/QiblaCompassPage";
 import { WelcomeFriends } from "./pages/Friends/WelcomeFriends";
 import { useEffect } from "react";
-import { useLanguage } from "./hooks/useLanguages";
 import { Region } from "./pages/Settings/appSettings/region/Region";
 import { DataTime } from "./pages/Settings/appSettings/dataTime/DataTime";
 import { ModalTheme } from "./components/modals/modalSettings/ModalTheme";
@@ -48,7 +47,6 @@ if (swipeBehavior.mount.isAvailable()) {
 
 export const App: React.FC = () => {
   const { isThemeReady } = useTheme();
-  const { isLanguageReady } = useLanguage();
   const { isInitialized: isGeoInitialized } = useGeoStore();
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -77,7 +75,7 @@ export const App: React.FC = () => {
   }, []);
 
   // Показываем пустой экран до полной инициализации темы
-  if (!isThemeReady || !isLanguageReady || !isGeoInitialized) {
+  if (!isThemeReady || !isGeoInitialized) {
     return (
       <div
         style={{
