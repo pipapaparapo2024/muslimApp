@@ -4,7 +4,10 @@ import { useLanguage } from "../../hooks/useLanguages";
 import styles from "./Settings.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
-import { usePrayerTimesStore } from "../../hooks/useSettingPrayerTimesStore";
+import {
+  usePrayerApiStore,
+  type PrayerSetting,
+} from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import { useGeoStore } from "../../hooks/useGeoStore";
@@ -24,14 +27,14 @@ import { useTranslation } from "react-i18next";
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
-  const { prayers } = usePrayerTimesStore();
+  const { prayers } = usePrayerApiStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   const { city, country } = useGeoStore();
-  const visiblePrayers = prayers.filter((p) => p.showOnMain);
+  const visiblePrayers = prayers.filter((p: PrayerSetting) => p.hasSelected);
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);

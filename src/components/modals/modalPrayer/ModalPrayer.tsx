@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ModalPrayer.module.css";
 import { useNavigate } from "react-router-dom";
-import { type PrayerSetting } from "../../../hooks/useSettingPrayerTimesStore";
+import { type PrayerSetting } from "../../../hooks/usePrayerApiStore";
 import { Pen } from "lucide-react";
 import { t } from "i18next";
 
@@ -24,15 +24,13 @@ export const ModalPrayer: React.FC<ModalProps> = ({
     <div className={styles.modalOverlay} onClick={onRequestClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          {/* Используем перевод для названия молитвы */}
-          <h2>{t(prayer.originalName)}</h2>
+          <h2>{t(prayer.name)}</h2>
           <button className={styles.closeButton} onClick={onRequestClose}>
             ×
           </button>
         </div>
 
-        {/* Используем перевод для описания молитвы */}
-        <p className={styles.modalDescription}>{t(`${prayer.originalName}Description`)}</p>
+        <p className={styles.modalDescription}>{prayer.description}</p>
 
         <div className={styles.prayerTime}>
           <button
@@ -40,7 +38,7 @@ export const ModalPrayer: React.FC<ModalProps> = ({
             onClick={() => navigate("/settings/prayerTimes")}
           >
             <div><Pen size={20}/></div>
-            {t("editPrayerTimes")}
+            {t("editPrayerSettings")}
           </button>
         </div>
       </div>

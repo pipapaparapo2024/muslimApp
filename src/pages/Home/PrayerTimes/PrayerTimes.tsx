@@ -1,187 +1,59 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React from "react";
 import styles from "./PrayerTimes.module.css";
-import { usePrayerTimesStore } from "../../../hooks/useSettingPrayerTimesStore";
+import { usePrayerApiStore } from "../../../hooks/usePrayerApiStore";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer";
-import { type PrayerSetting } from "../../../hooks/useSettingPrayerTimesStore";
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
-
-// Помогает конвертировать строку или Date в объект Date
-const toDate = (input: string | Date | undefined | null): Date | null => {
-  if (!input) return null;
-  const date = new Date(input);
-  return isNaN(date.getTime()) ? null : date;
-};
+import { usePrayerTimesLogic, toDate } from "./prayerTimesLogic";
 
 export const PrayerTimes: React.FC = () => {
-  const prayers = usePrayerTimesStore((state) => state.prayers);
-  const isLoading = usePrayerTimesStore((state) => state.isLoading);
-  const lastUpdated = usePrayerTimesStore((state) => state.lastUpdated);
-  const is24Hour = useDataTimeStore((state) => state.is24Hour);
-
-  // Функция для логирования молитв (для отладки)
-  useEffect(() => {
-    console.log("Current prayers:", prayers);
-    if (prayers.length > 0) {
-      prayers.forEach((prayer) => {
-        console.log(
-          `Prayer: ${prayer.name}, Original: ${
-            prayer.originalName
-          }, Translated: ${t(prayer.originalName)}`
-        );
-      });
-    }
-  }, [prayers]);
-
-  // Обновляем функцию formatTime для поддержки обоих форматов
-  const formatTime = (date: Date): string => {
-    if (!(date instanceof Date) || isNaN(date.getTime())) {
-      console.error("Invalid date passed to formatTime:", date);
-      return "—:— —";
-    }
-
-    if (is24Hour) {
-      // 24-часовой формат: 14:30
-      const hours = date.getHours().toString().padStart(2, "0");
-      const minutes = date.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
-    } else {
-      // 12-часовой формат: 2:30 PM
-      const hours = date.getHours();
-      const minutes = date.getMinutes();
-      const ampm = hours >= 12 ? "PM" : "AM";
-      const hour12 = hours % 12 || 12;
-      const formattedMinutes = minutes.toString().padStart(2, "0");
-      return `${hour12}:${formattedMinutes} ${ampm}`;
-    }
-  };
-
-  const calculatePrayerTimes = usePrayerTimesStore(
-    (state) => state.calculatePrayerTimes
-  );
-
+  const { prayers, isLoading, error, fetchPrayers, fetchPrayerSettings } =
+    usePrayerApiStore();
   const geoData = useGeoStore((state) => state);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPrayer, setSelectedPrayer] = useState<PrayerSetting | null>(
-    null
-  );
+  const is24Hour = useDataTimeStore((state) => state.is24Hour);
   const navigate = useNavigate();
 
-  // Текущее время (обновляется каждую минуту)
-  const [now, setNow] = useState(new Date());
+  const {
+    isModalOpen,
+    selectedPrayer,
+    sortedVisiblePrayers,
+    handlePrayerClick,
+    handleCloseModal,
+    formatTime,
+    getMinutesUntilPrayer,
+    isPrayerPassed,
+  } = usePrayerTimesLogic({
+    prayers,
+    isLoading,
+    error,
+    fetchPrayers,
+    fetchPrayerSettings,
+    geoCoords: geoData.coords,
+    is24Hour,
+  });
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(new Date());
-    }, 60000); // Каждую минуту
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Разница в минутах до молитвы
-  const getMinutesUntilPrayer = (
-    prayerTime: string | Date | undefined
-  ): number => {
-    const date = toDate(prayerTime);
-    if (!date) return 999;
-
-    const prayerTotal = date.getHours() * 60 + date.getMinutes();
-    const currentTotal = now.getHours() * 60 + now.getMinutes();
-
-    return prayerTotal >= currentTotal
-      ? prayerTotal - currentTotal
-      : prayerTotal + 24 * 60 - currentTotal;
-  };
-
-  // Проверяет, прошла ли уже молитва сегодня
-  const isPrayerPassed = (prayerTime: string | Date | undefined): boolean => {
-    const date = toDate(prayerTime);
-    if (!date) return false;
-
-    const prayerTotal = date.getHours() * 60 + date.getMinutes();
-    const currentTotal = now.getHours() * 60 + now.getMinutes();
-
-    return prayerTotal < currentTotal;
-  };
-
-  // Сортируем молитвы: сначала будущие, потом прошедшие
-  const sortedVisiblePrayers = useMemo(() => {
-    const visiblePrayers = prayers.filter((p) => p.showOnMain);
-    return visiblePrayers.sort((a, b) => {
-      const aPassed = isPrayerPassed(a.calculatedTime);
-      const bPassed = isPrayerPassed(b.calculatedTime);
-
-      if (aPassed && !bPassed) return 1;
-      if (!aPassed && bPassed) return -1;
-
-      const aTime = toDate(a.calculatedTime)?.getTime() || 0;
-      const bTime = toDate(b.calculatedTime)?.getTime() || 0;
-      return aTime - bTime;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prayers, now]);
-
-  // Инициализация или обновление времени молитв
-  useEffect(() => {
-    const initializePrayerTimes = async () => {
-      // Если нет координат, не пытаемся рассчитывать молитвы
-      if (!geoData.coords) {
-        console.log("No coordinates available");
-        return;
-      }
-
-      // Если молитвы уже есть и не устарели, не обновляем
-      if (prayers.length > 0 && lastUpdated) {
-        const lastUpdateDate = new Date(lastUpdated);
-        const hoursDiff =
-          (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60);
-        if (hoursDiff < 24) {
-          console.log("Prayer times are up to date");
-          return;
-        }
-      }
-
-      // Если молитв нет или они устарели, рассчитываем заново
-      try {
-        await calculatePrayerTimes();
-      } catch (error) {
-        console.error("Error calculating prayer times:", error);
-      }
-    };
-
-    initializePrayerTimes();
-  }, [geoData.coords, calculatePrayerTimes, prayers.length, lastUpdated]);
-
-  const handlePrayerClick = (prayer: PrayerSetting) => {
-    setSelectedPrayer(prayer);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedPrayer(null);
-  };
-
-  if (isLoading) {
+  if (error) {
     return (
       <div className={styles.prayerTimesContainer}>
-        <div className={styles.headerRow}>
-          <span className={styles.title}>{t("prayerTimes")} </span>
+        <div className={styles.error}>
+          {t("errorLoadingPrayers")}: {error}
         </div>
-        <div className={styles.subtitle}>{t("calculatingPrayerTimes")}</div>
       </div>
     );
   }
 
-  // Если нет молитв для отображения
+  if (isLoading) {
+    return <div>Loading</div>;
+  }
+
   if (sortedVisiblePrayers.length === 0) {
     return (
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
-          <span className={styles.title}>{t("prayerTimes")} </span>
+          <span className={styles.title}>{t("prayerTimes")}</span>
           <div className={styles.actions}>
             <Pen
               size={16}
@@ -191,7 +63,7 @@ export const PrayerTimes: React.FC = () => {
           </div>
         </div>
         <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
-        <div className={styles.noPrayers}>{t("noPrayersAvailable")}</div>
+        <div className={styles.noPrayers}>{t("noPrayersSelected")}</div>
       </div>
     );
   }
@@ -199,7 +71,7 @@ export const PrayerTimes: React.FC = () => {
   return (
     <div className={styles.prayerTimesContainer}>
       <div className={styles.headerRow}>
-        <span className={styles.title}>{t("prayerTimes")} </span>
+        <span className={styles.title}>{t("prayerTimes")}</span>
         <div className={styles.actions}>
           <Pen
             size={16}
@@ -212,12 +84,10 @@ export const PrayerTimes: React.FC = () => {
 
       <div className={styles.grid}>
         {sortedVisiblePrayers.map((prayer) => {
-          const minutesUntil = getMinutesUntilPrayer(prayer.calculatedTime);
+          const minutesUntil = getMinutesUntilPrayer(prayer.time);
           const isNear = minutesUntil <= 5 && minutesUntil > 0;
-          const isPassed = isPrayerPassed(prayer.calculatedTime);
-          const time = prayer.calculatedTime
-            ? formatTime(toDate(prayer.calculatedTime)!)
-            : "—:— —";
+          const isPassed = isPrayerPassed(prayer.time);
+          const time = prayer.time ? formatTime(toDate(prayer.time)!) : "—:— —";
 
           return (
             <div
@@ -232,7 +102,7 @@ export const PrayerTimes: React.FC = () => {
                   {t("in")} {minutesUntil} {t("minutes")}
                 </div>
               )}
-              <div className={styles.prayerName}>{t(prayer.originalName)}</div>
+              <div className={styles.prayerName}>{t(prayer.name)}</div>
               <div className={styles.prayerTime}>{time}</div>
             </div>
           );

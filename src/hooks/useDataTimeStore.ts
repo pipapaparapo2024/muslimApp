@@ -11,9 +11,9 @@ export const formatDate = (date: Date, format: string): string => {
     .replace("yyyy", String(year))
     .replace("yy", yy)
     .replace("MM", month)
-    .replace("M", String(date.getMonth() + 1)) // без ведущего нуля
+    .replace("M", String(date.getMonth() + 1)) 
     .replace("dd", day)
-    .replace("d", String(date.getDate())); // без ведущего нуля
+    .replace("d", String(date.getDate()));
 };
 
 interface DataTimeState {

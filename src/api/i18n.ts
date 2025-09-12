@@ -50,7 +50,7 @@ const resources = {
       viewTodaysSalah: "View today's Salah times and upcoming prayers.",
       in: "In",
       minutes: "min",
-
+      noPrayersSelected: "No Prayers Selected",
       // Qibla
       faceTheKaaba: "Face the Kaaba",
       useMapForSalah: "Use the map to align yourself correctly for Salah.",
@@ -309,6 +309,7 @@ const resources = {
       // Qibla
       faceTheKaaba: "مواجهة الكعبة",
       useMapForSalah: "استخدم الخريطة لمحاذاة نفسك بشكل صحيح للصلاة.",
+      noPrayersSelected: "لم يتم اختيار أي صلاة",
 
       // QnA
       needGuidance: "تحتاج إلى توجيه؟",
