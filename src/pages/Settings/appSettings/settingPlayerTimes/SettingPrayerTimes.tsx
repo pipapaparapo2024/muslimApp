@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "./PrayerSettings.module.css";
+import styles from "./SettingPrayerTimes.module.css";
 import { usePrayerApiStore } from "../../../../hooks/usePrayerApiStore";
 import { t } from "i18next";
 import { PageWrapper } from "../../../../shared/PageWrapper";
