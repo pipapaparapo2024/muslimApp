@@ -31,7 +31,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     console.log("backendLanguage", backendLanguage);
     if (backendLanguage.includes("English")) {
       return "en";
-    } else if (backendLanguage.includes("Arabic")) {
+    } else if (backendLanguage.includes("Simple Arabic")) {
       return "ar";
     }
 
