@@ -47,7 +47,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           });
 
           const data = response.data;
-
+          console.log("response",response)
           if (data.status === "ok" && data.data?.prayers) {
             set({ prayers: data.data.prayers, isLoading: false });
           } else {
