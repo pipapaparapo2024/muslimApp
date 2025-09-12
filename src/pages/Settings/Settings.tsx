@@ -61,7 +61,9 @@ export const Settings: React.FC = () => {
               <div className={styles.title}>{t("region")}</div>
             </div>
             <div className={styles.settingItemRight}>
-              <div className={styles.description}>{country}, {city}</div>
+              <div className={styles.description}>
+                {country}, {city}
+              </div>
               {language === "ar" ? (
                 <ChevronLeft size={24} />
               ) : (
@@ -77,7 +79,10 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Languages strokeWidth={1.5}color="var(--color-icon-secondary)" />
+                <Languages
+                  strokeWidth={1.5}
+                  color="var(--color-icon-secondary)"
+                />
               </div>
               <div className={styles.title}>{t("language")}</div>
             </div>
@@ -98,7 +103,10 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <Calendar strokeWidth={1.5} color="var(--color-icon-secondary)" />
+                <Calendar
+                  strokeWidth={1.5}
+                  color="var(--color-icon-secondary)"
+                />
               </div>
               <div className={styles.title}>{t("dateTime")}</div>
             </div>
@@ -187,7 +195,10 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <FileText strokeWidth={1.5} color="var(--color-icon-secondary)" />
+                <FileText
+                  strokeWidth={1.5}
+                  color="var(--color-icon-secondary)"
+                />
               </div>
               <div className={styles.title}>{t("termsOfUse")}</div>
             </div>
@@ -207,7 +218,10 @@ export const Settings: React.FC = () => {
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
-                <MessageCircle strokeWidth={1.5} color="var(--color-icon-secondary)" />
+                <MessageCircle
+                  strokeWidth={1.5}
+                  color="var(--color-icon-secondary)"
+                />
               </div>
               <div className={styles.title}>{t("contactUs")}</div>
             </div>

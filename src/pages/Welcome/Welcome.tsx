@@ -127,10 +127,4 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-// import { useNavigate } from "react-router-dom";
-// export const Welcome: React.FC = () => {
-//   const navigate = useNavigate();
-//   return (
-//     <div onClick={() => navigate("/home")}>аааааааааааааааааааааааааа</div>
-//   );
-// };
+

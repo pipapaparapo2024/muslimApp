@@ -43,9 +43,8 @@ export const useLanguage = () => {
   };
 
   const changeLanguage = async (newLang: Language) => {
-    if (!SUPPORTED_LANGUAGES.includes(newLang) || isChanging) return;
-
     setIsChanging(true);
+    console.log("newLang",newLang)
     try {
       applyLanguageStyles(newLang);
       localStorage.setItem(LANGUAGE_KEY, newLang);
