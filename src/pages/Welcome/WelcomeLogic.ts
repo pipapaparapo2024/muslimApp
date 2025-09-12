@@ -11,6 +11,8 @@ import qnaImage from "../../assets/image/get.png";
 import i18n from "../../api/i18n";
 import { quranApi } from "../../api/api";
 
+const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
+type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 interface Step {
   title: string;
@@ -18,7 +20,7 @@ interface Step {
   image: string;
 }
 
-const fetchLanguageFromBackend = async () => {
+const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
     const token = localStorage.getItem("accessToken");
     if (!token) return null;
@@ -26,12 +28,9 @@ const fetchLanguageFromBackend = async () => {
     const response = await quranApi.get("api/v1/settings/languages/selected", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const backendLanguage = response.data.data.language.languageName;
-    if (backendLanguage.includes('English')) {
-      return 'en';
-    } else if (backendLanguage.includes('Arabic')) {
-      return 'ar';
-    }
+    const backendLanguage = response.data.data.language.id;
+    console.log("backendLanguage",backendLanguage)
+    return backendLanguage;
   } catch (error) {
     console.error("Error fetching language:", error);
     return null;
