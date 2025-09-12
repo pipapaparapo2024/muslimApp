@@ -1,30 +1,38 @@
 import { useState, useEffect } from "react";
 import i18n from "../api/i18n";
 import { quranApi } from "../api/api";
+export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
+export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
+export interface LanguageData {
+  code: Language;
+  name: string;
+  url: string;
+}
+
+export const LANGUAGE_MAP: Record<Language, string> = {
+  en: "English",
+  ar: "Arabic",
+};
+
+export const applyLanguageStyles = (lang: Language): void => {
+  const html = document.documentElement;
+  html.classList.remove("en", "ar");
+  html.classList.add(lang);
+  html.setAttribute("lang", lang);
+  html.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+};
 const LANGUAGE_KEY = "preferred-language";
-const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
-type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 export const useLanguage = () => {
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
-  const [isInitialized, setIsInitialized] = useState(i18n.isInitialized);
   const [isChanging, setIsChanging] = useState(false);
-
-  const applyLanguageStyles = (lang: Language) => {
-    const html = document.documentElement;
-    html.classList.remove("en", "ar");
-    html.classList.add(lang);
-    html.setAttribute("lang", lang);
-    html.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
-  };
 
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
-      console.log("langlang",lang)
       const token = localStorage.getItem("accessToken");
       if (!token) return;
-      console.log("langlanglang", lang);
+      
       await quranApi.post(
         "api/v1/settings/languages",
         { languageId: lang },
@@ -53,41 +61,22 @@ export const useLanguage = () => {
   };
 
   useEffect(() => {
-    const initializeLanguage = async () => {
-      try {
-        const saved = localStorage.getItem(LANGUAGE_KEY) as Language;
-        const targetLanguage =
-          saved && SUPPORTED_LANGUAGES.includes(saved) ? saved : "en";
-
-        if (targetLanguage !== i18n.language) {
-          applyLanguageStyles(targetLanguage);
-          await i18n.changeLanguage(targetLanguage);
-          setLanguage(targetLanguage);
-        }
-
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Language initialization error:", error);
-        setIsInitialized(true);
+    const handleLanguageChanged = (lng: string) => {
+      if (SUPPORTED_LANGUAGES.includes(lng as Language)) {
+        const lang = lng as Language;
+        setLanguage(lang);
+        applyLanguageStyles(lang);
       }
     };
 
-    if (i18n.isInitialized) {
-      initializeLanguage();
-    } else {
-      i18n.on("initialized", initializeLanguage);
-    }
-
-    return () => {
-      i18n.off("initialized", initializeLanguage);
-    };
+    i18n.on('languageChanged', handleLanguageChanged);
+    return () => { i18n.off('languageChanged', handleLanguageChanged); };
   }, []);
 
   return {
     language,
     changeLanguage,
     languageLabel: language === "ar" ? i18n.t("arabic") : i18n.t("english"),
-    isLanguageReady: isInitialized,
     isChanging,
   };
 };

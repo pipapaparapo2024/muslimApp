@@ -4,12 +4,13 @@ import { Check } from "lucide-react";
 import en from "../../../assets/icons/united-king.svg";
 import ar from "../../../assets/icons/saudi-arab.svg";
 import { t } from "i18next";
+import { type Language } from "../../../hooks/useLanguages";
 
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
-  currentLanguage?: "en" | "ar";
-  onLanguageChange?: (lang: "en" | "ar") => void;
+  currentLanguage?: Language;
+  onLanguageChange?: (lang: Language) => void;
 }
 
 export const ModalLanguage: React.FC<LanguageModalProps> = ({
@@ -21,11 +22,11 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   if (!isOpen) return null;
 
   const languages = [
-    { code: "en", name: t("english"), url: en },
-    { code: "ar", name: t("arabic"), url: ar },
-  ] as const;
+    { code: "en" as Language, name: t("english"), url: en },
+    { code: "ar" as Language, name: t("arabic"), url: ar },
+  ];
 
-  const handleSelect = (lang: "en" | "ar") => {
+  const handleSelect = (lang: Language) => {
     onLanguageChange?.(lang);
     onClose?.();
   };
@@ -35,29 +36,21 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("languageModal")}</h2>
-          <button className={styles.closeButton} onClick={onClose}>
-            ×
-          </button>
+          <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
 
-        <p className={styles.modalDescription}>
-          {t("selectLanguages")}
-        </p>
+        <p className={styles.modalDescription}>{t("selectLanguages")}</p>
 
         <div className={styles.options}>
           {languages.map((lang) => (
             <div
               key={lang.code}
-              className={`${styles.optionBlock} ${
-                currentLanguage === lang.code ? styles.selected : ""
-              }`}
+              className={`${styles.optionBlock} ${currentLanguage === lang.code ? styles.selected : ""}`}
               onClick={() => handleSelect(lang.code)}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  handleSelect(lang.code);
-                }
+                if (e.key === "Enter" || e.key === " ") handleSelect(lang.code);
               }}
             >
               <div className={styles.option}>

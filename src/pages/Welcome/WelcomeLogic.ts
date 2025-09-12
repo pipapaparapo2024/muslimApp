@@ -10,9 +10,7 @@ import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import i18n from "../../api/i18n";
 import { quranApi } from "../../api/api";
-
-const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
-type Language = (typeof SUPPORTED_LANGUAGES)[number];
+import {type Language, applyLanguageStyles } from "../../hooks/useLanguages";
 
 interface Step {
   title: string;
@@ -28,14 +26,17 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     const response = await quranApi.get("api/v1/settings/languages/selected", {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
     const backendLanguage = response.data.data.language.languageName;
-    console.log("backendLanguage",backendLanguage)
-    if (backendLanguage.includes('English')) {
-      return 'en';
-    } else if (backendLanguage.includes('Arabic')) {
-      return 'ar';
+    const normalized = backendLanguage.toLowerCase();
+    
+    if (normalized.includes("english") || normalized.includes("eng")) {
+      return "en";
+    } else if (normalized.includes("arabic") || normalized.includes("arab")) {
+      return "ar";
     }
-    return backendLanguage
+    
+    return null;
   } catch (error) {
     console.error("Error fetching language:", error);
     return null;
@@ -45,56 +46,26 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const {
-    fetchFromIpApi,
-    getLocationData,
-    isLoading: isGeoLoading,
-    langcode,
-  } = useGeoStore();
-  const { sendUserSettings, isLoading: isSettingsLoading } =
-    useUserParametersStore();
+  const { fetchFromIpApi, getLocationData, isLoading: isGeoLoading, langcode } = useGeoStore();
+  const { sendUserSettings, isLoading: isSettingsLoading } = useUserParametersStore();
+  
   const steps: Step[] = [
-    {
-      title: t("prayerReminders"),
-      desc: t("stayOnTrack"),
-      image: prayerRemindersImage,
-    },
-    {
-      title: t("readTheQuran"),
-      desc: t("accessQuran"),
-      image: quranImage,
-    },
-    {
-      title: t("scanYourFood"),
-      desc: t("checkHalal"),
-      image: scannerImage,
-    },
-    {
-      title: t("trustedAnswers"),
-      desc: t("receiveAnswers"),
-      image: qnaImage,
-    },
+    { title: t("prayerReminders"), desc: t("stayOnTrack"), image: prayerRemindersImage },
+    { title: t("readTheQuran"), desc: t("accessQuran"), image: quranImage },
+    { title: t("scanYourFood"), desc: t("checkHalal"), image: scannerImage },
+    { title: t("trustedAnswers"), desc: t("receiveAnswers"), image: qnaImage },
   ];
 
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [initializationStatus, setInitializationStatus] = useState<
-    "pending" | "loading" | "complete" | "error"
-  >("pending");
+  const [initializationStatus, setInitializationStatus] = useState<"pending" | "loading" | "complete" | "error">("pending");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const {
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    error: authError,
-    wasLogged,
-  } = useTelegram();
+  const { isAuthenticated, isLoading: isAuthLoading, error: authError, wasLogged } = useTelegram();
 
-  // Основная функция инициализации
   const initializeApp = useCallback(async () => {
     if (initializationStatus !== "pending") return;
 
@@ -102,12 +73,9 @@ export const useWelcomeLogic = () => {
     setErrorMessage(null);
 
     try {
-      console.log("🔄 Шаг 1: Получение геоданных...");
       await fetchFromIpApi();
-
-      console.log("✅ Геоданные получены");
-      console.log("🔄 Шаг 2: Отправка настроек...");
       const locationData = getLocationData();
+      
       await sendUserSettings({
         city: locationData.city,
         countryName: locationData.country,
@@ -115,118 +83,70 @@ export const useWelcomeLogic = () => {
         timeZone: locationData.timeZone,
       });
 
-      console.log("✅ Настройки отправлены");
-      console.log("🔄 Шаг 3: Получение языка...");
       const userLanguage = await fetchLanguageFromBackend();
-      console.log("userLanguage",userLanguage)
-      // Меняем язык только если получили корректный с бэкенда
-      if (userLanguage) {
-        i18n.changeLanguage(userLanguage);
-        console.log("✅ Язык получен с бэкенда:", userLanguage);
-      } else {
-        console.log("ℹ️ Язык с бэкенда не получен, используем язык по умолчанию из i18n");
-        // Не устанавливаем принудительно 'en', используем тот, что уже есть в i18n
-      }
       
+      if (userLanguage) {
+        await i18n.changeLanguage(userLanguage);
+        applyLanguageStyles(userLanguage);
+        localStorage.setItem("preferred-language", userLanguage);
+      }
+
       setInitializationStatus("complete");
     } catch (error) {
-      console.error("❌ Ошибка инициализации:", error);
+      console.error("Initialization error:", error);
       setInitializationStatus("error");
-      setErrorMessage(
-        error instanceof Error ? error.message : "Unknown initialization error"
-      );
+      setErrorMessage(error instanceof Error ? error.message : "Unknown error");
     }
-  }, [
-    fetchFromIpApi,
-    getLocationData,
-    sendUserSettings,
-    langcode,
-    initializationStatus,
-  ]);
+  }, [fetchFromIpApi, getLocationData, sendUserSettings, langcode, initializationStatus]);
 
-  // Запуск инициализации при монтировании
   useEffect(() => {
     initializeApp();
   }, [initializeApp]);
 
-  // Проверка авторизации после успешной инициализации
   useEffect(() => {
     if (initializationStatus === "complete" && !isAuthLoading) {
-      if (isAuthenticated && wasLogged === true) {
-        console.log("✅ Пользователь уже логинился, переходим на главную");
+      if (isAuthenticated && wasLogged) {
         navigate("/home", { replace: true });
-      } else if (isAuthenticated && wasLogged === false) {
-        console.log("✅ Пользователь аутентифицирован, показываем онбординг");
-        // Продолжаем показывать welcome
       } else if (!isAuthenticated && authError) {
-        console.log("❌ Ошибка авторизации:", authError);
         setInitializationStatus("error");
         setErrorMessage(authError);
       }
     }
-  }, [
-    initializationStatus,
-    isAuthenticated,
-    isAuthLoading,
-    wasLogged,
-    authError,
-    navigate,
-  ]);
+  }, [initializationStatus, isAuthenticated, isAuthLoading, wasLogged, authError, navigate]);
 
-  // Предзагрузка изображений (только после успешной инициализации)
   useEffect(() => {
     if (initializationStatus !== "complete") return;
 
     let isMounted = true;
-
     const preloadImages = () => {
-      const imagePromises = steps.map((step) => {
-        return new Promise<void>((resolve) => {
+      const imagePromises = steps.map(step => {
+        return new Promise<void>(resolve => {
           const img = new Image();
           img.src = step.image;
           img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn(`Image failed to load: ${step.image}`);
-            resolve();
-          };
+          img.onerror = () => resolve();
         });
       });
 
-      Promise.all(imagePromises)
-        .then(() => {
-          if (isMounted) {
-            setIsLoaded(true);
-          }
-        })
-        .catch(() => {
-          if (isMounted) {
-            setIsLoaded(true);
-          }
-        });
+      Promise.all(imagePromises).then(() => {
+        if (isMounted) setIsLoaded(true);
+      });
     };
 
     preloadImages();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [initializationStatus, steps]);
 
-  // Функции управления шагами
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
 
     setIsAnimating(true);
     setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    setStep((s) => s + 1);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    setStep(s => s + 1);
     setFade(false);
-
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+    setTimeout(() => setIsAnimating(false), 300);
   }, [isAnimating, step, steps.length]);
 
   const handlePrev = useCallback(async () => {
@@ -234,15 +154,11 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    setStep((s) => s - 1);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    setStep(s => s - 1);
     setFade(false);
-
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+    setTimeout(() => setIsAnimating(false), 300);
   }, [isAnimating, step]);
 
   const handleStart = useCallback(async () => {
@@ -250,67 +166,38 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    console.log("Завершаем онбординг, сохраняем в localStorage");
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
     localStorage.setItem("onboardingComplete", "1");
     navigate("/home", { replace: true });
   }, [isAnimating, navigate]);
 
-  // Обработка свайпов
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isLoaded || initializationStatus !== "complete") return;
 
     let startX = 0;
-    let endX = 0;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-    };
-
+    const onTouchStart = (e: TouchEvent) => { startX = e.touches[0].clientX; };
     const onTouchEnd = (e: TouchEvent) => {
       if (isAnimating) return;
-
-      endX = e.changedTouches[0].clientX;
-      if (endX - startX > 60 && step > 0) {
-        handlePrev();
-      } else if (startX - endX > 60 && step < steps.length - 1) {
-        handleNext();
-      }
+      
+      const endX = e.changedTouches[0].clientX;
+      if (endX - startX > 60 && step > 0) handlePrev();
+      else if (startX - endX > 60 && step < steps.length - 1) handleNext();
     };
 
     container.addEventListener("touchstart", onTouchStart);
     container.addEventListener("touchend", onTouchEnd);
-
+    
     return () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [
-    step,
-    isLoaded,
-    isAnimating,
-    handlePrev,
-    handleNext,
-    steps.length,
-    initializationStatus,
-  ]);
+  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length, initializationStatus]);
 
   return {
-    steps,
-    step,
-    fade,
-    isLoaded: isLoaded && initializationStatus === "complete",
-    isAnimating,
-    containerRef,
-    error: errorMessage || authError,
-    initializationStatus,
-    handleNext,
-    handlePrev,
-    handleStart,
-    isGeoLoading,
-    isSettingsLoading,
+    steps, step, fade, isLoaded: isLoaded && initializationStatus === "complete", isAnimating,
+    containerRef, error: errorMessage || authError, initializationStatus, handleNext, handlePrev,
+    handleStart, isGeoLoading, isSettingsLoading
   };
 };
