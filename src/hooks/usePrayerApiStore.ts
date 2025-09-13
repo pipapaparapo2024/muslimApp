@@ -95,9 +95,8 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       updatePrayerSettings: async (settings: PrayerSetting[]) => {
         set({ isLoading: true, error: null });
-
+        console.log("settings",settings)
         try {
-          // ИСПРАВЛЕНО: правильный формат согласно API документации
           const response = await quranApi.post(`/api/v1/prayers/settings`, {
             praySettings: settings.map((setting) => ({
               id: setting.id,
