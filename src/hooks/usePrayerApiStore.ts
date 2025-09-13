@@ -72,7 +72,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
           const data = response.data;
           console.log("data", data);
-          if (data.status === "ok" && data.data?.praysettings) {
+          if (data.status == "ok" && data.data?.praySettings) {
             set({ prayerSetting: data.data.praysettings, isLoading: false });
           } else {
             throw new Error("Invalid response format fetchPrayerSettings");
