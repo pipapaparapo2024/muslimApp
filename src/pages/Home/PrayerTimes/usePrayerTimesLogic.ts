@@ -59,7 +59,6 @@ export const usePrayerTimesLogic = ({
     if (geoCoords) {
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-    console.log("prayer", prayers);
   }, [geoCoords]);
 
   // Загрузка настроек при монтировании
