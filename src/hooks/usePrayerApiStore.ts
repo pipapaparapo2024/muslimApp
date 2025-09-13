@@ -51,7 +51,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-
+          console.log("responsePrayer",response)
           set({ prayers: response.data.data.prayers, isLoading: false });
         } catch (error) {
           set({
