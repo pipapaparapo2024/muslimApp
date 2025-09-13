@@ -75,7 +75,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           if (data.status === "ok" && data.data?.praysettings) {
             set({ prayerSetting: data.data.praysettings, isLoading: false });
           } else {
-            throw new Error("Invalid response format");
+            throw new Error("Invalid response format fetchPrayerSettings");
           }
         } catch (error) {
           set({
