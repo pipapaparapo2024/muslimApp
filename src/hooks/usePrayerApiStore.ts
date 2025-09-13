@@ -73,11 +73,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-          console.log("hello fucking world")
-          const data = response.data;
-          console.log("dataPraysettings", data);
-          if (data.status == "ok" && data.data?.praySettings) {
-            set({ prayerSetting: data.data.praysettings, isLoading: false });
+          console.log("dataPraysettings", response);
+          if (response.data.status == "ok" && response.data.data?.praySettings) {
+            set({ prayerSetting: response.data.data.praysettings, isLoading: false });
           } else {
             throw new Error("Invalid response format fetchPrayerSettings");
           }
