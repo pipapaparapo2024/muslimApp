@@ -36,7 +36,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
   persist(
     (set, get) => ({
       prayers: [],
-      prayerSetting:[],
+      prayerSetting: [],
       isLoading: false,
       error: null,
       userId: null,
@@ -51,8 +51,12 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-          console.log("responsePrayer",response)
-          set({ prayers: response.data.data.prayers, isLoading: false });
+          console.log("responsePrayer", response);
+          if (response.data.status == "ok" && response.data.data?.prayers) {
+            set({ prayers: response.data.data.prayers, isLoading: false });
+          } else {
+            throw new Error("Invalid response format fetchPrayerSettings");
+          }
         } catch (error) {
           set({
             error:
