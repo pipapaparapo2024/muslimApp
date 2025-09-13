@@ -1,43 +1,10 @@
 import { create } from "zustand";
 import { quranApi } from "../api/api";
 import { isErrorWithMessage } from "../api/api";
-import { ProductStatus } from "./useScannerStore";
-
-export interface HaranProduct {
-  isHaran: boolean;
-  name: string;
-  reason: string;
-  source: string;
-}
-
-export interface QaItem {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  products: string[];
-  haranProducts: HaranProduct[];
-  status: typeof ProductStatus;
-}
-
-export interface HistoryDateGroup {
-  date: string;
-  qa: QaItem[];
-}
-
-export interface HistoryResponse {
-  hasNext: boolean;
-  hasPrev: boolean;
-  history: HistoryDateGroup[];
-  pageAmount: number;
-}
-
-export interface HistoryDetailResponse {
-  item: QaItem;
-}
+import { type ScanResult, type HistoryResponse, type HistoryDetailResponse } from "./useScannerStore";
 
 interface HistoryState {
-  history: QaItem[];
+  history: ScanResult[];
   isLoading: boolean;
   error: string | null;
   currentPage: number;
@@ -46,12 +13,12 @@ interface HistoryState {
   hasPrev: boolean;
 
   fetchHistory: (page?: number) => Promise<void>;
-  fetchHistoryItem: (id: string) => Promise<QaItem | null>;
+  fetchHistoryItem: (id: string) => Promise<ScanResult | null>;
   clearHistory: () => void;
 }
 
 export const useHistoryScannerStore = create<HistoryState>()(
-  (set, ) => ({
+  (set,) => ({
     history: [],
     isLoading: false,
     error: null,
@@ -94,7 +61,7 @@ export const useHistoryScannerStore = create<HistoryState>()(
       }
     },
 
-    fetchHistoryItem: async (id: string): Promise<QaItem | null> => {
+    fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
       set({ isLoading: true, error: null });
 
       try {
@@ -129,22 +96,3 @@ export const useHistoryScannerStore = create<HistoryState>()(
     },
   })
 );
-
-// Вспомогательные функции для работы с историей
-export const historyUtils = {
-  groupByDate: (history: QaItem[]) => {
-    // Создаем объект для группировки по дате
-    const grouped = history.reduce((acc, item) => {
-      // Предполагаем, что дата есть в id или создаем из timestamp
-      const date = new Date().toISOString().split("T")[0]; // Заглушка
-      
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(item);
-      return acc;
-    }, {} as Record<string, QaItem[]>);
-
-    return grouped;
-  },
-};

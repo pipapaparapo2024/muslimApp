@@ -236,7 +236,7 @@ const resources = {
       // Not Scanned
       scanFailed: "Scan failed or timed out",
       analysisCouldntComplete:
-        "The image analysis couldn't be completed. Please try scanning again or check your connection.",
+        "Image analysis could not be completed (possibly incorrect image). Please try scanning again or check your connection.",
       scanFirstProduct: "Scan first product",
 
       // Scanner words
@@ -485,11 +485,9 @@ const resources = {
       seconds: "ثواني",
       // Not Scanned
       scanFailed: "فشل المسح أو انتهى الوقت",
-      analysisCouldntComplete:
-        "لم يكتمل تحليل الصورة. يرجى المحاولة مرة أخرى أو التحقق من اتصالك.",
+      analysisCouldntComplete:"لا يمكن إكمال تحليل الصورة (ربما تكون الصورة غير صحيحة). يرجى محاولة المسح مرة أخرى أو التحقق من اتصالك.",
       scanFirstProduct: "مسح المنتج الأول",
 
-      //Scaner IOS Android
 
       // Scanner words
       copy: "نسخ",

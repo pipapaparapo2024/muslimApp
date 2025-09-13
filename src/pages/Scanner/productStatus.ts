@@ -10,17 +10,20 @@ export const isHalal = (status: ProductStatusType): boolean => {
   return status === "halal";
 };
 
+export const isMushbooh = (status: ProductStatusType): boolean => {
+  return status === "mushbooh";
+};
+
 export const needsAttention = (status: ProductStatusType): boolean => {
-  return status === "warning" || status === "needs_info";
+  return status === "mushbooh" || status === "needs_info";
 };
 
 export const getStatusTranslationKey = (status: ProductStatusType): string => {
   const translationMap: Record<ProductStatusType, string> = {
     "halal": "halal",
     "haram": "haram",
-    "warning": "warning",
+    "mushbooh": "mushbooh",
     "needs_info": "needsInfo",
-    "unknown": "unknown"
   };
   return translationMap[status];
 };
@@ -28,15 +31,15 @@ export const getStatusTranslationKey = (status: ProductStatusType): string => {
 export const getStatusIcon = (status: ProductStatusType, size: number = 24): React.ReactElement => {
   switch (status) {
     case "halal":
-      return React.createElement(CircleCheck, { size, strokeWidth: 1.5 });
+      return React.createElement(CircleCheck, { size, color: "#10B981", strokeWidth: 1.5 });
     case "haram":
-      return React.createElement(CircleX, { size, strokeWidth: 1.5 });
-    case "warning":
-      return React.createElement(TriangleAlert, { size, strokeWidth: 1.5 });
+      return React.createElement(CircleX, { size, color: "#EF4444", strokeWidth: 1.5 });
+    case "mushbooh":
+      return React.createElement(TriangleAlert, { size, color: "#F59E0B", strokeWidth: 1.5 });
     case "needs_info":
-      return React.createElement(HelpCircle, { size, strokeWidth: 1.5 });
+      return React.createElement(HelpCircle, { size, color: "#6B7280", strokeWidth: 1.5 });
     default:
-      return React.createElement(HelpCircle, { size, strokeWidth: 1.5 });
+      return React.createElement(HelpCircle, { size, color: "#6B7280", strokeWidth: 1.5 });
   }
 };
 
@@ -44,9 +47,18 @@ export const getStatusClassName = (status: ProductStatusType, styles: any): stri
   const classMap: Record<ProductStatusType, string> = {
     "halal": styles.halal,
     "haram": styles.haram,
-    "warning": styles.warning,
+    "mushbooh": styles.mushbooh,
     "needs_info": styles.needsInfo,
-    "unknown": styles.unknown
   };
-  return classMap[status] || styles.unknown;
+  return classMap[status] || styles.needsInfo;
+};
+
+export const getStatusColor = (status: ProductStatusType): string => {
+  const colorMap: Record<ProductStatusType, string> = {
+    "halal": "#10B981", // green
+    "haram": "#EF4444", // red
+    "mushbooh": "#F59E0B", // yellow
+    "needs_info": "#6B7280", // gray
+  };
+  return colorMap[status] || "#6B7280";
 };

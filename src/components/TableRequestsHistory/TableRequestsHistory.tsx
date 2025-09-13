@@ -4,7 +4,7 @@ import styles from "./TableRequestsHistory.module.css";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ClickHistory {
   text: string;
@@ -13,7 +13,7 @@ interface ClickHistory {
 export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft } =
+  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft,fetchUserData } =
     usePremiumStore();
   const navigate = useNavigate();
 
@@ -25,7 +25,10 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
     return t("noRequests");
   };
 
-  console.log("Table values:", { hasPremium, requestsLeft, premiumDaysLeft, isLoading });
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
 
   return (
     <div className={styles.header}>

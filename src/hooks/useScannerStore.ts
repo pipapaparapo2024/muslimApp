@@ -8,16 +8,26 @@ import { AxiosError } from "axios";
 export const ProductStatus = {
   HALAL: "halal",
   HARAM: "haram",
-  WARNING: "warning",
+  MUSHBOOH: "mushbooh",
   NEEDS_INFO: "needs_info",
-  UNKNOWN: "unknown",
 } as const;
 
-// Создаем тип для значений статуса
-export type ProductStatusType = typeof ProductStatus[keyof typeof ProductStatus];
+export type ProductStatusType =
+  (typeof ProductStatus)[keyof typeof ProductStatus];
 
-interface ApiScanResponse {
+export interface HaramProduct {
+  name: string;
+  reason: string;
+  source: string;
+}
+
+export interface ScanResult {
   id: string;
+  verdict: ProductStatusType;
+  engType: string;
+  description: string;
+  products: string[];
+  haramProducts: HaramProduct[];
 }
 
 export interface HistoryItem {
@@ -25,9 +35,27 @@ export interface HistoryItem {
   imageUrl: string;
   userId: string;
   date: string;
-  qa: boolean;
   timestamp: string;
-  status: ProductStatusType; // Используем тип значения, а не весь объект
+  status: ProductStatusType;
+  data?: ScanResult; // Полные данные скана
+}
+
+export interface ApiScanResponse extends ScanResult {
+  id: string;
+}
+
+export interface HistoryResponse {
+  hasNext: boolean;
+  hasPrev: boolean;
+  history: Array<{
+    date: string;
+    qa: ScanResult[];
+  }>;
+  pageAmount: number;
+}
+
+export interface HistoryDetailResponse {
+  item: ScanResult;
 }
 
 interface ScannerState {
@@ -102,7 +130,7 @@ export const useScannerStore = create<ScannerState>()(
           controller.abort();
           setError("Превышено время обработки. Попробуйте еще раз.");
           setShowAnalyzing(false);
-        }, 10000);
+        }, 20000);
 
         try {
           const reader = new FileReader();
@@ -137,14 +165,21 @@ export const useScannerStore = create<ScannerState>()(
             imageUrl,
             userId: "current-user",
             date: timestamp.split("T")[0],
-            qa: false,
             timestamp,
-            status: ProductStatus.UNKNOWN, // Теперь это строка, а не объект
+            status: data.verdict,
+            data: data,
           };
 
           setScanResult(historyItem);
           addToHistory(historyItem);
           setShowAnalyzing(false);
+
+          // Если статус needs_info - показываем соответствующее уведомление
+          if (data.verdict === ProductStatus.NEEDS_INFO) {
+            WebApp.showAlert(
+              "Не удалось определить состав. Пожалуйста, сделайте более четкое фото состава продукта."
+            );
+          }
         } catch (error) {
           clearTimeout(maxProcessingTimeout);
           setShowAnalyzing(false);

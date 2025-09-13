@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export const QnA: React.FC = () => {
-  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
+  const { requestsLeft, hasPremium } = usePremiumStore();
 
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
@@ -21,9 +21,6 @@ export const QnA: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
 
   // Предзагрузка изображения
   useEffect(() => {
