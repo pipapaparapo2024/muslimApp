@@ -24,6 +24,7 @@ export const SettingPrayerTimes: React.FC = () => {
     };
 
     loadSettings();
+    console.log("prayerSetting",prayerSetting)
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
