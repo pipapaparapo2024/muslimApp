@@ -5,12 +5,12 @@ import { t } from "i18next";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
 import { Info } from "lucide-react";
+import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 
 export const SettingPrayerTimes: React.FC = () => {
   const {
     prayerSetting,
     isLoading,
-    error,
     togglePrayerSelection,
     togglePrayerNotification,
     setAllPrayersSelected,
@@ -78,15 +78,17 @@ export const SettingPrayerTimes: React.FC = () => {
     setLocalLoading(false);
   };
 
-  const allPrayersEnabled = prayerSetting.length > 0 
-    ? prayerSetting.every((prayer) => prayer.hasSelected)
-    : false;
+  const allPrayersEnabled =
+    prayerSetting.length > 0
+      ? prayerSetting.every((prayer) => prayer.hasSelected)
+      : false;
 
-  const allNotificationsEnabled = prayerSetting.length > 0
-    ? prayerSetting
-        .filter((prayer) => prayer.hasSelected)
-        .every((prayer) => prayer.hasTelegramNotification)
-    : false;
+  const allNotificationsEnabled =
+    prayerSetting.length > 0
+      ? prayerSetting
+          .filter((prayer) => prayer.hasSelected)
+          .every((prayer) => prayer.hasTelegramNotification)
+      : false;
 
   const handleToggleAllPrayers = async () => {
     if (allPrayersEnabled) {
@@ -104,21 +106,11 @@ export const SettingPrayerTimes: React.FC = () => {
     }
   };
 
-  if (error) {
-    return (
-      <div className={styles.settingsContainer}>
-        <div className={styles.error}>
-          {t("errorLoadingSettings")}: {error}
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading || localLoading) {
     return (
-      <div className={styles.settingsContainer}>
-        <div className={styles.loading}>{t("loadingSettings")}</div>
-      </div>
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
     );
   }
 
