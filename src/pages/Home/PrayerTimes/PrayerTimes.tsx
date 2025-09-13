@@ -8,6 +8,8 @@ import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
+import { PageWrapper } from "../../../shared/PageWrapper";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const PrayerTimes: React.FC = () => {
   const { isLoading, error, fetchPrayers, prayers } = usePrayerApiStore();
@@ -33,18 +35,12 @@ export const PrayerTimes: React.FC = () => {
     is24Hour,
   });
 
-  if (error) {
-    return (
-      <div className={styles.prayerTimesContainer}>
-        <div className={styles.error}>
-          {t("errorLoadingPrayers")}: {error}
-        </div>
-      </div>
-    );
-  }
-
   if (isLoading) {
-    return <div>Loading</div>;
+    return (
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
   }
 
   if (prayers.length === 0) {

@@ -35,7 +35,7 @@ export const ModalPrayer: React.FC<ModalProps> = ({
         <div className={styles.prayerTime}>
           <button
             className={styles.editButton}
-            onClick={() => navigate("/settings")}
+            onClick={() => navigate("/settings/prayerTimes")}
           >
             <div>
               <Pen size={20} />
