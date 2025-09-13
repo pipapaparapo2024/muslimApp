@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./SettingPrayerTimes.module.css";
 import { usePrayerApiStore } from "../../../../hooks/usePrayerApiStore";
 import { t } from "i18next";
@@ -15,8 +15,16 @@ export const SettingPrayerTimes: React.FC = () => {
     togglePrayerNotification,
     setAllPrayersSelected,
     setAllNotifications,
+    fetchPrayerSettings,
   } = usePrayerApiStore();
 
+  useEffect(() => {
+    const loadSettings = async () => {
+      await fetchPrayerSettings();
+    };
+
+    loadSettings();
+  }, [fetchPrayerSettings]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
 
@@ -46,10 +54,10 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const allPrayersEnabled = prayerSetting.every(prayer => prayer.hasSelected);
+  const allPrayersEnabled = prayerSetting.every((prayer) => prayer.hasSelected);
   const allNotificationsEnabled = prayerSetting
-    .filter(prayer => prayer.hasSelected)
-    .every(prayer => prayer.hasTelegramNotification);
+    .filter((prayer) => prayer.hasSelected)
+    .every((prayer) => prayer.hasTelegramNotification);
 
   const handleToggleAllPrayers = () => {
     if (allPrayersEnabled) {
