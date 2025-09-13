@@ -6,7 +6,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
 import {
   usePrayerApiStore,
-  type PrayerSetting,
+  type Prayers,
 } from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
@@ -34,7 +34,7 @@ export const Settings: React.FC = () => {
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   const { city, country } = useGeoStore();
-  const visiblePrayers = prayers.filter((p: PrayerSetting) => p.hasSelected);
+  const visiblePrayers = prayers.filter((p: Prayers) => p.hasSelected);
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);

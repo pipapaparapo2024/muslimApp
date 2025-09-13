@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { type PrayerSetting } from "../../../hooks/usePrayerApiStore";
+import {
+  type Prayers,
+} from "../../../hooks/usePrayerApiStore";
 
 export const toDate = (
   input: string | Date | undefined | null
@@ -10,7 +12,7 @@ export const toDate = (
 };
 
 export interface UsePrayerTimesLogicProps {
-  prayers: PrayerSetting[];
+  prayers: Prayers[];
   isLoading: boolean;
   error: string | null;
   fetchPrayers: (lat: number, lon: number) => Promise<void>;
@@ -21,10 +23,10 @@ export interface UsePrayerTimesLogicProps {
 
 export interface UsePrayerTimesLogicReturn {
   isModalOpen: boolean;
-  selectedPrayer: PrayerSetting | null;
+  selectedPrayer: Prayers | null;
   now: Date;
-  sortedVisiblePrayers: PrayerSetting[];
-  handlePrayerClick: (prayer: PrayerSetting) => void;
+  sortedVisiblePrayers: Prayers[];
+  handlePrayerClick: (prayer: Prayers) => void;
   handleCloseModal: () => void;
   formatTime: (date: Date) => string;
   getMinutesUntilPrayer: (prayerTime: string | Date | undefined) => number;
@@ -39,7 +41,7 @@ export const usePrayerTimesLogic = ({
   is24Hour,
 }: UsePrayerTimesLogicProps): UsePrayerTimesLogicReturn => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPrayer, setSelectedPrayer] = useState<PrayerSetting | null>(
+  const [selectedPrayer, setSelectedPrayer] = useState<Prayers | null>(
     null
   );
   const [now, setNow] = useState(new Date());
@@ -57,7 +59,7 @@ export const usePrayerTimesLogic = ({
     if (geoCoords) {
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-    console.log("prayer",prayers)
+    console.log("prayer", prayers);
   }, [geoCoords]);
 
   // Загрузка настроек при монтировании
@@ -123,7 +125,7 @@ export const usePrayerTimesLogic = ({
     });
   }, [prayers, now]);
 
-  const handlePrayerClick = (prayer: PrayerSetting) => {
+  const handlePrayerClick = (prayer: Prayers) => {
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
   };

@@ -1,14 +1,17 @@
 import React from "react";
 import styles from "./ModalPrayer.module.css";
 import { useNavigate } from "react-router-dom";
-import { type PrayerSetting } from "../../../hooks/usePrayerApiStore";
+import { type Prayers } from "../../../hooks/usePrayerApiStore";
 import { Pen } from "lucide-react";
 import { t } from "i18next";
-
+interface CombinedPrayer extends Prayers {
+  description?: string;
+  hasTelegramNotification?: boolean;
+}
 interface ModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  prayer: PrayerSetting;
+  prayer: CombinedPrayer;
 }
 
 export const ModalPrayer: React.FC<ModalProps> = ({
@@ -37,7 +40,9 @@ export const ModalPrayer: React.FC<ModalProps> = ({
             className={styles.editButton}
             onClick={() => navigate("/settings/prayerTimes")}
           >
-            <div><Pen size={20}/></div>
+            <div>
+              <Pen size={20} />
+            </div>
             {t("editPrayerSettings")}
           </button>
         </div>

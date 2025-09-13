@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
-import { usePrayerTimesLogic, toDate } from "./prayerTimesLogic";
+import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 
 export const PrayerTimes: React.FC = () => {
-  const { prayers, isLoading, error, fetchPrayers, fetchPrayerSettings } =
+  const { isLoading, error, fetchPrayers, fetchPrayerSettings,prayers } =
     usePrayerApiStore();
   const geoData = useGeoStore((state) => state);
   const is24Hour = useDataTimeStore((state) => state.is24Hour);

@@ -8,7 +8,7 @@ import { Info } from "lucide-react";
 
 export const SettingPrayerTimes: React.FC = () => {
   const {
-    prayers,
+    prayerSetting,
     isLoading,
     error,
     togglePrayerSelection,
@@ -46,8 +46,8 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const allPrayersEnabled = prayers.every(prayer => prayer.hasSelected);
-  const allNotificationsEnabled = prayers
+  const allPrayersEnabled = prayerSetting.every(prayer => prayer.hasSelected);
+  const allNotificationsEnabled = prayerSetting
     .filter(prayer => prayer.hasSelected)
     .every(prayer => prayer.hasTelegramNotification);
 
@@ -120,7 +120,7 @@ export const SettingPrayerTimes: React.FC = () => {
         </div>
 
         <div className={styles.prayerList}>
-          {prayers.map((prayer) => (
+          {prayerSetting.map((prayer) => (
             <div key={prayer.id} className={styles.prayerItem}>
               <div className={styles.prayerHeader}>
                 <div className={styles.prayerName}>{t(prayer.name)}</div>

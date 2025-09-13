@@ -93,7 +93,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.post(`/api/v1/prayers/settings`, {
-            praysettings: settings.map((setting) => ({
+            prayerSetting: settings.map((setting) => ({
               id: setting.id,
               name: setting.name,
               description: setting.description,
