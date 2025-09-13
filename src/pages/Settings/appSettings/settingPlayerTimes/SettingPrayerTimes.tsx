@@ -126,7 +126,7 @@ export const SettingPrayerTimes: React.FC = () => {
             </label>
           </div>
         </div>
-
+{/* 
         <div className={styles.prayerList}>
           {prayerSetting.map((prayer) => (
             <div key={prayer.id} className={styles.prayerItem}>
@@ -169,7 +169,7 @@ export const SettingPrayerTimes: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {selectedPrayer && (
           <ModalPrayer
