@@ -8,12 +8,17 @@ export interface PrayerSetting {
   description: string;
   hasSelected: boolean;
   hasTelegramNotification: boolean;
+}
+export interface Prayers {
+  id: string;
+  name: string;
+  hasSelected: boolean;
   time?: string;
-  calculatedTime?: Date;
 }
 
 interface PrayerApiStore {
-  prayers: PrayerSetting[];
+  prayers: Prayers[];
+  prayerSetting: PrayerSetting[];
   isLoading: boolean;
   error: string | null;
 
@@ -31,6 +36,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
   persist(
     (set, get) => ({
       prayers: [],
+      prayerSetting:[],
       isLoading: false,
       error: null,
       userId: null,
@@ -65,9 +71,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
 
           const data = response.data;
-          console.log("data",data)
+          console.log("data", data);
           if (data.status === "ok" && data.data?.praysettings) {
-            set({ prayers: data.data.praysettings, isLoading: false });
+            set({ prayerSetting: data.data.praysettings, isLoading: false });
           } else {
             throw new Error("Invalid response format");
           }
@@ -115,9 +121,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       },
 
       togglePrayerSelection: async (id: string) => {
-        const { prayers, updatePrayerSettings } = get();
+        const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayers.map((prayer) =>
+        const updatedPrayers = prayerSetting.map((prayer) =>
           prayer.id === id
             ? { ...prayer, hasSelected: !prayer.hasSelected }
             : prayer
@@ -127,9 +133,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       },
 
       togglePrayerNotification: async (id: string) => {
-        const { prayers, updatePrayerSettings } = get();
+        const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayers.map((prayer) =>
+        const updatedPrayers = prayerSetting.map((prayer) =>
           prayer.id === id
             ? {
                 ...prayer,
@@ -142,9 +148,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       },
 
       setAllPrayersSelected: async (selected: boolean) => {
-        const { prayers, updatePrayerSettings } = get();
+        const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayers.map((prayer) => ({
+        const updatedPrayers = prayerSetting.map((prayer) => ({
           ...prayer,
           hasSelected: selected,
           hasTelegramNotification: selected
@@ -156,9 +162,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       },
 
       setAllNotifications: async (enabled: boolean) => {
-        const { prayers, updatePrayerSettings } = get();
+        const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayers.map((prayer) => ({
+        const updatedPrayers = prayerSetting.map((prayer) => ({
           ...prayer,
           hasTelegramNotification: prayer.hasSelected ? enabled : false,
         }));
