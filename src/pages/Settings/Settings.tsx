@@ -4,10 +4,7 @@ import { useLanguage } from "../../hooks/useLanguages";
 import styles from "./Settings.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
-import {
-  usePrayerApiStore,
-  type Prayers,
-} from "../../hooks/usePrayerApiStore";
+import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
 import { useGeoStore } from "../../hooks/useGeoStore";
@@ -34,7 +31,6 @@ export const Settings: React.FC = () => {
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
   const { city, country } = useGeoStore();
-  const visiblePrayers = prayers.filter((p: Prayers) => p.hasSelected);
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);
@@ -135,7 +131,7 @@ export const Settings: React.FC = () => {
             </div>
             <div className={styles.settingItemRight}>
               <div className={styles.description}>
-                {visiblePrayers.length} {t("selected")}
+                {prayers.length} {t("prayers")}
               </div>
               {language === "ar" ? (
                 <ChevronLeft size={24} />

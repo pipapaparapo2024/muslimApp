@@ -12,7 +12,7 @@ export interface PrayerSetting {
 export interface Prayers {
   id: string;
   name: string;
-  hasSelected: boolean;
+  description: string;
   time?: string;
 }
 

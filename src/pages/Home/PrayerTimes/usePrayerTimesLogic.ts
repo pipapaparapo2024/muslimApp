@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-  type Prayers,
-} from "../../../hooks/usePrayerApiStore";
+import { type Prayers } from "../../../hooks/usePrayerApiStore";
 
 export const toDate = (
   input: string | Date | undefined | null
@@ -16,7 +14,6 @@ export interface UsePrayerTimesLogicProps {
   isLoading: boolean;
   error: string | null;
   fetchPrayers: (lat: number, lon: number) => Promise<void>;
-  fetchPrayerSettings: () => Promise<void>;
   geoCoords: { lat: number; lon: number } | null;
   is24Hour: boolean;
 }
@@ -25,7 +22,7 @@ export interface UsePrayerTimesLogicReturn {
   isModalOpen: boolean;
   selectedPrayer: Prayers | null;
   now: Date;
-  sortedVisiblePrayers: Prayers[];
+  sortedPrayers: Prayers[];
   handlePrayerClick: (prayer: Prayers) => void;
   handleCloseModal: () => void;
   formatTime: (date: Date) => string;
@@ -36,14 +33,11 @@ export interface UsePrayerTimesLogicReturn {
 export const usePrayerTimesLogic = ({
   prayers,
   fetchPrayers,
-  fetchPrayerSettings,
   geoCoords,
   is24Hour,
 }: UsePrayerTimesLogicProps): UsePrayerTimesLogicReturn => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPrayer, setSelectedPrayer] = useState<Prayers | null>(
-    null
-  );
+  const [selectedPrayer, setSelectedPrayer] = useState<Prayers | null>(null);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -60,11 +54,6 @@ export const usePrayerTimesLogic = ({
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
   }, [geoCoords]);
-
-  // Загрузка настроек при монтировании
-  useEffect(() => {
-    fetchPrayerSettings();
-  }, [fetchPrayerSettings]);
 
   const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
@@ -109,9 +98,8 @@ export const usePrayerTimesLogic = ({
     return prayerTotal < currentTotal;
   };
 
-  const sortedVisiblePrayers = useMemo(() => {
-    const visiblePrayers = prayers.filter((p) => p.hasSelected);
-    return visiblePrayers.sort((a, b) => {
+  const sortedPrayers = useMemo(() => {
+    return [...prayers].sort((a, b) => {
       const aPassed = isPrayerPassed(a.time);
       const bPassed = isPrayerPassed(b.time);
 
@@ -138,7 +126,7 @@ export const usePrayerTimesLogic = ({
     isModalOpen,
     selectedPrayer,
     now,
-    sortedVisiblePrayers,
+    sortedPrayers,
     handlePrayerClick,
     handleCloseModal,
     formatTime,

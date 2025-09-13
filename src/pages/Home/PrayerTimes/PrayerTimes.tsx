@@ -10,8 +10,7 @@ import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 
 export const PrayerTimes: React.FC = () => {
-  const { isLoading, error, fetchPrayers, fetchPrayerSettings,prayers } =
-    usePrayerApiStore();
+  const { isLoading, error, fetchPrayers, prayers } = usePrayerApiStore();
   const geoData = useGeoStore((state) => state);
   const is24Hour = useDataTimeStore((state) => state.is24Hour);
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ export const PrayerTimes: React.FC = () => {
   const {
     isModalOpen,
     selectedPrayer,
-    sortedVisiblePrayers,
+    sortedPrayers,
     handlePrayerClick,
     handleCloseModal,
     formatTime,
@@ -30,7 +29,6 @@ export const PrayerTimes: React.FC = () => {
     isLoading,
     error,
     fetchPrayers,
-    fetchPrayerSettings,
     geoCoords: geoData.coords,
     is24Hour,
   });
@@ -49,7 +47,7 @@ export const PrayerTimes: React.FC = () => {
     return <div>Loading</div>;
   }
 
-  if (sortedVisiblePrayers.length === 0) {
+  if (prayers.length === 0) {
     return (
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
@@ -63,7 +61,7 @@ export const PrayerTimes: React.FC = () => {
           </div>
         </div>
         <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
-        <div className={styles.noPrayers}>{t("noPrayersSelected")}</div>
+        <div className={styles.noPrayers}>{t("noPrayersAvailable")}</div>
       </div>
     );
   }
@@ -83,7 +81,7 @@ export const PrayerTimes: React.FC = () => {
       <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
 
       <div className={styles.grid}>
-        {sortedVisiblePrayers.map((prayer) => {
+        {sortedPrayers.map((prayer) => {
           const minutesUntil = getMinutesUntilPrayer(prayer.time);
           const isNear = minutesUntil <= 5 && minutesUntil > 0;
           const isPassed = isPrayerPassed(prayer.time);
