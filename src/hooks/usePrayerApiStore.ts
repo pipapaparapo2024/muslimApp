@@ -73,7 +73,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-
+          console.log("hello fucking world")
           const data = response.data;
           console.log("dataPraysettings", data);
           if (data.status == "ok" && data.data?.praySettings) {
