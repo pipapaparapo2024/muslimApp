@@ -99,6 +99,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       updatePrayerSettings: async (settings: PrayerSetting[]) => {
         set({ isLoading: true, error: null });
         console.log("settings", settings);
+        if (settings.length === 0) {
+          throw new Error("Cannot update empty prayer settings array");
+        } else console.log("все работает за*бись");
         try {
           if (settings.length === 0) {
             throw new Error("Cannot update empty prayer settings array");
