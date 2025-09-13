@@ -18,31 +18,42 @@ export const SettingPrayerTimes: React.FC = () => {
     fetchPrayerSettings,
   } = usePrayerApiStore();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
+  const [localLoading, setLocalLoading] = useState(false);
+
   useEffect(() => {
     const loadSettings = async () => {
+      setLocalLoading(true);
       await fetchPrayerSettings();
+      setLocalLoading(false);
     };
 
     loadSettings();
-    console.log("prayerSettingprayerSettingprayerSetting",prayerSetting)
-  }, []);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
+  }, [fetchPrayerSettings]);
 
-  const handleSelectAll = () => {
-    setAllPrayersSelected(true);
+  const handleSelectAll = async () => {
+    setLocalLoading(true);
+    await setAllPrayersSelected(true);
+    setLocalLoading(false);
   };
 
-  const handleDeselectAll = () => {
-    setAllPrayersSelected(false);
+  const handleDeselectAll = async () => {
+    setLocalLoading(true);
+    await setAllPrayersSelected(false);
+    setLocalLoading(false);
   };
 
-  const handleEnableAllNotifications = () => {
-    setAllNotifications(true);
+  const handleEnableAllNotifications = async () => {
+    setLocalLoading(true);
+    await setAllNotifications(true);
+    setLocalLoading(false);
   };
 
-  const handleDisableAllNotifications = () => {
-    setAllNotifications(false);
+  const handleDisableAllNotifications = async () => {
+    setLocalLoading(true);
+    await setAllNotifications(false);
+    setLocalLoading(false);
   };
 
   const handleInfoClick = (prayer: any) => {
@@ -55,24 +66,41 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const allPrayersEnabled = prayerSetting.every((prayer) => prayer.hasSelected);
-  const allNotificationsEnabled = prayerSetting
-    .filter((prayer) => prayer.hasSelected)
-    .every((prayer) => prayer.hasTelegramNotification);
+  const handleToggleSelection = async (id: string) => {
+    setLocalLoading(true);
+    await togglePrayerSelection(id);
+    setLocalLoading(false);
+  };
 
-  const handleToggleAllPrayers = () => {
+  const handleToggleNotification = async (id: string) => {
+    setLocalLoading(true);
+    await togglePrayerNotification(id);
+    setLocalLoading(false);
+  };
+
+  const allPrayersEnabled = prayerSetting.length > 0 
+    ? prayerSetting.every((prayer) => prayer.hasSelected)
+    : false;
+
+  const allNotificationsEnabled = prayerSetting.length > 0
+    ? prayerSetting
+        .filter((prayer) => prayer.hasSelected)
+        .every((prayer) => prayer.hasTelegramNotification)
+    : false;
+
+  const handleToggleAllPrayers = async () => {
     if (allPrayersEnabled) {
-      handleDeselectAll();
+      await handleDeselectAll();
     } else {
-      handleSelectAll();
+      await handleSelectAll();
     }
   };
 
-  const handleToggleAllNotifications = () => {
+  const handleToggleAllNotifications = async () => {
     if (allNotificationsEnabled) {
-      handleDisableAllNotifications();
+      await handleDisableAllNotifications();
     } else {
-      handleEnableAllNotifications();
+      await handleEnableAllNotifications();
     }
   };
 
@@ -86,10 +114,18 @@ export const SettingPrayerTimes: React.FC = () => {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || localLoading) {
     return (
       <div className={styles.settingsContainer}>
         <div className={styles.loading}>{t("loadingSettings")}</div>
+      </div>
+    );
+  }
+
+  if (prayerSetting.length === 0) {
+    return (
+      <div className={styles.settingsContainer}>
+        <div className={styles.loading}>{t("noSettingsAvailable")}</div>
       </div>
     );
   }
@@ -110,6 +146,7 @@ export const SettingPrayerTimes: React.FC = () => {
                 checked={allPrayersEnabled}
                 onChange={handleToggleAllPrayers}
                 className={styles.toggleInput}
+                disabled={localLoading}
               />
               <span className={styles.toggleSlider}></span>
             </label>
@@ -121,7 +158,7 @@ export const SettingPrayerTimes: React.FC = () => {
                 checked={allNotificationsEnabled}
                 onChange={handleToggleAllNotifications}
                 className={styles.toggleInput}
-                disabled={!allPrayersEnabled}
+                disabled={!allPrayersEnabled || localLoading}
               />
               <span className={styles.toggleSlider}></span>
             </label>
@@ -150,8 +187,9 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasSelected}
-                    onChange={() => togglePrayerSelection(prayer.id)}
+                    onChange={() => handleToggleSelection(prayer.id)}
                     className={styles.toggleInput}
+                    disabled={localLoading}
                   />
                   <span className={styles.toggleSlider}></span>
                 </label>
@@ -161,9 +199,9 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasTelegramNotification}
-                    onChange={() => togglePrayerNotification(prayer.id)}
+                    onChange={() => handleToggleNotification(prayer.id)}
                     className={styles.toggleInput}
-                    disabled={!prayer.hasSelected}
+                    disabled={!prayer.hasSelected || localLoading}
                   />
                   <span className={styles.toggleSlider}></span>
                 </label>
@@ -183,4 +221,3 @@ export const SettingPrayerTimes: React.FC = () => {
     </PageWrapper>
   );
 };
-

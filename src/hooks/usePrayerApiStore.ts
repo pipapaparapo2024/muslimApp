@@ -39,7 +39,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       prayerSetting: [],
       isLoading: false,
       error: null,
-      userId: null,
 
       fetchPrayers: async (lat: number, lon: number) => {
         set({ isLoading: true, error: null });
@@ -55,7 +54,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           if (response.data.status == "ok" && response.data.data?.prayers) {
             set({ prayers: response.data.data.prayers, isLoading: false });
           } else {
-            throw new Error("Invalid response format fetchPrayerSettings");
+            throw new Error("Invalid response format fetchPrayers");
           }
         } catch (error) {
           set({
@@ -73,9 +72,13 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-          console.log("dataPraysettings", response.data.data?.praySettings);
+          console.log("fetchPrayerSettings response:", response.data);
+          
           if (response.data.status == "ok" && response.data.data?.praySettings) {
-            set({ prayerSetting: response.data.data.praySettings, isLoading: false });
+            set({
+              prayerSetting: response.data.data.praySettings,
+              isLoading: false,
+            });
           } else {
             throw new Error("Invalid response format fetchPrayerSettings");
           }
@@ -94,8 +97,9 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
         set({ isLoading: true, error: null });
 
         try {
+          // ИСПРАВЛЕНО: правильный формат согласно API документации
           const response = await quranApi.post(`/api/v1/prayers/settings`, {
-            prayerSetting: settings.map((setting) => ({
+            praySettings: settings.map((setting) => ({
               id: setting.id,
               name: setting.name,
               description: setting.description,
@@ -105,9 +109,14 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           });
 
           const data = response.data;
+          console.log("updatePrayerSettings response:", data);
 
-          if (data.status === "ok" && data.data?.praysettings) {
-            set({ prayers: data.data.praysettings, isLoading: false });
+          // ИСПРАВЛЕНО: сохраняем обновленные настройки
+          if (data.status === "ok" && data.data?.praySettings) {
+            set({ 
+              prayerSetting: data.data.praySettings, 
+              isLoading: false 
+            });
           } else {
             throw new Error("Failed to update prayer settings");
           }
@@ -179,6 +188,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         prayers: state.prayers,
+        prayerSetting: state.prayerSetting, // ← ДОБАВЬТЕ сохранение настроек
       }),
     }
   )
