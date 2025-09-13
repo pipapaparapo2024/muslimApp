@@ -23,6 +23,7 @@ export interface HaramProduct {
 
 export interface ScanResult {
   id: string;
+  date:string;
   verdict: ProductStatusType;
   engType: string;
   description: string;
@@ -32,12 +33,10 @@ export interface ScanResult {
 
 export interface HistoryItem {
   id: string;
-  imageUrl: string;
-  userId: string;
   date: string;
   timestamp: string;
   status: ProductStatusType;
-  data?: ScanResult; // Полные данные скана
+  data?: ScanResult; 
 }
 
 export interface ApiScanResponse extends ScanResult {
@@ -130,7 +129,7 @@ export const useScannerStore = create<ScannerState>()(
           controller.abort();
           setError("Превышено время обработки. Попробуйте еще раз.");
           setShowAnalyzing(false);
-        }, 20000);
+        }, 25000);
 
         try {
           const reader = new FileReader();
@@ -157,13 +156,10 @@ export const useScannerStore = create<ScannerState>()(
           clearTimeout(maxProcessingTimeout);
 
           const data = response.data;
-          const imageUrl = URL.createObjectURL(file);
           const timestamp = new Date().toISOString();
 
           const historyItem: HistoryItem = {
             id: data.id,
-            imageUrl,
-            userId: "current-user",
             date: timestamp.split("T")[0],
             timestamp,
             status: data.verdict,
