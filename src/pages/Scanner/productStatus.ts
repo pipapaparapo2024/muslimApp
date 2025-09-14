@@ -55,10 +55,10 @@ export const getStatusClassName = (status: ProductStatusType, styles: any): stri
 
 export const getStatusColor = (status: ProductStatusType): string => {
   const colorMap: Record<ProductStatusType, string> = {
-    "halal": "#10B981", // green
-    "haram": "#EF4444", // red
-    "mushbooh": "#F59E0B", // yellow
-    "needs_info": "#6B7280", // gray
+    "halal": "#10B981", 
+    "haram": "#EF4444", 
+    "mushbooh": "#F59E0B", 
+    "needs_info": "#6B7280", 
   };
   return colorMap[status] || "#6B7280";
 };

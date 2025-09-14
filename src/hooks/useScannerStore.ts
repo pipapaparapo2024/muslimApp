@@ -157,7 +157,7 @@ export const useScannerStore = create<ScannerState>()(
 
           const data = response.data;
           const timestamp = new Date().toISOString();
-
+          console.log("response historyItem",response)
           const historyItem: HistoryItem = {
             id: data.id,
             date: timestamp.split("T")[0],
