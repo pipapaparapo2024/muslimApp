@@ -4,6 +4,7 @@ import { Camera, RotateCcw, Send } from "lucide-react";
 import { useScannerStore } from "../../../hooks/useScannerStore";
 import styles from "./CameraPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -86,6 +87,12 @@ export const CameraPage: React.FC = () => {
       }
     }
   };
+  if (isLoading)
+    return (
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
 
   useEffect(() => {
     startCamera();

@@ -50,7 +50,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-          console.log("dataPrayer", response);
+          console.log("dataPrayer", response.data.data.prayer);
           if (response.data.status == "ok" && response.data.data?.prayers) {
             set({ prayers: response.data.data.prayers, isLoading: false });
           } else {
