@@ -53,7 +53,7 @@ export const usePrayerTimesLogic = ({
     if (geoCoords) {
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-  }, []);
+  }, [geoCoords]);
 
   const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
