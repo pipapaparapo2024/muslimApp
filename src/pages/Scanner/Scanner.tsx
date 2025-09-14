@@ -13,7 +13,7 @@ export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  const [selectedRequests, setSelectedRequests] = useState("1");
+  const [selectedRequests, setSelectedRequests] = useState("10");
 
   useEffect(() => {
     fetchUserData();

@@ -20,6 +20,7 @@ export const HistoryScannerDetail: React.FC = () => {
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<ScanResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [networkError, setNetworkError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadItem = async () => {
@@ -29,12 +30,27 @@ export const HistoryScannerDetail: React.FC = () => {
       }
 
       setIsLoading(true);
-      const item = await fetchHistoryItem(id);
-      console.log("item",item)
-      if (item) {
-        setCurrentItem(item);
-      } else {
-        navigate("/scanner");
+      setNetworkError(null);
+
+      try {
+        const item = await fetchHistoryItem(id);
+        console.log("API Response:", item);
+
+        if (item) {
+          setCurrentItem(item);
+        } else {
+          navigate("/scanner");
+        }
+      } catch (error: any) {
+        console.error("API Error:", error);
+        setNetworkError(error.message || "Network error");
+
+        // Проверяем статус ошибки
+        if (error.response?.status === 403) {
+          setNetworkError("Доступ запрещен (403). Возможно ограничение по IP");
+        } else if (error.response?.status === 401) {
+          setNetworkError("Неавторизованный доступ (401)");
+        }
       }
 
       setIsLoading(false);
@@ -42,6 +58,21 @@ export const HistoryScannerDetail: React.FC = () => {
 
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
+
+  // Добавьте отображение ошибки сети
+  if (networkError) {
+    return (
+      <PageWrapper showBackButton={true}>
+        <div className={styles.errorContainer}>
+          <h2>Ошибка сети</h2>
+          <p>{networkError}</p>
+          <button onClick={() => window.location.reload()}>
+            Попробовать снова
+          </button>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -66,7 +97,7 @@ export const HistoryScannerDetail: React.FC = () => {
         <div className={styles.blockScan}>
           <div
             className={`${styles.accessBlock} ${getStatusClassName(
-              currentItem.verdict, 
+              currentItem.verdict,
               styles
             )}`}
           >
@@ -77,7 +108,7 @@ export const HistoryScannerDetail: React.FC = () => {
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("ingredients")}</div>
             <div className={styles.scanDesk}>
-              {currentItem.products && currentItem.products.length > 0 
+              {currentItem.products && currentItem.products.length > 0
                 ? currentItem.products.join(", ")
                 : t("noIngredientsFound")}
             </div>
@@ -104,4 +135,3 @@ export const HistoryScannerDetail: React.FC = () => {
     </PageWrapper>
   );
 };
-
