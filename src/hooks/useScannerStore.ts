@@ -140,6 +140,7 @@ export const useScannerStore = create<ScannerState>()(
           resetScannerState,
         } = get();
 
+        console.log("Starting image processing...");
         resetScannerState();
         setLoading(true);
         setShowAnalyzing(true);
@@ -164,6 +165,7 @@ export const useScannerStore = create<ScannerState>()(
           const formData = new FormData();
           formData.append("file", file);
 
+          console.log("Sending request to API...");
           const response = await quranApi.post<ApiScanResponse>(
             "/api/v1/qa/scanner/scan",
             formData,
@@ -176,8 +178,9 @@ export const useScannerStore = create<ScannerState>()(
             }
           );
 
+          console.log("API Response:", response);
           clearTimeout(maxProcessingTimeout);
-          console.log("response1",response)
+
           const responseData = response.data.data;
           const timestamp = new Date().toISOString();
           const date = timestamp.split("T")[0];
@@ -198,21 +201,19 @@ export const useScannerStore = create<ScannerState>()(
             data: scanResult,
           };
 
+          console.log("Setting scan result:", historyItem);
           setScanResult(historyItem);
           addToHistory(historyItem);
-          setShowAnalyzing(false);
+          setShowAnalyzing(false); // Важно: убираем показ analyzing
 
           if (responseData.verdict === ProductStatus.NEEDS_INFO) {
             WebApp.showAlert(
               "Не удалось определить состав. Пожалуйста, сделайте более четкое фото состава продукта."
             );
           }
-          console.log("response22222")
-
         } catch (error) {
+          console.error("Error in processImage:", error);
           clearTimeout(maxProcessingTimeout);
-          console.log("response3")
-
           setShowAnalyzing(false);
 
           let errorMessage = "Не удалось проанализировать изображение";
@@ -232,6 +233,7 @@ export const useScannerStore = create<ScannerState>()(
           WebApp.showAlert(`Ошибка: ${errorMessage}`);
         } finally {
           setLoading(false);
+          console.log("Image processing finished");
         }
       },
 

@@ -9,25 +9,26 @@ export const ScannerFlowManager: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (scanResult) {
+    // Если есть результат сканирования и загрузка завершена
+    if (scanResult && !isLoading) {
+      console.log("Scan result received:", scanResult);
+      
       if (scanResult.status === ProductStatus.NEEDS_INFO) {
-        // Для needs_info показываем специальную страницу
-        
         navigate("/scanner/notScanned");
       } else if (scanResult.id) {
-        // Для других статусов переходим к результатам
         sessionStorage.setItem('lastScanId', scanResult.id);
-        console.log(`/scanner/historyScanner/${scanResult.id}`)
         navigate(`/scanner/historyScanner/${scanResult.id}`);
       }
     }
     
+    // Если есть ошибка и загрузка завершена
     if (error && !isLoading) {
+      console.log("Error occurred:", error);
       navigate("/scanner/notScanned");
     }
   }, [scanResult, error, isLoading, navigate]);
 
-  if (showAnalyzing || isLoading) {
+  if (isLoading || showAnalyzing) {
     return <AnalyzingIngredient key={Date.now()}/>;
   }
 

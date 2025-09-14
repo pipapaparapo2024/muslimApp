@@ -7,10 +7,15 @@ import analyz from '../../../assets/image/analyz.png'
 import { t } from "i18next";
 export const AnalyzingIngredient: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(60);
-  const { error, isLoading } = useScannerStore();
+  const { error, isLoading, scanResult } = useScannerStore(); // Добавляем scanResult
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Если уже есть результат, не запускаем таймер
+    if (scanResult) {
+      return;
+    }
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -22,12 +27,12 @@ export const AnalyzingIngredient: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [scanResult]); // Добавляем зависимость
 
   useEffect(() => {
     // Если время вышло и все еще грузится - переходим на ошибку
     if (timeLeft === 0 && isLoading) {
-      console.log("/scanner/notScanned")
+      console.log("Timeout reached, navigating to /scanner/notScanned");
       navigate("/scanner/notScanned");
     }
   }, [timeLeft, isLoading, navigate]);
@@ -35,10 +40,15 @@ export const AnalyzingIngredient: React.FC = () => {
   useEffect(() => {
     // Если появилась ошибка - переходим на страницу ошибки
     if (error) {
-      console.log("/scanner/notScannederror")
+      console.log("Error occurred, navigating to /scanner/notScanned");
       navigate("/scanner/notScanned");
     }
   }, [error, navigate]);
+
+  // Если уже есть результат, не показываем analyzing
+  if (scanResult) {
+    return null;
+  }
 
   return (
     <PageWrapper>
@@ -49,7 +59,7 @@ export const AnalyzingIngredient: React.FC = () => {
             {t("checkingItems")}
           </div>
           <div className={styles.image}>
-            <img src={analyz} />
+            <img src={analyz} alt="Analyzing" />
           </div>
           {timeLeft > 0 && (
             <div className={styles.countdown}>
