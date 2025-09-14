@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./HistoryScanner.module.css";
 import { useHistoryScannerStore } from "../../../hooks/useHistoryScannerStore";
-import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
+import { HistoryScannerEmpty } from "./historyScannerEmpt1y/HistoryScannerEmpty";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";

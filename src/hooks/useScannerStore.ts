@@ -177,7 +177,7 @@ export const useScannerStore = create<ScannerState>()(
           );
 
           clearTimeout(maxProcessingTimeout);
-
+          console.log("response1",response)
           const responseData = response.data.data;
           const timestamp = new Date().toISOString();
           const date = timestamp.split("T")[0];
@@ -201,6 +201,7 @@ export const useScannerStore = create<ScannerState>()(
           setScanResult(historyItem);
           addToHistory(historyItem);
           setShowAnalyzing(false);
+          console.log("response22222",response)
 
           if (responseData.verdict === ProductStatus.NEEDS_INFO) {
             WebApp.showAlert(
