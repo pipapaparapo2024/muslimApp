@@ -14,6 +14,8 @@ export interface Prayers {
   name: string;
   description: string;
   time?: string;
+  hasSelected: boolean;
+  hasTelegramNotification: boolean;
 }
 
 interface PrayerApiStore {
@@ -111,6 +113,10 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               id: setting.id,
               name: setting.name,
               description: setting.description,
+              hasSelected: setting.hasSelected,
+              hasTelegramNotification: setting.hasTelegramNotification,
+            })),
+            prayers: settings.map((setting) => ({
               hasSelected: setting.hasSelected,
               hasTelegramNotification: setting.hasTelegramNotification,
             })),

@@ -35,7 +35,9 @@ export const PrayerTimes: React.FC = () => {
   });
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+        <LoadingSpinner />
+    );
   }
 
   if (prayers.length === 0) {
