@@ -38,7 +38,6 @@ export const HistoryScannerDetail: React.FC = () => {
 
         if (item) {
           setCurrentItem(item);
-          console.log('currentItem',currentItem)
         } else {
           navigate("/scanner");
         }
@@ -59,7 +58,10 @@ export const HistoryScannerDetail: React.FC = () => {
 
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
-
+  // Добавьте useEffect для отслеживания изменений currentItem
+  useEffect(() => {
+    console.log("currentItem changed:", currentItem);
+  }, [currentItem]);
   // Добавьте отображение ошибки сети
   if (networkError) {
     return (
