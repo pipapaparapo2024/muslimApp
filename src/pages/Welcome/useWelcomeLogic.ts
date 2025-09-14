@@ -28,7 +28,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("response", response);
+    console.log("response",response)
     console.log("backendLanguage", backendLanguage);
     return backendLanguage;
   } catch (error) {
@@ -46,7 +46,6 @@ export const useWelcomeLogic = () => {
     isLoading: isGeoLoading,
     langcode,
   } = useGeoStore();
-  
   const { sendUserSettings, isLoading: isSettingsLoading } =
     useUserParametersStore();
 
@@ -63,23 +62,14 @@ export const useWelcomeLogic = () => {
 
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
-  const [isLoaded, ] = useState(false);
-
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [initializationStatus, setInitializationStatus] = useState<
     "pending" | "loading" | "complete" | "error"
   >("pending");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    return () => {
-      if (animationTimeoutRef.current) {
-        clearTimeout(animationTimeoutRef.current);
-      }
-    };
-  }, []);
   const {
     isAuthenticated,
     isLoading: isAuthLoading,
@@ -132,7 +122,9 @@ export const useWelcomeLogic = () => {
 
   useEffect(() => {
     if (initializationStatus === "complete" && !isAuthLoading) {
-      if (!isAuthenticated && authError) {
+      if (isAuthenticated && wasLogged) {
+        navigate("/home", { replace: true });
+      } else if (!isAuthenticated && authError) {
         setInitializationStatus("error");
         setErrorMessage(authError);
       }
@@ -141,29 +133,46 @@ export const useWelcomeLogic = () => {
     initializationStatus,
     isAuthenticated,
     isAuthLoading,
+    wasLogged,
     authError,
+    navigate,
   ]);
+
+  useEffect(() => {
+    if (initializationStatus !== "complete") return;
+
+    let isMounted = true;
+    const preloadImages = () => {
+      const imagePromises = steps.map((step) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = step.image;
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+      });
+
+      Promise.all(imagePromises).then(() => {
+        if (isMounted) setIsLoaded(true);
+      });
+    };
+
+    preloadImages();
+    return () => {
+      isMounted = false;
+    };
+  }, [initializationStatus, steps]);
 
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
 
     setIsAnimating(true);
     setFade(true);
-
-    // Очищаем предыдущий таймаут
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-    }
-
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     setStep((s) => s + 1);
     setFade(false);
-
-    // Сохраняем ссылку на таймаут для возможной очистки
-    animationTimeoutRef.current = setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+    setTimeout(() => setIsAnimating(false), 300);
   }, [isAnimating, step, steps.length]);
 
   const handlePrev = useCallback(async () => {
@@ -171,19 +180,11 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
-
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-    }
-
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     setStep((s) => s - 1);
     setFade(false);
-
-    animationTimeoutRef.current = setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+    setTimeout(() => setIsAnimating(false), 300);
   }, [isAnimating, step]);
 
   const handleStart = useCallback(async () => {
@@ -191,74 +192,33 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
-
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current);
-    }
-
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     localStorage.setItem("onboardingComplete", "1");
-
-    // Явно останавливаем все анимации перед навигацией
-    setIsAnimating(false);
-    setFade(false);
-
-    // Проверяем аутентификацию перед навигацией
-    if (isAuthenticated && wasLogged) {
-      navigate("/home", { replace: true });
-    } else {
-      // Если не аутентифицированы, все равно переходим на home
-      // или на страницу логина, в зависимости от вашей логики
-      navigate("/home", { replace: true });
-    }
-  }, [isAnimating, navigate, isAuthenticated, wasLogged]);
+    navigate("/home", { replace: true });
+  }, [isAnimating, navigate]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !isLoaded || initializationStatus !== "complete") return;
 
     let startX = 0;
-    let isSwiping = false;
-
     const onTouchStart = (e: TouchEvent) => {
-      if (isAnimating) return;
       startX = e.touches[0].clientX;
-      isSwiping = true;
     };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isSwiping || isAnimating) return;
-      // Предотвращаем скролл во время свайпа
-      if (Math.abs(e.touches[0].clientX - startX) > 10) {
-        e.preventDefault();
-      }
-    };
-
     const onTouchEnd = (e: TouchEvent) => {
-      if (!isSwiping || isAnimating) return;
-      isSwiping = false;
+      if (isAnimating) return;
 
       const endX = e.changedTouches[0].clientX;
-      const diffX = endX - startX;
-
-      // Минимальное расстояние для свайпа
-      if (Math.abs(diffX) > 60) {
-        if (diffX > 60 && step > 0) {
-          handlePrev();
-        } else if (diffX < -60 && step < steps.length - 1) {
-          handleNext();
-        }
-      }
+      if (endX - startX > 60 && step > 0) handlePrev();
+      else if (startX - endX > 60 && step < steps.length - 1) handleNext();
     };
 
-    container.addEventListener("touchstart", onTouchStart, { passive: false });
-    container.addEventListener("touchmove", onTouchMove, { passive: false });
+    container.addEventListener("touchstart", onTouchStart);
     container.addEventListener("touchend", onTouchEnd);
 
     return () => {
       container.removeEventListener("touchstart", onTouchStart);
-      container.removeEventListener("touchmove", onTouchMove);
       container.removeEventListener("touchend", onTouchEnd);
     };
   }, [
