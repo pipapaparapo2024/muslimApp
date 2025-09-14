@@ -38,6 +38,7 @@ export const HistoryScannerDetail: React.FC = () => {
 
         if (item) {
           setCurrentItem(item);
+          console.log('currentItem',currentItem)
         } else {
           navigate("/scanner");
         }
@@ -89,7 +90,6 @@ export const HistoryScannerDetail: React.FC = () => {
       </PageWrapper>
     );
   }
-
   return (
     <PageWrapper showBackButton={true}>
       <div className={styles.container}>
