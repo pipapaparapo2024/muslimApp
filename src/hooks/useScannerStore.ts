@@ -53,20 +53,6 @@ export interface ApiScanResponse {
   status: string;
 }
 
-export interface HistoryResponse {
-  hasNext: boolean;
-  hasPrev: boolean;
-  history: Array<{
-    date: string;
-    qa: ScanResult[]; // Теперь здесь ScanResult[]
-  }>;
-  pageAmount: number;
-}
-
-export interface HistoryDetailResponse {
-  item: ScanResult; // Теперь здесь ScanResult
-}
-
 interface ScannerState {
   isLoading: boolean;
   error: string | null;

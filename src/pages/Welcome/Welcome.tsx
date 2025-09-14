@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import styles from "./Welcome.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { useWelcomeLogic } from "./WelcomeLogic";
+import { useWelcomeLogic } from "./useWelcomeLogic";
 import { t } from "i18next";
 export const Welcome: React.FC = () => {
   const {
@@ -17,6 +17,21 @@ export const Welcome: React.FC = () => {
     handleNext,
     handleStart,
   } = useWelcomeLogic();
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const debouncedHandleNext = useCallback(() => {
+    if (isButtonDisabled) return;
+    setIsButtonDisabled(true);
+    handleNext();
+    setTimeout(() => setIsButtonDisabled(false), 500); // Задержка 500ms
+  }, [handleNext, isButtonDisabled]);
+
+  const debouncedHandleStart = useCallback(() => {
+    if (isButtonDisabled) return;
+    setIsButtonDisabled(true);
+    handleStart();
+    setTimeout(() => setIsButtonDisabled(false), 500);
+  }, [handleStart, isButtonDisabled]);
 
   // Показываем лоадер во время инициализации
   if (
@@ -113,11 +128,16 @@ export const Welcome: React.FC = () => {
           </div>
           <button
             className={styles.welcomeButton}
-            onClick={step === steps.length - 1 ? handleStart : handleNext}
-            disabled={isAnimating}
+            onClick={
+              step === steps.length - 1
+                ? debouncedHandleStart
+                : debouncedHandleNext
+            }
+            disabled={isAnimating || isButtonDisabled}
             style={{
-              opacity: isAnimating ? 0.7 : 1,
-              cursor: isAnimating ? "not-allowed" : "pointer",
+              opacity: isAnimating || isButtonDisabled ? 0.7 : 1,
+              cursor:
+                isAnimating || isButtonDisabled ? "not-allowed" : "pointer",
             }}
           >
             {step === steps.length - 1 ? t("start") : t("next")}
@@ -127,4 +147,3 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-

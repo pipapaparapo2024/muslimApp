@@ -28,7 +28,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("response",response)
+    console.log("response", response);
     console.log("backendLanguage", backendLanguage);
     return backendLanguage;
   } catch (error) {
@@ -63,13 +63,22 @@ export const useWelcomeLogic = () => {
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+
   const [isAnimating, setIsAnimating] = useState(false);
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [initializationStatus, setInitializationStatus] = useState<
     "pending" | "loading" | "complete" | "error"
   >("pending");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
   const {
     isAuthenticated,
     isLoading: isAuthLoading,
@@ -168,11 +177,21 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
+
+    // Очищаем предыдущий таймаут
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     setStep((s) => s + 1);
     setFade(false);
-    setTimeout(() => setIsAnimating(false), 300);
+
+    // Сохраняем ссылку на таймаут для возможной очистки
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
   }, [isAnimating, step, steps.length]);
 
   const handlePrev = useCallback(async () => {
@@ -180,11 +199,19 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
+
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     setStep((s) => s - 1);
     setFade(false);
-    setTimeout(() => setIsAnimating(false), 300);
+
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
   }, [isAnimating, step]);
 
   const handleStart = useCallback(async () => {
@@ -192,9 +219,19 @@ export const useWelcomeLogic = () => {
 
     setIsAnimating(true);
     setFade(true);
+
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     localStorage.setItem("onboardingComplete", "1");
+
+    // Явно останавливаем все анимации перед навигацией
+    setIsAnimating(false);
+    setFade(false);
+
     navigate("/home", { replace: true });
   }, [isAnimating, navigate]);
 
@@ -203,22 +240,46 @@ export const useWelcomeLogic = () => {
     if (!container || !isLoaded || initializationStatus !== "complete") return;
 
     let startX = 0;
+    let isSwiping = false;
+
     const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-    };
-    const onTouchEnd = (e: TouchEvent) => {
       if (isAnimating) return;
+      startX = e.touches[0].clientX;
+      isSwiping = true;
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isSwiping || isAnimating) return;
+      // Предотвращаем скролл во время свайпа
+      if (Math.abs(e.touches[0].clientX - startX) > 10) {
+        e.preventDefault();
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (!isSwiping || isAnimating) return;
+      isSwiping = false;
 
       const endX = e.changedTouches[0].clientX;
-      if (endX - startX > 60 && step > 0) handlePrev();
-      else if (startX - endX > 60 && step < steps.length - 1) handleNext();
+      const diffX = endX - startX;
+
+      // Минимальное расстояние для свайпа
+      if (Math.abs(diffX) > 60) {
+        if (diffX > 60 && step > 0) {
+          handlePrev();
+        } else if (diffX < -60 && step < steps.length - 1) {
+          handleNext();
+        }
+      }
     };
 
-    container.addEventListener("touchstart", onTouchStart);
+    container.addEventListener("touchstart", onTouchStart, { passive: false });
+    container.addEventListener("touchmove", onTouchMove, { passive: false });
     container.addEventListener("touchend", onTouchEnd);
 
     return () => {
       container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
       container.removeEventListener("touchend", onTouchEnd);
     };
   }, [
