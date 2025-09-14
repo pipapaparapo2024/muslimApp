@@ -3,7 +3,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 
 export const ContactUs: React.FC = () => {
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton={true}>
       <div>ContactUs Settings Page</div>
     </PageWrapper>
   );

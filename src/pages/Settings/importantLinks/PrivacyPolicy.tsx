@@ -3,7 +3,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 
 export const PrivacyPolicy: React.FC = () => {
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton={true}>
       <div>PrivacyPolicy Settings Page</div>
     </PageWrapper>
   );
