@@ -6,7 +6,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import analyz from '../../../assets/image/analyz.png'
 import { t } from "i18next";
 export const AnalyzingIngredient: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState(12);
+  const [timeLeft, setTimeLeft] = useState(60);
   const { error, isLoading } = useScannerStore();
   const navigate = useNavigate();
 
