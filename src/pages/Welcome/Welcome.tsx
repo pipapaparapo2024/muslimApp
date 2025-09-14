@@ -113,7 +113,11 @@ export const Welcome: React.FC = () => {
           </div>
           <button
             className={styles.welcomeButton}
-            onClick={step === steps.length - 1 ? handleStart : handleNext}
+            onClick={
+              isAnimating && (step === steps.length - 1)
+                ? handleStart
+                : handleNext
+            }
             disabled={isAnimating}
             style={{
               opacity: isAnimating ? 0.7 : 1,
@@ -127,4 +131,3 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
-
