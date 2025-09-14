@@ -121,8 +121,6 @@ export const Welcome: React.FC = () => {
             disabled={isAnimating}
             style={{
               opacity: isAnimating ? 0.7 : 1,
-              cursor: isAnimating ? "not-allowed" : "pointer",
-              pointerEvents: isAnimating ? "none" : "auto", // ← Добавьте эту строку
             }}
           >
             {step === steps.length - 1 ? t("start") : t("next")}
