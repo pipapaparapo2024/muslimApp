@@ -28,7 +28,7 @@ const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("response",response)
+    console.log("response", response);
     console.log("backendLanguage", backendLanguage);
     return backendLanguage;
   } catch (error) {
@@ -210,8 +210,10 @@ export const useWelcomeLogic = () => {
       if (isAnimating) return;
 
       const endX = e.changedTouches[0].clientX;
-      if (endX - startX > 60 && step > 0) handlePrev();
-      else if (startX - endX > 60 && step < steps.length - 1) handleNext();
+      // Свайп ВЛЕВО = вперед (next)
+      if (startX - endX > 60 && step < steps.length - 1) handleNext();
+      // Свайп ВПРАВО = назад (prev)
+      else if (endX - startX > 60 && step > 0) handlePrev();
     };
 
     container.addEventListener("touchstart", onTouchStart);
