@@ -46,6 +46,7 @@ export const useWelcomeLogic = () => {
     isLoading: isGeoLoading,
     langcode,
   } = useGeoStore();
+  
   const { sendUserSettings, isLoading: isSettingsLoading } =
     useUserParametersStore();
 
@@ -148,29 +149,20 @@ export const useWelcomeLogic = () => {
   ]);
 
   useEffect(() => {
-    if (initializationStatus !== "complete") return;
-
-    let isMounted = true;
-    const preloadImages = () => {
-      const imagePromises = steps.map((step) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.src = step.image;
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        });
-      });
-
-      Promise.all(imagePromises).then(() => {
-        if (isMounted) setIsLoaded(true);
-      });
-    };
-
-    preloadImages();
-    return () => {
-      isMounted = false;
-    };
-  }, [initializationStatus, steps]);
+    if (initializationStatus === "complete" && !isAuthLoading) {
+      // УБИРАЕМ автоматическую навигацию здесь
+      // Навигация теперь будет только по кнопке "Start"
+      if (!isAuthenticated && authError) {
+        setInitializationStatus("error");
+        setErrorMessage(authError);
+      }
+    }
+  }, [
+    initializationStatus,
+    isAuthenticated,
+    isAuthLoading,
+    authError,
+  ]); // Убираем navigate из зависимостей
 
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
@@ -232,8 +224,15 @@ export const useWelcomeLogic = () => {
     setIsAnimating(false);
     setFade(false);
 
-    navigate("/home", { replace: true });
-  }, [isAnimating, navigate]);
+    // Проверяем аутентификацию перед навигацией
+    if (isAuthenticated && wasLogged) {
+      navigate("/home", { replace: true });
+    } else {
+      // Если не аутентифицированы, все равно переходим на home
+      // или на страницу логина, в зависимости от вашей логики
+      navigate("/home", { replace: true });
+    }
+  }, [isAnimating, navigate, isAuthenticated, wasLogged]);
 
   useEffect(() => {
     const container = containerRef.current;
