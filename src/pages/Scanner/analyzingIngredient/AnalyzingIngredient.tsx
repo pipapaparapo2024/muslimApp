@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useScannerStore } from "../../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
 import styles from './AnalyzingIngredient.module.css'
@@ -6,36 +6,8 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import analyz from '../../../assets/image/analyz.png'
 import { t } from "i18next";
 export const AnalyzingIngredient: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState(60);
-  const { error, isLoading, scanResult } = useScannerStore(); // Добавляем scanResult
+  const { error, scanResult } = useScannerStore(); // Добавляем scanResult
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Если уже есть результат, не запускаем таймер
-    if (scanResult) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [scanResult]); // Добавляем зависимость
-
-  useEffect(() => {
-    // Если время вышло и все еще грузится - переходим на ошибку
-    if (timeLeft === 0 && isLoading) {
-      console.log("Timeout reached, navigating to /scanner/notScanned");
-      navigate("/scanner/notScanned");
-    }
-  }, [timeLeft, isLoading, navigate]);
 
   useEffect(() => {
     // Если появилась ошибка - переходим на страницу ошибки
@@ -61,11 +33,6 @@ export const AnalyzingIngredient: React.FC = () => {
           <div className={styles.image}>
             <img src={analyz} alt="Analyzing" />
           </div>
-          {timeLeft > 0 && (
-            <div className={styles.countdown}>
-              {t("timeRemaining")} {timeLeft} {t("seconds")}
-            </div>
-          )}
         </div>
       </div>
     </PageWrapper>
