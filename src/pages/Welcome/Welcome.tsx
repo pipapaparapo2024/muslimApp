@@ -112,14 +112,13 @@ export const Welcome: React.FC = () => {
             ))}
           </div>
           <button
-            className={`${styles.welcomeButton} ${
-              isAnimating ? styles.disabled : ""
-            }`}
-            onClick={() => {
-              if (isAnimating) return;
-              step === steps.length - 1 ? handleStart() : handleNext();
-            }}
+            className={styles.welcomeButton}
+            onClick={step === steps.length - 1 ? handleStart : handleNext}
             disabled={isAnimating}
+            style={{
+              opacity: isAnimating ? 0.7 : 1,
+              cursor: isAnimating ? "not-allowed" : "pointer",
+            }}
           >
             {step === steps.length - 1 ? t("start") : t("next")}
           </button>
@@ -128,3 +127,4 @@ export const Welcome: React.FC = () => {
     </PageWrapper>
   );
 };
+
