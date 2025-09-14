@@ -63,7 +63,7 @@ export const useWelcomeLogic = () => {
 
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, ] = useState(false);
 
   const [isAnimating, setIsAnimating] = useState(false);
   const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
