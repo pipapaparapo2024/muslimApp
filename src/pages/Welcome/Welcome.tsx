@@ -114,6 +114,7 @@ export const Welcome: React.FC = () => {
           <button
             className={styles.welcomeButton}
             onClick={() => {
+              if (isAnimating || step === steps.length - 1) return; // Добавляем проверку
               if (isAnimating) return;
               step === steps.length - 1 ? handleStart() : handleNext();
             }}
