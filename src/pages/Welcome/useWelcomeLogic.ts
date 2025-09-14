@@ -188,7 +188,7 @@ export const useWelcomeLogic = () => {
   }, [isAnimating, step]);
 
   const handleStart = useCallback(async () => {
-    // if (isAnimating) return;
+    if (isAnimating) return;
 
     setIsAnimating(true);
     setFade(true);
