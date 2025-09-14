@@ -27,6 +27,7 @@ export const AnalyzingIngredient: React.FC = () => {
   useEffect(() => {
     // Если время вышло и все еще грузится - переходим на ошибку
     if (timeLeft === 0 && isLoading) {
+      console.log("/scanner/notScanned")
       navigate("/scanner/notScanned");
     }
   }, [timeLeft, isLoading, navigate]);
@@ -34,6 +35,7 @@ export const AnalyzingIngredient: React.FC = () => {
   useEffect(() => {
     // Если появилась ошибка - переходим на страницу ошибки
     if (error) {
+      console.log("/scanner/notScannederror")
       navigate("/scanner/notScanned");
     }
   }, [error, navigate]);

@@ -12,10 +12,12 @@ export const ScannerFlowManager: React.FC = () => {
     if (scanResult) {
       if (scanResult.status === ProductStatus.NEEDS_INFO) {
         // Для needs_info показываем специальную страницу
+        
         navigate("/scanner/notScanned");
       } else if (scanResult.id) {
         // Для других статусов переходим к результатам
         sessionStorage.setItem('lastScanId', scanResult.id);
+        console.log(`/scanner/historyScanner/${scanResult.id}`)
         navigate(`/scanner/historyScanner/${scanResult.id}`);
       }
     }
