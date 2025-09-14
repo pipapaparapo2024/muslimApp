@@ -29,11 +29,16 @@ export const SurahList: React.FC = () => {
   }, [fetchVariants]);
 
   useEffect(() => {
-    // После загрузки вариантов загружаем суры для выбранного варианта
     if (selectedVariant) {
       fetchSurahs(selectedVariant.id);
     }
   }, [selectedVariant, fetchSurahs]);
+
+  // Убираем форму и делаем поиск сразу при вводе
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    // Поиск происходит автоматически при изменении значения
+  };
 
   const filteredSurahs = surahs.filter(
     (surah) =>
@@ -71,13 +76,14 @@ export const SurahList: React.FC = () => {
             <div className={styles.diskHeader}>{t("discoverChapters")}</div>
           </div>
 
+          {/* Убираем форму и делаем обычный input с onChange */}
           <div className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
               placeholder={t("searchChapters")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange} // Изменено на handleSearchChange
               className={styles.searchInput}
             />
           </div>

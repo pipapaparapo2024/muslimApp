@@ -23,12 +23,12 @@ export const AyahList: React.FC = () => {
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<number[]>([]); // Храним номера аятов, которые содержат поисковый запрос
+  const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
 
-  const searchContainerRef = useRef<HTMLFormElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // Поиск по уже загруженным аятам
@@ -74,10 +74,9 @@ export const AyahList: React.FC = () => {
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
 
-  // Поиск аятов - локальный поиск по уже загруженным данным
-  const handleSearch = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  // Автоматический поиск при изменении запроса
+  useEffect(() => {
+    const handleSearch = async () => {
       if (!localSearchQuery.trim()) {
         setSearchResults([]);
         setCurrentResultIndex(-1);
@@ -99,9 +98,12 @@ export const AyahList: React.FC = () => {
       } finally {
         setIsSearching(false);
       }
-    },
-    [localSearchQuery, searchInAyahs]
-  );
+    };
+
+    // Добавляем debounce для избежания слишком частых поисков
+    const timeoutId = setTimeout(handleSearch, 300);
+    return () => clearTimeout(timeoutId);
+  }, [localSearchQuery, searchInAyahs]);
 
   // Навигация по результатам поиска
   const navigateSearchResults = useCallback(
@@ -155,15 +157,6 @@ export const AyahList: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
-  // Сброс поиска при изменении запроса
-  useEffect(() => {
-    if (!localSearchQuery.trim()) {
-      setSearchResults([]);
-      setCurrentResultIndex(-1);
-      setShowSearchNavigation(false);
-    }
-  }, [localSearchQuery]);
-
   // Загрузка следующих аятов
   const handleLoadMore = useCallback(async () => {
     if (!surahId || !hasNext || isLoadingMore) return;
@@ -199,10 +192,9 @@ export const AyahList: React.FC = () => {
             )}
           </div>
 
-          <form
+          <div
             ref={searchContainerRef}
             className={styles.searchContainer}
-            onSubmit={handleSearch}
           >
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
@@ -220,20 +212,14 @@ export const AyahList: React.FC = () => {
                 </span>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigateSearchResults("prev");
-                  }}
+                  onClick={() => navigateSearchResults("prev")}
                   className={styles.navButton}
                 >
                   <ChevronUp size={16} />
                 </button>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigateSearchResults("next");
-                  }}
+                  onClick={() => navigateSearchResults("next")}
                   className={styles.navButton}
                 >
                   <ChevronDown size={16} />
@@ -244,7 +230,7 @@ export const AyahList: React.FC = () => {
             {isSearching && (
               <Loader size={16} className={styles.searchSpinner} />
             )}
-          </form>
+          </div>
         </div>
 
         {/* Содержимое аятов */}
