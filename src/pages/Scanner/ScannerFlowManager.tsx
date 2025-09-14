@@ -26,7 +26,7 @@ export const ScannerFlowManager: React.FC = () => {
   }, [scanResult, error, isLoading, navigate]);
 
   if (showAnalyzing || isLoading) {
-    return <AnalyzingIngredient />;
+    return <AnalyzingIngredient key={Date.now()}/>;
   }
 
   return null;
