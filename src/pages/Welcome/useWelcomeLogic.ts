@@ -132,26 +132,6 @@ export const useWelcomeLogic = () => {
 
   useEffect(() => {
     if (initializationStatus === "complete" && !isAuthLoading) {
-      if (isAuthenticated && wasLogged) {
-        navigate("/home", { replace: true });
-      } else if (!isAuthenticated && authError) {
-        setInitializationStatus("error");
-        setErrorMessage(authError);
-      }
-    }
-  }, [
-    initializationStatus,
-    isAuthenticated,
-    isAuthLoading,
-    wasLogged,
-    authError,
-    navigate,
-  ]);
-
-  useEffect(() => {
-    if (initializationStatus === "complete" && !isAuthLoading) {
-      // УБИРАЕМ автоматическую навигацию здесь
-      // Навигация теперь будет только по кнопке "Start"
       if (!isAuthenticated && authError) {
         setInitializationStatus("error");
         setErrorMessage(authError);
@@ -162,7 +142,7 @@ export const useWelcomeLogic = () => {
     isAuthenticated,
     isAuthLoading,
     authError,
-  ]); // Убираем navigate из зависимостей
+  ]);
 
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
