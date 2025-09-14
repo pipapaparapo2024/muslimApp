@@ -201,15 +201,18 @@ export const useScannerStore = create<ScannerState>()(
           setScanResult(historyItem);
           addToHistory(historyItem);
           setShowAnalyzing(false);
-          console.log("response22222",response)
 
           if (responseData.verdict === ProductStatus.NEEDS_INFO) {
             WebApp.showAlert(
               "Не удалось определить состав. Пожалуйста, сделайте более четкое фото состава продукта."
             );
           }
+          console.log("response22222")
+
         } catch (error) {
           clearTimeout(maxProcessingTimeout);
+          console.log("response3")
+
           setShowAnalyzing(false);
 
           let errorMessage = "Не удалось проанализировать изображение";
