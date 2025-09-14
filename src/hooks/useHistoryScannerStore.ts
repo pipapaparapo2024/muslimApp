@@ -71,7 +71,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
-
+    console.log("fetchHistoryItemfetchHistoryItem")
     try {
       const response = await quranApi.get<{ item: ScanResult }>(
         `/api/v1/qa/scanner/history/${id}`,
