@@ -8,7 +8,6 @@ import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
-import { PageWrapper } from "../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const PrayerTimes: React.FC = () => {
@@ -36,11 +35,7 @@ export const PrayerTimes: React.FC = () => {
   });
 
   if (isLoading) {
-    return (
-      <PageWrapper>
-        <LoadingSpinner />
-      </PageWrapper>
-    );
+    return <LoadingSpinner />;
   }
 
   if (prayers.length === 0) {
