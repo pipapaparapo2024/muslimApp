@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, RotateCcw, Send, X } from "lucide-react";
+import { Camera, RotateCcw, Send } from "lucide-react";
 import { useScannerStore } from "../../../hooks/useScannerStore";
 import styles from "./CameraPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
@@ -94,7 +94,7 @@ export const CameraPage: React.FC = () => {
 
   if (photoPreview) {
     return (
-      <PageWrapper>
+      <PageWrapper showBackButton={true} navigateTo="/scanner">
         <div className={styles.cameraContainer}>
           <div className={styles.previewContainer}>
             <img
@@ -124,12 +124,8 @@ export const CameraPage: React.FC = () => {
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper showBackButton={true} navigateTo="/scanner">
       <div className={styles.cameraContainer}>
-        <button className={styles.closeButton} onClick={() => navigate(-1)}>
-          <X size={24} />
-        </button>
-
         <div className={styles.videoContainer}>
           <video
             ref={videoRef}
