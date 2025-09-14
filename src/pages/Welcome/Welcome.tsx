@@ -112,17 +112,14 @@ export const Welcome: React.FC = () => {
             ))}
           </div>
           <button
-            className={styles.welcomeButton}
+            className={`${styles.welcomeButton} ${
+              isAnimating ? styles.disabled : ""
+            }`}
             onClick={() => {
-              if (isAnimating || step === steps.length - 1) return; // Добавляем проверку
               if (isAnimating) return;
               step === steps.length - 1 ? handleStart() : handleNext();
             }}
             disabled={isAnimating}
-            style={{
-              opacity: isAnimating ? 0.7 : 1,
-              pointerEvents: isAnimating ? "none" : "auto",
-            }}
           >
             {step === steps.length - 1 ? t("start") : t("next")}
           </button>
