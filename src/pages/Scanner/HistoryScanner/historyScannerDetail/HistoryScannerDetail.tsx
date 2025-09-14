@@ -58,11 +58,11 @@ export const HistoryScannerDetail: React.FC = () => {
 
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
-  // Добавьте useEffect для отслеживания изменений currentItem
+
   useEffect(() => {
     console.log("currentItem changed:", currentItem);
   }, [currentItem]);
-  // Добавьте отображение ошибки сети
+
   if (networkError) {
     return (
       <PageWrapper showBackButton={true}>
@@ -99,12 +99,12 @@ export const HistoryScannerDetail: React.FC = () => {
         <div className={styles.blockScan}>
           <div
             className={`${styles.accessBlock} ${getStatusClassName(
-              currentItem.verdict,
+              currentItem.engType,
               styles
             )}`}
           >
-            {getStatusIcon(currentItem.verdict)}
-            {t(getStatusTranslationKey(currentItem.verdict))}
+            {getStatusIcon(currentItem.engType)}
+            {t(getStatusTranslationKey(currentItem.engType))}
           </div>
 
           <div className={styles.blockInside}>
@@ -116,17 +116,16 @@ export const HistoryScannerDetail: React.FC = () => {
             </div>
           </div>
 
-          {currentItem.haramProducts &&
-            currentItem.haramProducts.length > 0 && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                {currentItem.haramProducts.map((product, index) => (
-                  <div key={index} className={styles.haranProduct}>
-                    {product.reason}
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className={styles.blockInside}>
+            <div className={styles.scanTitle}>{t("analysisResult")}</div>
+            {currentItem.haramProducts &&
+              currentItem.haramProducts.length > 0 &&
+              currentItem.haramProducts.map((product, index) => (
+                <div key={index} className={styles.haranProduct}>
+                  {product.reason}
+                </div>
+              ))}
+          </div>
         </div>
         <Share
           shareUrl={`/scanner/ScannerShareHistory/${id}`}
