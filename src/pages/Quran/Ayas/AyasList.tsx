@@ -31,14 +31,23 @@ export const AyahList: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  // Поиск по уже загруженным аятам
+  // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
     (query: string): number[] => {
       if (!query.trim() || ayahs.length === 0) return [];
 
       const searchTerm = query.toLowerCase();
+      
       return ayahs
-        .filter((ayah) => ayah.text.toLowerCase().includes(searchTerm))
+        .filter((ayah) => {
+          // Ищем по номеру аята
+          const numberMatch = ayah.number.toString().includes(searchTerm);
+          
+          // Ищем по тексту аята
+          const textMatch = ayah.text.toLowerCase().includes(searchTerm);
+          
+          return numberMatch || textMatch;
+        })
         .map((ayah) => ayah.number);
     },
     [ayahs]
@@ -90,6 +99,23 @@ export const AyahList: React.FC = () => {
         setSearchResults(results);
         setCurrentResultIndex(results.length > 0 ? 0 : -1);
         setShowSearchNavigation(results.length > 0);
+        
+        // Автоматически прокручиваем к первому результату
+        if (results.length > 0) {
+          const firstResult = results[0];
+          const element = resultRefs.current.get(firstResult);
+          if (element) {
+            setTimeout(() => {
+              element.scrollIntoView({ behavior: "smooth", block: "center" });
+              element.style.transform = "scale(1.02)";
+              setTimeout(() => {
+                if (element) {
+                  element.style.transform = "scale(1)";
+                }
+              }, 300);
+            }, 100);
+          }
+        }
       } catch (err) {
         console.error("Error searching ayahs:", err);
         setSearchResults([]);
@@ -100,7 +126,6 @@ export const AyahList: React.FC = () => {
       }
     };
 
-    // Добавляем debounce для избежания слишком частых поисков
     const timeoutId = setTimeout(handleSearch, 300);
     return () => clearTimeout(timeoutId);
   }, [localSearchQuery, searchInAyahs]);
@@ -121,19 +146,24 @@ export const AyahList: React.FC = () => {
 
       setCurrentResultIndex(newIndex);
 
-      // Прокрутка к найденному элементу
+      // Прокрутка к найденному аяту
       const resultNumber = searchResults[newIndex];
       const element = resultRefs.current.get(resultNumber);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        // Добавляем анимацию
+        // Анимация выделения
         element.style.transform = "scale(1.02)";
+        element.style.backgroundColor = "var(--color-background-semantic-solid-brand)";
+        element.style.color = "white";
+        
         setTimeout(() => {
           if (element) {
             element.style.transform = "scale(1)";
+            element.style.backgroundColor = "";
+            element.style.color = "";
           }
-        }, 300);
+        }, 1000);
       }
     },
     [searchResults, currentResultIndex]
@@ -143,7 +173,7 @@ export const AyahList: React.FC = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (showSearchNavigation && searchResults.length > 0) {
-        if (e.key === "ArrowDown") {
+        if (e.key === "ArrowDown" || e.key === "Enter") {
           e.preventDefault();
           navigateSearchResults("next");
         } else if (e.key === "ArrowUp") {
@@ -199,7 +229,7 @@ export const AyahList: React.FC = () => {
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchInAyahs")}
+              placeholder={t("searchByAyahNumberOrText")}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -214,6 +244,7 @@ export const AyahList: React.FC = () => {
                   type="button"
                   onClick={() => navigateSearchResults("prev")}
                   className={styles.navButton}
+                  disabled={searchResults.length <= 1}
                 >
                   <ChevronUp size={16} />
                 </button>
@@ -221,6 +252,7 @@ export const AyahList: React.FC = () => {
                   type="button"
                   onClick={() => navigateSearchResults("next")}
                   className={styles.navButton}
+                  disabled={searchResults.length <= 1}
                 >
                   <ChevronDown size={16} />
                 </button>
@@ -243,7 +275,7 @@ export const AyahList: React.FC = () => {
             <LoadingSpinner />
           ) : (
             <>
-              {/* Список аятов - всегда показываем все аяты */}
+              {/* Список аятов */}
               {ayahs.map((ayah, index) => {
                 const isSearchResult = isAyahInSearchResults(ayah.number);
                 const isCurrentResult =
@@ -262,11 +294,18 @@ export const AyahList: React.FC = () => {
                       isSearchResult ? styles.searchResult : ""
                     } ${isCurrentResult ? styles.highlightedResult : ""}`}
                     style={{
-                      transition: "transform 0.3s ease",
+                      transition: "all 0.3s ease",
                     }}
                   >
                     <div className={styles.ayasNember}>{ayah.number}</div>
                     <div className={styles.ayasText}>{ayah.text}</div>
+                    
+                    {/* Показываем номер аята для поиска по номеру */}
+                    {isSearchResult && (
+                      <div className={styles.ayahNumberBadge}>
+                        Аят {ayah.number}
+                      </div>
+                    )}
                   </div>
                 );
               })}

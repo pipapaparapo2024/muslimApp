@@ -149,6 +149,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
         );
 
         await updatePrayerSettings(updatedPrayers);
+        set({ prayerSetting: updatedPrayers });
       },
 
       togglePrayerNotification: async (id: string) => {
@@ -164,6 +165,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
         );
 
         await updatePrayerSettings(updatedPrayers);
+        set({ prayerSetting: updatedPrayers });
       },
 
       setAllPrayersSelected: async (selected: boolean) => {
@@ -178,6 +180,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
         }));
 
         await updatePrayerSettings(updatedPrayers);
+        set({ prayerSetting: updatedPrayers });
       },
 
       setAllNotifications: async (enabled: boolean) => {
@@ -189,6 +192,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
         }));
 
         await updatePrayerSettings(updatedPrayers);
+        set({ prayerSetting: updatedPrayers });
       },
     }),
     {
