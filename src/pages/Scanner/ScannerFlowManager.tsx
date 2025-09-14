@@ -12,11 +12,11 @@ export const ScannerFlowManager: React.FC = () => {
     // Если есть результат сканирования и загрузка завершена
     if (scanResult && !isLoading) {
       console.log("Scan result received:", scanResult);
-      navigate("/scanner/notScanned");
-      
       if (scanResult.status === ProductStatus.NEEDS_INFO) {
+        console.log("/scanner/notScanned scanResult.status")
         navigate("/scanner/notScanned");
       } else if (scanResult.id) {
+        console.log("/scanner/notScanned scanResult.id")
         sessionStorage.setItem('lastScanId', scanResult.id);
         navigate(`/scanner/historyScanner/${scanResult.id}`);
       }
