@@ -1,28 +1,25 @@
 import { create } from "zustand";
 import { quranApi } from "../api/api";
 import { isErrorWithMessage } from "../api/api";
-import {
-  type ScanResult,
-  type HistoryResponse,
-  type HistoryDetailResponse,
-} from "./useScannerStore";
+import { type ScanResult, type HistoryResponse } from "./useScannerStore";
 
+// Добавляем historyUtils перед созданием store
 export const historyUtils = {
-  groupByDate: (history: ScanResult[]) => {
-    const grouped = history.reduce((acc, item) => {
-      // Если у ScanResult есть поле date или timestamp, используем его
-      const date = item.date || new Date().toISOString().split("T")[0]; // Заглушка
-
+  groupByDate: (scans: ScanResult[]) => {
+    const grouped = scans.reduce((acc, scan) => {
+      const date = scan.date || new Date().toISOString().split('T')[0];
+      
       if (!acc[date]) {
         acc[date] = [];
       }
-      acc[date].push(item);
+      acc[date].push(scan);
       return acc;
     }, {} as Record<string, ScanResult[]>);
 
     return grouped;
   },
 };
+
 interface HistoryState {
   history: ScanResult[];
   isLoading: boolean;
@@ -59,7 +56,6 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
         }
       );
 
-      // Преобразуем группированную историю в плоский список
       const flatHistory = response.data.history.flatMap(
         (dateGroup) => dateGroup.qa
       );
@@ -84,7 +80,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const response = await quranApi.get<HistoryDetailResponse>(
+      const response = await quranApi.get<{ item: ScanResult }>(
         `/api/v1/qa/scanner/history/${id}`,
         {
           headers: {

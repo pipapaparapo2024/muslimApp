@@ -14,6 +14,31 @@
   flex-grow: 1;
 }
 
+.accessBlock {
+  display: flex;
+  align-items: center;
+  font-weight: var(--font-500);
+  font-size: var(--numbers-20);
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+}
+.haram {
+  color: #ef4444;
+}
+.halal {
+  color: #15803d;
+}
+
+.mushbooh {
+  color: #f59e0b;
+}
+
+.needsInfo {
+  color: gray;
+}
+
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
@@ -70,17 +95,6 @@
   background-color: var(--colors-green-800);
 }
 
-.accessBlock {
-  display: flex;
-  align-items: center;
-  font-weight: var(--font-500);
-  font-size: var(--numbers-20);
-  gap: var(--numbers-4);
-  padding: var(--numbers-12) var(--numbers-16);
-  background: var(--bg-surface);
-  border-radius: var(--roundings-medium);
-}
-
 .scanTitle {
   font-weight: var(--font-600);
   font-size: var(--numbers-16);
@@ -88,13 +102,7 @@
 }
 .scanDesk {
   font-weight: 400;
-  margin-top: var(--numbers-4) ;
+  margin-top: var(--numbers-4);
   color: var(--desk-text);
   font-size: var(--numbers-14);
-}
-.haram {
-  color: #ef4444;
-}
-.halal {
-  color: #15803d;
 }

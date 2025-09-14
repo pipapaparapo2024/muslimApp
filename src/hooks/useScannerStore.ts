@@ -23,12 +23,10 @@ export interface HaramProduct {
 
 export interface ScanResult {
   id: string;
-  date: string;
   verdict: ProductStatusType;
-  engType: string;
-  description: string;
   products: string[];
   haramProducts: HaramProduct[];
+  date: string;
 }
 
 export interface HistoryItem {
@@ -36,11 +34,20 @@ export interface HistoryItem {
   date: string;
   timestamp: string;
   status: ProductStatusType;
-  data?: ScanResult;
+  data: ScanResult; // Убрал optional, так как данные всегда должны быть
 }
 
-export interface ApiScanResponse extends ScanResult {
+// Интерфейсы для ответа API
+export interface ApiScanResponseData {
+  haramProducts: HaramProduct[];
   id: string;
+  products: string[];
+  verdict: ProductStatusType;
+}
+
+export interface ApiScanResponse {
+  data: ApiScanResponseData;
+  status: string;
 }
 
 export interface HistoryResponse {
@@ -48,13 +55,13 @@ export interface HistoryResponse {
   hasPrev: boolean;
   history: Array<{
     date: string;
-    qa: ScanResult[];
+    qa: ScanResult[]; // Теперь здесь ScanResult[]
   }>;
   pageAmount: number;
 }
 
 export interface HistoryDetailResponse {
-  item: ScanResult;
+  item: ScanResult; // Теперь здесь ScanResult
 }
 
 interface ScannerState {
@@ -74,6 +81,7 @@ interface ScannerState {
   setMinLoadingTimePassed: (passed: boolean) => void;
   addToHistory: (result: HistoryItem) => void;
   clearHistory: () => void;
+  resetScannerState: () => void;
 
   processImage: (file: File) => Promise<void>;
   resetScan: () => void;
@@ -105,6 +113,21 @@ export const useScannerStore = create<ScannerState>()(
 
       clearHistory: () => set({ scanHistory: [] }),
 
+      resetScannerState: () => {
+        const { capturedImage } = get();
+        if (capturedImage && capturedImage.startsWith("blob:")) {
+          URL.revokeObjectURL(capturedImage);
+        }
+        set({
+          isLoading: false,
+          error: null,
+          capturedImage: null,
+          scanResult: null,
+          showAnalyzing: false,
+          minLoadingTimePassed: false,
+        });
+      },
+
       processImage: async (file: File) => {
         const {
           setLoading,
@@ -114,13 +137,13 @@ export const useScannerStore = create<ScannerState>()(
           setScanResult,
           setError,
           addToHistory,
+          resetScannerState,
         } = get();
 
+        resetScannerState();
         setLoading(true);
         setShowAnalyzing(true);
         setMinLoadingTimePassed(false);
-        setScanResult(null);
-        setError(null);
 
         setTimeout(() => setMinLoadingTimePassed(true), 2000);
 
@@ -155,23 +178,31 @@ export const useScannerStore = create<ScannerState>()(
 
           clearTimeout(maxProcessingTimeout);
 
-          const data = response.data;
+          const responseData = response.data.data;
           const timestamp = new Date().toISOString();
-          console.log("response historyItem",response)
+          const date = timestamp.split("T")[0];
+
+          const scanResult: ScanResult = {
+            id: responseData.id,
+            verdict: responseData.verdict,
+            products: responseData.products,
+            haramProducts: responseData.haramProducts,
+            date: date,
+          };
+
           const historyItem: HistoryItem = {
-            id: data.id,
-            date: timestamp.split("T")[0],
-            timestamp,
-            status: data.verdict,
-            data: data,
+            id: responseData.id,
+            date: date,
+            timestamp: timestamp,
+            status: responseData.verdict,
+            data: scanResult,
           };
 
           setScanResult(historyItem);
           addToHistory(historyItem);
           setShowAnalyzing(false);
 
-          // Если статус needs_info - показываем соответствующее уведомление
-          if (data.verdict === ProductStatus.NEEDS_INFO) {
+          if (responseData.verdict === ProductStatus.NEEDS_INFO) {
             WebApp.showAlert(
               "Не удалось определить состав. Пожалуйста, сделайте более четкое фото состава продукта."
             );
