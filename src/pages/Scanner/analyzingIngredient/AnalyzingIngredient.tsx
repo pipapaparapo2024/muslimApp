@@ -8,12 +8,10 @@ import { t } from "i18next";
 
 export const AnalyzingIngredient: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(12);
-  const { error, isLoading, resetScannerState } = useScannerStore(); // Добавляем reset
+  const { error, isLoading} = useScannerStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Сброс состояния при монтировании компонента
-    resetScannerState();
     setTimeLeft(12);
 
     const timer = setInterval(() => {
@@ -29,7 +27,7 @@ export const AnalyzingIngredient: React.FC = () => {
     return () => {
       clearInterval(timer);
     };
-  }, [resetScannerState]); 
+  }, []); 
 
   useEffect(() => {
     if (timeLeft === 0 && isLoading) {

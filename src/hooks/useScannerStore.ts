@@ -74,7 +74,6 @@ interface ScannerState {
   setMinLoadingTimePassed: (passed: boolean) => void;
   addToHistory: (result: HistoryItem) => void;
   clearHistory: () => void;
-  resetScannerState: () => void; // Добавленная функция
 
   processImage: (file: File) => Promise<void>;
   resetScan: () => void;
@@ -105,22 +104,6 @@ export const useScannerStore = create<ScannerState>()(
         })),
 
       clearHistory: () => set({ scanHistory: [] }),
-
-      // Добавленная функция для сброса состояния сканера
-      resetScannerState: () => {
-        const { capturedImage } = get();
-        if (capturedImage && capturedImage.startsWith("blob:")) {
-          URL.revokeObjectURL(capturedImage);
-        }
-        set({
-          isLoading: false,
-          error: null,
-          capturedImage: null,
-          scanResult: null,
-          showAnalyzing: false,
-          minLoadingTimePassed: false,
-        });
-      },
 
       processImage: async (file: File) => {
         const {
