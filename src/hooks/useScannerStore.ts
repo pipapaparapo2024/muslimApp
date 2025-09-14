@@ -25,6 +25,7 @@ export interface ScanResult {
   id: string;
   verdict: ProductStatusType;
   products: string[];
+  engType: ProductStatusType;
   haramProducts: HaramProduct[];
   date: string;
 }
@@ -33,16 +34,18 @@ export interface HistoryItem {
   id: string;
   date: string;
   timestamp: string;
-  status: ProductStatusType;
-  data: ScanResult; // Убрал optional, так как данные всегда должны быть
+  data: ScanResult;
 }
 
 // Интерфейсы для ответа API
 export interface ApiScanResponseData {
-  haramProducts: HaramProduct[];
-  id: string;
-  products: string[];
-  verdict: ProductStatusType;
+  response: {
+    haramProducts: HaramProduct[];
+    id: string;
+    products: string[];
+    verdict: ProductStatusType;
+    engType: ProductStatusType;
+  };
 }
 
 export interface ApiScanResponse {
@@ -181,11 +184,12 @@ export const useScannerStore = create<ScannerState>()(
           console.log("API Response:", response);
           clearTimeout(maxProcessingTimeout);
 
-          const responseData = response.data.data;
+          const responseData = response.data.data.response;
           const timestamp = new Date().toISOString();
           const date = timestamp.split("T")[0];
 
           const scanResult: ScanResult = {
+            engType: responseData.engType,
             id: responseData.id,
             verdict: responseData.verdict,
             products: responseData.products,
@@ -197,7 +201,6 @@ export const useScannerStore = create<ScannerState>()(
             id: responseData.id,
             date: date,
             timestamp: timestamp,
-            status: responseData.verdict,
             data: scanResult,
           };
 
