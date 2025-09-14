@@ -40,7 +40,7 @@ export const Settings: React.FC = () => {
     );
     console.log("HTML classes:", document.documentElement.className);
   }, [i18n.language]);
-
+  console.log("prayers",prayers)
   return (
     <PageWrapper showBackButton>
       <div className={styles.settingsContainer}>
