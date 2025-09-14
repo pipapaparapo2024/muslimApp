@@ -83,6 +83,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       );
 
       set({ isLoading: false });
+      console.log("responseItem",response)
       return response.data.item;
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)

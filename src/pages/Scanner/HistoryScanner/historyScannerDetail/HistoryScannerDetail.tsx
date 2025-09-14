@@ -30,7 +30,7 @@ export const HistoryScannerDetail: React.FC = () => {
 
       setIsLoading(true);
       const item = await fetchHistoryItem(id);
-
+      console.log("item",item)
       if (item) {
         setCurrentItem(item);
       } else {
