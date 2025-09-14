@@ -5,15 +5,12 @@ import styles from './AnalyzingIngredient.module.css'
 import { PageWrapper } from "../../../shared/PageWrapper";
 import analyz from '../../../assets/image/analyz.png'
 import { t } from "i18next";
-
 export const AnalyzingIngredient: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(12);
-  const { error, isLoading} = useScannerStore();
+  const { error, isLoading } = useScannerStore();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setTimeLeft(12);
-
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -24,18 +21,18 @@ export const AnalyzingIngredient: React.FC = () => {
       });
     }, 1000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []); 
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
+    // Если время вышло и все еще грузится - переходим на ошибку
     if (timeLeft === 0 && isLoading) {
       navigate("/scanner/notScanned");
     }
   }, [timeLeft, isLoading, navigate]);
 
   useEffect(() => {
+    // Если появилась ошибка - переходим на страницу ошибки
     if (error) {
       navigate("/scanner/notScanned");
     }
@@ -50,7 +47,7 @@ export const AnalyzingIngredient: React.FC = () => {
             {t("checkingItems")}
           </div>
           <div className={styles.image}>
-            <img src={analyz} alt="Analyzing" />
+            <img src={analyz} />
           </div>
           {timeLeft > 0 && (
             <div className={styles.countdown}>
