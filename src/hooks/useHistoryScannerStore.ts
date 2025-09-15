@@ -3,22 +3,27 @@ import { quranApi } from "../api/api";
 import { isErrorWithMessage } from "../api/api";
 import { type ScanResult } from "./useScannerStore";
 
+interface HistoryItem {
+  date: string;
+  qa: ScanResult[];
+}
+
 interface HistoryResponse {
-  hasNext: boolean;
-  hasPrev: boolean;
-  history: Array<{
-    date: string;
-    qa: ScanResult[];
-  }>;
-  pageAmount: number;
-  status: string;
+  data: {
+    hasNext: boolean;
+    hasPrev: boolean;
+    history: HistoryItem[];
+    pageAmount: number;
+    status: string;
+  };
+  status: number;
+  statusText: string;
+  headers: any;
+  config: any;
 }
 
 interface HistoryState {
-  history: Array<{
-    date: string;
-    qa: ScanResult[];
-  }>;
+  history: HistoryItem[];
   isLoading: boolean;
   error: string | null;
   currentPage: number;
@@ -55,14 +60,14 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       console.log("historyScan", response);
 
       set({
-        history: response.data.history,
+        history: response.data.data.history, // Доступ через response.data.data.history
         currentPage: page,
-        totalPages: response.data.pageAmount,
-        hasNext: response.data.hasNext,
-        hasPrev: response.data.hasPrev,
+        totalPages: response.data.data.pageAmount,
+        hasNext: response.data.data.hasNext,
+        hasPrev: response.data.data.hasPrev,
         isLoading: false,
       });
-      console.log("historyннннннннннннн",history)
+      console.log("historyннннннннннннн", response.data.data.history);
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
@@ -74,7 +79,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
     try {
-      const response = await quranApi.get<{ item: ScanResult }>(
+      const response = await quranApi.get<{ data: { item: ScanResult } }>(
         `/api/v1/qa/scanner/history/${id}`,
         {
           headers: {
@@ -85,7 +90,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       console.log("historyScanItem", response);
 
       set({ isLoading: false });
-      return response.data.item;
+      return response.data.data.item; // Доступ через response.data.data.item
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
@@ -107,8 +112,8 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 }));
 
 export const historyUtils = {
-  groupByDate: (history: Array<{date: string; qa: ScanResult[]}>) => {
-    // The API already groups by date, so we just need to format it
+  groupByDate: (history: HistoryItem[]) => {
+    // API уже группирует по дате, просто возвращаем в нужном формате
     return history.map(dateGroup => ({
       date: dateGroup.date,
       scans: dateGroup.qa
