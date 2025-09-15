@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./HistoryScanner.module.css";
-import { useHistoryScannerStore } from "../../../hooks/useHistoryScannerStore";
+import { useHistoryScannerStore, historyUtils } from "../../../hooks/useHistoryScannerStore";
 import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { historyUtils } from "../../../hooks/useHistoryScannerStore";
 import { useTranslation } from "react-i18next";
 import {
   getStatusIcon,
@@ -27,19 +26,14 @@ const toProductStatusType = (status: string): ProductStatusType => {
     : "needs_info";
 };
 
-// Helper function to extract the status value from the status object
 const getStatusValue = (statusObj: any): ProductStatusType => {
   if (typeof statusObj === "string") return toProductStatusType(statusObj);
 
-  // If it's an object with status values, try to find the actual status
   if (typeof statusObj === "object" && statusObj !== null) {
-    // Check common status property names
     if (statusObj.status) return toProductStatusType(statusObj.status);
     if (statusObj.value) return toProductStatusType(statusObj.value);
     if (statusObj.name) return toProductStatusType(statusObj.name);
 
-    // If it's an object like {HALAL: "halal", HARAM: "haram", ...},
-    // find which property has a truthy value
     const statusKeys = Object.keys(statusObj);
     for (const key of statusKeys) {
       if (statusObj[key] && typeof statusObj[key] === "string") {
@@ -59,7 +53,6 @@ export const HistoryScanner: React.FC = () => {
   useEffect(() => {
     fetchHistory(1);
     console.log("fetchHistory");
-    console.log("history", history);
   }, []);
 
   const formatDateWithTranslation = (dateString: string) => {
@@ -94,12 +87,7 @@ export const HistoryScanner: React.FC = () => {
     return months[monthIndex];
   };
 
-  const groupedHistory = Object.entries(historyUtils.groupByDate(history)).map(
-    ([dateKey, scans]) => ({
-      date: formatDateWithTranslation(dateKey),
-      scans,
-    })
-  );
+  const groupedHistory = historyUtils.groupByDate(history);
 
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
@@ -126,7 +114,7 @@ export const HistoryScanner: React.FC = () => {
       <div className={styles.container}>
         {groupedHistory.map(({ date, scans }) => (
           <div key={date} className={styles.dateSection}>
-            <div className={styles.dateHeader}>{date}</div>
+            <div className={styles.dateHeader}>{formatDateWithTranslation(date)}</div>
             {scans.map((scan) => {
               const status = getStatusValue(scan.verdict);
               return (
@@ -138,8 +126,7 @@ export const HistoryScanner: React.FC = () => {
                   <div>
                     <div className={styles.scanTitle}>{t("ingredients")}</div>
                     <div className={styles.scanDesk}>
-                      {scan.haramProducts.map((item) => item.reason) ||
-                        t("unknownProduct")}
+                      {scan.products.join(", ") || t("unknownProduct")}
                     </div>
                   </div>
                   <div className={styles.scanAnalysis}>
@@ -147,7 +134,8 @@ export const HistoryScanner: React.FC = () => {
                       {t("analysisResult")}
                     </div>
                     <div className={styles.scanDesk}>
-                      {scan.products.map((item) => item) || t("noDescription")}
+                      {scan.haramProducts?.map((item) => item.reason).join(", ") || 
+                       t("noDescription")}
                     </div>
                   </div>
                   <div className={styles.blockUnderInfo}>

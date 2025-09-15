@@ -11,10 +11,14 @@ interface HistoryResponse {
     qa: ScanResult[];
   }>;
   pageAmount: number;
+  status: string;
 }
 
 interface HistoryState {
-  history: ScanResult[];
+  history: Array<{
+    date: string;
+    qa: ScanResult[];
+  }>;
   isLoading: boolean;
   error: string | null;
   currentPage: number;
@@ -50,11 +54,8 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       );
       console.log("historyScan", response);
 
-      const flatHistory = response.data.history.flatMap(
-        (dateGroup) => dateGroup.qa
-      );
       set({
-        history: flatHistory,
+        history: response.data.history,
         currentPage: page,
         totalPages: response.data.pageAmount,
         hasNext: response.data.hasNext,
@@ -105,17 +106,11 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 }));
 
 export const historyUtils = {
-  groupByDate: (scans: ScanResult[]) => {
-    const grouped = scans.reduce((acc, scan) => {
-      const date = scan.date || new Date().toISOString().split("T")[0];
-
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(scan);
-      return acc;
-    }, {} as Record<string, ScanResult[]>);
-
-    return grouped;
+  groupByDate: (history: Array<{date: string; qa: ScanResult[]}>) => {
+    // The API already groups by date, so we just need to format it
+    return history.map(dateGroup => ({
+      date: dateGroup.date,
+      scans: dateGroup.qa
+    }));
   },
 };
