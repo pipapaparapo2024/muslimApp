@@ -100,7 +100,7 @@ export const ScannerShareStory: React.FC = () => {
 
   if (!isLoaded) {
     return (
-      <PageWrapper showBackButton={true}>
+      <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <LoadingSpinner />
       </PageWrapper>
     );
@@ -108,14 +108,14 @@ export const ScannerShareStory: React.FC = () => {
 
   if (!currentItem) {
     return (
-      <PageWrapper showBackButton={true}>
+      <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <div>{t("itemNotFound")}</div>
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={false}>
+    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/scanner/historyScanner">
       <div className={styles.container}>
         <div className={styles.contentWrapper} ref={imageRef}>
           <img src={message} alt="Message background" className={styles.backgroundImage} />
