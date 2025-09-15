@@ -58,7 +58,8 @@ export const HistoryScanner: React.FC = () => {
 
   useEffect(() => {
     fetchHistory(1);
-  }, [fetchHistory]);
+    console.log("fetchHistory")
+  }, []);
 
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
