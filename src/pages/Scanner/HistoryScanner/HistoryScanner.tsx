@@ -58,6 +58,9 @@ export const HistoryScanner: React.FC = () => {
     console.log("fetchHistory");
   }, []);
 
+  // Добавьте проверку на undefined
+  const groupedHistory = history ? historyUtils.groupByDate(history) : [];
+
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
@@ -71,7 +74,8 @@ export const HistoryScanner: React.FC = () => {
       )} ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
-
+  // Добавьте проверку на undefined или пустой массив
+  if (!history || history.length === 0) return <HistoryScannerEmpty />;
   const getMonthKey = (monthIndex: number): string => {
     const months = [
       "january",
@@ -90,7 +94,6 @@ export const HistoryScanner: React.FC = () => {
     return months[monthIndex];
   };
 
-  const groupedHistory = historyUtils.groupByDate(history);
 
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
