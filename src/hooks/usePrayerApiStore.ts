@@ -42,7 +42,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       fetchPrayers: async (lat: number, lon: number) => {
         set({ isLoading: true, error: null });
-
+        console.log("координаты ",lat,lon)
         try {
           const response = await quranApi.get(`/api/v1/prayers`, {
             params: {
