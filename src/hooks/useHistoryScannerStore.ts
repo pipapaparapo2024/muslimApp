@@ -76,6 +76,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
+    console.log("start fetchHistoryItem")
     try {
       const response = await quranApi.get<{ data: { item: ScanResult } }>(
         `/api/v1/qa/scanner/history/${id}`,
@@ -89,6 +90,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       console.log("historyScanItem response", response);
 
       set({ isLoading: false });
+      console.log("finish fetchHistoryItem")
       return response.data.data.item; 
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
