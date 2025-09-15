@@ -60,7 +60,6 @@ export const ScannerShareStory: React.FC = () => {
     loadItem();
   }, [id, fetchHistoryItem]);
 
-
   const handleShare = async () => {
     try {
       const imageUrl = await createScreenshot();
@@ -123,8 +122,11 @@ export const ScannerShareStory: React.FC = () => {
                 styles
               )}`}
             >
-              {getStatusIcon(currentItem.engType)}
-              {t(getStatusTranslationKey(currentItem.engType))}
+              <div>
+                {getStatusIcon(currentItem.engType)}
+                {t(getStatusTranslationKey(currentItem.engType))}
+              </div>
+              @QiblaGuidebot
             </div>
 
             <div className={styles.blockInside}>
@@ -142,7 +144,7 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.scanDesk}>
                 {currentItem.haramProducts &&
                   currentItem.haramProducts.length > 0 &&
-                  currentItem.haramProducts.map((product:any, index:any) => (
+                  currentItem.haramProducts.map((product: any, index: any) => (
                     <div key={index} className={styles.haranProduct}>
                       {product.reason}
                     </div>
