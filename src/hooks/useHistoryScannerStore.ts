@@ -88,6 +88,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
         }
       );
       console.log("historyScanItem", response.data.data.item);
+      console.log("historyScanItem response", response);
 
       set({ isLoading: false });
       return response.data.data.item; 
@@ -113,7 +114,6 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 
 export const historyUtils = {
   groupByDate: (history: HistoryItem[]) => {
-    // API уже группирует по дате, просто возвращаем в нужном формате
     return history.map(dateGroup => ({
       date: dateGroup.date,
       scans: dateGroup.qa

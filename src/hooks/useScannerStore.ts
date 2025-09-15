@@ -170,7 +170,7 @@ export const useScannerStore = create<ScannerState>()(
             }
           );
 
-          console.log("API Response:", response);
+          console.log("API Response processImage:", response);
           clearTimeout(maxProcessingTimeout);
 
           const responseData = response.data.data.response;
