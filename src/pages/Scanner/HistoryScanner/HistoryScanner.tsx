@@ -58,7 +58,8 @@ export const HistoryScanner: React.FC = () => {
 
   useEffect(() => {
     fetchHistory(1);
-    console.log("fetchHistory")
+    console.log("fetchHistory");
+    console.log("history", history);
   }, []);
 
   const formatDateWithTranslation = (dateString: string) => {
@@ -117,6 +118,7 @@ export const HistoryScanner: React.FC = () => {
     );
   }
 
+  console.log("history", history);
   if (history.length === 0) return <HistoryScannerEmpty />;
 
   return (
