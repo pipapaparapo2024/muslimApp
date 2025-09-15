@@ -8,7 +8,7 @@ interface HistoryResponse {
   hasPrev: boolean;
   history: Array<{
     date: string;
-    qa: ScanResult[]; 
+    qa: ScanResult[];
   }>;
   pageAmount: number;
 }
@@ -48,11 +48,11 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
           },
         }
       );
+      console.log("historyScan", response);
 
       const flatHistory = response.data.history.flatMap(
         (dateGroup) => dateGroup.qa
       );
-
       set({
         history: flatHistory,
         currentPage: page,
@@ -80,6 +80,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
           },
         }
       );
+      console.log("historyScanItem", response);
 
       set({ isLoading: false });
       return response.data.item;
