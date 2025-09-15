@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./HistoryScanner.module.css";
-import { useHistoryScannerStore, historyUtils } from "../../../hooks/useHistoryScannerStore";
+import {
+  useHistoryScannerStore,
+  historyUtils,
+} from "../../../hooks/useHistoryScannerStore";
 import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +16,7 @@ import {
   getStatusTranslationKey,
 } from "../productStatus";
 import { type ProductStatusType } from "../../../hooks/useScannerStore";
-
+console.log("start history");
 const toProductStatusType = (status: string): ProductStatusType => {
   const validStatuses: ProductStatusType[] = [
     "halal",
@@ -105,6 +108,7 @@ export const HistoryScanner: React.FC = () => {
       </PageWrapper>
     );
   }
+  console.log("finish history");
 
   console.log("history", history);
   if (history.length === 0) return <HistoryScannerEmpty />;
@@ -114,7 +118,9 @@ export const HistoryScanner: React.FC = () => {
       <div className={styles.container}>
         {groupedHistory.map(({ date, scans }) => (
           <div key={date} className={styles.dateSection}>
-            <div className={styles.dateHeader}>{formatDateWithTranslation(date)}</div>
+            <div className={styles.dateHeader}>
+              {formatDateWithTranslation(date)}
+            </div>
             {scans.map((scan) => {
               const status = getStatusValue(scan.verdict);
               return (
@@ -134,8 +140,9 @@ export const HistoryScanner: React.FC = () => {
                       {t("analysisResult")}
                     </div>
                     <div className={styles.scanDesk}>
-                      {scan.haramProducts?.map((item) => item.reason).join(", ") || 
-                       t("noDescription")}
+                      {scan.haramProducts
+                        ?.map((item) => item.reason)
+                        .join(", ") || t("noDescription")}
                     </div>
                   </div>
                   <div className={styles.blockUnderInfo}>
