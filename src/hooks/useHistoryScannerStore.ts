@@ -7,7 +7,13 @@ interface HistoryItem {
   date: string;
   qa: ScanResult[];
 }
-
+interface HistoryItemResponse {
+  data: {
+    item: ScanResult | null; // Может быть null
+  };
+  status: number;
+  statusText: string;
+}
 interface HistoryResponse {
   data: {
     hasNext: boolean;
@@ -76,9 +82,10 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
-    console.log("start fetchHistoryItem")
+    console.log("start fetchHistoryItem");
+
     try {
-      const response = await quranApi.get<{ data: { item: ScanResult } }>(
+      const response = await quranApi.get<HistoryItemResponse>(
         `/api/v1/qa/scanner/history/${id}`,
         {
           headers: {
@@ -86,12 +93,15 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
           },
         }
       );
-      console.log("historyScanItem", response.data.data.item);
-      console.log("historyScanItem response", response);
+
+      console.log("historyScanItem response:", response);
+      console.log("historyScanItem data:", response.data);
 
       set({ isLoading: false });
-      console.log("finish fetchHistoryItem")
-      return response.data.data.item; 
+      console.log("finish fetchHistoryItem");
+
+      // Проверяем, что item не null
+      return response.data.data.item;
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
@@ -114,9 +124,9 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
 
 export const historyUtils = {
   groupByDate: (history: HistoryItem[]) => {
-    return history.map(dateGroup => ({
+    return history.map((dateGroup) => ({
       date: dateGroup.date,
-      scans: dateGroup.qa
+      scans: dateGroup.qa,
     }));
   },
 };

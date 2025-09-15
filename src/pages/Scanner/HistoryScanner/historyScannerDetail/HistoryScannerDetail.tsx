@@ -39,17 +39,28 @@ export const HistoryScannerDetail: React.FC = () => {
         if (item) {
           setCurrentItem(item);
         } else {
-          navigate("/scanner");
+          // Если item = null, ищем в локальной истории
+          const { history } = useHistoryScannerStore.getState();
+          const allScans = history.flatMap(group => group.qa);
+          const localItem = allScans.find(scan => scan.id === id);
+          
+          if (localItem) {
+            setCurrentItem(localItem);
+          } else {
+            setNetworkError("Элемент не найден в истории");
+            setTimeout(() => navigate("/scanner"), 2000);
+          }
         }
       } catch (error: any) {
         console.error("API Error:", error);
         setNetworkError(error.message || "Network error");
 
-        // Проверяем статус ошибки
         if (error.response?.status === 403) {
           setNetworkError("Доступ запрещен (403). Возможно ограничение по IP");
         } else if (error.response?.status === 401) {
           setNetworkError("Неавторизованный доступ (401)");
+        } else if (error.response?.status === 404) {
+          setNetworkError("Элемент не найден (404)");
         }
       }
 
