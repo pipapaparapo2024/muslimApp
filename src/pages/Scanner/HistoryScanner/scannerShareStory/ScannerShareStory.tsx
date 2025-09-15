@@ -6,9 +6,17 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import { useHtmlExport, SCANNER_HTML_STYLES } from "../../../../hooks/useHtmlExport";
-import { CircleCheck, CircleX, Upload, Download } from "lucide-react";
+import {
+  useHtmlExport,
+  SCANNER_HTML_STYLES,
+} from "../../../../hooks/useHtmlExport";
+import { Upload, Download } from "lucide-react";
 import { t } from "i18next";
+import {
+  getStatusClassName,
+  getStatusIcon,
+  getStatusTranslationKey,
+} from "../../productStatus";
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -16,7 +24,8 @@ export const ScannerShareStory: React.FC = () => {
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null); // Используем any временно
 
-  const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
+  const { createScreenshot, shareToTelegramStory, loading, imageRef } =
+    useScreenshot();
   const { loading: htmlLoading, exportHtml } = useHtmlExport();
 
   useEffect(() => {
@@ -51,26 +60,6 @@ export const ScannerShareStory: React.FC = () => {
     loadItem();
   }, [id, fetchHistoryItem]);
 
-  // Проверяем, является ли продукт харамом
-  const isHaram = (): boolean => {
-    return currentItem?.verdict === "haram";
-  };
-
-  // Проверяем, является ли продукт халяльным
-  const isHalal = (): boolean => {
-    return currentItem?.verdict === "halal";
-  };
-
-  // Получаем название продукта (берем первый продукт из массива или используем engType)
-  const getProductName = (): string => {
-    if (!currentItem) return t("unknownProduct");
-    
-    if (currentItem.products && currentItem.products.length > 0) {
-      return currentItem.products[0];
-    }
-    
-    return currentItem.engType || t("unknownProduct");
-  };
 
   const handleShare = async () => {
     try {
@@ -83,18 +72,18 @@ export const ScannerShareStory: React.FC = () => {
 
   const handleExportHtml = async () => {
     if (!currentItem) return;
-    
+
     try {
       const htmlFileUrl = await exportHtml({
-        type: 'scanner',
+        type: "scanner",
         data: currentItem,
-        styles: SCANNER_HTML_STYLES
+        styles: SCANNER_HTML_STYLES,
       });
-      
-      window.open(htmlFileUrl, '_blank');
+
+      window.open(htmlFileUrl, "_blank");
     } catch (error) {
       console.error("Failed to export HTML:", error);
-      alert(t('exportFailed'));
+      alert(t("exportFailed"));
     }
   };
 
@@ -115,70 +104,74 @@ export const ScannerShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/scanner/historyScanner">
+    <PageWrapper
+      showBackButton={true}
+      styleHave={false}
+      navigateTo="/scanner/historyScanner"
+    >
       <div className={styles.container}>
         <div className={styles.contentWrapper} ref={imageRef}>
-          <img src={message} alt="Message background" className={styles.backgroundImage} />
+          <img
+            src={message}
+            alt="Message background"
+            className={styles.backgroundImage}
+          />
           <div className={styles.blockScan}>
-            <div className={styles.blockAccess}>
-              {isHaram() ? (
-                <div className={`${styles.accessBlock} ${styles.haram}`}>
-                  <CircleX size={24} strokeWidth={1.5} /> {t("haram")}
-                </div>
-              ) : isHalal() ? (
-                <div className={`${styles.accessBlock} ${styles.halal}`}>
-                  <CircleCheck size={24} strokeWidth={1.5} />
-                  {t("halal")}
-                </div>
-              ) : (
-                <div className={`${styles.accessBlock} ${styles.mushbooh}`}>
-                  <CircleX size={24} strokeWidth={1.5} /> 
-                  {t("mushbooh")}
-                </div>
-              )}
+            <div
+              className={`${styles.accessBlock} ${getStatusClassName(
+                currentItem.engType,
+                styles
+              )}`}
+            >
+              {getStatusIcon(currentItem.engType)}
+              {t(getStatusTranslationKey(currentItem.engType))}
             </div>
-            
+
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("productName")}</div>
-              <div className={styles.scanDesk}>{getProductName()}</div>
+              <div className={styles.scanTitle}>{t("ingredients")}</div>
+              <div className={styles.scanDesk}>
+                {" "}
+                {currentItem.products && currentItem.products.length > 0
+                  ? currentItem.products.join(", ")
+                  : t("noIngredientsFound")}
+              </div>
             </div>
 
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("analysisResult")}</div>
-              <div className={styles.scanDesk}>{currentItem.description || t("noDescription")}</div>
-            </div>
-
-            {currentItem.haramProducts && currentItem.haramProducts.length > 0 && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("haramIngredients")}</div>
-                <div className={styles.haramList}>
-                  {currentItem.haramProducts.map((product: any, index: number) => (
-                    <div key={index} className={styles.haramItem}>
-                      • {product.name}: {product.reason}
+              <div className={styles.scanDesk}>
+                {currentItem.haramProducts &&
+                  currentItem.haramProducts.length > 0 &&
+                  currentItem.haramProducts.map((product:any, index:any) => (
+                    <div key={index} className={styles.haranProduct}>
+                      {product.reason}
                     </div>
                   ))}
-                </div>
               </div>
-            )}
+            </div>
 
             <div className={styles.buttonsContainer}>
               <button
                 type="button"
                 onClick={handleShare}
                 disabled={loading}
-                className={`${styles.shareButton} ${loading ? styles.shareButtonDisabled : ""}`}
+                className={`${styles.shareButton} ${
+                  loading ? styles.shareButtonDisabled : ""
+                }`}
               >
-                <Upload size={18} /> 
+                <Upload size={18} />
                 {loading ? t("loading") : t("share")}
               </button>
-              
+
               <button
                 type="button"
                 onClick={handleExportHtml}
                 disabled={htmlLoading}
-                className={`${styles.exportButton} ${htmlLoading ? styles.exportButtonDisabled : ""}`}
+                className={`${styles.exportButton} ${
+                  htmlLoading ? styles.exportButtonDisabled : ""
+                }`}
               >
-                <Download size={18} /> 
+                <Download size={18} />
                 {htmlLoading ? t("loading") : t("exportHtml")}
               </button>
             </div>

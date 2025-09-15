@@ -86,7 +86,7 @@ export const HistoryScannerDetail: React.FC = () => {
 
   if (isLoading) {
     return (
-      <PageWrapper showBackButton={true}>
+      <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <LoadingSpinner />
       </PageWrapper>
     );
@@ -94,13 +94,13 @@ export const HistoryScannerDetail: React.FC = () => {
 
   if (!currentItem) {
     return (
-      <PageWrapper showBackButton={true}>
+      <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <div>{t("itemNotFound")}</div>
       </PageWrapper>
     );
   }
   return (
-    <PageWrapper showBackButton={true}>
+    <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
       <div className={styles.container}>
         <TableRequestsHistory text="/scanner/historyScanner" />
         <div className={styles.blockScan}>
