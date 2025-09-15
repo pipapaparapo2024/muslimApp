@@ -15,38 +15,7 @@ import {
   getStatusClassName,
   getStatusTranslationKey,
 } from "../productStatus";
-import { type ProductStatusType } from "../../../hooks/useScannerStore";
 console.log("start history");
-const toProductStatusType = (status: string): ProductStatusType => {
-  const validStatuses: ProductStatusType[] = [
-    "halal",
-    "haram",
-    "mushbooh",
-    "needs_info",
-  ];
-  return validStatuses.includes(status as ProductStatusType)
-    ? (status as ProductStatusType)
-    : "needs_info";
-};
-
-const getStatusValue = (statusObj: any): ProductStatusType => {
-  if (typeof statusObj === "string") return toProductStatusType(statusObj);
-
-  if (typeof statusObj === "object" && statusObj !== null) {
-    if (statusObj.status) return toProductStatusType(statusObj.status);
-    if (statusObj.value) return toProductStatusType(statusObj.value);
-    if (statusObj.name) return toProductStatusType(statusObj.name);
-
-    const statusKeys = Object.keys(statusObj);
-    for (const key of statusKeys) {
-      if (statusObj[key] && typeof statusObj[key] === "string") {
-        return toProductStatusType(statusObj[key]);
-      }
-    }
-  }
-
-  return "needs_info";
-};
 
 export const HistoryScanner: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -92,7 +61,6 @@ export const HistoryScanner: React.FC = () => {
     return months[monthIndex];
   };
 
-
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
     navigate(`/scanner/ScannerShareHistory/${scanId}`);
@@ -123,7 +91,6 @@ export const HistoryScanner: React.FC = () => {
               {formatDateWithTranslation(date)}
             </div>
             {scans.map((scan) => {
-              const status = getStatusValue(scan.verdict);
               return (
                 <div
                   key={scan.id}
@@ -149,12 +116,12 @@ export const HistoryScanner: React.FC = () => {
                   <div className={styles.blockUnderInfo}>
                     <div
                       className={`${styles.accessBlock} ${getStatusClassName(
-                        status,
+                        scan.engType,
                         styles
                       )}`}
                     >
-                      {getStatusIcon(status, 16)}
-                      {t(getStatusTranslationKey(status))}
+                      {getStatusIcon(scan.engType, 16)}
+                      {t(getStatusTranslationKey(scan.engType))}
                     </div>
                     <button
                       onClick={(event) => handleShare(event, scan.id)}

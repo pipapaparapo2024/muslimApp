@@ -87,10 +87,10 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
           },
         }
       );
-      console.log("historyScanItem", response);
+      console.log("historyScanItem", response.data.data.item);
 
       set({ isLoading: false });
-      return response.data.data.item; // Доступ через response.data.data.item
+      return response.data.data.item; 
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
