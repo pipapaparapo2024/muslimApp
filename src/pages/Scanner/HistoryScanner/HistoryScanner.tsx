@@ -55,7 +55,6 @@ export const HistoryScanner: React.FC = () => {
 
   useEffect(() => {
     fetchHistory(1);
-    console.log("fetchHistory");
   }, []);
 
   // Добавьте проверку на undefined
@@ -75,9 +74,6 @@ export const HistoryScanner: React.FC = () => {
     }
   };
   // Добавьте проверку на undefined или пустой массив
-  console.log("HistoryScannerEmpty")
-  if (!history || history.length === 0) return <HistoryScannerEmpty />;
-  console.log("HistoryScannerEmpty2")
   const getMonthKey = (monthIndex: number): string => {
     const months = [
       "january",
