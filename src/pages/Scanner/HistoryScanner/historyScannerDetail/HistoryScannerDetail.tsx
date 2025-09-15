@@ -72,7 +72,7 @@ export const HistoryScannerDetail: React.FC = () => {
 
   if (networkError) {
     return (
-      <PageWrapper showBackButton={true}>
+      <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <div className={styles.errorContainer}>
           <h2>Ошибка сети</h2>
           <p>{networkError}</p>
