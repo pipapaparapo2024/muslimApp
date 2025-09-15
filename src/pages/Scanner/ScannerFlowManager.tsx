@@ -1,8 +1,7 @@
 import { useEffect } from "react";
-import { useScannerStore } from "../../hooks/useScannerStore";
-import { useNavigate } from "react-router-dom";
 import { AnalyzingIngredient } from "./analyzingIngredient/AnalyzingIngredient";
-import { ProductStatus } from "../../hooks/useScannerStore";
+import { useNavigate } from "react-router-dom";
+import { ProductStatus, useScannerStore } from "../../hooks/useScannerStore";
 
 export const ScannerFlowManager: React.FC = () => {
   const { isLoading, error, scanResult, showAnalyzing } = useScannerStore();
@@ -26,9 +25,9 @@ export const ScannerFlowManager: React.FC = () => {
     }
   }, [scanResult, error, isLoading, navigate]);
 
+  // В ScannerFlowManager
   if (isLoading || showAnalyzing) {
-    return <AnalyzingIngredient key={Date.now()} />;
+    return <AnalyzingIngredient key={isLoading ? "loading" : "analyzing"} />;
   }
-
   return null;
 };

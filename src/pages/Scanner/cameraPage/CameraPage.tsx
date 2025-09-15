@@ -8,7 +8,7 @@ import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinne
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
-  const { processImage, isLoading } = useScannerStore();
+  const { processImage, isLoading,resetScannerState } = useScannerStore();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -67,6 +67,9 @@ export const CameraPage: React.FC = () => {
   const handleProcessPhoto = async () => {
     if (photoPreview) {
       try {
+        // Сбросить состояние сканера перед новым сканированием
+        resetScannerState();
+
         const response = await fetch(photoPreview);
         const blob = await response.blob();
         const file = new File([blob], "scanned-image.png", {

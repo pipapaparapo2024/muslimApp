@@ -131,8 +131,11 @@ export const useScannerStore = create<ScannerState>()(
 
         console.log("Starting image processing...");
         resetScannerState();
+        // Сбросить ТОЛЬКО необходимые состояния, а не все
         setLoading(true);
         setShowAnalyzing(true);
+        setError(null);
+        setScanResult(null); // Важно: сбросить предыдущий результат
         setMinLoadingTimePassed(false);
 
         setTimeout(() => setMinLoadingTimePassed(true), 2000);
