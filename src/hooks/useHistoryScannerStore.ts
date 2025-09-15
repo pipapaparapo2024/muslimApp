@@ -9,9 +9,7 @@ interface HistoryItem {
 }
 
 interface HistoryItemResponse {
-  data: {
-    item: ScanResult | null; // Может быть null
-  };
+  item: ScanResult | null; // Может быть null
   status: number;
   statusText: string;
 }
@@ -97,19 +95,19 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
       );
 
       console.log("historyScanItem response:", response);
-      console.log("historyScanItem data:", response.data);
+      console.log("historyScanItem data:", response.data.item);
 
       set({ isLoading: false });
       console.log("finish fetchHistoryItem");
 
       // Исправлено: response.data.data.item вместо response.data.item
-      if (response.data.data.item) {
-        return response.data.data.item;
+      if (response.data.item) {
+        return response.data.item;
       } else {
         // Если API вернул null, ищем в локальной истории
         const { history } = get();
-        const allScans = history.flatMap(group => group.qa);
-        return allScans.find(scan => scan.id === id) || null;
+        const allScans = history.flatMap((group) => group.qa);
+        return allScans.find((scan) => scan.id === id) || null;
       }
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
