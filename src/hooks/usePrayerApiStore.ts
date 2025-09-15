@@ -50,8 +50,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-          console.log("responsePrayer",response)
-          console.log("dataPrayer", response.data.data.prayer);
+          console.log("fetchPrayers:",response)
           if (response.data.status == "ok" && response.data.data?.prayers) {
             set({ prayers: response.data.data.prayers, isLoading: false });
           } else {
@@ -73,7 +72,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-          console.log("fetchPrayerSettings response:", response.data);
+          console.log("fetchPrayerSettings:", response.data);
 
           if (
             response.data.status == "ok" &&
@@ -99,7 +98,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       updatePrayerSettings: async (settings: PrayerSetting[]) => {
         set({ isLoading: true, error: null });
-        console.log("settings", settings);
         if (settings.length === 0) {
           throw new Error("Cannot update empty prayer settings array");
         } else console.log("все работает за*бись");
@@ -118,7 +116,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           });
 
           const data = response.data;
-          console.log("updatePrayerSettings response:", data);
+          console.log("updatePrayerSettings:", response);
 
           // ИСПРАВЛЕНО: сохраняем обновленные настройки
           if (data.status === "ok" && data.data?.praySettings) {
