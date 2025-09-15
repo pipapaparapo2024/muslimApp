@@ -54,7 +54,7 @@ export const HistoryScanner: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    await fetchHistory(1);
+    fetchHistory(1);
     console.log("fetchHistory");
   }, []);
 
