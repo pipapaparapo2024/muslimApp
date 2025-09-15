@@ -82,7 +82,6 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
 
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
-    console.log("start fetchHistoryItem");
 
     try {
       const response = await quranApi.get<HistoryItemResponse>(
@@ -94,11 +93,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
         }
       );
 
-      console.log("historyScanItem response:", response);
-      console.log("historyScanItem data:", response.data.item);
-
       set({ isLoading: false });
-      console.log("finish fetchHistoryItem");
 
       // Исправлено: response.data.data.item вместо response.data.item
       if (response.data.item) {

@@ -67,7 +67,7 @@
 
 .modalDescription {
   font-size: var(--numbers-14);
-  color: var(--color-text-secondary);
+  color: var(--desk-text);
   margin-bottom: var(--numbers-20);
   line-height: 1.4;
 }
