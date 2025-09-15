@@ -42,7 +42,6 @@ export const HistoryScanner: React.FC = () => {
       )} ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
-  // Добавьте проверку на undefined или пустой массив
   const getMonthKey = (monthIndex: number): string => {
     const months = [
       "january",
@@ -77,9 +76,7 @@ export const HistoryScanner: React.FC = () => {
       </PageWrapper>
     );
   }
-  console.log("finish history");
 
-  console.log("history", history);
   if (history.length === 0) return <HistoryScannerEmpty />;
 
   return (

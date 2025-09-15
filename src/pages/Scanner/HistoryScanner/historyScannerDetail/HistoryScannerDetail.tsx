@@ -34,7 +34,7 @@ export const HistoryScannerDetail: React.FC = () => {
 
       try {
         const item = await fetchHistoryItem(id);
-        console.log("API Response:", item);
+        console.log("API Response item:", item);
 
         if (item) {
           setCurrentItem(item);
@@ -58,10 +58,6 @@ export const HistoryScannerDetail: React.FC = () => {
 
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
-
-  useEffect(() => {
-    console.log("currentItem changed:", currentItem);
-  }, [currentItem]);
 
   if (networkError) {
     return (

@@ -129,9 +129,7 @@ export const useScannerStore = create<ScannerState>()(
           resetScannerState,
         } = get();
 
-        console.log("Starting image processing...");
         resetScannerState();
-        // Сбросить ТОЛЬКО необходимые состояния, а не все
         setLoading(true);
         setShowAnalyzing(true);
         setError(null);
@@ -157,7 +155,6 @@ export const useScannerStore = create<ScannerState>()(
           const formData = new FormData();
           formData.append("file", file);
 
-          console.log("Sending request to API...");
           const response = await quranApi.post<ApiScanResponse>(
             "/api/v1/qa/scanner/scan",
             formData,
@@ -170,7 +167,6 @@ export const useScannerStore = create<ScannerState>()(
             }
           );
 
-          console.log("API Response processImage:", response);
           clearTimeout(maxProcessingTimeout);
 
           const responseData = response.data.data.response;
@@ -193,7 +189,6 @@ export const useScannerStore = create<ScannerState>()(
             data: scanResult,
           };
 
-          console.log("Setting scan result:", historyItem);
           setScanResult(historyItem);
           addToHistory(historyItem);
           setShowAnalyzing(false); // Важно: убираем показ analyzing
@@ -225,7 +220,6 @@ export const useScannerStore = create<ScannerState>()(
           WebApp.showAlert(`Ошибка: ${errorMessage}`);
         } finally {
           setLoading(false);
-          console.log("Image processing finished");
         }
       },
 

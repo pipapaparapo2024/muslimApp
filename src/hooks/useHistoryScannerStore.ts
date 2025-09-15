@@ -57,7 +57,6 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
           },
         }
       );
-      console.log("historyScan", response);
 
       set({
         history: response.data.data.history, // Доступ через response.data.data.history
@@ -67,7 +66,6 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
         hasPrev: response.data.data.hasPrev,
         isLoading: false,
       });
-      console.log("historyннннннннннннн", response.data.data.history);
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
