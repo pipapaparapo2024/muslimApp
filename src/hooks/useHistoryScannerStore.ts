@@ -7,6 +7,7 @@ interface HistoryItem {
   date: string;
   qa: ScanResult[];
 }
+
 interface HistoryItemResponse {
   data: {
     item: ScanResult | null; // Может быть null
@@ -14,6 +15,7 @@ interface HistoryItemResponse {
   status: number;
   statusText: string;
 }
+
 interface HistoryResponse {
   data: {
     hasNext: boolean;
@@ -42,7 +44,7 @@ interface HistoryState {
   clearHistory: () => void;
 }
 
-export const useHistoryScannerStore = create<HistoryState>()((set) => ({
+export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
   history: [],
   isLoading: false,
   error: null,
@@ -65,7 +67,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       );
 
       set({
-        history: response.data.data.history, // Доступ через response.data.data.history
+        history: response.data.data.history,
         currentPage: page,
         totalPages: response.data.data.pageAmount,
         hasNext: response.data.data.hasNext,
@@ -100,8 +102,15 @@ export const useHistoryScannerStore = create<HistoryState>()((set) => ({
       set({ isLoading: false });
       console.log("finish fetchHistoryItem");
 
-      // Проверяем, что item не null
-      return response.data.data.item;
+      // Исправлено: response.data.data.item вместо response.data.item
+      if (response.data.data.item) {
+        return response.data.data.item;
+      } else {
+        // Если API вернул null, ищем в локальной истории
+        const { history } = get();
+        const allScans = history.flatMap(group => group.qa);
+        return allScans.find(scan => scan.id === id) || null;
+      }
     } catch (err: unknown) {
       const errorMessage = isErrorWithMessage(err)
         ? err.message
