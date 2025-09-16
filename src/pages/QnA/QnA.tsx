@@ -54,8 +54,6 @@ export const QnA: React.FC = () => {
     navigate("/qna/analyzing", {
       state: {
         question: question.trim(),
-        hasPremium: hasPremium,
-        requestsLeft: requestsLeft,
       },
     });
   };

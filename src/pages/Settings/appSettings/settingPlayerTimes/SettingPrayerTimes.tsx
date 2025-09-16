@@ -123,7 +123,7 @@ export const SettingPrayerTimes: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton navigateTo="/settings">
       <div>
         <h1 className={styles.title}>{t("prayerTimes")}</h1>
         <p className={styles.subtitle}>{t("choosePrayers")}</p>

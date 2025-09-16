@@ -246,6 +246,8 @@ const resources = {
       analysisResult: "Analysis Result",
       halal: "Halal",
       share: "Share",
+      needs_info:"Needs Info",
+      mushbooh:"Mushbooh",
       newScan: "New Scan",
       newQuestion: "New Question",
       goPremium: "Go Premium",
@@ -492,6 +494,8 @@ const resources = {
       // Scanner words
       copy: "نسخ",
       haram: "حرام",
+      mushbooh:"مشبوه",
+      needs_info:"يحتاج إلى معلومات",
       ingredients: "المكونات",
       analysisResult: "نتيجة التحليل",
       halal: "حلال",

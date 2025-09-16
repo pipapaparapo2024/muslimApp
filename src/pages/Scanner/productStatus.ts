@@ -2,21 +2,6 @@ import { type ProductStatusType } from '../../hooks/useScannerStore';
 import { CircleCheck, CircleX, TriangleAlert, HelpCircle } from 'lucide-react';
 import React from 'react';
 
-export const isHaram = (status: ProductStatusType): boolean => {
-  return status === "haram";
-};
-
-export const isHalal = (status: ProductStatusType): boolean => {
-  return status === "halal";
-};
-
-export const isMushbooh = (status: ProductStatusType): boolean => {
-  return status === "mushbooh";
-};
-
-export const needsAttention = (status: ProductStatusType): boolean => {
-  return status === "mushbooh" || status === "needs_info";
-};
 
 export const getStatusTranslationKey = (status: ProductStatusType): string => {
   const translationMap: Record<ProductStatusType, string> = {

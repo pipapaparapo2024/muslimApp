@@ -31,7 +31,7 @@ export const useQnAStore = create<QnAState>((set) => ({
     }
 
     set({ loading: true, error: null });
-
+    console.log("qa Start")
     try {
       const response = await quranApi.post<QaResponse>(
         "/api/v1/qa/text/ask",
@@ -46,6 +46,7 @@ export const useQnAStore = create<QnAState>((set) => ({
         }
       );
       set({ loading: false });
+      console.log("qa finish")
       return response.data.data.id;
     } catch (error) {
       const err = error as AxiosError<ApiErrorResponse>;
