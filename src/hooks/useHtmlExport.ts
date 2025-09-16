@@ -3,12 +3,6 @@ import { quranApi } from "../api/api";
 import { shareStory } from "@telegram-apps/sdk";
 import { t } from "i18next";
 
-interface HtmlUploadResponse {
-  success: boolean;
-  fileUrl?: string;
-  message?: string;
-}
-
 interface StoryResponse {
   success: boolean;
   storyUrl?: string;
@@ -16,11 +10,13 @@ interface StoryResponse {
 }
 
 export interface QnaData {
+  id?: string;
   question: string;
   answer: string;
 }
 
 export interface ScannerData {
+  id?: string;
   engType: string;
   products: string[];
   haramProducts?: Array<{ name: string; reason: string; source: string }>;
@@ -116,7 +112,6 @@ export const useHtmlExport = () => {
         result = result.replace(new RegExp(`{{${key}}}`, 'g'), value.join(", "));
       } else if (typeof value === 'object' && value !== null) {
         // Для объектов пропускаем или обрабатываем специальным образом
-        // Можно добавить специальную обработку для haramProducts если нужно
       } else {
         result = result.replace(new RegExp(`{{${key}}}`, 'g'), value || '');
       }
@@ -125,10 +120,9 @@ export const useHtmlExport = () => {
     return result;
   };
 
-  // Загрузка HTML файла на сервер и создание истории
-  const uploadAndCreateStory = async (
+  // Создание истории с HTML контентом
+  const createStoryWithHtml = async (
     htmlContent: string,
-    filename: string,
     type: "qna" | "scanner",
     data: any
   ): Promise<string> => {
@@ -136,37 +130,16 @@ export const useHtmlExport = () => {
       // Заменяем переменные в HTML контенте
       const processedHtml = replaceVariables(htmlContent, data);
       
-      const blob = new Blob([processedHtml], { type: "text/html" });
-      const formData = new FormData();
-      formData.append("htmlFile", blob, filename);
-
-      // Сначала загружаем HTML файл
-      const uploadResponse = await quranApi.post<HtmlUploadResponse>(
-        "/api/v1/upload/html",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-
-      if (!uploadResponse.data.success || !uploadResponse.data.fileUrl) {
-        throw new Error(
-          uploadResponse.data.message || "Failed to upload HTML file"
-        );
-      }
-
-      const fileUrl = uploadResponse.data.fileUrl;
-
       // Затем создаем историю на соответствующем эндпоинте
       const storyEndpoint =
         type === "qna" ? "/api/v1/qa/text/story" : "/api/v1/qa/scanner/story";
 
       const storyResponse = await quranApi.post<StoryResponse>(
         storyEndpoint,
-        { fileUrl },
+        { 
+          htmlContent: processedHtml,
+          id: data.id // Прокидываем ID истории
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -191,13 +164,10 @@ export const useHtmlExport = () => {
     try {
       // 1. Генерируем HTML-контент на основе данных
       const htmlContent = generateHtmlContent(options);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${options.type}-${timestamp}.html`;
 
-      // 2. Загружаем файл и создаем историю
-      const storyUrl = await uploadAndCreateStory(
+      // 2. Создаем историю с HTML контентом
+      const storyUrl = await createStoryWithHtml(
         htmlContent,
-        filename,
         options.type,
         options.data
       );
