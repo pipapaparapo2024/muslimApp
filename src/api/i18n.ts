@@ -246,8 +246,9 @@ const resources = {
       analysisResult: "Analysis Result",
       halal: "Halal",
       share: "Share",
-      needs_info:"Needs Info",
-      mushbooh:"Mushbooh",
+      conclusion: "Conclusion",
+      needs_info: "Needs Info",
+      mushbooh: "Mushbooh",
       newScan: "New Scan",
       newQuestion: "New Question",
       goPremium: "Go Premium",
@@ -487,19 +488,20 @@ const resources = {
       seconds: "ثواني",
       // Not Scanned
       scanFailed: "فشل المسح أو انتهى الوقت",
-      analysisCouldntComplete:"لا يمكن إكمال تحليل الصورة (ربما تكون الصورة غير صحيحة). يرجى محاولة المسح مرة أخرى أو التحقق من اتصالك.",
+      analysisCouldntComplete:
+        "لا يمكن إكمال تحليل الصورة (ربما تكون الصورة غير صحيحة). يرجى محاولة المسح مرة أخرى أو التحقق من اتصالك.",
       scanFirstProduct: "مسح المنتج الأول",
-
 
       // Scanner words
       copy: "نسخ",
       haram: "حرام",
-      mushbooh:"مشبوه",
-      needs_info:"يحتاج إلى معلومات",
+      mushbooh: "مشبوه",
+      needs_info: "يحتاج إلى معلومات",
       ingredients: "المكونات",
       analysisResult: "نتيجة التحليل",
       halal: "حلال",
       share: "مشاركة",
+      conclusion: "خاتمة",
       newScan: "مسح جديد",
       newQuestion: "سؤال جديد",
 

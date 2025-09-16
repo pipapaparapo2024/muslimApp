@@ -114,6 +114,12 @@ export const HistoryScanner: React.FC = () => {
                       ))}
                     </div>
                   </div>
+                  <div>
+                    <div className={styles.scanTitle}>{t("conclusion")}</div>
+                    <div className={styles.scanDesk}>
+                      {scan.description}
+                    </div>
+                  </div>
                   <div className={styles.blockUnderInfo}>
                     <div
                       className={`${styles.accessBlock} ${getStatusClassName(

@@ -137,6 +137,10 @@ export const HistoryScannerDetail: React.FC = () => {
                 ))}
             </div>
           </div>
+          <div className={styles.blockInside}>
+            <div className={styles.scanTitle}>{t("conclusion")}</div>
+            <div className={styles.scanDesk}>{currentItem.description}</div>
+          </div>
         </div>
         <Share
           shareUrl={`/scanner/ScannerShareHistory/${id}`}

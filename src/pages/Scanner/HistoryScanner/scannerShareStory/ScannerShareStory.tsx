@@ -100,11 +100,11 @@ export const ScannerShareStory: React.FC = () => {
                 styles
               )}`}
             >
-              <div className={styles.statusProduct}> 
+              <div className={styles.statusProduct}>
                 {getStatusIcon(currentItem.engType)}
                 {t(getStatusTranslationKey(currentItem.engType))}
               </div>
-             <div className={styles.QiblaGuidebot}> @QiblaGuidebot</div>
+              <div className={styles.QiblaGuidebot}> @QiblaGuidebot</div>
             </div>
 
             <div className={styles.blockInside}>
@@ -131,7 +131,10 @@ export const ScannerShareStory: React.FC = () => {
                   ))}
               </div>
             </div>
-
+            <div className={styles.blockInside}>
+              <div className={styles.scanTitle}>{t("conclusion")}</div>
+              <div className={styles.scanDesk}>{currentItem.description}</div>
+            </div>
             <div className={styles.buttonsContainer}>
               <button
                 type="button"

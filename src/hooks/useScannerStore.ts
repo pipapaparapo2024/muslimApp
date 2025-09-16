@@ -23,6 +23,7 @@ export interface HaramProduct {
 
 export interface ScanResult {
   id: string;
+  description:string;
   verdict: ProductStatusType;
   products: string[];
   engType: ProductStatusType;
@@ -42,6 +43,7 @@ export interface ApiScanResponseData {
   response: {
     haramProducts: HaramProduct[];
     id: string;
+    description:string;
     products: string[];
     verdict: ProductStatusType;
     engType: ProductStatusType;
@@ -174,6 +176,7 @@ export const useScannerStore = create<ScannerState>()(
           const date = timestamp.split("T")[0];
 
           const scanResult: ScanResult = {
+            description:responseData.description,
             engType: responseData.engType,
             id: responseData.id,
             verdict: responseData.verdict,
