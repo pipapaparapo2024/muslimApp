@@ -129,7 +129,7 @@ export const useHtmlExport = () => {
       formData.append("htmlFile", blob, filename);
 
       const response = await quranApi.post<HtmlUploadResponse>(
-        "/api/v1/upload/html", // ЭТОТ ЭНДПОИНТ ДОЛЖЕН ПРИНИМАТЬ HTML ФАЙЛ
+        "/api/v1/upload/html", 
         formData,
         {
           headers: {
