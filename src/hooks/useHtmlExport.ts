@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { quranApi } from "../api/api";
-import { shareStory } from '@telegram-apps/sdk';
-import {
-  getStatusIcon,
-  getStatusTranslationKey,
-} from "../pages/Scanner/productStatus";
+import { shareStory } from "@telegram-apps/sdk";
 import { t } from "i18next";
-import type { ProductStatusType } from "./useScannerStore";
 
 interface HtmlUploadResponse {
   success: boolean;
   fileUrl?: string;
+  message?: string;
+}
+
+interface StoryResponse {
+  success: boolean;
+  storyUrl?: string;
   message?: string;
 }
 
@@ -41,35 +42,29 @@ export const useHtmlExport = () => {
     let content = "";
 
     if (type === "qna") {
-      const qnaData = data as QnaData;
       content = `
         <div class="chat-container">
           <div class="message user-message">
             <div class="nickname">${t("you")}</div>
-            <div class="text">${qnaData.question}</div>
+            <div class="text">{{question}}</div>
           </div>
           <div class="message bot-message">
             <div class="nickname">@MuslimBot</div>
-            <div class="text">${qnaData.answer}</div>
+            <div class="text">{{answer}}</div>
           </div>
         </div>
       `;
     } else if (type === "scanner") {
       const scannerData = data as ScannerData;
-      const statusClass = scannerData.engType  as ProductStatusType;
-      const statusText = t(getStatusTranslationKey(statusClass));
-      const statusIcon = getStatusIcon(statusClass);
 
       content = `
         <div class="scan-container">
-          <div class="access-block ${statusClass}">
-            ${statusIcon} ${statusText}
+          <div class="access-block {{statusClass}}">
+            {{statusIcon}} {{statusText}}
           </div>
           <div class="scan-section">
             <div class="scan-title">${t("ingredients")}</div>
-            <div class="scan-desc">${
-              scannerData.products?.join(", ") || t("noData")
-            }</div>
+            <div class="scan-desc">{{products}}</div>
           </div>
           ${
             scannerData.haramProducts && scannerData.haramProducts.length > 0
@@ -77,16 +72,7 @@ export const useHtmlExport = () => {
           <div class="scan-section">
             <div class="scan-title">${t("analysisResult")}</div>
             <div class="scan-desc">
-              ${scannerData.haramProducts
-                .map(
-                  (product) => `
-                <div class="haram-product">
-                  <strong>${product.name}</strong> - ${product.reason}<br>
-                  <small>${product.source}</small>
-                </div>
-              `
-                )
-                .join("")}
+              {{haramProducts}}
             </div>
           </div>
           `
@@ -94,7 +80,7 @@ export const useHtmlExport = () => {
           }
           <div class="scan-section">
             <div class="scan-title">${t("conclusion")}</div>
-            <div class="scan-desc">${scannerData.description || ""}</div>
+            <div class="scan-desc">{{description}}</div>
           </div>
         </div>
       `;
@@ -118,18 +104,45 @@ export const useHtmlExport = () => {
     `;
   };
 
-  // Загрузка HTML файла на сервер
-  const uploadHtmlFile = async (
+  // Замена переменных в HTML контенте
+  const replaceVariables = (htmlContent: string, data: any): string => {
+    let result = htmlContent;
+    
+    // Заменяем все переменные вида {{variableName}} на соответствующие значения
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      if (Array.isArray(value)) {
+        // Для массивов преобразуем в строку
+        result = result.replace(new RegExp(`{{${key}}}`, 'g'), value.join(", "));
+      } else if (typeof value === 'object' && value !== null) {
+        // Для объектов пропускаем или обрабатываем специальным образом
+        // Можно добавить специальную обработку для haramProducts если нужно
+      } else {
+        result = result.replace(new RegExp(`{{${key}}}`, 'g'), value || '');
+      }
+    });
+
+    return result;
+  };
+
+  // Загрузка HTML файла на сервер и создание истории
+  const uploadAndCreateStory = async (
     htmlContent: string,
-    filename: string
+    filename: string,
+    type: "qna" | "scanner",
+    data: any
   ): Promise<string> => {
     try {
-      const blob = new Blob([htmlContent], { type: "text/html" });
+      // Заменяем переменные в HTML контенте
+      const processedHtml = replaceVariables(htmlContent, data);
+      
+      const blob = new Blob([processedHtml], { type: "text/html" });
       const formData = new FormData();
       formData.append("htmlFile", blob, filename);
 
-      const response = await quranApi.post<HtmlUploadResponse>(
-        "/api/v1/upload/html", 
+      // Сначала загружаем HTML файл
+      const uploadResponse = await quranApi.post<HtmlUploadResponse>(
+        "/api/v1/upload/html",
         formData,
         {
           headers: {
@@ -139,13 +152,35 @@ export const useHtmlExport = () => {
         }
       );
 
-      if (response.data.success && response.data.fileUrl) {
-        return response.data.fileUrl;
+      if (!uploadResponse.data.success || !uploadResponse.data.fileUrl) {
+        throw new Error(
+          uploadResponse.data.message || "Failed to upload HTML file"
+        );
+      }
+
+      const fileUrl = uploadResponse.data.fileUrl;
+
+      // Затем создаем историю на соответствующем эндпоинте
+      const storyEndpoint =
+        type === "qna" ? "/api/v1/qa/text/story" : "/api/v1/qa/scanner/story";
+
+      const storyResponse = await quranApi.post<StoryResponse>(
+        storyEndpoint,
+        { fileUrl },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (storyResponse.data.success && storyResponse.data.storyUrl) {
+        return storyResponse.data.storyUrl;
       } else {
-        throw new Error(response.data.message || "Failed to upload HTML file");
+        throw new Error(storyResponse.data.message || "Failed to create story");
       }
     } catch (error) {
-      console.error("HTML upload error:", error);
+      console.error("Story creation error:", error);
       throw error;
     }
   };
@@ -159,9 +194,14 @@ export const useHtmlExport = () => {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const filename = `${options.type}-${timestamp}.html`;
 
-      // 2. Загружаем сгенерированный HTML на сервер
-      const fileUrl = await uploadHtmlFile(htmlContent, filename);
-      return fileUrl;
+      // 2. Загружаем файл и создаем историю
+      const storyUrl = await uploadAndCreateStory(
+        htmlContent,
+        filename,
+        options.type,
+        options.data
+      );
+      return storyUrl;
     } catch (error) {
       throw error;
     } finally {
@@ -201,14 +241,12 @@ export const shareToTelegramStory = (url: string): void => {
   if (shareStory.isAvailable()) {
     shareStory(url, {
       widgetLink: {
-        url: 'https://t.me/YourBotName', // Замените на username вашего бота
-        name: '@YourBotName', // Замените на username вашего бота
+        url: "https://t.me/YourBotName",
+        name: "@YourBotName",
       },
     });
   } else {
-    // Fallback для браузера или если функция недоступна
-    console.log('Sharing to Telegram story:', url);
-    // Можно открыть URL в новом окне или показать alert
-    window.open(url, '_blank');
+    console.log("Sharing to Telegram story:", url);
+    window.open(url, "_blank");
   }
 };
