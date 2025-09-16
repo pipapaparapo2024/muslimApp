@@ -6,11 +6,7 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import {
-  useHtmlExport,
-  SCANNER_HTML_STYLES,
-} from "../../../../hooks/useHtmlExport";
-import { Upload, Download } from "lucide-react";
+import { Upload } from "lucide-react";
 import { t } from "i18next";
 import {
   getStatusClassName,
@@ -26,7 +22,6 @@ export const ScannerShareStory: React.FC = () => {
 
   const { createScreenshot, shareToTelegramStory, loading, imageRef } =
     useScreenshot();
-  const { loading: htmlLoading, exportHtml } = useHtmlExport();
 
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
@@ -69,23 +64,6 @@ export const ScannerShareStory: React.FC = () => {
     }
   };
 
-  const handleExportHtml = async () => {
-    if (!currentItem) return;
-
-    try {
-      const htmlFileUrl = await exportHtml({
-        type: "scanner",
-        data: currentItem,
-        styles: SCANNER_HTML_STYLES,
-      });
-
-      window.open(htmlFileUrl, "_blank");
-    } catch (error) {
-      console.error("Failed to export HTML:", error);
-      alert(t("exportFailed"));
-    }
-  };
-
   if (!isLoaded) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
@@ -122,11 +100,11 @@ export const ScannerShareStory: React.FC = () => {
                 styles
               )}`}
             >
-              <div>
+              <div className={styles.statusProduct}> 
                 {getStatusIcon(currentItem.engType)}
                 {t(getStatusTranslationKey(currentItem.engType))}
               </div>
-              @QiblaGuidebot
+             <div className={styles.QiblaGuidebot}> @QiblaGuidebot</div>
             </div>
 
             <div className={styles.blockInside}>
@@ -165,18 +143,6 @@ export const ScannerShareStory: React.FC = () => {
               >
                 <Upload size={18} />
                 {loading ? t("loading") : t("share")}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleExportHtml}
-                disabled={htmlLoading}
-                className={`${styles.exportButton} ${
-                  htmlLoading ? styles.exportButtonDisabled : ""
-                }`}
-              >
-                <Download size={18} />
-                {htmlLoading ? t("loading") : t("exportHtml")}
               </button>
             </div>
           </div>

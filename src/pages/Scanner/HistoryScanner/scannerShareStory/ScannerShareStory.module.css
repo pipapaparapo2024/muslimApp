@@ -124,3 +124,14 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
 }
+
+.QiblaGuidebot{
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+}
+
+.statusProduct{
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-8);
+}
