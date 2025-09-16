@@ -136,7 +136,8 @@ export const History: React.FC = () => {
 
         {/* Информация о странице */}
         <div className={styles.paginationInfo}>
-          {t("page")} {pagination.page} {t("of")} {pagination.pageAmount}
+          {pagination.page < pagination.pageAmount && t("page")}{" "}
+          {pagination.page} {t("of")} {pagination.pageAmount}
         </div>
       </div>
     </PageWrapper>

@@ -97,7 +97,7 @@ export const HistoryScanner: React.FC = () => {
                   <div>
                     <div className={styles.scanTitle}>{t("ingredients")}</div>
                     <div className={styles.scanDesk}>
-                      {scan.products.join(", ") || t("unknownProduct")}
+                      {scan.products.join(", ")}
                     </div>
                   </div>
                   <div className={styles.scanAnalysis}>
@@ -105,9 +105,13 @@ export const HistoryScanner: React.FC = () => {
                       {t("analysisResult")}
                     </div>
                     <div className={styles.scanDesk}>
-                      {scan.haramProducts
-                        ?.map((item) => item.reason)
-                        .join(", ") || t("noDescription")}
+                      {scan.haramProducts?.map((item) => (
+                        <>
+                          {" "}
+                          {item.name}- {item.reason}
+                          <br /> {item.source}
+                        </>
+                      ))}
                     </div>
                   </div>
                   <div className={styles.blockUnderInfo}>

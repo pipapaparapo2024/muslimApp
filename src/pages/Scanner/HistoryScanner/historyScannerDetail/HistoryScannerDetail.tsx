@@ -41,9 +41,9 @@ export const HistoryScannerDetail: React.FC = () => {
         } else {
           // Если item = null, ищем в локальной истории
           const { history } = useHistoryScannerStore.getState();
-          const allScans = history.flatMap(group => group.qa);
-          const localItem = allScans.find(scan => scan.id === id);
-          
+          const allScans = history.flatMap((group) => group.qa);
+          const localItem = allScans.find((scan) => scan.id === id);
+
           if (localItem) {
             setCurrentItem(localItem);
           } else {
@@ -117,9 +117,9 @@ export const HistoryScannerDetail: React.FC = () => {
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("ingredients")}</div>
             <div className={styles.scanDesk}>
-              {currentItem.products && currentItem.products.length > 0
-                ? currentItem.products.join(", ")
-                : t("noIngredientsFound")}
+              {currentItem.products &&
+                currentItem.products.length > 0 &&
+                currentItem.products.join(", ")}
             </div>
           </div>
 
@@ -129,7 +129,9 @@ export const HistoryScannerDetail: React.FC = () => {
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product, index) => (
                 <div key={index} className={styles.haranProduct}>
-                  {product.reason}
+                  {product.name} - {product.reason}
+                  <br />
+                  {product.source}
                 </div>
               ))}
           </div>
