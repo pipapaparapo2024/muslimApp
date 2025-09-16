@@ -5,23 +5,21 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
-import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
+import { useHtmlExport } from "../../../../hooks/useHtmlExport";
 import {
   getStatusClassName,
   getStatusIcon,
   getStatusTranslationKey,
 } from "../../productStatus";
-
+import { shareToTelegramStory } from "../../../../hooks/useHtmlExport";
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null); // Используем any временно
-
-  const { createScreenshot, shareToTelegramStory, loading, imageRef } =
-    useScreenshot();
+  const { exportHtml, loading } = useHtmlExport();
 
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
@@ -56,11 +54,24 @@ export const ScannerShareStory: React.FC = () => {
   }, [id, fetchHistoryItem]);
 
   const handleShare = async () => {
+    if (!currentItem) return;
+
     try {
-      const imageUrl = await createScreenshot();
-      await shareToTelegramStory(imageUrl);
+      const htmlFileUrl = await exportHtml({
+        type: "scanner", 
+        data: currentItem,
+      });
+
+      console.log("HTML file uploaded to:", htmlFileUrl);
+      alert(t("htmlExportedSuccessfully")); 
+
+      // 3. Если бекенд сам публикует историю в Telegram, то здесь просто конец.
+      // Если нужно отправить URL в Telegram клиенту, это делается здесь.
+      shareToTelegramStory(htmlFileUrl); 
+
     } catch (error) {
-      console.error("Failed to share:", error);
+      console.error("Failed to export and share HTML:", error);
+      alert(t("exportFailed"));
     }
   };
 
@@ -87,7 +98,7 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        <div className={styles.contentWrapper} ref={imageRef}>
+        <div className={styles.contentWrapper}>
           <img
             src={message}
             alt="Message background"

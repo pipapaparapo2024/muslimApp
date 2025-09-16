@@ -5,10 +5,12 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
-import { useScreenshot } from "../../../../hooks/useScreenshot/useScreenshot";
-import { useHtmlExport,QNA_HTML_STYLES } from "../../../../hooks/useHtmlExport";
-import { Upload, Download } from "lucide-react";
+import { Upload } from "lucide-react";
 import { t } from "i18next";
+// Убираем useScreenshot, используем только useHtmlExport
+import { useHtmlExport } from "../../../../hooks/useHtmlExport";
+// Импортируем функцию для分享 в Telegram
+import { shareToTelegramStory } from "../../../../hooks/useHtmlExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -16,8 +18,8 @@ export const ShareStory: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
 
-  const { createScreenshot, shareToTelegramStory, loading, imageRef } = useScreenshot();
-  const { loading: htmlLoading, exportHtml } = useHtmlExport();
+  // Убираем useScreenshot, используем только useHtmlExport
+  const { exportHtml, loading } = useHtmlExport();
 
   useEffect(() => {
     const loadData = async () => {
@@ -50,31 +52,28 @@ export const ShareStory: React.FC = () => {
     loadData();
   }, [id, getHistoryItem]);
 
+  // ПЕРЕДЕЛЫВАЕМ handleShare - теперь он работает с HTML
   const handleShare = async () => {
+    if (!currentItem) return;
+
     try {
-      const imageUrl = await createScreenshot();
-      await shareToTelegramStory(imageUrl);
+      // 1. Генерируем HTML и загружаем на сервер
+      const htmlFileUrl = await exportHtml({
+        type: "qna",
+        data: currentItem,
+        // styles больше не передаем - хук сам знает какие стили использовать
+      });
+
+      // 2. Отправляем полученный URL в Telegram
+      shareToTelegramStory(htmlFileUrl);
+
     } catch (error) {
-      console.error("Failed to share:", error);
+      console.error("Failed to export and share HTML:", error);
+      alert(t("exportFailed"));
     }
   };
 
-  const handleExportHtml = async () => {
-    if (!currentItem) return;
-    
-    try {
-      const htmlFileUrl = await exportHtml({
-        type: 'qna',
-        data: currentItem,
-        styles: QNA_HTML_STYLES
-      });
-      
-      window.open(htmlFileUrl, '_blank');
-    } catch (error) {
-      console.error("Failed to export HTML:", error);
-      alert(t('exportFailed'));
-    }
-  };
+  // Убираем handleExportHtml - теперь основная кнопка делает все
 
   if (!isLoaded) {
     return (
@@ -87,7 +86,7 @@ export const ShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>{t('requestNotFound')}</div>
+        <div>{t("requestNotFound")}</div>
       </PageWrapper>
     );
   }
@@ -95,7 +94,8 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        <div className={styles.contentWrapper} ref={imageRef}>
+        {/* Убираем imageRef так как скриншоты больше не делаем */}
+        <div className={styles.contentWrapper}>
           <img
             src={message}
             className={styles.messageImage}
@@ -111,6 +111,7 @@ export const ShareStory: React.FC = () => {
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
             <div className={styles.buttonsContainer}>
+              {/* Эта кнопка теперь делает ВСЕ: генерацию HTML + загрузку +分享 */}
               <button
                 type="button"
                 onClick={handleShare}
@@ -120,17 +121,6 @@ export const ShareStory: React.FC = () => {
                 }`}
               >
                 <Upload /> {loading ? t("loading") : t("share")}
-              </button>
-              
-              <button
-                type="button"
-                onClick={handleExportHtml}
-                disabled={htmlLoading}
-                className={`${styles.exportButton} ${
-                  htmlLoading ? styles.exportButtonDisabled : ""
-                }`}
-              >
-                <Download /> {htmlLoading ? t("loading") : t("exportHtml")}
               </button>
             </div>
           </div>
