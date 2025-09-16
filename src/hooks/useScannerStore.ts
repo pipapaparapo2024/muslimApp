@@ -220,7 +220,6 @@ export const useScannerStore = create<ScannerState>()(
           }
 
           setError(errorMessage);
-          WebApp.showAlert(`Ошибка: ${errorMessage}`);
         } finally {
           setLoading(false);
         }
