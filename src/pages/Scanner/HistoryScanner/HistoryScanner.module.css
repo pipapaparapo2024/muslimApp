@@ -56,15 +56,15 @@
 }
 
 .haram {
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--color-background-semantic-dimmed-error);
+  color: var(--color-stroke-semantic-error);
 }
 .halal {
-  color: #15803d;
-  background: #dcfce7;
+  color: var(-color-stroke-semantic-brand);
+  background: var(--color-background-semantic-dimmed-brand);
 }
 
 .mushbooh{
-  color: #F59E0B;
-  background: #f0cc8e;
+  color: var(--color-background-semantic-solid-warning);
+  background: var(--color-background-semantic-solid-warning);
 }

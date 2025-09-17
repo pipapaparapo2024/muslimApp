@@ -24,20 +24,21 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
 }
+
 .haram {
-  color: #ef4444;
+  background: var(--color-background-semantic-dimmed-error);
+  color: var(--color-stroke-semantic-error);
 }
 .halal {
-  color: #15803d;
+  color: var(-color-stroke-semantic-brand);
+  background: var(--color-background-semantic-dimmed-brand);
 }
 
-.mushbooh {
-  color: #f59e0b;
+.mushbooh{
+  color: var(--color-background-semantic-solid-warning);
+  background: var(--color-background-semantic-solid-warning);
 }
 
-.needsInfo {
-  color: gray;
-}
 
 .blockInside {
   border-radius: var(--roundings-medium);
