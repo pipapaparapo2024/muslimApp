@@ -7,16 +7,16 @@ import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useHtmlExport } from "../../../../hooks/useHtmlExport";
+import { useHtmlExport, shareToTelegramStory } from "../../../../hooks/useHtmlExport";
 import {
   getStatusClassName,
   getStatusIcon,
   getStatusTranslationKey,
 } from "../../productStatus";
-import { shareToTelegramStory } from "../../../../hooks/useHtmlExport";
+
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string | undefined }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { exportHtml, loading } = useHtmlExport();
@@ -54,21 +54,21 @@ export const ScannerShareStory: React.FC = () => {
   }, [id, fetchHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem) return;
-    console.log("currentItem",currentItem.id)
+    if (!currentItem || !id) return;
+
     try {
       const htmlFileUrl = await exportHtml({
-        type: "scanner", 
-        data: currentItem,
-        // id:id,
+        type: "scanner",
+        id: id,
       });
 
-      console.log("HTML file uploaded to:", htmlFileUrl);
-      alert(t("htmlExportedSuccessfully")); 
-
-      // Нужно отправить URL в Telegram клиенту, это делается здесь.
-      shareToTelegramStory(htmlFileUrl); 
-
+      if (htmlFileUrl) {
+        console.log("HTML file uploaded to:", htmlFileUrl);
+        alert(t("htmlExportedSuccessfully"));
+        shareToTelegramStory(htmlFileUrl);
+      } else {
+        throw new Error("Failed to get HTML file URL");
+      }
     } catch (error) {
       console.error("Failed to export and share HTML:", error);
       alert(t("exportFailed"));
