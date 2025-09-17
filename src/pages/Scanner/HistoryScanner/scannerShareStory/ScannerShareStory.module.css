@@ -112,6 +112,9 @@
 .halal {
   color: #15803d;
 }
+.mushbooh{
+  color: var(--color-stroke-semantic-warning);
+}
 
 .accessBlock {
   display: flex;
