@@ -23,7 +23,7 @@ export const useHtmlExport = () => {
     try {
       const storyEndpoint =
         type === "qna" ? "/api/v1/qa/text/story" : "/api/v1/qa/scanner/story";
-
+      console.log("id",id)
       const storyResponse = await quranApi.post<StoryResponse>(
         storyEndpoint,
         {
