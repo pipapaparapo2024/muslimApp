@@ -60,11 +60,11 @@
   color: var(--color-stroke-semantic-error);
 }
 .halal {
-  color: var(-color-stroke-semantic-brand);
-  /* background: var(--color-background-semantic-dimmed-brand); */
+  color: var(--color-stroke-semantic-brand);
+  background: var(--color-background-semantic-dimmed-brand);
 }
 
 .mushbooh{
   color: var(--color-background-semantic-solid-warning);
-  /* background: var(--color-background-semantic-solid-warning); */
+  background: var(--color-background-semantic-solid-warning);
 }
