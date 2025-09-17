@@ -20,7 +20,7 @@ export const getStatusIcon = (status: ProductStatusType, size: number = 24): Rea
     case "haram":
       return React.createElement(CircleX, { size, color: "var(--color-stroke-semantic-error)", strokeWidth: 1.5 });
     case "mushbooh":
-      return React.createElement(TriangleAlert, { size, color: "var(--color-background-semantic-solid-warning)", strokeWidth: 1.5 });
+      return React.createElement(TriangleAlert, { size, color: "var(--color-stroke-semantic-warning)", strokeWidth: 1.5 });
     default:
       return React.createElement(HelpCircle, { size, color: "#6B7280", strokeWidth: 1.5 });
   }
