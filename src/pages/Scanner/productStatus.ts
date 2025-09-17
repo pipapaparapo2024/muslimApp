@@ -16,13 +16,11 @@ export const getStatusTranslationKey = (status: ProductStatusType): string => {
 export const getStatusIcon = (status: ProductStatusType, size: number = 24): React.ReactElement => {
   switch (status) {
     case "halal":
-      return React.createElement(CircleCheck, { size, color: "#10B981", strokeWidth: 1.5 });
+      return React.createElement(CircleCheck, { size, color: "color: var(-color-stroke-semantic-brand);", strokeWidth: 1.5 });
     case "haram":
-      return React.createElement(CircleX, { size, color: "#EF4444", strokeWidth: 1.5 });
+      return React.createElement(CircleX, { size, color: "var(--color-stroke-semantic-error)", strokeWidth: 1.5 });
     case "mushbooh":
-      return React.createElement(TriangleAlert, { size, color: "#F59E0B", strokeWidth: 1.5 });
-    case "needs_info":
-      return React.createElement(HelpCircle, { size, color: "#6B7280", strokeWidth: 1.5 });
+      return React.createElement(TriangleAlert, { size, color: " var(--color-background-semantic-solid-warning)", strokeWidth: 1.5 });
     default:
       return React.createElement(HelpCircle, { size, color: "#6B7280", strokeWidth: 1.5 });
   }
@@ -40,9 +38,9 @@ export const getStatusClassName = (status: ProductStatusType, styles: any): stri
 
 export const getStatusColor = (status: ProductStatusType): string => {
   const colorMap: Record<ProductStatusType, string> = {
-    "halal": "#10B981", 
-    "haram": "#EF4444", 
-    "mushbooh": "#F59E0B", 
+    "halal": " var(-color-stroke-semantic-brand)", 
+    "haram": " var(--color-background-semantic-dimmed-error)", 
+    "mushbooh": "var(--color-background-semantic-solid-warning)", 
     "needs_info": "#6B7280", 
   };
   return colorMap[status] || "#6B7280";
