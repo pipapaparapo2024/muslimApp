@@ -18,7 +18,7 @@ export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
-  const [currentItem, setCurrentItem] = useState<any>(null); // Используем any временно
+  const [currentItem, setCurrentItem] = useState<any>(null);
   const { exportHtml, loading } = useHtmlExport();
 
   useEffect(() => {
@@ -65,8 +65,7 @@ export const ScannerShareStory: React.FC = () => {
       console.log("HTML file uploaded to:", htmlFileUrl);
       alert(t("htmlExportedSuccessfully")); 
 
-      // 3. Если бекенд сам публикует историю в Telegram, то здесь просто конец.
-      // Если нужно отправить URL в Telegram клиенту, это делается здесь.
+      // Нужно отправить URL в Telegram клиенту, это делается здесь.
       shareToTelegramStory(htmlFileUrl); 
 
     } catch (error) {

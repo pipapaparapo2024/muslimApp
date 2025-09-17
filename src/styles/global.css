@@ -382,7 +382,6 @@ body {
   --color-background-semantic-solid-brand: var(--colors-green-700);
   --color-background-semantic-solid-error: var(--colors-red-500);
   --color-background-semantic-solid-success: var(--colors-lime-500);
-  /* --color-background-semantic-solid-warning: var(--colors-amber-500); */
 
   --color-gradient-brand-start: var(--colors-green-600);
   --color-gradient-brand-end: var(--colors-green-800);
@@ -411,7 +410,7 @@ body {
 
   --color-stroke-primary: var(--colors-neutral-700);
   --color-stroke-secondary: var(--colors-neutral-800);
-  --color-stroke-semantic-brand: var(--colors-green-500);
+  /* --color-stroke-semantic-brand: var(--colors-green-500); */
   --color-stroke-semantic-error: var(--colors-red-600);
   --color-stroke-semantic-success: var(--colors-lime-600);
   --color-stroke-semantic-warning: var(--colors-amber-600);
