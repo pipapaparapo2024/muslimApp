@@ -18,19 +18,19 @@ export const Home: React.FC = () => {
     handleCompassClick,
     handleMapClick,
   } = useHomeLogic();
-  const { isLoading,error } = useGeoStore();
+  const { isLoading, error } = useGeoStore();
   return (
     <PageWrapper>
       <Header />
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-      <div className={styles.sensorPermissionPrompt}>
+      {sensorPermission === "denied" && (
         <button
           className={styles.allowSensorButton}
           onClick={requestSensorPermission}
         >
           Allow
         </button>
-      </div>
+      )}
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
 

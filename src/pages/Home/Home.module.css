@@ -5,7 +5,6 @@
   background-color: var(--bg-surface);
 }
 
-
 .titleFaceKaaba {
   font-weight: var(--font-600);
   margin: var(--numbers-16) 0 var(--numbers-4);
@@ -15,7 +14,6 @@
   margin-bottom: var(--numbers-16);
   font-size: var(--numbers-14);
 }
-
 
 .qiblaBlockRow {
   display: flex;
@@ -30,4 +28,8 @@
 .compassContainer {
   border-radius: var(--numbers-12);
   border: 2px solid var(--compass-circle-between);
+}
+
+.allowSensorButton {
+  padding: var(--numbers-16) var(--numbers-12);
 }
