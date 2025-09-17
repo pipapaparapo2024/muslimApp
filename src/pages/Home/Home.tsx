@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
       <Header />
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
       {sensorPermission}
-      {sensorPermission && (
+      {sensorPermission !="granted" && (
         <button
           className={styles.allowSensorButton}
           onClick={requestSensorPermission}

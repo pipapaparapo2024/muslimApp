@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
@@ -11,6 +11,41 @@ export const useHomeLogic = () => {
     const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     return saved === "granted" ? "granted" : "prompt";
   });
+
+  // === ОБРАБОТКА TELEGRAM WEBAPP ===
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    tg.ready();
+    tg.MainButton.hide();
+    tg.BackButton.hide();
+    tg.enableClosingConfirmation();
+
+    // Обработчик события закрытия приложения
+    const handleClose = () => {
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+    };
+
+    // 1. Событие onClosing (основной способ)
+    tg.onClosing(handleClose);
+
+    // 2. Дополнительно: отслеживаем изменение видимости (на случай сворачивания/разворачивания)
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Приложение стало невидимым ( пользователь вышел )
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Очистка
+    return () => {
+      tg.offClosing(handleClose);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
@@ -40,15 +75,6 @@ export const useHomeLogic = () => {
       setSensorPermission("denied");
     }
   }, []);
-
-  // Telegram WebApp
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.MainButton.hide();
-    tg.BackButton.hide();
-    tg.enableClosingConfirmation();
-  }
 
   // Навигация
   const handleCompassClick = useCallback(() => {

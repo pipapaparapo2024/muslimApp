@@ -18,7 +18,9 @@ declare global {
         showConfirm: (message: string) => Promise<boolean>;
         showScanQrPopup: (params: ScanQrParams) => void;
         closeScanQrPopup: () => void;
-
+        
+        onClosing: (callback: () => void) => void;
+        offClosing: (callback: () => void) => void;
         // Свайпы и жесты
         disableSwipeToClose: () => void;
         enableSwipeToClose: () => void;
