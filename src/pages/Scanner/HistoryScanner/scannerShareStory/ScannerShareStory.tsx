@@ -55,11 +55,12 @@ export const ScannerShareStory: React.FC = () => {
 
   const handleShare = async () => {
     if (!currentItem) return;
-
+    console.log("currentItem",currentItem.id)
     try {
       const htmlFileUrl = await exportHtml({
         type: "scanner", 
         data: currentItem,
+        // id:id,
       });
 
       console.log("HTML file uploaded to:", htmlFileUrl);
@@ -120,7 +121,6 @@ export const ScannerShareStory: React.FC = () => {
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("ingredients")}</div>
               <div className={styles.scanDesk}>
-                {" "}
                 {currentItem.products &&
                   currentItem.products.length > 0 &&
                   currentItem.products.join(", ")}
