@@ -1,12 +1,22 @@
 // useHomeLogic.ts
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
+const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
 
-  // Всегда начинаем с "prompt" - не храним в localStorage
-  const [sensorPermission, setSensorPermission] = useState<string>("prompt");
+  // Инициализируем состояние из localStorage
+  const [sensorPermission, setSensorPermission] = useState<string>(() => {
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    return saved || "prompt";
+  });
+
+  // Синхронизируем состояние с localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
+  }, [sensorPermission]);
 
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
