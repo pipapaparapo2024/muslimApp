@@ -29,9 +29,8 @@
   color: var(--color-stroke-semantic-error);
 }
 .halal {
-  color: var(-color-stroke-semantic-brand);
+  color: var(--color-stroke-semantic-brand);
 }
-
 .mushbooh{
   color: var(--color-background-semantic-solid-warning);
 }
