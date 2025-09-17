@@ -25,20 +25,6 @@
   border-radius: var(--roundings-medium);
 }
 
-.haram {
-  background: var(--color-background-semantic-dimmed-error);
-  color: var(--color-stroke-semantic-error);
-}
-.halal {
-  color: var(-color-stroke-semantic-brand);
-  background: var(--color-background-semantic-dimmed-brand);
-}
-
-.mushbooh{
-  color: var(--color-background-semantic-solid-warning);
-  background: var(--color-background-semantic-solid-warning);
-}
-
 
 .blockInside {
   border-radius: var(--roundings-medium);
