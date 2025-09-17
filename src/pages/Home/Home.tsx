@@ -66,20 +66,6 @@ export const Home: React.FC = () => {
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
                     />
-                    {sensorPermission !== "granted" && (
-                      <div className={styles.permissionPrompt}>
-                        <p>{t("compassNeedsAccess")}</p>
-                        <button
-                          className={styles.permissionButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            requestSensorPermission();
-                          }}
-                        >
-                          {t("allow")}
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

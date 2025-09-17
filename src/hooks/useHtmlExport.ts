@@ -36,7 +36,7 @@ export const useHtmlExport = () => {
     data: any
   ): Promise<string> => {
     try {
-
+      console.log("idddddd",data.id)
       // Затем создаем историю на соответствующем эндпоинте
       const storyEndpoint =
         type === "qna" ? "/api/v1/qa/text/story" : "/api/v1/qa/scanner/story";
