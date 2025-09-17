@@ -66,6 +66,5 @@
 
 .mushbooh{
   color: var(--color-stroke-semantic-warning);
-  background: var(--color-background-semantic-solid-warning);
-  background: green
+  background: var(--color-back-semantic-warning);
 }

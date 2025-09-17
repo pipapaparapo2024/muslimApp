@@ -413,7 +413,7 @@ body {
   /* --color-stroke-semantic-brand: var(--colors-green-500); */
   --color-stroke-semantic-error: var(--colors-red-600);
   --color-stroke-semantic-success: var(--colors-lime-600);
-  --color-stroke-semantic-warning: var(--colors-amber-600);
+  --color-back-semantic-warning: var(--colors-amber-600);
 
   --color-background-semantic-dimmed-error: var(--colors-neutral-800);
   --color-background-semantic-dimmed-success: var(--colors-neutral-800);
