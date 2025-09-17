@@ -16,7 +16,7 @@ export const getStatusTranslationKey = (status: ProductStatusType): string => {
 export const getStatusIcon = (status: ProductStatusType, size: number = 24): React.ReactElement => {
   switch (status) {
     case "halal":
-      return React.createElement(CircleCheck, { size, color: "color: var(-color-stroke-semantic-brand);", strokeWidth: 1.5 });
+      return React.createElement(CircleCheck, { size, color: "color: var(--color-stroke-semantic-brand);", strokeWidth: 1.5 });
     case "haram":
       return React.createElement(CircleX, { size, color: "var(--color-stroke-semantic-error)", strokeWidth: 1.5 });
     case "mushbooh":
