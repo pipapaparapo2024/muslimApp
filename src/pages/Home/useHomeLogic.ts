@@ -50,13 +50,7 @@ export const useHomeLogic = () => {
 
   // Навигация с проверкой разрешения
   const handleCompassClick = useCallback(async (currentPermission: string) => {
-    if (currentPermission === "denied") {
-      // Если доступ уже запрещен, показываем сообщение
-      alert(t("sensorPermissionDeniedMessage"));
-      return;
-    }
-
-    if (currentPermission === "prompt") {
+    if (currentPermission === "prompt" || currentPermission === "denied") {
       // Если разрешение еще не запрашивалось, запрашиваем
       setIsRequestingPermission(true);
       try {
