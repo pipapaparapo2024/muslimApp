@@ -37,7 +37,14 @@ export const QiblaCompassPage: React.FC = () => {
       });
     }
   }, [sensorPermission, checkSensorAvailability]);
-
+  const [compassKey, setCompassKey] = useState(0);
+  // Принудительно пересоздаем компас когда датчики становятся доступны
+  useEffect(() => {
+    if (sensorPermission === "granted" && isSensorAvailable) {
+      setCompassKey((prev) => prev + 1);
+      console.log("Compass reinitialized");
+    }
+  }, [sensorPermission, isSensorAvailable]);
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -159,6 +166,7 @@ export const QiblaCompassPage: React.FC = () => {
           <div className={styles.compassSection}>
             <div className={styles.compassContainer}>
               <QiblaCompass
+                key={compassKey} // Добавляем key для принудительного пересоздания
                 permissionGranted={
                   sensorPermission === "granted" && isSensorAvailable
                 }
