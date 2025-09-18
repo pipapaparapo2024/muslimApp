@@ -8,24 +8,34 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
-import { useNavigate } from "react-router-dom";
+import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 
 export const Home: React.FC = () => {
-  const navigate = useNavigate();
+  const {
+    sensorPermission,
+    requestSensorPermission,
+    handleCompassClick,
+    handleMapClick,
+    isRequestingPermission,
+  } = useHomeLogic();
+
   const { isLoading, error } = useGeoStore();
-
-  const handleCompassClick = () => {
-    navigate("/qibla", { state: { activeTab: "compass" } });
-  };
-
-  const handleMapClick = () => {
-    navigate("/qibla", { state: { activeTab: "map" } });
-  };
 
   return (
     <PageWrapper>
       <Header />
+
+      {/* Кнопка запроса доступа к датчикам - показываем только если разрешение еще не получено */}
+      {sensorPermission !== "granted" && (
+        <button
+          className={styles.allowSensorButton}
+          onClick={() => requestSensorPermission()}
+          disabled={isRequestingPermission}
+        >
+          {isRequestingPermission ? t("requesting") : t("allowSensors")}
+        </button>
+      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -52,8 +62,13 @@ export const Home: React.FC = () => {
                     <QiblaMap onMapClick={handleMapClick} />
                   </div>
 
-                  <div onClick={handleCompassClick} className={styles.compassContainer}>
-                    <QiblaCompass permissionGranted={false} />
+                  <div
+                    onClick={handleCompassClick}
+                    className={styles.compassContainer}
+                  >
+                    <QiblaCompass
+                      permissionGranted={sensorPermission === "granted"}
+                    />
                   </div>
                 </div>
               </div>

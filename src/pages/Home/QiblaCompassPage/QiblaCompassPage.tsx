@@ -9,40 +9,58 @@ import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
 
+const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
-  const [permissionGranted, setPermissionGranted] = useState(false);
-  const [isRequesting, setIsRequesting] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [localPermission, setLocalPermission] = useState<string>(
+    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
+  );
 
-  // Функция запроса разрешения
-  const requestPermission = async () => {
-    setIsRequesting(true);
+  // Функция для запроса разрешения на доступ к датчикам
+  const requestSensorPermission = async () => {
+    setIsRequestingPermission(true);
     try {
-      if (typeof DeviceOrientationEvent !== "undefined" && 
-          (DeviceOrientationEvent as any).requestPermission) {
-        
-        const result = await (DeviceOrientationEvent as any).requestPermission();
-        setPermissionGranted(result === "granted");
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        (DeviceOrientationEvent as any).requestPermission
+      ) {
+        const result = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
+        if (result === "granted") {
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setLocalPermission("granted");
+        } else {
+          // При отказе оставляем "prompt"
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+          setLocalPermission("prompt");
+        }
       } else {
-        // На устройствах где не нужно разрешение
-        setPermissionGranted(true);
+        // На устройствах, где разрешение не требуется
+        window.addEventListener("deviceorientation", () => {}, { once: true });
+        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+        setLocalPermission("granted");
       }
-    } catch (error) {
-      console.error("Ошибка запроса разрешения:", error);
-      setPermissionGranted(false);
+    } catch (err) {
+      console.error("Sensor permission error:", err);
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+      setLocalPermission("prompt");
     } finally {
-      setIsRequesting(false);
+      setIsRequestingPermission(false);
     }
   };
 
-  // При загрузке страницы и выборе вкладки компаса - запрашиваем разрешение
+  // Автоматически запрашиваем разрешение при каждом входе на вкладку компаса
+  // если разрешение еще не получено
   useEffect(() => {
-    if (activeTab === "compass") {
-      requestPermission();
+    if (activeTab === "compass" && localPermission !== "granted") {
+      requestSensorPermission();
     }
-  }, [activeTab]);
+  }, [activeTab, localPermission]);
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -80,16 +98,16 @@ export const QiblaCompassPage: React.FC = () => {
         </label>
       </div>
 
-      {isRequesting && (
+      {isRequestingPermission && (
         <div className={styles.permissionRequest}>
           {t("requestingSensorPermission")}
         </div>
       )}
 
-      {activeTab === "compass" && !permissionGranted && !isRequesting && (
+      {activeTab === "compass" && localPermission === "prompt" && !isRequestingPermission && (
         <div className={styles.permissionPrompt}>
           <p>{t("sensorPermissionRequired")}</p>
-          <button onClick={requestPermission}>
+          <button onClick={requestSensorPermission}>
             {t("allowSensors")}
           </button>
         </div>
@@ -97,7 +115,7 @@ export const QiblaCompassPage: React.FC = () => {
 
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
-          permissionGranted ? (
+          localPermission === "granted" ? (
             <div className={styles.bigCompass}>
               <QiblaCompass
                 permissionGranted={true}
@@ -106,7 +124,12 @@ export const QiblaCompassPage: React.FC = () => {
                 size={300}
               />
             </div>
-          ) : null
+          ) : (
+            // Показываем сообщение о необходимости разрешения вместо компаса
+            <div className={styles.permissionRequired}>
+              <p>{t("sensorPermissionRequiredToUseCompass")}</p>
+            </div>
+          )
         ) : (
           <div>
             <QiblaMap fullscreen={true} />
