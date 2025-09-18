@@ -101,10 +101,6 @@
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
 }
 
-.shareContainter{
-  margin: 0 var(--numbers-16);
-}
-
 
 .shareButton:hover:not(:disabled) {
   transform: translateY(-2px);
