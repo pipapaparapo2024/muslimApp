@@ -4,7 +4,7 @@ import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStore";
-import { Compass, Map } from "lucide-react";
+import { Compass, Map, Navigation, AlertCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
@@ -13,9 +13,7 @@ const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
 // Функция для логирования
 const logSensorEvent = (event: string, details?: any) => {
-  console.log(`[SensorPermission] ${event}`, details || '');
-  // Здесь можно добавить отправку в аналитику (Google Analytics, Yandex.Metrica и т.д.)
-  // analytics.track('sensor_permission', { event, ...details });
+  console.log(`[QiblaCompass] ${event}`, details || '');
 };
 
 export const QiblaCompassPage: React.FC = () => {
@@ -67,15 +65,6 @@ export const QiblaCompassPage: React.FC = () => {
     }
   };
 
-  // Автоматически запрашиваем разрешение при каждом входе на вкладку компаса
-  // если разрешение еще не получено
-  useEffect(() => {
-    if (activeTab === "compass" && sensorPermission === "prompt") {
-      logSensorEvent('auto_permission_request_triggered');
-      requestSensorPermission();
-    }
-  }, [activeTab, sensorPermission]);
-
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -95,6 +84,11 @@ export const QiblaCompassPage: React.FC = () => {
 
   return (
     <PageWrapper showBackButton>
+      <div className={styles.header}>
+        <Navigation size={24} className={styles.qiblaIcon} />
+        <h1 className={styles.title}>{t("qiblaDirection")}</h1>
+      </div>
+
       <div className={styles.toggleGroup}>
         <label className={styles.toggleItem}>
           <input
@@ -105,7 +99,8 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Compass size={16} strokeWidth={1.5} /> {t("compass")}
+            <Compass size={18} strokeWidth={2} /> 
+            <span className={styles.toggleText}>{t("compass")}</span>
           </span>
         </label>
 
@@ -118,47 +113,89 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Map size={16} strokeWidth={1.5} /> {t("map")}
+            <Map size={18} strokeWidth={2} /> 
+            <span className={styles.toggleText}>{t("map")}</span>
           </span>
         </label>
       </div>
 
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
-          <div className={styles.compassContainer}>
-            {/* Всегда показываем компас */}
-            <QiblaCompass
-              permissionGranted={sensorPermission === "granted"}
-              coords={coords}
-              showAngle={true}
-              size={300}
-            />
-            
-            {/* Сообщение о статусе разрешения */}
-            {sensorPermission !== "granted" && (
-              <div className={styles.permissionOverlay}>
-                {isRequestingPermission ? (
-                  <div className={styles.permissionMessage}>
-                    {t("requestingSensorPermission")}
-                  </div>
-                ) : sensorPermission === "denied" ? (
-                  <div className={styles.permissionMessage}>
-                    <p>{t("sensorPermissionDenied")}</p>
-                    <p className={styles.helpText}>
-                      {t("sensorPermissionHelp")}
-                    </p>
-                  </div>
-                ) : (
-                  <div className={styles.permissionMessage}>
-                    <p>{t("sensorPermissionRequesting")}</p>
-                  </div>
-                )}
+          <div className={styles.compassSection}>
+            <div className={styles.compassContainer}>
+              <QiblaCompass
+                permissionGranted={sensorPermission === "granted"}
+                coords={coords}
+                showAngle={true}
+                size={280}
+              />
+              
+              {/* Сообщение о необходимости разрешения */}
+              {sensorPermission !== "granted" && (
+                <div className={styles.permissionOverlay}>
+                  {isRequestingPermission ? (
+                    <div className={styles.permissionMessage}>
+                      <div className={styles.loadingSpinner}></div>
+                      <p>{t("requestingSensorPermission")}</p>
+                    </div>
+                  ) : sensorPermission === "denied" ? (
+                    <div className={styles.permissionMessage}>
+                      <AlertCircle size={32} className={styles.alertIcon} />
+                      <h3>{t("sensorPermissionDenied")}</h3>
+                      <p className={styles.helpText}>
+                        {t("sensorPermissionHelp")}
+                      </p>
+                      <button 
+                        onClick={requestSensorPermission}
+                        className={styles.retryButton}
+                      >
+                        {t("tryAgain")}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.permissionMessage}>
+                      <AlertCircle size={32} className={styles.alertIcon} />
+                      <h3>{t("sensorPermissionRequired")}</h3>
+                      <p className={styles.helpText}>
+                        {t("sensorPermissionDescription")}
+                      </p>
+                      <button 
+                        onClick={requestSensorPermission}
+                        className={styles.allowButton}
+                      >
+                        {t("allowSensors")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Информация о направлении */}
+            {sensorPermission === "granted" && (
+              <div className={styles.directionInfo}>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>{t("qiblaAngle")}:</span>
+                  <span className={styles.infoValue}>0°</span>
+                </div>
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>{t("yourDirection")}:</span>
+                  <span className={styles.infoValue}>N</span>
+                </div>
+                <p className={styles.instruction}>
+                  {t("qiblaInstruction")}
+                </p>
               </div>
             )}
           </div>
         ) : (
-          <div className={styles.mapContainer}>
-            <QiblaMap fullscreen={true} />
+          <div className={styles.mapSection}>
+            <div className={styles.mapContainer}>
+              <QiblaMap fullscreen={true} />
+            </div>
+            <div className={styles.mapInfo}>
+              <p>{t("mapInstruction")}</p>
+            </div>
           </div>
         )}
       </div>
