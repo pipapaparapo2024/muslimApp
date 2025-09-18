@@ -10,7 +10,6 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { requiresPermission } from "../../hooks/useSensorPermission";
 
 export const Home: React.FC = () => {
   const {
@@ -23,23 +22,18 @@ export const Home: React.FC = () => {
 
   const { isLoading, error } = useGeoStore();
 
-  // Показываем кнопку только если требуется разрешение и оно еще не получено
-  const showSensorButton = requiresPermission() && sensorPermission !== "granted";
-
   return (
     <PageWrapper>
       <Header />
 
       {/* Кнопка запроса доступа к датчикам */}
-      {showSensorButton && (
-        <button
-          className={styles.allowSensorButton}
-          onClick={requestSensorPermission}
-          disabled={isRequestingPermission}
-        >
-          {isRequestingPermission ? t("requesting") : t("allowSensors")}
-        </button>
-      )}
+      <button
+        className={styles.allowSensorButton}
+        onClick={requestSensorPermission}
+        disabled={isRequestingPermission}
+      >
+        {isRequestingPermission ? t("requesting") : t("allowSensors")}
+      </button>
 
       <div className={styles.homeRoot}>
         {isLoading && (
