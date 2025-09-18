@@ -8,25 +8,26 @@ import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
-import { useSensorPermission } from "../../../hooks/useSensorPermission";
+const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus"; // granted/denied
 
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
-  const { sensorPermission, requiresPermission } = useSensorPermission();
-
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state, setActiveTab]);
-
-  // Если на вкладке компаса и нет разрешения на iOS, показываем сообщение
-  const showPermissionMessage = activeTab === "compass" && 
-                               requiresPermission && 
-                               sensorPermission !== "granted";
-
+  useEffect(() => {
+    if (
+      activeTab === "compass" &&
+      localStorage.getItem(SENSOR_PERMISSION_STATUS) === "prompt"
+    ) {
+      // Можно показать кнопку или сообщение о необходимости запроса разрешения
+      console.log("Need to request sensor permission");
+    }
+  }, [activeTab]);
   return (
     <PageWrapper showBackButton>
       <div className={styles.toggleGroup}>
@@ -57,23 +58,13 @@ export const QiblaCompassPage: React.FC = () => {
         </label>
       </div>
 
-      {showPermissionMessage && (
-        <div className={styles.permissionMessage}>
-          <p>{t("sensorPermissionRequired")}</p>
-          <button 
-            onClick={() => window.history.back()}
-            className={styles.permissionButton}
-          >
-            {t("goBackToRequest")}
-          </button>
-        </div>
-      )}
-
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
           <div className={styles.bigCompass}>
             <QiblaCompass
-              permissionGranted={sensorPermission === "granted"}
+              permissionGranted={
+                localStorage.getItem(SENSOR_PERMISSION_STATUS) === "granted"
+              }
               coords={coords}
               showAngle={true}
               size={300}
