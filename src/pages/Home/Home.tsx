@@ -219,7 +219,6 @@
 // };
 // Home.tsx (исправленная версия)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './Home.css';
 
 const Home: React.FC = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
