@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { MenuBlocks } from "./MenuBlocks/MenuBlocks";
@@ -26,18 +26,15 @@ const isIOS = () => {
 
 // Проверяем, требуется ли запрос разрешения
 const requiresPermission = () => {
-  // Для iOS 13+ требуется явное разрешение
-  const isIOS13OrNewer = isIOS() && typeof DeviceOrientationEvent !== "undefined";
-  
+  const isIOSDevice = isIOS();
   const hasRequestPermission = 
-    isIOS13OrNewer &&
+    isIOSDevice &&
+    typeof DeviceOrientationEvent !== "undefined" &&
     typeof (DeviceOrientationEvent as any).requestPermission === "function";
 
   console.log("🔍 Requires permission check:", {
-    isIOS: isIOS(),
-    isIOS13OrNewer,
+    isIOS: isIOSDevice,
     hasRequestPermission,
-    result: hasRequestPermission,
   });
 
   return hasRequestPermission;
@@ -49,6 +46,7 @@ export const Home: React.FC = () => {
 
   const [sensorPermission, setSensorPermission] = useState<string>("prompt");
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [showPermissionRequest, setShowPermissionRequest] = useState(false);
 
   console.log(
     "🏠 Home component render - Sensor permission:",
@@ -57,53 +55,55 @@ export const Home: React.FC = () => {
     isRequestingPermission
   );
 
-  // Функция запроса разрешения (исправленная)
-  const requestSensorPermission = useCallback(async () => {
-    console.log("🔄 Starting sensor permission request...");
-    setIsRequestingPermission(true);
-
-    try {
-      if (requiresPermission()) {
-        console.log("📱 iOS device detected, requesting permission...");
-        
-        // Важно: вызываем через setTimeout для обхода ограничений iOS
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Правильный вызов requestPermission
-        const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        
-        console.log("✅ iOS permission request result:", result);
-        setSensorPermission(result);
-        
-        if (result === "granted") {
-          console.log("🎉 Permission granted successfully!");
-        } else {
-          console.warn("❌ Permission denied by user");
-        }
-      } else {
-        console.log("🤖 Non-iOS device, permission granted automatically");
-        setSensorPermission("granted");
-      }
-    } catch (err) {
-      console.error("❌ Sensor permission error:", err);
-      // Более детальная обработка ошибок
-      if ((err as Error).name === "NotAllowedError") {
-        setSensorPermission("denied");
-      } else if ((err as Error).name === "SecurityError") {
-        console.warn("🔒 Security error - may need HTTPS");
-        setSensorPermission("denied");
-      } else {
-        setSensorPermission("denied");
-      }
-    } finally {
-      console.log("🏁 Permission request finished");
-      setIsRequestingPermission(false);
+  // Проверяем начальное состояние разрешения
+  useEffect(() => {
+    // Для не-iOS устройств автоматически даем разрешение
+    if (!requiresPermission()) {
+      setSensorPermission("granted");
     }
   }, []);
 
-  // Обработка клика на компас (исправленная логика сравнения)
+  // Функция запроса разрешения - ДОЛЖНА вызываться напрямую из обработчика клика
+  const requestSensorPermissionDirect = useCallback(async () => {
+    console.log("🔄 Direct permission request called");
+    
+    if (!requiresPermission()) {
+      console.log("🤖 Non-iOS device, permission granted automatically");
+      setSensorPermission("granted");
+      return "granted";
+    }
+
+    setIsRequestingPermission(true);
+    setShowPermissionRequest(false);
+
+    try {
+      console.log("📱 iOS - calling requestPermission directly...");
+      
+      // ВАЖНО: вызываем напрямую без setTimeout и других оберток
+      const result = await (DeviceOrientationEvent as any).requestPermission();
+      
+      console.log("✅ iOS permission request result:", result);
+      setSensorPermission(result);
+      
+      if (result === "granted") {
+        console.log("🎉 Permission granted successfully!");
+        // Автоматически переходим к компасу после получения разрешения
+        setTimeout(() => {
+          navigate("/qibla", { state: { activeTab: "compass" } });
+        }, 100);
+      }
+      
+      return result;
+    } catch (err) {
+      console.error("❌ Sensor permission error:", err);
+      setSensorPermission("denied");
+      return "denied";
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  }, [navigate]);
+
+  // Обработка клика на компас
   const handleCompassClick = useCallback(async () => {
     console.log("🧭 Compass clicked, current permission:", sensorPermission);
 
@@ -112,24 +112,19 @@ export const Home: React.FC = () => {
       return;
     }
 
-    // Исправленное сравнение - используем строгое равенство
-    if (sensorPermission === "prompt") {
-      // Если разрешение еще не запрошено, запрашиваем его
-      await requestSensorPermission();
-      
-      // После запроса проверяем результат (используем текущее значение из состояния)
-      // Не можем использовать sensorPermission здесь напрямую, так как состояние обновится асинхронно
-      // Вместо этого используем колбэк для получения актуального значения
-      setSensorPermission(prevPermission => {
-        if (prevPermission === "granted") {
-          navigate("/qibla", { state: { activeTab: "compass" } });
-        }
-        return prevPermission;
-      });
-    } else if (sensorPermission === "granted") {
+    if (sensorPermission === "granted") {
+      navigate("/qibla", { state: { activeTab: "compass" } });
+      return;
+    }
+
+    // Для iOS показываем кнопку запроса разрешения
+    if (requiresPermission()) {
+      setShowPermissionRequest(true);
+    } else {
+      // Для других устройств сразу переходим
       navigate("/qibla", { state: { activeTab: "compass" } });
     }
-  }, [sensorPermission, navigate, requestSensorPermission]);
+  }, [sensorPermission, navigate]);
 
   const handleMapClick = useCallback(() => {
     navigate("/qibla", { state: { activeTab: "map" } });
@@ -138,43 +133,58 @@ export const Home: React.FC = () => {
   // Функция для открытия настроек iOS
   const openSettings = useCallback(() => {
     if (isIOS()) {
-      // Попытка открыть настройки
       try {
-        // Для веб-приложений
-        window.open("app-settings:");
-        
-        // Альтернативный способ для некоторых браузеров
-        setTimeout(() => {
-          window.location.href = "App-Prefs:root=SAFARI";
-        }, 500);
+        // Попытка открыть настройки Safari
+        window.location.href = 'app-settings:';
       } catch (err) {
         console.error("Failed to open settings:", err);
-        alert(t("openSettingsManually"));
+        alert("Пожалуйста, откройте настройки Safari вручную и разрешите доступ к датчикам движения");
       }
     }
   }, []);
 
-  const showPermissionButton =
-    requiresPermission() &&
-    sensorPermission !== "granted" &&
-    sensorPermission !== "denied";
-
-  console.log("👀 Show permission button:", showPermissionButton);
+  const showPermissionButton = requiresPermission() && sensorPermission === "prompt";
+  const showPermissionRequestModal = showPermissionRequest && sensorPermission === "prompt";
 
   return (
     <PageWrapper>
       <Header />
 
+      {/* Модальное окно запроса разрешения */}
+      {showPermissionRequestModal && (
+        <div className={styles.permissionModal}>
+          <div className={styles.modalContent}>
+            <h3>{t("sensorPermissionRequired")}</h3>
+            <p>{t("sensorPermissionMessage")}</p>
+            <div className={styles.modalButtons}>
+              <button
+                className={styles.cancelButton}
+                onClick={() => setShowPermissionRequest(false)}
+              >
+                {t("cancel")}
+              </button>
+              <button
+                className={styles.allowButton}
+                onClick={requestSensorPermissionDirect}
+                disabled={isRequestingPermission}
+              >
+                {isRequestingPermission ? t("requesting") : t("allow")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Кнопка запроса доступа к датчикам */}
-      {showPermissionButton && (
+      {showPermissionButton && !showPermissionRequestModal && (
         <div className={styles.permissionSection}>
           <p>{t("sensorPermissionRequired")}</p>
           <button
             className={styles.allowSensorButton}
-            onClick={requestSensorPermission}
+            onClick={() => setShowPermissionRequest(true)}
             disabled={isRequestingPermission}
           >
-            {isRequestingPermission ? t("requesting") : t("allowSensors")}
+            {t("allowSensors")}
           </button>
         </div>
       )}
@@ -183,9 +193,6 @@ export const Home: React.FC = () => {
       {sensorPermission === "denied" && (
         <div className={styles.permissionDeniedMessage}>
           <p>{t("sensorPermissionDeniedMessage")}</p>
-          <p className={styles.instructions}>
-            {t("sensorPermissionInstructions")}
-          </p>
           <button
             onClick={openSettings}
             className={styles.settingsButton}
@@ -224,7 +231,6 @@ export const Home: React.FC = () => {
                     onClick={handleCompassClick}
                     className={styles.compassContainer}
                   >
-                    {/* Исправлено: убрано isRequestingPermission, если компонент его не принимает */}
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
                     />
