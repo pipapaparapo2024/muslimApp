@@ -84,11 +84,6 @@ export const QiblaCompassPage: React.FC = () => {
 
   return (
     <PageWrapper showBackButton>
-      <div className={styles.header}>
-        <Navigation size={24} className={styles.qiblaIcon} />
-        <h1 className={styles.title}>{t("qiblaDirection")}</h1>
-      </div>
-
       <div className={styles.toggleGroup}>
         <label className={styles.toggleItem}>
           <input
@@ -172,21 +167,6 @@ export const QiblaCompassPage: React.FC = () => {
             </div>
 
             {/* Информация о направлении */}
-            {sensorPermission === "granted" && (
-              <div className={styles.directionInfo}>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t("qiblaAngle")}:</span>
-                  <span className={styles.infoValue}>0°</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.infoLabel}>{t("yourDirection")}:</span>
-                  <span className={styles.infoValue}>N</span>
-                </div>
-                <p className={styles.instruction}>
-                  {t("qiblaInstruction")}
-                </p>
-              </div>
-            )}
           </div>
         ) : (
           <div className={styles.mapSection}>
