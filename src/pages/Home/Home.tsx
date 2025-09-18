@@ -10,16 +10,14 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { AlertCircle, CheckCircle } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
     sensorPermission,
-    isRequestingPermission,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
-    isSensorAvailable,
+    isRequestingPermission,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -28,36 +26,14 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Всегда показываем кнопку разрешения, даже если уже granted */}
-      <div className={styles.sensorPermissionContainer}>
-        {sensorPermission !== "granted" ? (
-          <>
-            <button
-              className={styles.allowSensorButton}
-              onClick={requestSensorPermission}
-              disabled={isRequestingPermission}
-            >
-              {isRequestingPermission ? t("requesting") : t("allowSensors")}
-            </button>
-            <p className={styles.sensorPermissionText}>
-              {t("sensorPermissionDescription")}
-            </p>
-          </>
-        ) : !isSensorAvailable ? (
-          <div className={styles.sensorWarning}>
-            <AlertCircle size={20} />
-            <span>{t("sensorsNotAvailableHelp")}</span>
-          </div>
-        ) : (
-          <button
-            className={styles.sensorEnabledButton}
-            onClick={requestSensorPermission}
-          >
-            <CheckCircle size={20} />
-            <span>{t("sensorsEnabled")}</span>
-          </button>
-        )}
-      </div>
+      {/* Кнопка запроса доступа к датчикам (можно скрыть или оставить для ручного запроса) */}
+      <button
+        className={styles.allowSensorButton}
+        onClick={requestSensorPermission}
+        disabled={isRequestingPermission}
+      >
+        {isRequestingPermission ? t("requesting") : t("allowSensors")}
+      </button>
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -85,13 +61,11 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={handleCompassClick}
+                    onClick={() => handleCompassClick(sensorPermission)}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
-                      permissionGranted={
-                        sensorPermission === "granted" && isSensorAvailable
-                      }
+                      permissionGranted={sensorPermission === "granted"}
                     />
                   </div>
                 </div>
