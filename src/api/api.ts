@@ -44,13 +44,8 @@ quranApi.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) throw new Error("No refreshToken");
-
-        // Запрос на обновление accessToken через /auth/refresh
-        const response = await quranApi.post("/auth/refresh", {
-          refreshToken,
-        });
+        // Простой POST запрос на /auth/refresh - refreshToken автоматически отправляется из cookie
+        const response = await quranApi.post("/auth/refresh");
 
         // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
         const { accessToken } = response.data.data;
@@ -97,6 +92,7 @@ quranApi.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 export function isErrorWithMessage(error: unknown): error is { message: string } {
   return (
     typeof error === "object" &&
