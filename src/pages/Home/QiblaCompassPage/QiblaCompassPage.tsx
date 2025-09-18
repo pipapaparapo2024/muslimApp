@@ -16,6 +16,9 @@ export const QiblaCompassPage: React.FC = () => {
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [localPermission, setLocalPermission] = useState<string>(
+    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
+  );
 
   // Функция для запроса разрешения на доступ к датчикам
   const requestSensorPermission = async () => {
@@ -30,30 +33,31 @@ export const QiblaCompassPage: React.FC = () => {
         ).requestPermission();
         if (result === "granted") {
           localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+          setLocalPermission("granted");
         } else {
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+          // При отказе оставляем "prompt"
+          localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+          setLocalPermission("prompt");
         }
       } else {
         // На устройствах, где разрешение не требуется
         window.addEventListener("deviceorientation", () => {}, { once: true });
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+        setLocalPermission("granted");
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
-      localStorage.setItem(SENSOR_PERMISSION_STATUS, "denied");
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
+      setLocalPermission("prompt");
     } finally {
       setIsRequestingPermission(false);
     }
   };
 
-  // Запрос разрешения при монтировании компонента, если вкладка "compass"
+  // Запрос разрешения при монтировании компонента, если вкладка "compass" и разрешение не получено
   useEffect(() => {
-    if (activeTab === "compass") {
-      const permissionStatus = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-      
-      if (permissionStatus !== "granted") {
-        requestSensorPermission();
-      }
+    if (activeTab === "compass" && localPermission !== "granted") {
+      requestSensorPermission();
     }
   }, [activeTab]);
 
@@ -62,6 +66,16 @@ export const QiblaCompassPage: React.FC = () => {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state, setActiveTab]);
+
+  // Обновляем localPermission при изменении в localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setLocalPermission(localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt");
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <PageWrapper showBackButton>
@@ -99,18 +113,27 @@ export const QiblaCompassPage: React.FC = () => {
         </div>
       )}
 
+      {activeTab === "compass" && localPermission === "prompt" && !isRequestingPermission && (
+        <div className={styles.permissionPrompt}>
+          <p>{t("sensorPermissionRequired")}</p>
+          <button onClick={requestSensorPermission}>
+            {t("allowSensors")}
+          </button>
+        </div>
+      )}
+
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
-          <div className={styles.bigCompass}>
-            <QiblaCompass
-              permissionGranted={
-                localStorage.getItem(SENSOR_PERMISSION_STATUS) === "granted"
-              }
-              coords={coords}
-              showAngle={true}
-              size={300}
-            />
-          </div>
+          localPermission === "granted" ? (
+            <div className={styles.bigCompass}>
+              <QiblaCompass
+                permissionGranted={true}
+                coords={coords}
+                showAngle={true}
+                size={300}
+              />
+            </div>
+          ) : null
         ) : (
           <div>
             <QiblaMap fullscreen={true} />

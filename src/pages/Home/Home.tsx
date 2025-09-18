@@ -10,12 +10,13 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-
+import { useNavigate } from "react-router-dom";
 export const Home: React.FC = () => {
+  const navigate=useNavigate()
   const {
     sensorPermission,
     requestSensorPermission,
-    handleCompassClick,
+    // handleCompassClick,
     handleMapClick,
     isRequestingPermission,
   } = useHomeLogic();
@@ -63,7 +64,16 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick(sensorPermission)}
+                    onClick={() => {
+                      if (sensorPermission === "granted") {
+                        navigate("/qibla", { state: { activeTab: "compass" } });
+                      } else {
+                        // Если разрешения нет, показываем сообщение с предложением запросить
+                        if (confirm(t("sensorPermissionRequiredMessage"))) {
+                          requestSensorPermission();
+                        }
+                      }
+                    }}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass

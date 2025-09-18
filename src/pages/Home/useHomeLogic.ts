@@ -21,6 +21,11 @@ export const useHomeLogic = () => {
 
   // === ОБЩАЯ ФУНКЦИЯ ДЛЯ ЗАПРОСА ДОСТУПА ===
   const requestSensorPermission = useCallback(async () => {
+    // Если уже разрешено, ничего не делаем
+    if (sensorPermission === "granted") {
+      return;
+    }
+    
     setIsRequestingPermission(true);
     try {
       if (
@@ -33,7 +38,8 @@ export const useHomeLogic = () => {
         if (result === "granted") {
           setSensorPermission("granted");
         } else {
-          setSensorPermission("denied");
+          // При отказе оставляем "prompt", чтобы можно было запросить снова
+          setSensorPermission("prompt");
         }
       } else {
         // На устройствах, где разрешение не требуется
@@ -42,20 +48,15 @@ export const useHomeLogic = () => {
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
-      setSensorPermission("denied");
+      // При ошибке оставляем "prompt"
+      setSensorPermission("prompt");
     } finally {
       setIsRequestingPermission(false);
     }
-  }, []);
+  }, [sensorPermission]);
 
   // Навигация с проверкой разрешения
   const handleCompassClick = useCallback(async (currentPermission: string) => {
-    if (currentPermission === "denied") {
-      // Если доступ уже запрещен, показываем сообщение
-      alert(t("sensorPermissionDeniedMessage"));
-      return;
-    }
-
     if (currentPermission === "prompt") {
       // Если разрешение еще не запрашивалось, запрашиваем
       setIsRequestingPermission(true);
@@ -72,7 +73,8 @@ export const useHomeLogic = () => {
             setSensorPermission("granted");
             navigate("/qibla", { state: { activeTab: "compass" } });
           } else {
-            setSensorPermission("denied");
+            // При отказе оставляем "prompt"
+            setSensorPermission("prompt");
             alert(t("sensorPermissionRequired"));
           }
         } else {
@@ -82,7 +84,8 @@ export const useHomeLogic = () => {
         }
       } catch (err) {
         console.error("Sensor permission error:", err);
-        setSensorPermission("denied");
+        // При ошибке оставляем "prompt"
+        setSensorPermission("prompt");
         alert(t("sensorPermissionError"));
       } finally {
         setIsRequestingPermission(false);
