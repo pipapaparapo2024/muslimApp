@@ -66,7 +66,7 @@ export const WelcomeFriends: React.FC = () => {
       <div className={styles.root}>
         <div className={styles.header}>
           <div className={styles.title}>
-            You haven't invited any friends yet
+            {t("haventInvited")}
           </div>
           <div className={styles.subtitle}>
             {t("inviteFriendsToEarnRewards")}
