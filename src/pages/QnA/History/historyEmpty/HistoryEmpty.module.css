@@ -5,8 +5,8 @@
   overflow: hidden;
 }
 .contain img {
-  max-height: 400px;
-  padding: 50px 0;
+  max-height: 390px;
+  padding: 40px 0;
   width: 100%;
   max-width: 360px;
   height: auto;
