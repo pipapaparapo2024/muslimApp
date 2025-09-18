@@ -94,7 +94,18 @@
   background: var(--bg-surface);
   padding: var(--numbers-8) var(--numbers-16);
 }
-
+.blockInside .scanDesk {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2; /* Ограничиваем 2 строками */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.5em * 2); /* Высота 2 строк (line-height 1.5) */
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 .scanTitle {
   font-weight: var(--font-600);
   font-size: var(--numbers-16);

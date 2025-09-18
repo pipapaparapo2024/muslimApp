@@ -81,6 +81,7 @@
 /* Специфичный стиль для текста ответа с ограничением в 6 строк */
 .blockMessageBot .text {
   display: -webkit-box;
+  line-clamp: 6;
   -webkit-line-clamp: 6; /* Ограничиваем 6 строками */
   -webkit-box-orient: vertical;
   overflow: hidden;
