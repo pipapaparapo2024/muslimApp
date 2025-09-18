@@ -101,6 +101,10 @@ const resources = {
       authError: "Authentication Error",
       tryAgain: "Try Again",
 
+      //Camera Page
+      again:"Again",
+      send:"Send",
+
       // Friends
       haventInvited:"You haven't invited any friends yet",
       earnRewards: "🎁 Earn Rewards by Sharing",
@@ -358,6 +362,11 @@ const resources = {
       start: "ابدأ",
       authError: "خطأ في المصادقة",
       tryAgain: "حاول مرة أخرى",
+
+      //Camera Page
+      again:"مرة أخرى",
+      send:"يرسل",
+
       // Friends
       earnRewards: "🎁 اربح مكافآت بالمشاركة",
       haventInvited:"لم تقم بدعوة أي أصدقاء حتى الآن",

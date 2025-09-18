@@ -5,6 +5,7 @@ import { useScannerStore } from "../../../hooks/useScannerStore";
 import styles from "./CameraPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import { t } from "i18next";
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -117,7 +118,7 @@ export const CameraPage: React.FC = () => {
           <div className={styles.controls}>
             <button onClick={retakePhoto} className={styles.againButton}>
               <RotateCcw size={20} />
-              Again
+              {t("again")}
             </button>
             <button
               onClick={handleProcessPhoto}
@@ -125,7 +126,7 @@ export const CameraPage: React.FC = () => {
               disabled={isLoading}
             >
               <Send size={20} />
-              Send
+              {t("send")}
             </button>
           </div>
         </div>
