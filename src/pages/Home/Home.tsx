@@ -124,11 +124,8 @@
 //   );
 // };
 
-
-
 import React, { useState, useEffect, useRef } from 'react';
 
-// Интерфейс для iOS-specific метода запроса разрешения
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   requestPermission?: () => Promise<'granted' | 'denied'>;
 }
@@ -139,13 +136,35 @@ export const Home: React.FC = () => {
   const [alpha, setAlpha] = useState<number>(0);
   const [error, setError] = useState<string>('');
   const [isIOS, setIsIOS] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const compassRef = useRef<HTMLDivElement>(null);
 
   // Проверяем, iOS ли это устройство
   useEffect(() => {
     const isAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(isAppleDevice);
+    checkInitialPermission();
   }, []);
+
+  // Проверяем начальное состояние разрешения
+  const checkInitialPermission = async (): Promise<void> => {
+    try {
+      // Для iOS проверяем, нужно ли запрашивать разрешение
+      if (isPermissionRequestNeeded()) {
+        setHasPermission(false);
+      } else {
+        // Для Android и других устройств пробуем запустить компас
+        if (isDeviceOrientationSupported()) {
+          setHasPermission(true);
+          startCompass();
+        }
+      }
+    } catch (err) {
+      setError('Ошибка при проверке разрешений');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Проверяем поддержку DeviceOrientation
   const isDeviceOrientationSupported = (): boolean => {
@@ -163,6 +182,7 @@ export const Home: React.FC = () => {
   // Запрос разрешения для iOS
   const requestPermission = async (): Promise<void> => {
     try {
+      setIsLoading(true);
       setError('');
       const event = DeviceOrientationEvent as unknown as DeviceOrientationEventiOS;
       
@@ -182,6 +202,8 @@ export const Home: React.FC = () => {
     } catch (err) {
       setError(`Ошибка при запросе разрешения: ${(err as Error).message}`);
       setPermissionRequested(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -203,7 +225,7 @@ export const Home: React.FC = () => {
       }
     };
 
-    // Добавляем обработчик с правильным типом
+    // Добавляем обработчик
     window.addEventListener('deviceorientation', handleOrientation as EventListener);
 
     // Функция очистки
@@ -211,15 +233,6 @@ export const Home: React.FC = () => {
       window.removeEventListener('deviceorientation', handleOrientation as EventListener);
     };
   };
-
-  // Автоматически запускаем компас для Android и других устройств
-  useEffect(() => {
-    if (!isPermissionRequestNeeded() && isDeviceOrientationSupported()) {
-      setHasPermission(true);
-      const cleanup = startCompass();
-      return cleanup;
-    }
-  }, [isIOS]);
 
   // Обработчик для не-iOS устройств
   const handleNonIOSClick = (): void => {
@@ -231,9 +244,8 @@ export const Home: React.FC = () => {
 
   // Определяем, что показывать на кнопке
   const getButtonText = (): string => {
-    if (!isDeviceOrientationSupported()) {
-      return 'Датчики не поддерживаются';
-    }
+    if (isLoading) return 'Проверка...';
+    if (!isDeviceOrientationSupported()) return 'Датчики не поддерживаются';
     
     if (isPermissionRequestNeeded()) {
       return hasPermission ? 'Доступ разрешен' : 'Запросить доступ к датчикам';
@@ -244,10 +256,19 @@ export const Home: React.FC = () => {
 
   // Определяем, активна ли кнопка
   const isButtonDisabled = (): boolean => {
-    return !isDeviceOrientationSupported() || 
+    return isLoading || 
+           !isDeviceOrientationSupported() || 
            hasPermission || 
            (isPermissionRequestNeeded() && permissionRequested && !hasPermission);
   };
+
+  if (isLoading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.loading}>Загрузка...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -261,18 +282,26 @@ export const Home: React.FC = () => {
 
       {/* Визуализация компаса */}
       <div style={styles.compassWrapper}>
-        <div ref={compassRef} style={styles.compass}>
+        <div ref={compassRef} style={{
+          ...styles.compass,
+          opacity: hasPermission ? 1 : 0.5
+        }}>
           <div style={styles.compassNeedle}></div>
           <div style={styles.compassCenter}></div>
           <div style={styles.northIndicator}>N</div>
           <div style={styles.southIndicator}>S</div>
+          {!hasPermission && (
+            <div style={styles.compassOverlay}>
+              ⚠️ Требуется разрешение
+            </div>
+          )}
         </div>
       </div>
 
       {/* Информация о направлении */}
       <div style={styles.info}>
         <p style={styles.direction}>
-          Направление: <strong>{alpha.toFixed(1)}°</strong>
+          Направление: <strong>{hasPermission ? `${alpha.toFixed(1)}°` : 'N/A'}</strong>
         </p>
         <p style={styles.status}>
           Статус: 
@@ -292,7 +321,8 @@ export const Home: React.FC = () => {
       <button 
         style={{
           ...styles.button,
-          ...(isButtonDisabled() ? styles.buttonDisabled : {})
+          ...(isButtonDisabled() ? styles.buttonDisabled : {}),
+          ...(isLoading ? styles.buttonLoading : {})
         }}
         onClick={isPermissionRequestNeeded() ? requestPermission : handleNonIOSClick}
         disabled={isButtonDisabled()}
@@ -337,6 +367,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     backgroundColor: '#f5f5f5'
   },
+  loading: {
+    fontSize: '18px',
+    color: '#7f8c8d',
+    textAlign: 'center'
+  },
   title: {
     color: '#2c3e50',
     marginBottom: '30px',
@@ -355,9 +390,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '50%',
     border: '4px solid #34495e',
     position: 'relative',
-    transition: 'transform 0.1s ease',
+    transition: 'all 0.3s ease',
     backgroundColor: '#ecf0f1',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+  },
+  compassOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: 'white',
+    padding: '10px',
+    borderRadius: '5px',
+    fontSize: '14px'
   },
   compassNeedle: {
     position: 'absolute',
@@ -432,6 +478,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: '#bdc3c7',
     cursor: 'not-allowed',
     boxShadow: 'none'
+  },
+  buttonLoading: {
+    opacity: 0.7,
+    cursor: 'wait'
   },
   error: {
     color: '#e74c3c',
