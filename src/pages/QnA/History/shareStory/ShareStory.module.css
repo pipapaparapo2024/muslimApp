@@ -3,13 +3,15 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  overflow: hidden;
+  margin: 0 auto;
   position: relative;
   display: flex;
-  /* min-height: 90vh; */
+  min-height: 90vh;
   height: 100%;
   flex-direction: column;
   align-items: center;
-  padding-bottom: var(--numbers-48);
+  padding-bottom: var(--numbers-80);
 }
 
 .contentWrapper {
@@ -19,7 +21,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; 
+  position: relative; /* Добавляем для позиционирования сообщений */
 }
 
 .container img {
@@ -36,27 +38,28 @@
 
 .blockMessages {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%); 
+  left: 50%; /* Центрируем блок */
+  transform: translateX(-50%); /* Корректируем положение */
   top: auto;
-  bottom: 70px;
+  bottom: -110px;
   padding: var(--numbers-16);
-  z-index: 3; 
+  z-index: 3; /* Увеличиваем z-index чтобы быть выше изображения */
   display: flex;
   flex-direction: column;
   gap: var(--numbers-8);
-  width: 100%; 
-  max-width: 390px; 
+  width: 100%; /* Занимаем всю ширину */
+  max-width: 390px; /* Ограничиваем максимальную ширину */
   box-sizing: border-box;
 }
 
+/* УБИРАЕМ transform у сообщений - это было неправильно */
 .blockMessageUser {
   border-radius: var(--roundings-medium) var(--roundings-medium) 0
     var(--roundings-medium);
   max-width: 280px;
   background: var(--bg-surface);
   padding: var(--numbers-8) var(--numbers-16);
-  align-self: flex-end;
+  align-self: flex-end; /* Сообщение пользователя справа */
   margin-left: auto;
 }
 
@@ -66,7 +69,7 @@
   border-radius: var(--roundings-medium) var(--roundings-medium)
     var(--roundings-medium) 0;
   padding: var(--numbers-8) var(--numbers-16);
-  align-self: flex-start; 
+  align-self: flex-start; /* Сообщение бота слева */
   margin-right: auto;
 }
 
@@ -92,13 +95,12 @@
   gap: var(--numbers-6);
   align-items: center;
   margin: var(--numbers-16) auto;
-  width: 90%;
+  width: 100%;
   color: white;
   padding:var(--numbers-16);
   cursor: pointer;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
 }
-
 
 .shareButton:hover:not(:disabled) {
   transform: translateY(-2px);
