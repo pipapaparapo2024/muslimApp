@@ -18,6 +18,7 @@ export const Home: React.FC = () => {
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
+    isIOS // Добавляем проверку на iOS
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -26,14 +27,28 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка запроса доступа к датчикам (можно скрыть или оставить для ручного запроса) */}
-      <button
-        className={styles.allowSensorButton}
-        onClick={requestSensorPermission}
-        disabled={isRequestingPermission}
-      >
-        {isRequestingPermission ? t("requesting") : t("allowSensors")}
-      </button>
+      {/* Показываем кнопку только на iOS и когда разрешение еще не получено */}
+      {isIOS && sensorPermission !== "granted" && (
+        <button
+          className={styles.allowSensorButton}
+          onClick={requestSensorPermission}
+          disabled={isRequestingPermission}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            padding: '10px 15px',
+            backgroundColor: '#007AFF',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }}
+        >
+          {isRequestingPermission ? t("requesting") : t("allowSensors")}
+        </button>
+      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (

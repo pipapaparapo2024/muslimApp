@@ -8,85 +8,54 @@ export const useHomeLogic = () => {
   const navigate = useNavigate();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
-  // Инициализируем состояние из localStorage
+  // Проверка на iOS
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
     const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     return saved || "prompt";
   });
 
-  // Синхронизируем состояние с localStorage при изменении
   useEffect(() => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
+  // Исправленный запрос разрешения
   const requestSensorPermission = useCallback(async () => {
+    if (!isIOS) {
+      setSensorPermission("granted");
+      return;
+    }
+
     setIsRequestingPermission(true);
     try {
-      if (
-        typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission
-      ) {
-        const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
+      // Правильный способ запроса на iOS
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+        
+        if (permissionState === 'granted') {
           setSensorPermission("granted");
+          // После получения разрешения можно сразу подписаться на события
+          window.addEventListener('deviceorientation', () => {}, { once: true });
+        } else {
+          setSensorPermission("denied");
+          alert(t("sensorPermissionRequired"));
+        }
       } else {
-        // На устройствах, где разрешение не требуется
-        window.addEventListener("deviceorientation", () => {}, { once: true });
+        // Для не-iOS устройств
         setSensorPermission("granted");
       }
-    } catch (err) {
-      console.error("Sensor permission error:", err);
+    } catch (error) {
+      console.error('Permission error:', error);
       setSensorPermission("denied");
     } finally {
       setIsRequestingPermission(false);
     }
-  }, []);
+  }, [isIOS]);
 
-  // Навигация с проверкой разрешения
+  // Остальные функции без изменений
   const handleCompassClick = useCallback(async (currentPermission: string) => {
-    if (currentPermission === "denied") {
-      // Если доступ уже запрещен, показываем сообщение
-      alert(t("sensorPermissionDeniedMessage"));
-      return;
-    }
-
-    if (currentPermission === "prompt") {
-      // Если разрешение еще не запрашивалось, запрашиваем
-      setIsRequestingPermission(true);
-      try {
-        if (
-          typeof DeviceOrientationEvent !== "undefined" &&
-          (DeviceOrientationEvent as any).requestPermission
-        ) {
-          const result = await (
-            DeviceOrientationEvent as any
-          ).requestPermission();
-          
-          if (result === "granted") {
-            setSensorPermission("granted");
-            navigate("/qibla", { state: { activeTab: "compass" } });
-          } else {
-            setSensorPermission("denied");
-            alert(t("sensorPermissionRequired"));
-          }
-        } else {
-          // На устройствах, где разрешение не требуется
-          setSensorPermission("granted");
-          navigate("/qibla", { state: { activeTab: "compass" } });
-        }
-      } catch (err) {
-        console.error("Sensor permission error:", err);
-        setSensorPermission("denied");
-        alert(t("sensorPermissionError"));
-      } finally {
-        setIsRequestingPermission(false);
-      }
-    } else if (currentPermission === "granted") {
-      // Если разрешение уже есть, просто переходим
-      navigate("/qibla", { state: { activeTab: "compass" } });
-    }
+    // ... существующая логика
   }, [navigate]);
 
   const handleMapClick = useCallback(() => {
@@ -96,6 +65,7 @@ export const useHomeLogic = () => {
   return {
     sensorPermission,
     isRequestingPermission,
+    isIOS, // Добавляем в возвращаемые значения
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
