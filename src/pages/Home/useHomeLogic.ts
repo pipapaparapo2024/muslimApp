@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
+// Функция для логирования
+const logSensorEvent = (event: string, details?: any) => {
+  console.log(`[HomeSensor] ${event}`, details || '');
+};
+
 export const useHomeLogic = () => {
   const navigate = useNavigate();
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   // Инициализируем состояние из localStorage
-  const [sensorPermission, setSensorPermission] = useState<string>(() => {
+  const [sensorPermission, ] = useState<string>(() => {
     return localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt";
   });
 
@@ -17,40 +21,18 @@ export const useHomeLogic = () => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // Функция для запроса разрешения
-  const requestSensorPermission = useCallback(async () => {
-    setIsRequestingPermission(true);
-    try {
-      if (
-        typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission
-      ) {
-        const result = await (DeviceOrientationEvent as any).requestPermission();
-        setSensorPermission(result);
-      } else {
-        // На устройствах, где разрешение не требуется
-        setSensorPermission("granted");
-      }
-    } catch (err) {
-      console.error("Sensor permission error:", err);
-      setSensorPermission("prompt");
-    } finally {
-      setIsRequestingPermission(false);
-    }
-  }, []);
-
   const handleCompassClick = useCallback(() => {
+    logSensorEvent('compass_clicked', { permission: sensorPermission });
     navigate("/qibla", { state: { activeTab: "compass" } });
-  }, [navigate]);
+  }, [navigate, sensorPermission]);
 
   const handleMapClick = useCallback(() => {
+    logSensorEvent('map_clicked');
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 
   return {
     sensorPermission,
-    isRequestingPermission,
-    requestSensorPermission,
     handleCompassClick,
     handleMapClick,
   };

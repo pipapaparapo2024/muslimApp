@@ -11,6 +11,13 @@ import { t } from "i18next";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
+// Функция для логирования
+const logSensorEvent = (event: string, details?: any) => {
+  console.log(`[SensorPermission] ${event}`, details || '');
+  // Здесь можно добавить отправку в аналитику (Google Analytics, Yandex.Metrica и т.д.)
+  // analytics.track('sensor_permission', { event, ...details });
+};
+
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
@@ -23,31 +30,48 @@ export const QiblaCompassPage: React.FC = () => {
   // Функция для запроса разрешения
   const requestSensorPermission = async () => {
     setIsRequestingPermission(true);
+    logSensorEvent('permission_request_started');
+    
     try {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
         (DeviceOrientationEvent as any).requestPermission
       ) {
+        logSensorEvent('native_permission_api_available');
+        
         const result = await (DeviceOrientationEvent as any).requestPermission();
+        logSensorEvent('permission_result_received', { result });
+        
         localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
         setSensorPermission(result);
+        
+        if (result === "granted") {
+          logSensorEvent('permission_granted');
+        } else {
+          logSensorEvent('permission_denied');
+        }
       } else {
         // На устройствах, где разрешение не требуется
+        logSensorEvent('permission_not_required');
         localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
         setSensorPermission("granted");
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
+      logSensorEvent('permission_error', { error: err });
       localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
       setSensorPermission("prompt");
     } finally {
       setIsRequestingPermission(false);
+      logSensorEvent('permission_request_completed');
     }
   };
 
   // Автоматически запрашиваем разрешение при каждом входе на вкладку компаса
+  // если разрешение еще не получено
   useEffect(() => {
     if (activeTab === "compass" && sensorPermission === "prompt") {
+      logSensorEvent('auto_permission_request_triggered');
       requestSensorPermission();
     }
   }, [activeTab, sensorPermission]);
@@ -56,7 +80,18 @@ export const QiblaCompassPage: React.FC = () => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
     }
-  }, [location.state, setActiveTab]);
+    
+    // Логируем переход на страницу
+    logSensorEvent('page_loaded', { 
+      activeTab: location.state?.activeTab || 'compass',
+      previousPermission: sensorPermission 
+    });
+  }, [location.state, setActiveTab, sensorPermission]);
+
+  // Логируем изменения вкладок
+  useEffect(() => {
+    logSensorEvent('tab_changed', { activeTab });
+  }, [activeTab]);
 
   return (
     <PageWrapper showBackButton>
@@ -91,7 +126,7 @@ export const QiblaCompassPage: React.FC = () => {
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
           <div className={styles.compassContainer}>
-            {/* Всегда показываем компас, но с разным состоянием */}
+            {/* Всегда показываем компас */}
             <QiblaCompass
               permissionGranted={sensorPermission === "granted"}
               coords={coords}
@@ -99,22 +134,23 @@ export const QiblaCompassPage: React.FC = () => {
               size={300}
             />
             
-            {/* Сообщение о необходимости разрешения */}
+            {/* Сообщение о статусе разрешения */}
             {sensorPermission !== "granted" && (
               <div className={styles.permissionOverlay}>
                 {isRequestingPermission ? (
                   <div className={styles.permissionMessage}>
                     {t("requestingSensorPermission")}
                   </div>
+                ) : sensorPermission === "denied" ? (
+                  <div className={styles.permissionMessage}>
+                    <p>{t("sensorPermissionDenied")}</p>
+                    <p className={styles.helpText}>
+                      {t("sensorPermissionHelp")}
+                    </p>
+                  </div>
                 ) : (
                   <div className={styles.permissionMessage}>
-                    <p>{t("sensorPermissionRequired")}</p>
-                    <button 
-                      onClick={requestSensorPermission}
-                      className={styles.permissionButton}
-                    >
-                      {t("allowSensors")}
-                    </button>
+                    <p>{t("sensorPermissionRequesting")}</p>
                   </div>
                 )}
               </div>
