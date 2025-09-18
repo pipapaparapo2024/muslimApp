@@ -37,7 +37,11 @@ interface SurahListState {
   variants: Variant[];
   selectedVariant: Variant | null;
   selectedSurah: Surah | null;
-
+  // Новые состояния для пагинации сур
+  surahsCurrentPage: number;
+  surahsHasNext: boolean;
+  surahsHasPrev: boolean;
+  surahsPageAmount: number;
   // Обновленные состояния для пагинации
   ayahs: Ayah[];
   currentPage: number;

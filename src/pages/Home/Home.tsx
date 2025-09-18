@@ -73,6 +73,9 @@ export const Home: React.FC = () => {
             </div>
 
             <MenuBlocks />
+            <div>
+              {t("")}
+            </div>
           </>
         )}
       </div>
