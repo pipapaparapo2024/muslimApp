@@ -27,7 +27,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      
+
       {/* Всегда показываем кнопку разрешения, даже если уже granted */}
       <div className={styles.sensorPermissionContainer}>
         {sensorPermission !== "granted" ? (
@@ -85,7 +85,9 @@ export const Home: React.FC = () => {
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
-                      permissionGranted={sensorPermission === "granted" && isSensorAvailable}
+                      permissionGranted={
+                        sensorPermission === "granted" && isSensorAvailable
+                      }
                     />
                   </div>
                 </div>
