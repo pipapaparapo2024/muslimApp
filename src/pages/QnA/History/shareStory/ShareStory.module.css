@@ -41,7 +41,7 @@
   left: 50%;
   transform: translateX(-50%); 
   top: auto;
-  bottom: 0px;
+  bottom: 50px;
   padding: var(--numbers-16);
   z-index: 3; 
   display: flex;
@@ -102,7 +102,7 @@
 }
 
 .shareContainter{
-  /* margin: 0 var(--numbers-16); */
+  margin: 0 var(--numbers-16);
 }
 
 
