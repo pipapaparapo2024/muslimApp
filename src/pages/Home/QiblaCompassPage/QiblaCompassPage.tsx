@@ -19,7 +19,15 @@ export const QiblaCompassPage: React.FC = () => {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state, setActiveTab]);
-
+  useEffect(() => {
+    if (
+      activeTab === "compass" &&
+      localStorage.getItem(SENSOR_PERMISSION_STATUS) === "prompt"
+    ) {
+      // Можно показать кнопку или сообщение о необходимости запроса разрешения
+      console.log("Need to request sensor permission");
+    }
+  }, [activeTab]);
   return (
     <PageWrapper showBackButton>
       <div className={styles.toggleGroup}>

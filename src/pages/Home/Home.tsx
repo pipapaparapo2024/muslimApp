@@ -17,21 +17,25 @@ export const Home: React.FC = () => {
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
+    isRequestingPermission,
   } = useHomeLogic();
+  
   const { isLoading, error } = useGeoStore();
+
   return (
     <PageWrapper>
       <Header />
-      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-        <button
-          className={styles.allowSensorButton}
-          onClick={requestSensorPermission}
-        >
-          Allow
-        </button>
-      <div className={styles.homeRoot}>
-        {/* Кнопка обновления местоположения */}
+      
+      {/* Кнопка запроса доступа к датчикам (можно скрыть или оставить для ручного запроса) */}
+      <button
+        className={styles.allowSensorButton}
+        onClick={requestSensorPermission}
+        disabled={isRequestingPermission}
+      >
+        {isRequestingPermission ? t("requesting") : t("allowSensors")}
+      </button>
 
+      <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
@@ -57,7 +61,7 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={handleCompassClick}
+                    onClick={() => handleCompassClick(sensorPermission)}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass

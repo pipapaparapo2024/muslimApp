@@ -1,4 +1,4 @@
-// useHomeLogic.ts
+import { t } from "i18next";
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,6 +6,7 @@ const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -20,6 +21,7 @@ export const useHomeLogic = () => {
 
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
+    setIsRequestingPermission(true);
     try {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
@@ -34,18 +36,61 @@ export const useHomeLogic = () => {
           setSensorPermission("denied");
         }
       } else {
+        // На устройствах, где разрешение не требуется
         window.addEventListener("deviceorientation", () => {}, { once: true });
         setSensorPermission("granted");
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
       setSensorPermission("denied");
+    } finally {
+      setIsRequestingPermission(false);
     }
   }, []);
 
-  // Навигация
-  const handleCompassClick = useCallback(() => {
-    navigate("/qibla", { state: { activeTab: "compass" } });
+  // Навигация с проверкой разрешения
+  const handleCompassClick = useCallback(async (currentPermission: string) => {
+    if (currentPermission === "denied") {
+      // Если доступ уже запрещен, показываем сообщение
+      alert(t("sensorPermissionDeniedMessage"));
+      return;
+    }
+
+    if (currentPermission === "prompt") {
+      // Если разрешение еще не запрашивалось, запрашиваем
+      setIsRequestingPermission(true);
+      try {
+        if (
+          typeof DeviceOrientationEvent !== "undefined" &&
+          (DeviceOrientationEvent as any).requestPermission
+        ) {
+          const result = await (
+            DeviceOrientationEvent as any
+          ).requestPermission();
+          
+          if (result === "granted") {
+            setSensorPermission("granted");
+            navigate("/qibla", { state: { activeTab: "compass" } });
+          } else {
+            setSensorPermission("denied");
+            alert(t("sensorPermissionRequired"));
+          }
+        } else {
+          // На устройствах, где разрешение не требуется
+          setSensorPermission("granted");
+          navigate("/qibla", { state: { activeTab: "compass" } });
+        }
+      } catch (err) {
+        console.error("Sensor permission error:", err);
+        setSensorPermission("denied");
+        alert(t("sensorPermissionError"));
+      } finally {
+        setIsRequestingPermission(false);
+      }
+    } else if (currentPermission === "granted") {
+      // Если разрешение уже есть, просто переходим
+      navigate("/qibla", { state: { activeTab: "compass" } });
+    }
   }, [navigate]);
 
   const handleMapClick = useCallback(() => {
@@ -54,6 +99,7 @@ export const useHomeLogic = () => {
 
   return {
     sensorPermission,
+    isRequestingPermission,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
