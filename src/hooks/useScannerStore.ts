@@ -23,7 +23,7 @@ export interface HaramProduct {
 
 export interface ScanResult {
   id: string;
-  description:string;
+  description: string;
   verdict: ProductStatusType;
   products: string[];
   engType: ProductStatusType;
@@ -43,7 +43,7 @@ export interface ApiScanResponseData {
   response: {
     haramProducts: HaramProduct[];
     id: string;
-    description:string;
+    description: string;
     products: string[];
     verdict: ProductStatusType;
     engType: ProductStatusType;
@@ -135,7 +135,7 @@ export const useScannerStore = create<ScannerState>()(
         setLoading(true);
         setShowAnalyzing(true);
         setError(null);
-        setScanResult(null); // Важно: сбросить предыдущий результат
+        setScanResult(null); 
         setMinLoadingTimePassed(false);
 
         setTimeout(() => setMinLoadingTimePassed(true), 2000);
@@ -176,7 +176,7 @@ export const useScannerStore = create<ScannerState>()(
           const date = timestamp.split("T")[0];
 
           const scanResult: ScanResult = {
-            description:responseData.description,
+            description: responseData.description,
             engType: responseData.engType,
             id: responseData.id,
             verdict: responseData.verdict,
@@ -184,7 +184,7 @@ export const useScannerStore = create<ScannerState>()(
             haramProducts: responseData.haramProducts,
             date: date,
           };
-
+          console.log("scanResult",scanResult)
           const historyItem: HistoryItem = {
             id: responseData.id,
             date: date,

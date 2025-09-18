@@ -94,12 +94,10 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
       );
 
       set({ isLoading: false });
-
-      // Исправлено: response.data.data.item вместо response.data.item
+      console.log("fetchHistoryItem",response)
       if (response.data.item) {
         return response.data.item;
       } else {
-        // Если API вернул null, ищем в локальной истории
         const { history } = get();
         const allScans = history.flatMap((group) => group.qa);
         return allScans.find((scan) => scan.id === id) || null;
