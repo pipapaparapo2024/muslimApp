@@ -9,74 +9,46 @@ import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
 
-const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
-
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [localPermission, setLocalPermission] = useState<string>(
-    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
-  );
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
 
-  // Функция для запроса разрешения на доступ к датчикам
-  const requestSensorPermission = async () => {
-    setIsRequestingPermission(true);
+  // Функция запроса разрешения
+  const requestPermission = async () => {
+    setIsRequesting(true);
     try {
-      if (
-        typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission
-      ) {
-        const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        if (result === "granted") {
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-          setLocalPermission("granted");
-        } else {
-          // При отказе оставляем "prompt"
-          localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
-          setLocalPermission("prompt");
-        }
+      if (typeof DeviceOrientationEvent !== "undefined" && 
+          (DeviceOrientationEvent as any).requestPermission) {
+        
+        const result = await (DeviceOrientationEvent as any).requestPermission();
+        setPermissionGranted(result === "granted");
       } else {
-        // На устройствах, где разрешение не требуется
-        window.addEventListener("deviceorientation", () => {}, { once: true });
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-        setLocalPermission("granted");
+        // На устройствах где не нужно разрешение
+        setPermissionGranted(true);
       }
-    } catch (err) {
-      console.error("Sensor permission error:", err);
-      localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
-      setLocalPermission("prompt");
+    } catch (error) {
+      console.error("Ошибка запроса разрешения:", error);
+      setPermissionGranted(false);
     } finally {
-      setIsRequestingPermission(false);
+      setIsRequesting(false);
     }
   };
 
-  // Запрос разрешения при монтировании компонента, если вкладка "compass" и разрешение не получено
+  // При загрузке страницы и выборе вкладки компаса - запрашиваем разрешение
   useEffect(() => {
-    if (activeTab === "compass" && localPermission !== "granted") {
-      requestSensorPermission();
+    if (activeTab === "compass") {
+      requestPermission();
     }
-  }, [activeTab, localPermission]);
+  }, [activeTab]);
 
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
     }
   }, [location.state, setActiveTab]);
-
-  // Обновляем localPermission при изменении в localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const newPermission = localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt";
-      setLocalPermission(newPermission);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
 
   return (
     <PageWrapper showBackButton>
@@ -108,16 +80,16 @@ export const QiblaCompassPage: React.FC = () => {
         </label>
       </div>
 
-      {isRequestingPermission && (
+      {isRequesting && (
         <div className={styles.permissionRequest}>
           {t("requestingSensorPermission")}
         </div>
       )}
 
-      {activeTab === "compass" && localPermission === "prompt" && !isRequestingPermission && (
+      {activeTab === "compass" && !permissionGranted && !isRequesting && (
         <div className={styles.permissionPrompt}>
           <p>{t("sensorPermissionRequired")}</p>
-          <button onClick={requestSensorPermission}>
+          <button onClick={requestPermission}>
             {t("allowSensors")}
           </button>
         </div>
@@ -125,6 +97,7 @@ export const QiblaCompassPage: React.FC = () => {
 
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
+          permissionGranted ? (
             <div className={styles.bigCompass}>
               <QiblaCompass
                 permissionGranted={true}
@@ -133,6 +106,7 @@ export const QiblaCompassPage: React.FC = () => {
                 size={300}
               />
             </div>
+          ) : null
         ) : (
           <div>
             <QiblaMap fullscreen={true} />
