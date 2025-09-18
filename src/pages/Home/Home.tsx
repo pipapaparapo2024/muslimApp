@@ -217,8 +217,8 @@
 //     </PageWrapper>
 //   );
 // };
-// Home.tsx (исправленная версия)
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import './Home.css';
 
 const Home: React.FC = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
@@ -233,6 +233,25 @@ const Home: React.FC = () => {
     return 'DeviceOrientationEvent' in window && 
            typeof (DeviceOrientationEvent as any).requestPermission === 'function';
   }, []);
+
+  // Обработчик ориентации устройства
+  const handleOrientation = useCallback((event: DeviceOrientationEvent): void => {
+    if (event.alpha !== null) {
+      setCompassHeading(Math.round(event.alpha));
+    }
+  }, []);
+
+  // Запуск компаса
+  const startCompass = useCallback((): void => {
+    if (!permissionRef.current) return;
+
+    window.addEventListener('deviceorientation', handleOrientation as EventListener);
+  }, [handleOrientation]);
+
+  // Остановка компаса
+  const stopCompass = useCallback((): void => {
+    window.removeEventListener('deviceorientation', handleOrientation as EventListener);
+  }, [handleOrientation]);
 
   // Запрос разрешения на доступ к ориентации
   const requestOrientationPermission = async (): Promise<void> => {
@@ -253,7 +272,7 @@ const Home: React.FC = () => {
       if (permission === 'granted') {
         setPermissionGranted(true);
         permissionRef.current = true;
-        startCompass();
+        startCompass(); // Теперь это просто вызов функции
       } else {
         setError('Разрешение на доступ к ориентации отклонено');
         setPermissionGranted(false);
@@ -266,38 +285,17 @@ const Home: React.FC = () => {
     }
   };
 
-  // Запуск компаса
-  const startCompass = useCallback((): (() => void) => {
-    if (!permissionRef.current) return () => {};
-
-    const handleOrientation = (event: DeviceOrientationEvent): void => {
-      if (event.alpha !== null) {
-        setCompassHeading(Math.round(event.alpha));
-      }
-    };
-
-    window.addEventListener('deviceorientation', handleOrientation as EventListener);
-
-    // Возвращаем функцию очистки
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation as EventListener);
-    };
-  }, []);
-
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
-    
     // Автоматически запускаем компас если разрешение уже есть
     if (permissionGranted) {
-      cleanup = startCompass();
+      startCompass();
     }
 
+    // Очистка при размонтировании
     return () => {
-      if (cleanup) {
-        cleanup();
-      }
+      stopCompass();
     };
-  }, [permissionGranted, startCompass]);
+  }, [permissionGranted, startCompass, stopCompass]);
 
   // Функция для преобразования градусов в направление
   const getDirection = useCallback((degrees: number): string => {
