@@ -22,12 +22,12 @@ const isIOS = () => {
 const requiresPermission = () => {
   const hasRequestPermission = isIOS() &&
     typeof DeviceOrientationEvent !== "undefined" &&
-    (DeviceOrientationEvent as any).requestPermission;
+    typeof (DeviceOrientationEvent as any).requestPermission === "function"; // ← ИСПРАВЛЕНО
   
   console.log("🔍 Requires permission check:", {
     isIOS: isIOS(),
     hasDeviceOrientation: typeof DeviceOrientationEvent !== "undefined",
-    hasRequestPermission: !!(DeviceOrientationEvent as any).requestPermission,
+    hasRequestPermission: typeof (DeviceOrientationEvent as any).requestPermission === "function", // ← ИСПРАВЛЕНО
     result: hasRequestPermission
   });
   
@@ -118,7 +118,10 @@ export const Home: React.FC = () => {
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 
-  const showPermissionButton = requiresPermission() && sensorPermission !== "granted";
+  const showPermissionButton = requiresPermission() && 
+                             sensorPermission !== "granted" && 
+                             sensorPermission !== "denied"; // ← ИСПРАВЛЕНО
+  
   console.log("👀 Show permission button:", showPermissionButton);
 
   return (
@@ -134,6 +137,13 @@ export const Home: React.FC = () => {
         >
           {isRequestingPermission ? t("requesting") : t("allowSensors")}
         </button>
+      )}
+
+      {/* Сообщение об отказе */}
+      {sensorPermission === "denied" && (
+        <div className={styles.permissionDeniedMessage}>
+          {t("sensorPermissionDeniedMessage")}
+        </div>
       )}
 
       <div className={styles.homeRoot}>
