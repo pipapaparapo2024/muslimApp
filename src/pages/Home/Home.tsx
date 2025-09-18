@@ -17,24 +17,69 @@ export const Home: React.FC = () => {
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
+    isRequestingPermission,
   } = useHomeLogic();
+
   const { isLoading, error } = useGeoStore();
+
+  // Проверяем, iOS ли это устройство
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
   return (
     <PageWrapper>
       <Header />
-      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-      {sensorPermission}
-      {sensorPermission && (
-        <button
-          className={styles.allowSensorButton}
-          onClick={requestSensorPermission}
-        >
-          Allow
-        </button>
+      
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА ТОЛЬКО ДЛЯ iOS === */}
+      {isIOS && sensorPermission === "prompt" && (
+        <div style={{
+          position: 'fixed',
+          top: '100px',
+          right: '20px',
+          zIndex: 1000,
+          background: 'white',
+          padding: '15px',
+          borderRadius: '10px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: '0 0 10px 0', fontSize: '14px' }}>
+            Для работы компаса нужен доступ к датчикам
+          </p>
+          <button
+            onClick={requestSensorPermission}
+            disabled={isRequestingPermission}
+            style={{
+              padding: '10px 15px',
+              backgroundColor: '#007AFF',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            {isRequestingPermission ? "Запрос..." : "Разрешить доступ"}
+          </button>
+        </div>
       )}
-      <div className={styles.homeRoot}>
-        {/* Кнопка обновления местоположения */}
 
+      {/* Отладочная информация (можно удалить после тестирования) */}
+      <div style={{
+        position: 'fixed',
+        top: '10px',
+        left: '10px',
+        background: 'rgba(0,0,0,0.7)',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '5px',
+        fontSize: '12px',
+        zIndex: 1000
+      }}>
+        Статус: {sensorPermission}<br/>
+        Платформа: {isIOS ? 'iOS' : 'Другая'}
+      </div>
+
+      <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
@@ -66,20 +111,6 @@ export const Home: React.FC = () => {
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
                     />
-                    {sensorPermission !== "granted" && (
-                      <div className={styles.permissionPrompt}>
-                        <p>{t("compassNeedsAccess")}</p>
-                        <button
-                          className={styles.permissionButton}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            requestSensorPermission();
-                          }}
-                        >
-                          {t("allow")}
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
