@@ -25,7 +25,6 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-
       {/* Кнопка запроса доступа к датчикам - показываем только если разрешение еще не получено */}
       {sensorPermission !== "granted" && (
         <div className={styles.sensorPermissionContainer}>

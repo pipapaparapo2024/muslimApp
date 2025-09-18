@@ -4,86 +4,125 @@ import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStore";
-import { Compass, Map, Navigation, AlertCircle } from "lucide-react";
+import { Compass, Map, AlertCircle, Navigation, Info } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
-
-const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
-
-// Функция для логирования
-const logSensorEvent = (event: string, details?: any) => {
-  console.log(`[QiblaCompass] ${event}`, details || '');
-};
+import { useSensorPermission } from "../../../hooks/useSensorPermission";
 
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
-  const { coords } = useGeoStore();
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [sensorPermission, setSensorPermission] = useState<string>(
-    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
-  );
+  const { coords, isLoading: geoLoading, error: geoError } = useGeoStore();
+  const {
+    sensorPermission,
+    isRequestingPermission,
+    requestSensorPermission,
+    checkSensorAvailability
+  } = useSensorPermission();
 
-  // Функция для запроса разрешения
-  const requestSensorPermission = async () => {
-    setIsRequestingPermission(true);
-    logSensorEvent('permission_request_started');
-    
-    try {
-      if (
-        typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission
-      ) {
-        logSensorEvent('native_permission_api_available');
-        
-        const result = await (DeviceOrientationEvent as any).requestPermission();
-        logSensorEvent('permission_result_received', { result });
-        
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, result);
-        setSensorPermission(result);
-        
-        if (result === "granted") {
-          logSensorEvent('permission_granted');
-        } else {
-          logSensorEvent('permission_denied');
-        }
-      } else {
-        // На устройствах, где разрешение не требуется
-        logSensorEvent('permission_not_required');
-        localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
-        setSensorPermission("granted");
-      }
-    } catch (err) {
-      console.error("Sensor permission error:", err);
-      logSensorEvent('permission_error', { error: err });
-      localStorage.setItem(SENSOR_PERMISSION_STATUS, "prompt");
-      setSensorPermission("prompt");
-    } finally {
-      setIsRequestingPermission(false);
-      logSensorEvent('permission_request_completed');
+  const [isSensorAvailable, setIsSensorAvailable] = useState(false);
+
+  // Проверяем доступность датчиков после получения разрешения
+  useEffect(() => {
+    if (sensorPermission === "granted") {
+      checkSensorAvailability().then(available => {
+        setIsSensorAvailable(available);
+        console.log(`Датчики ${available ? 'доступны' : 'недоступны'}`);
+      });
     }
-  };
+  }, [sensorPermission, checkSensorAvailability]);
 
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
     }
-    
-    // Логируем переход на страницу
-    logSensorEvent('page_loaded', { 
-      activeTab: location.state?.activeTab || 'compass',
-      previousPermission: sensorPermission 
-    });
-  }, [location.state, setActiveTab, sensorPermission]);
+  }, [location.state, setActiveTab]);
 
-  // Логируем изменения вкладок
-  useEffect(() => {
-    logSensorEvent('tab_changed', { activeTab });
-  }, [activeTab]);
+  const handleRetryPermission = async () => {
+    await requestSensorPermission();
+  };
+
+  const renderCompassContent = () => {
+    if (geoLoading) {
+      return (
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <p>{t("determiningLocation")}</p>
+        </div>
+      );
+    }
+
+    if (geoError) {
+      return (
+        <div className={styles.errorContainer}>
+          <AlertCircle size={32} className={styles.alertIcon} />
+          <h3>{t("locationError")}</h3>
+          <p>{t("locationRequiredForQibla")}</p>
+        </div>
+      );
+    }
+
+    if (sensorPermission !== "granted") {
+      return (
+        <div className={styles.permissionOverlay}>
+          {isRequestingPermission ? (
+            <div className={styles.permissionMessage}>
+              <div className={styles.loadingSpinner}></div>
+              <p>{t("requestingSensorPermission")}</p>
+            </div>
+          ) : sensorPermission === "denied" ? (
+            <div className={styles.permissionMessage}>
+              <AlertCircle size={32} className={styles.alertIcon} />
+              <h3>{t("sensorPermissionDenied")}</h3>
+              <p className={styles.helpText}>
+                {t("sensorPermissionHelp")}
+              </p>
+              <button 
+                onClick={handleRetryPermission}
+                className={styles.retryButton}
+              >
+                {t("tryAgain")}
+              </button>
+            </div>
+          ) : (
+            <div className={styles.permissionMessage}>
+              <AlertCircle size={32} className={styles.alertIcon} />
+              <h3>{t("sensorPermissionRequired")}</h3>
+              <p className={styles.helpText}>
+                {t("sensorPermissionDescription")}
+              </p>
+              <button 
+                onClick={handleRetryPermission}
+                className={styles.allowButton}
+              >
+                {t("allowSensors")}
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (!isSensorAvailable) {
+      return (
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionMessage}>
+            <AlertCircle size={32} className={styles.alertIcon} />
+            <h3>{t("sensorsNotAvailable")}</h3>
+            <p className={styles.helpText}>
+              {t("sensorsNotAvailableHelp")}
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton title={t("qiblaDirection")}>
       <div className={styles.toggleGroup}>
         <label className={styles.toggleItem}>
           <input
@@ -119,54 +158,34 @@ export const QiblaCompassPage: React.FC = () => {
           <div className={styles.compassSection}>
             <div className={styles.compassContainer}>
               <QiblaCompass
-                permissionGranted={sensorPermission === "granted"}
+                permissionGranted={sensorPermission === "granted" && isSensorAvailable}
                 coords={coords}
                 showAngle={true}
-                size={280}
+                size={300}
               />
               
-              {/* Сообщение о необходимости разрешения */}
-              {sensorPermission !== "granted" && (
-                <div className={styles.permissionOverlay}>
-                  {isRequestingPermission ? (
-                    <div className={styles.permissionMessage}>
-                      <div className={styles.loadingSpinner}></div>
-                      <p>{t("requestingSensorPermission")}</p>
-                    </div>
-                  ) : sensorPermission === "denied" ? (
-                    <div className={styles.permissionMessage}>
-                      <AlertCircle size={32} className={styles.alertIcon} />
-                      <h3>{t("sensorPermissionDenied")}</h3>
-                      <p className={styles.helpText}>
-                        {t("sensorPermissionHelp")}
-                      </p>
-                      <button 
-                        onClick={requestSensorPermission}
-                        className={styles.retryButton}
-                      >
-                        {t("tryAgain")}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className={styles.permissionMessage}>
-                      <AlertCircle size={32} className={styles.alertIcon} />
-                      <h3>{t("sensorPermissionRequired")}</h3>
-                      <p className={styles.helpText}>
-                        {t("sensorPermissionDescription")}
-                      </p>
-                      <button 
-                        onClick={requestSensorPermission}
-                        className={styles.allowButton}
-                      >
-                        {t("allowSensors")}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              {renderCompassContent()}
             </div>
 
             {/* Информация о направлении */}
+            <div className={styles.directionInfo}>
+              <div className={styles.infoCard}>
+                <Navigation size={20} />
+                <div>
+                  <h4>{t("qiblaDirection")}</h4>
+                  <p>{t("faceTowardsKaaba")}</p>
+                </div>
+              </div>
+              
+              <div className={styles.infoCard}>
+                <Info size={20} />
+                <div>
+                  <h4>{t("usageTips")}</h4>
+                  <p>{t("holdPhoneFlat")}</p>
+                  <p>{t("avoidMetalObjects")}</p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className={styles.mapSection}>
@@ -174,7 +193,14 @@ export const QiblaCompassPage: React.FC = () => {
               <QiblaMap fullscreen={true} />
             </div>
             <div className={styles.mapInfo}>
-              <p>{t("mapInstruction")}</p>
+              <div className={styles.infoCard}>
+                <Map size={20} />
+                <div>
+                  <h4>{t("mapInstructions")}</h4>
+                  <p>{t("mapInstruction")}</p>
+                  <p>{t("blueLineShowsDirection")}</p>
+                </div>
+              </div>
             </div>
           </div>
         )}

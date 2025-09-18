@@ -32,7 +32,6 @@ import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
 import { CameraPage } from "./pages/Scanner/cameraPage/CameraPage";
-import { SENSOR_PERMISSION_STATUS } from "./pages/Home/useHomeLogic";
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
   viewport.expand();
@@ -54,19 +53,6 @@ export const App: React.FC = () => {
       window.Telegram.WebApp.disableVerticalSwipes();
     }
   }, []);
-  // В вашем основном App компоненте
-useEffect(() => {
-  // Очищаем разрешение при закрытии приложения
-  const handleBeforeUnload = () => {
-    localStorage.removeItem(SENSOR_PERMISSION_STATUS);
-  };
-
-  window.addEventListener('beforeunload', handleBeforeUnload);
-  
-  return () => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-  };
-}, []);
   useEffect(() => {
     const initializeApp = () => {
       const tg = window.Telegram?.WebApp;
