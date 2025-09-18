@@ -1,7 +1,7 @@
-// useHomeLogic.ts
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSensorPermission, logSensorEvent } from "../../hooks/useSensorPermission";
+import { t } from "i18next";
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
@@ -9,13 +9,38 @@ export const useHomeLogic = () => {
     sensorPermission,
     isRequestingPermission,
     requestSensorPermission,
-    isInTelegram
+    isInTelegram,
+    checkSensorAvailability
   } = useSensorPermission();
 
+  const [isSensorAvailable, setIsSensorAvailable] = useState(false);
+
+  // Проверяем доступность датчиков при изменении разрешения
+  useEffect(() => {
+    if (sensorPermission === "granted") {
+      checkSensorAvailability().then(available => {
+        setIsSensorAvailable(available);
+        console.log("Sensors available:", available);
+      });
+    } else {
+      setIsSensorAvailable(false);
+    }
+  }, [sensorPermission, checkSensorAvailability]);
+
   const handleCompassClick = useCallback(() => {
-    logSensorEvent('compass_clicked', { permission: sensorPermission });
+    logSensorEvent('compass_clicked', { 
+      permission: sensorPermission,
+      available: isSensorAvailable 
+    });
+    
+    if (sensorPermission !== "granted" || !isSensorAvailable) {
+      // Показываем alert или модальное окно о необходимости разрешения
+      alert(t("sensorPermissionRequiredAlert"));
+      return;
+    }
+    
     navigate("/qibla", { state: { activeTab: "compass" } });
-  }, [navigate, sensorPermission]);
+  }, [navigate, sensorPermission, isSensorAvailable]);
 
   const handleMapClick = useCallback(() => {
     logSensorEvent('map_clicked');
@@ -29,5 +54,6 @@ export const useHomeLogic = () => {
     handleCompassClick,
     handleMapClick,
     isInTelegram,
+    isSensorAvailable,
   };
 };

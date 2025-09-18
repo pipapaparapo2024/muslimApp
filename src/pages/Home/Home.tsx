@@ -10,6 +10,7 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { AlertCircle } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
@@ -18,6 +19,7 @@ export const Home: React.FC = () => {
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
+    isSensorAvailable,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -25,21 +27,33 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      {/* Кнопка запроса доступа к датчикам - показываем только если разрешение еще не получено */}
-      {sensorPermission !== "granted" && (
-        <div className={styles.sensorPermissionContainer}>
-          <button
-            className={styles.allowSensorButton}
-            onClick={requestSensorPermission}
-            disabled={isRequestingPermission}
-          >
-            {isRequestingPermission ? t("requesting") : t("allowSensors")}
-          </button>
-          <p className={styles.sensorPermissionText}>
-            {t("sensorPermissionDescription")}
-          </p>
-        </div>
-      )}
+      
+      {/* Всегда показываем кнопку разрешения, даже если уже granted */}
+      <div className={styles.sensorPermissionContainer}>
+        {sensorPermission !== "granted" ? (
+          <>
+            <button
+              className={styles.allowSensorButton}
+              onClick={requestSensorPermission}
+              disabled={isRequestingPermission}
+            >
+              {isRequestingPermission ? t("requesting") : t("allowSensors")}
+            </button>
+            <p className={styles.sensorPermissionText}>
+              {t("sensorPermissionDescription")}
+            </p>
+          </>
+        ) : !isSensorAvailable ? (
+          <div className={styles.sensorWarning}>
+            <AlertCircle size={20} />
+            <span>{t("sensorsNotAvailableHelp")}</span>
+          </div>
+        ) : (
+          <div className={styles.sensorSuccess}>
+            <span>✅ {t("sensorsEnabled")}</span>
+          </div>
+        )}
+      </div>
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -71,7 +85,7 @@ export const Home: React.FC = () => {
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
-                      permissionGranted={sensorPermission === "granted"}
+                      permissionGranted={sensorPermission === "granted" && isSensorAvailable}
                     />
                   </div>
                 </div>
