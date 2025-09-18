@@ -59,7 +59,7 @@ export const QiblaCompassPage: React.FC = () => {
     if (activeTab === "compass" && localPermission !== "granted") {
       requestSensorPermission();
     }
-  }, [activeTab]);
+  }, [activeTab, localPermission]);
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -70,7 +70,8 @@ export const QiblaCompassPage: React.FC = () => {
   // Обновляем localPermission при изменении в localStorage
   useEffect(() => {
     const handleStorageChange = () => {
-      setLocalPermission(localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt");
+      const newPermission = localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt";
+      setLocalPermission(newPermission);
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -124,7 +125,6 @@ export const QiblaCompassPage: React.FC = () => {
 
       <div className={styles.tabContent}>
         {activeTab === "compass" ? (
-          localPermission === "granted" ? (
             <div className={styles.bigCompass}>
               <QiblaCompass
                 permissionGranted={true}
@@ -133,7 +133,6 @@ export const QiblaCompassPage: React.FC = () => {
                 size={300}
               />
             </div>
-          ) : null
         ) : (
           <div>
             <QiblaMap fullscreen={true} />
