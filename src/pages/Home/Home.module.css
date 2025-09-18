@@ -36,5 +36,7 @@
 
 
 .locationMay{
-  margin-top: var(--numbers-8);
+  margin-top: var(--numbers-10);
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
 }
