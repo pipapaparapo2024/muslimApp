@@ -123,7 +123,6 @@
 //     </PageWrapper>
 //   );
 // };
-
 import React, { useState, useEffect, useRef } from 'react';
 
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
@@ -139,51 +138,50 @@ export const Home: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const compassRef = useRef<HTMLDivElement>(null);
 
-  // Проверяем, iOS ли это устройство
   useEffect(() => {
-    const isAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsIOS(isAppleDevice);
-    checkInitialPermission();
-  }, []);
+    // Определяем iOS устройство
+    const appleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    setIsIOS(appleDevice);
+    
+    // Проверяем поддержку датчиков
+    if (!isDeviceOrientationSupported()) {
+      setError('Датчики ориентации не поддерживаются');
+      setIsLoading(false);
+      return;
+    }
 
-  // Проверяем начальное состояние разрешения
-  const checkInitialPermission = async (): Promise<void> => {
-    try {
-      // Для iOS проверяем, нужно ли запрашивать разрешение
-      if (isPermissionRequestNeeded()) {
+    // Для iOS сразу ставим статус НЕ АКТИВЕН
+    if (appleDevice) {
+      setHasPermission(false);
+      setIsLoading(false);
+    } else {
+      // Для Android пробуем запустить без запроса
+      try {
+        setHasPermission(true);
+        startCompass();
+      } catch (err) {
+        setError('Не удалось запустить компас');
         setHasPermission(false);
-      } else {
-        // Для Android и других устройств пробуем запустить компас
-        if (isDeviceOrientationSupported()) {
-          setHasPermission(true);
-          startCompass();
-        }
       }
-    } catch (err) {
-      setError('Ошибка при проверке разрешений');
-    } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  // Проверяем поддержку DeviceOrientation
   const isDeviceOrientationSupported = (): boolean => {
     return 'DeviceOrientationEvent' in window;
   };
 
-  // Проверяем, нужен ли запрос разрешения (для iOS)
   const isPermissionRequestNeeded = (): boolean => {
     if (!isIOS) return false;
-    
     const event = DeviceOrientationEvent as unknown as DeviceOrientationEventiOS;
     return typeof event.requestPermission === 'function';
   };
 
-  // Запрос разрешения для iOS
   const requestPermission = async (): Promise<void> => {
     try {
       setIsLoading(true);
       setError('');
+      
       const event = DeviceOrientationEvent as unknown as DeviceOrientationEventiOS;
       
       if (event.requestPermission) {
@@ -196,83 +194,58 @@ export const Home: React.FC = () => {
         } else {
           setHasPermission(false);
           setPermissionRequested(true);
-          setError('Разрешение на доступ к датчикам ориентации отклонено');
+          setError('Доступ к датчикам отклонен');
         }
       }
     } catch (err) {
-      setError(`Ошибка при запросе разрешения: ${(err as Error).message}`);
-      setPermissionRequested(true);
+      setError('Ошибка при запросе разрешения');
+      setHasPermission(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Запуск отслеживания ориентации
   const startCompass = (): (() => void) => {
-    if (!isDeviceOrientationSupported()) {
-      setError('Датчики ориентации не поддерживаются вашим устройством');
-      return () => {};
-    }
-
     const handleOrientation = (event: DeviceOrientationEvent): void => {
       if (event.alpha !== null) {
         setAlpha(event.alpha);
-        
-        // Поворачиваем компас
         if (compassRef.current) {
           compassRef.current.style.transform = `rotate(${-event.alpha}deg)`;
         }
       }
     };
 
-    // Добавляем обработчик
     window.addEventListener('deviceorientation', handleOrientation as EventListener);
 
-    // Функция очистки
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation as EventListener);
     };
   };
 
-  // Обработчик для не-iOS устройств
-  const handleNonIOSClick = (): void => {
-    if (!hasPermission && isDeviceOrientationSupported()) {
-      setHasPermission(true);
-      startCompass();
-    }
-  };
-
-  // Определяем, что показывать на кнопке
   const getButtonText = (): string => {
-    if (isLoading) return 'Проверка...';
+    if (isLoading) return 'Загрузка...';
     if (!isDeviceOrientationSupported()) return 'Датчики не поддерживаются';
-    
     if (isPermissionRequestNeeded()) {
-      return hasPermission ? 'Доступ разрешен' : 'Запросить доступ к датчикам';
+      return hasPermission ? 'Доступ разрешен' : 'Разрешить доступ к датчикам';
     }
-    
-    return hasPermission ? 'Компас активен' : 'Активировать компас';
+    return hasPermission ? 'Компас активен' : 'Включить компас';
   };
 
-  // Определяем, активна ли кнопка
   const isButtonDisabled = (): boolean => {
-    return isLoading || 
-           !isDeviceOrientationSupported() || 
-           hasPermission || 
-           (isPermissionRequestNeeded() && permissionRequested && !hasPermission);
+    return isLoading || hasPermission || !isDeviceOrientationSupported();
   };
 
   if (isLoading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loading}>Загрузка...</div>
+        <div style={styles.loading}>Проверка датчиков...</div>
       </div>
     );
   }
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>🧭 Компас TWA</h1>
+      <h1 style={styles.title}>🧭 Компас</h1>
       
       {error && (
         <div style={styles.error}>
@@ -280,80 +253,79 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Визуализация компаса */}
       <div style={styles.compassWrapper}>
-        <div ref={compassRef} style={{
-          ...styles.compass,
-          opacity: hasPermission ? 1 : 0.5
-        }}>
+        <div 
+          ref={compassRef} 
+          style={{
+            ...styles.compass,
+            opacity: hasPermission ? 1 : 0.4,
+            filter: hasPermission ? 'none' : 'grayscale(80%)'
+          }}
+        >
           <div style={styles.compassNeedle}></div>
           <div style={styles.compassCenter}></div>
           <div style={styles.northIndicator}>N</div>
+          <div style={styles.eastIndicator}>E</div>
           <div style={styles.southIndicator}>S</div>
+          <div style={styles.westIndicator}>W</div>
+          
           {!hasPermission && (
             <div style={styles.compassOverlay}>
-              ⚠️ Требуется разрешение
+              🔒 Требуется доступ
             </div>
           )}
         </div>
       </div>
 
-      {/* Информация о направлении */}
       <div style={styles.info}>
         <p style={styles.direction}>
-          Направление: <strong>{hasPermission ? `${alpha.toFixed(1)}°` : 'N/A'}</strong>
+          Направление: <strong>{hasPermission ? `${alpha.toFixed(1)}°` : '---'}</strong>
         </p>
         <p style={styles.status}>
           Статус: 
           <span style={{ 
             color: hasPermission ? '#27ae60' : '#e74c3c',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            marginLeft: '5px'
           }}>
-            {hasPermission ? ' АКТИВЕН' : ' НЕ АКТИВЕН'}
+            {hasPermission ? 'АКТИВЕН' : 'НЕ АКТИВЕН'}
           </span>
         </p>
         <p style={styles.deviceInfo}>
-          Устройство: {isIOS ? 'iOS' : 'Android/Другое'}
+          Устройство: {isIOS ? 'iOS' : 'Android'} • 
+          Датчики: {isDeviceOrientationSupported() ? '✅' : '❌'}
         </p>
       </div>
 
-      {/* Кнопка запроса разрешения */}
-      <button 
-        style={{
-          ...styles.button,
-          ...(isButtonDisabled() ? styles.buttonDisabled : {}),
-          ...(isLoading ? styles.buttonLoading : {})
-        }}
-        onClick={isPermissionRequestNeeded() ? requestPermission : handleNonIOSClick}
-        disabled={isButtonDisabled()}
-      >
-        {getButtonText()}
-      </button>
+      {isPermissionRequestNeeded() && !hasPermission && (
+        <button 
+          style={{
+            ...styles.button,
+            ...(isButtonDisabled() && styles.buttonDisabled)
+          }}
+          onClick={requestPermission}
+          disabled={isButtonDisabled()}
+        >
+          {getButtonText()}
+        </button>
+      )}
 
-      {/* Инструкция для iOS */}
       {isIOS && !hasPermission && (
         <div style={styles.instruction}>
-          <h3>📋 Инструкция для iOS:</h3>
-          <ol style={styles.instructionList}>
-            <li>Нажмите "Запросить доступ к датчикам"</li>
-            <li>Разрешите доступ в появившемся окне</li>
-            <li>Поворачивайте устройство для работы компаса</li>
-          </ol>
+          <h4>📱 Для iOS:</h4>
+          <p>Нажмите кнопку выше и разрешите доступ к Motion & Orientation</p>
         </div>
       )}
 
-      {/* Сообщение о неподдерживаемом устройстве */}
       {!isDeviceOrientationSupported() && (
         <div style={styles.warning}>
-          ⚠️ Ваше устройство или браузер не поддерживает датчики ориентации.
-          Компас будет работать только на мобильных устройствах с поддержкой гироскопа.
+          ⚠️ Ваше устройство не поддерживает датчики ориентации
         </div>
       )}
     </div>
   );
 };
 
-// Стили компонента
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     padding: '20px',
@@ -365,54 +337,55 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#f8f9fa'
   },
   loading: {
     fontSize: '18px',
-    color: '#7f8c8d',
+    color: '#6c757d',
     textAlign: 'center'
   },
   title: {
     color: '#2c3e50',
     marginBottom: '30px',
-    fontSize: '28px',
+    fontSize: '24px',
     fontWeight: 'bold'
   },
   compassWrapper: {
-    width: '250px',
-    height: '250px',
-    margin: '0 auto 30px',
+    width: '200px',
+    height: '200px',
+    margin: '0 auto 25px',
     position: 'relative'
   },
   compass: {
     width: '100%',
     height: '100%',
     borderRadius: '50%',
-    border: '4px solid #34495e',
+    border: '3px solid #495057',
     position: 'relative',
     transition: 'all 0.3s ease',
-    backgroundColor: '#ecf0f1',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+    backgroundColor: '#ffffff',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
   },
   compassOverlay: {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     color: 'white',
-    padding: '10px',
-    borderRadius: '5px',
-    fontSize: '14px'
+    padding: '8px 12px',
+    borderRadius: '8px',
+    fontSize: '12px',
+    fontWeight: 'bold'
   },
   compassNeedle: {
     position: 'absolute',
-    top: '15px',
+    top: '10px',
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '4px',
-    height: '100px',
-    backgroundColor: '#e74c3c',
+    width: '3px',
+    height: '80px',
+    backgroundColor: '#dc3545',
     borderRadius: '2px'
   },
   compassCenter: {
@@ -420,94 +393,107 @@ const styles: { [key: string]: React.CSSProperties } = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '16px',
-    height: '16px',
+    width: '12px',
+    height: '12px',
     borderRadius: '50%',
-    backgroundColor: '#34495e',
-    border: '3px solid #ecf0f1'
+    backgroundColor: '#495057',
+    border: '2px solid #ffffff'
   },
   northIndicator: {
     position: 'absolute',
-    top: '10px',
+    top: '5px',
     left: '50%',
     transform: 'translateX(-50%)',
-    color: '#e74c3c',
+    color: '#dc3545',
     fontWeight: 'bold',
-    fontSize: '16px'
+    fontSize: '14px'
+  },
+  eastIndicator: {
+    position: 'absolute',
+    top: '50%',
+    right: '5px',
+    transform: 'translateY(-50%)',
+    color: '#28a745',
+    fontWeight: 'bold',
+    fontSize: '14px'
   },
   southIndicator: {
     position: 'absolute',
-    bottom: '10px',
+    bottom: '5px',
     left: '50%',
     transform: 'translateX(-50%)',
-    color: '#3498db',
+    color: '#007bff',
     fontWeight: 'bold',
-    fontSize: '16px'
+    fontSize: '14px'
+  },
+  westIndicator: {
+    position: 'absolute',
+    top: '50%',
+    left: '5px',
+    transform: 'translateY(-50%)',
+    color: '#ffc107',
+    fontWeight: 'bold',
+    fontSize: '14px'
   },
   info: {
-    marginBottom: '25px',
-    color: '#7f8c8d'
+    marginBottom: '20px',
+    color: '#495057'
   },
   direction: {
-    fontSize: '18px',
-    margin: '10px 0'
+    fontSize: '16px',
+    margin: '8px 0',
+    fontWeight: '500'
   },
   status: {
-    fontSize: '16px',
-    margin: '10px 0'
+    fontSize: '14px',
+    margin: '8px 0'
   },
   deviceInfo: {
-    fontSize: '14px',
-    margin: '10px 0',
-    color: '#95a5a6'
+    fontSize: '12px',
+    margin: '8px 0',
+    color: '#6c757d'
   },
   button: {
-    padding: '15px 30px',
-    backgroundColor: '#3498db',
+    padding: '12px 24px',
+    backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
-    borderRadius: '25px',
+    borderRadius: '20px',
     fontSize: '16px',
-    fontWeight: 'bold',
+    fontWeight: '600',
     cursor: 'pointer',
-    marginBottom: '20px',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 4px 15px rgba(52, 152, 219, 0.3)'
+    marginBottom: '15px',
+    transition: 'all 0.2s ease'
   },
   buttonDisabled: {
-    backgroundColor: '#bdc3c7',
-    cursor: 'not-allowed',
-    boxShadow: 'none'
-  },
-  buttonLoading: {
-    opacity: 0.7,
-    cursor: 'wait'
+    backgroundColor: '#6c757d',
+    cursor: 'not-allowed'
   },
   error: {
-    color: '#e74c3c',
-    backgroundColor: '#fadbd8',
-    padding: '15px',
-    borderRadius: '10px',
-    marginBottom: '20px',
-    border: '1px solid #f5b7b1'
+    color: '#dc3545',
+    backgroundColor: '#f8d7da',
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '15px',
+    border: '1px solid #f5c6cb',
+    fontSize: '14px'
   },
   warning: {
-    color: '#f39c12',
-    backgroundColor: '#fef9e7',
-    padding: '15px',
-    borderRadius: '10px',
-    marginBottom: '20px',
-    border: '1px solid #f9e79f'
+    color: '#856404',
+    backgroundColor: '#fff3cd',
+    padding: '12px',
+    borderRadius: '8px',
+    marginBottom: '15px',
+    border: '1px solid #ffeaa7',
+    fontSize: '14px'
   },
   instruction: {
-    backgroundColor: '#d6eaf8',
-    padding: '15px',
-    borderRadius: '10px',
-    marginTop: '20px',
-    textAlign: 'left'
-  },
-  instructionList: {
-    paddingLeft: '20px',
-    margin: '10px 0 0 0'
+    backgroundColor: '#d1ecf1',
+    padding: '12px',
+    borderRadius: '8px',
+    marginTop: '10px',
+    textAlign: 'center',
+    fontSize: '13px',
+    color: '#0c5460'
   }
 };
