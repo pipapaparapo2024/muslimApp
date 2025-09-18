@@ -30,11 +30,7 @@ export const useHomeLogic = () => {
         const result = await (
           DeviceOrientationEvent as any
         ).requestPermission();
-        if (result === "granted") {
           setSensorPermission("granted");
-        } else {
-          setSensorPermission("denied");
-        }
       } else {
         // На устройствах, где разрешение не требуется
         window.addEventListener("deviceorientation", () => {}, { once: true });
