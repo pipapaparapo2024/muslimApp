@@ -22,12 +22,12 @@ const isIOS = () => {
 const requiresPermission = () => {
   const hasRequestPermission = isIOS() &&
     typeof DeviceOrientationEvent !== "undefined" &&
-    typeof (DeviceOrientationEvent as any).requestPermission === "function"; // ← ИСПРАВЛЕНО
+    typeof (DeviceOrientationEvent as any).requestPermission === "function";
   
   console.log("🔍 Requires permission check:", {
     isIOS: isIOS(),
     hasDeviceOrientation: typeof DeviceOrientationEvent !== "undefined",
-    hasRequestPermission: typeof (DeviceOrientationEvent as any).requestPermission === "function", // ← ИСПРАВЛЕНО
+    hasRequestPermission: typeof (DeviceOrientationEvent as any).requestPermission === "function",
     result: hasRequestPermission
   });
   
@@ -118,9 +118,17 @@ export const Home: React.FC = () => {
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 
+  // Функция для открытия настроек iOS (если возможно)
+  const openSettings = useCallback(() => {
+    if (isIOS()) {
+      // Попытка открыть настройки Safari
+      window.open('app-settings:');
+    }
+  }, []);
+
   const showPermissionButton = requiresPermission() && 
                              sensorPermission !== "granted" && 
-                             sensorPermission !== "denied"; // ← ИСПРАВЛЕНО
+                             sensorPermission !== "denied";
   
   console.log("👀 Show permission button:", showPermissionButton);
 
@@ -139,10 +147,28 @@ export const Home: React.FC = () => {
         </button>
       )}
 
-      {/* Сообщение об отказе */}
+      {/* Сообщение об отказе с инструкцией */}
       {sensorPermission === "denied" && (
         <div className={styles.permissionDeniedMessage}>
-          {t("sensorPermissionDeniedMessage")}
+          <p>{t("sensorPermissionDeniedMessage")}</p>
+          <p style={{ fontSize: '14px', marginTop: '8px', color: '#666' }}>
+            {t("sensorPermissionInstructions")}
+          </p>
+          <button 
+            onClick={openSettings}
+            className={styles.settingsButton}
+            style={{
+              marginTop: '12px',
+              padding: '8px 16px',
+              backgroundColor: '#007AFF',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            {t("openSettings")}
+          </button>
         </div>
       )}
 
