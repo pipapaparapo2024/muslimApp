@@ -23,7 +23,8 @@ export const useHtmlExport = () => {
     try {
       const storyEndpoint =
         type === "qna" ? "/api/v1/qa/text/story" : "/api/v1/qa/scanner/story";
-      console.log("id",id)
+      console.log("id", id);
+      
       const storyResponse = await quranApi.post<StoryResponse>(
         storyEndpoint,
         {
@@ -47,7 +48,7 @@ export const useHtmlExport = () => {
     }
   };
 
-  const exportHtml = async (options: ExportOptions): Promise<string|undefined> => {
+  const exportHtml = async (options: ExportOptions): Promise<string | undefined> => {
     setLoading(true);
     try {
       if (!options.id) {
@@ -66,7 +67,13 @@ export const useHtmlExport = () => {
   return { loading, exportHtml };
 };
 
-export const shareToTelegramStory = (url: string): void => {
+// Изменяем функцию shareToTelegramStory для обработки undefined
+export const shareToTelegramStory = (url: string | undefined): void => {
+  if (!url) {
+    console.error("No URL provided for sharing");
+    return;
+  }
+
   if (shareStory.isAvailable()) {
     shareStory(url, {
       widgetLink: {

@@ -33,3 +33,8 @@
 .allowSensorButton {
   padding: var(--numbers-16) var(--numbers-12);
 }
+
+
+.locationMay{
+  margin-top: var(--numbers-8);
+}

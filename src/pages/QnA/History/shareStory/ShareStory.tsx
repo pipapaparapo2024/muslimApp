@@ -60,13 +60,11 @@ export const ShareStory: React.FC = () => {
       // 1. Генерируем HTML и загружаем на сервер
       const htmlFileUrl = await exportHtml({
         type: "qna",
-        data: currentItem,
-        // styles больше не передаем - хук сам знает какие стили использовать
+        id: id,
       });
 
       // 2. Отправляем полученный URL в Telegram
       shareToTelegramStory(htmlFileUrl);
-
     } catch (error) {
       console.error("Failed to export and share HTML:", error);
       alert(t("exportFailed"));
@@ -110,8 +108,6 @@ export const ShareStory: React.FC = () => {
               <div className={styles.nickName}>@MuslimBot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
-            <div className={styles.buttonsContainer}>
-              {/* Эта кнопка теперь делает ВСЕ: генерацию HTML + загрузку +分享 */}
               <button
                 type="button"
                 onClick={handleShare}
@@ -122,7 +118,6 @@ export const ShareStory: React.FC = () => {
               >
                 <Upload /> {loading ? t("loading") : t("share")}
               </button>
-            </div>
           </div>
         </div>
       </div>

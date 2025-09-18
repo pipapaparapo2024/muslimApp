@@ -19,13 +19,13 @@ export const Home: React.FC = () => {
     handleMapClick,
     isRequestingPermission,
   } = useHomeLogic();
-  
+
   const { isLoading, error } = useGeoStore();
 
   return (
     <PageWrapper>
       <Header />
-      
+
       {/* Кнопка запроса доступа к датчикам (можно скрыть или оставить для ручного запроса) */}
       <button
         className={styles.allowSensorButton}
@@ -70,12 +70,10 @@ export const Home: React.FC = () => {
                   </div>
                 </div>
               </div>
+              <div className={styles.locationMay}>{t("locationMay")}</div>
             </div>
 
             <MenuBlocks />
-            <div>
-              {t("locationMay")}
-            </div>
           </>
         )}
       </div>
