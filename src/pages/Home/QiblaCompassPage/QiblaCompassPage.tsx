@@ -4,7 +4,7 @@ import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStore";
-import { Compass, Map, Navigation, AlertCircle } from "lucide-react";
+import { Compass, Map, Navigation, AlertCircle, X } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
@@ -16,17 +16,36 @@ const logSensorEvent = (event: string, details?: any) => {
   console.log(`[QiblaCompass] ${event}`, details || '');
 };
 
+// Проверяем, находится ли приложение в Telegram
+const isInTelegram = () => {
+  return navigator.userAgent.includes('Telegram') || 
+         window.Telegram?.WebApp?.initData !== undefined;
+};
+
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [sensorPermission, setSensorPermission] = useState<string>(
-    localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt"
-  );
+  const [sensorPermission, setSensorPermission] = useState<string>(() => {
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    // В Telegram по умолчанию считаем, что разрешение есть
+    if (isInTelegram() && (!saved || saved === "prompt")) {
+      return "granted";
+    }
+    return saved || "prompt";
+  });
 
   // Функция для запроса разрешения
   const requestSensorPermission = async () => {
+    // В Telegram всегда даем разрешение автоматически
+    if (isInTelegram()) {
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+      setSensorPermission("granted");
+      logSensorEvent('permission_auto_granted_in_telegram');
+      return;
+    }
+
     setIsRequestingPermission(true);
     logSensorEvent('permission_request_started');
     
@@ -65,6 +84,13 @@ export const QiblaCompassPage: React.FC = () => {
     }
   };
 
+  // Функция для сброса разрешения
+  const resetSensorPermission = () => {
+    localStorage.removeItem(SENSOR_PERMISSION_STATUS);
+    setSensorPermission("prompt");
+    logSensorEvent('permission_reset');
+  };
+
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -73,9 +99,15 @@ export const QiblaCompassPage: React.FC = () => {
     // Логируем переход на страницу
     logSensorEvent('page_loaded', { 
       activeTab: location.state?.activeTab || 'compass',
-      previousPermission: sensorPermission 
+      previousPermission: sensorPermission,
+      inTelegram: isInTelegram()
     });
-  }, [location.state, setActiveTab, sensorPermission]);
+
+    // Автоматически запрашиваем разрешение если нужно (только не в Telegram)
+    if (activeTab === "compass" && sensorPermission === "prompt" && !isInTelegram()) {
+      requestSensorPermission();
+    }
+  }, [location.state, setActiveTab, sensorPermission, activeTab]);
 
   // Логируем изменения вкладок
   useEffect(() => {
@@ -87,6 +119,11 @@ export const QiblaCompassPage: React.FC = () => {
       <div className={styles.header}>
         <Navigation size={24} className={styles.qiblaIcon} />
         <h1 className={styles.title}>{t("qiblaDirection")}</h1>
+        {sensorPermission === "denied" && (
+          <button onClick={resetSensorPermission} className={styles.resetButton}>
+            <X size={20} />
+          </button>
+        )}
       </div>
 
       <div className={styles.toggleGroup}>
@@ -130,8 +167,8 @@ export const QiblaCompassPage: React.FC = () => {
                 size={280}
               />
               
-              {/* Сообщение о необходимости разрешения */}
-              {sensorPermission !== "granted" && (
+              {/* Сообщение о необходимости разрешения (только не в Telegram) */}
+              {!isInTelegram() && sensorPermission !== "granted" && (
                 <div className={styles.permissionOverlay}>
                   {isRequestingPermission ? (
                     <div className={styles.permissionMessage}>
@@ -185,6 +222,11 @@ export const QiblaCompassPage: React.FC = () => {
                 <p className={styles.instruction}>
                   {t("qiblaInstruction")}
                 </p>
+                {isInTelegram() && (
+                  <p className={styles.telegramNote}>
+                    {t("telegramSensorNote")}
+                  </p>
+                )}
               </div>
             )}
           </div>

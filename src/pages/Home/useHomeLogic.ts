@@ -1,11 +1,17 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+export const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
 // Функция для логирования
 const logSensorEvent = (event: string, details?: any) => {
   console.log(`[HomeSensor] ${event}`, details || '');
+};
+
+// Проверяем, находится ли приложение в Telegram
+const isInTelegram = () => {
+  return navigator.userAgent.includes('Telegram') || 
+         window.Telegram?.WebApp?.initData !== undefined;
 };
 
 export const useHomeLogic = () => {
@@ -14,7 +20,12 @@ export const useHomeLogic = () => {
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
-    return localStorage.getItem(SENSOR_PERMISSION_STATUS) || "prompt";
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    // В Telegram по умолчанию считаем, что разрешение есть
+    if (isInTelegram() && (!saved || saved === "prompt")) {
+      return "granted";
+    }
+    return saved || "prompt";
   });
 
   // Синхронизируем состояние с localStorage при изменении
@@ -24,6 +35,14 @@ export const useHomeLogic = () => {
 
   // Функция для запроса разрешения
   const requestSensorPermission = useCallback(async () => {
+    // В Telegram всегда даем разрешение автоматически
+    if (isInTelegram()) {
+      localStorage.setItem(SENSOR_PERMISSION_STATUS, "granted");
+      setSensorPermission("granted");
+      logSensorEvent('permission_auto_granted_in_telegram');
+      return;
+    }
+
     setIsRequestingPermission(true);
     logSensorEvent('permission_request_started');
     
@@ -72,11 +91,20 @@ export const useHomeLogic = () => {
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 
+  // Функция для очистки localStorage при выходе
+  const clearSensorPermission = useCallback(() => {
+    localStorage.removeItem(SENSOR_PERMISSION_STATUS);
+    setSensorPermission("prompt");
+    logSensorEvent('permission_cleared');
+  }, []);
+
   return {
     sensorPermission,
     isRequestingPermission,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
+    clearSensorPermission,
+    isInTelegram: isInTelegram(),
   };
 };
