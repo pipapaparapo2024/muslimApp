@@ -102,6 +102,7 @@ const resources = {
       tryAgain: "Try Again",
 
       // Friends
+      haventInvited:"You haven't invited any friends yet",
       earnRewards: "🎁 Earn Rewards by Sharing",
       inviteFriendsDesc:
         "Invite friends and get exclusive bonuses — the more you share, the more you gain.",
@@ -359,6 +360,7 @@ const resources = {
       tryAgain: "حاول مرة أخرى",
       // Friends
       earnRewards: "🎁 اربح مكافآت بالمشاركة",
+      haventInvited:"لم تقم بدعوة أي أصدقاء حتى الآن",
       inviteFriendsDesc:
         "ادعُ أصدقاءك واحصل على مكافآت حصرية — كلما شاركت أكثر، كلما ربحت أكثر.",
       inviteFriends: "ادعُ الأصدقاء",
