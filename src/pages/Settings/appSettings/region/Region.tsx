@@ -55,7 +55,7 @@ export const Region: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton navigateTo="settings">
+    <PageWrapper showBackButton navigateTo="/settings">
       <div className={styles.container}>
         <div className={styles.blockChoose}>
           <div className={styles.title}>{t("chooseRegion")}</div>

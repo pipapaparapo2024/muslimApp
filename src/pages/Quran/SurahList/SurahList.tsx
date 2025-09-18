@@ -7,7 +7,7 @@ import {
 } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
-import { ChevronLeft, ChevronRight, Menu, Search } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Loader, Menu, Search } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
 export const SurahList: React.FC = () => {
@@ -20,6 +20,9 @@ export const SurahList: React.FC = () => {
     selectedVariant,
     loading,
     error,
+    surahsHasNext,
+    isLoadingMore,
+    loadMoreSurahs,
   } = useSurahListStore();
   const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +55,15 @@ export const SurahList: React.FC = () => {
       state: { surah, variantId: selectedVariant?.id },
     });
   };
-
+  const handleLoadMore = async () => {
+    if (selectedVariant && surahsHasNext && !isLoadingMore) {
+      try {
+        await loadMoreSurahs(selectedVariant.id);
+      } catch (err) {
+        console.error("Error loading more surahs:", err);
+      }
+    }
+  };
   return (
     <PageWrapper showBackButton={true} navigateTo="/home">
       <div className={styles.container}>
@@ -160,7 +171,8 @@ export const SurahList: React.FC = () => {
           )}
         </div>
       </div>
-      {hasNext && !searchQuery && (
+      {/* Кнопка загрузки следующих сур */}
+      {surahsHasNext && !searchQuery && (
         <div className={styles.loadMoreContainer}>
           <button
             className={styles.loadMoreButton}
