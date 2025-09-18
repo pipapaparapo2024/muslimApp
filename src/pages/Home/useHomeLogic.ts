@@ -49,43 +49,49 @@ export const useHomeLogic = () => {
   }, []);
 
   // Навигация с проверкой разрешения
-  const handleCompassClick = useCallback(
-    async (currentPermission: string) => {
-      if (currentPermission === "prompt" || currentPermission === "denied") {
-        // Если разрешение еще не запрашивалось, запрашиваем
-        setIsRequestingPermission(true);
-        try {
-          if (
-            typeof DeviceOrientationEvent !== "undefined" &&
-            (DeviceOrientationEvent as any).requestPermission
-          ) {
-            const result = await (
-              DeviceOrientationEvent as any
-            ).requestPermission();
+  const handleCompassClick = useCallback(async (currentPermission: string) => {
+    if (currentPermission === "denied") {
+      // Если доступ уже запрещен, показываем сообщение
+      alert(t("sensorPermissionDeniedMessage"));
+      return;
+    }
 
+    if (currentPermission === "prompt") {
+      // Если разрешение еще не запрашивалось, запрашиваем
+      setIsRequestingPermission(true);
+      try {
+        if (
+          typeof DeviceOrientationEvent !== "undefined" &&
+          (DeviceOrientationEvent as any).requestPermission
+        ) {
+          const result = await (
+            DeviceOrientationEvent as any
+          ).requestPermission();
+          
+          if (result === "granted") {
             setSensorPermission("granted");
             navigate("/qibla", { state: { activeTab: "compass" } });
+          } else {
             setSensorPermission("denied");
             alert(t("sensorPermissionRequired"));
-          } else {
-            // На устройствах, где разрешение не требуется
-            setSensorPermission("granted");
-            navigate("/qibla", { state: { activeTab: "compass" } });
           }
-        } catch (err) {
-          console.error("Sensor permission error:", err);
-          setSensorPermission("denied");
-          alert(t("sensorPermissionError"));
-        } finally {
-          setIsRequestingPermission(false);
+        } else {
+          // На устройствах, где разрешение не требуется
+          setSensorPermission("granted");
+          navigate("/qibla", { state: { activeTab: "compass" } });
         }
-      } else if (currentPermission === "granted") {
-        // Если разрешение уже есть, просто переходим
-        navigate("/qibla", { state: { activeTab: "compass" } });
+      } catch (err) {
+        console.error("Sensor permission error:", err);
+        setSensorPermission("denied");
+        alert(t("sensorPermissionError"));
+      } finally {
+        setIsRequestingPermission(false);
       }
-    },
-    [navigate]
-  );
+    } else if (currentPermission === "granted") {
+      // Если разрешение уже есть, просто переходим
+      navigate("/qibla", { state: { activeTab: "compass" } });
+    }
+  }, [navigate]);
 
   const handleMapClick = useCallback(() => {
     navigate("/qibla", { state: { activeTab: "map" } });
