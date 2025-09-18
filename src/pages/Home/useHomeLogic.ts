@@ -19,7 +19,7 @@ export const useHomeLogic = () => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
+  // === ОБЩАЯ ФУНКЦИЯ ДЛЯ ЗАПРОСА ДОСТУПА ===
   const requestSensorPermission = useCallback(async () => {
     setIsRequestingPermission(true);
     try {
