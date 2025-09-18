@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick(sensorPermission)}
+                    onClick={handleCompassClick} // Убрали передачу параметра
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
