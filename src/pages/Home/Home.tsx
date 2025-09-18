@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
 
             <MenuBlocks />
             <div>
-              {t("")}
+              {t("locationMay")}
             </div>
           </>
         )}
