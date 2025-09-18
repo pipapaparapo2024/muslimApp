@@ -141,3 +141,13 @@
   font-weight: var(--font-500);
   color: #FFC700;
 }
+.priceValueStar {
+  font-size: 18px;
+  font-weight: 600;
+  margin-left: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.priceValueStar.formatted {
+  letter-spacing: 0.5px;
+}

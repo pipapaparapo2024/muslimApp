@@ -13,6 +13,11 @@ interface BuyRequestsModalProps {
   onSelectRequests: (count: string) => void;
 }
 
+// Функция для форматирования чисел с пробелами
+const formatNumber = (num: number): string => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
+
 const getPrices = (requests: string) => {
   switch (requests) {
     case `10 ${t("requestsPrem")}`:
@@ -36,6 +41,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   if (!isOpen) return null;
   const prices = getPrices(selectedRequests);
+  const formattedStars = formatNumber(prices.stars);
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -87,7 +93,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           >
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
-              <div className={styles.priceValueStar}>{prices.stars}</div>
+              <div className={`${styles.priceValueStar} ${styles.formatted}`}>
+                {formattedStars}
+              </div>
             </div>
           </div>
         </div>

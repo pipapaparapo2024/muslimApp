@@ -13,6 +13,11 @@ interface BuyPremiumModalProps {
   onSelectRequests: (count: string) => void;
 }
 
+// Функция для форматирования чисел с пробелами
+const formatNumber = (num: number): string => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
+
 const getPrices = (requests: string) => {
   switch (requests) {
     case `1 ${t("week")}`:
@@ -36,6 +41,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   if (!isOpen) return null;
   const prices = getPrices(selectedRequests);
+  const formattedStars = formatNumber(prices.stars);
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -85,7 +91,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           >
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
-              <div className={styles.priceValueStar}>{prices.stars}</div>
+              <div className={`${styles.priceValueStar} ${styles.formatted}`}>
+                {formattedStars}
+              </div>
             </div>
           </div>
         </div>
