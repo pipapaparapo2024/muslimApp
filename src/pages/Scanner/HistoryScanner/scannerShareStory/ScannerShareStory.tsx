@@ -7,7 +7,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useHtmlExport, shareToTelegramStory } from "../../../../hooks/useHtmlExport";
+import {
+  useHtmlExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useHtmlExport";
 import {
   getStatusClassName,
   getStatusIcon,
@@ -127,20 +130,20 @@ export const ScannerShareStory: React.FC = () => {
               </div>
             </div>
 
-            <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("analysisResult")}</div>
-              <div className={styles.scanDesk}>
-                {currentItem.haramProducts &&
-                  currentItem.haramProducts.length > 0 &&
-                  currentItem.haramProducts.map((product: any, index: any) => (
+            {currentItem.haramProducts &&
+              currentItem.haramProducts.length > 0 &&
+              currentItem.haramProducts.map((product: any, index: any) => (
+                <div className={styles.blockInside}>
+                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                  <div className={styles.scanDesk}>
                     <div key={index} className={styles.haranProduct}>
                       {product.name} - {product.reason}
                       <br />
                       {product.source}
                     </div>
-                  ))}
-              </div>
-            </div>
+                  </div>
+                </div>
+              ))}
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("conclusion")}</div>
               <div className={styles.scanDesk}>{currentItem.description}</div>
