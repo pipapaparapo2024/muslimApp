@@ -160,6 +160,24 @@ export const SurahList: React.FC = () => {
           )}
         </div>
       </div>
+      {hasNext && !searchQuery && (
+        <div className={styles.loadMoreContainer}>
+          <button
+            className={styles.loadMoreButton}
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? (
+              <Loader size={20} className={styles.spinner} />
+            ) : (
+              <>
+                <ChevronDown size={20} />
+                {t("loadMore")}
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </PageWrapper>
   );
 };

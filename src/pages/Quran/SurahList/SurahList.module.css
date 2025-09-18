@@ -134,3 +134,73 @@
   border-radius: var(--roundings-small);
   background: var(--bg-app);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 20px 0;
+}
+
+.loadMoreButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: var(--color-background-semantic-solid-brand);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+  background-color: var(--color-background-semantic-solid-brand-hover);
+}
+
+.loadMoreButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorContainer {
+  color: var(--color-text-semantic-solid-negative);
+  text-align: center;
+  padding: 16px;
+  margin: 16px 0;
+  background-color: var(--color-background-semantic-solid-negative);
+  border-radius: 8px;
+}
+
+.noResults {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--desk-text);
+  font-size: 16px;
+}
