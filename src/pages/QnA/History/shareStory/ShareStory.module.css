@@ -38,8 +38,8 @@
 
 .blockMessages {
   position: absolute;
-  left: 50%; 
-  transform: translateX(-50%); 
+  left: 50%;
+  transform: translateX(-50%);
   top: auto;
   bottom: -110px;
   padding: var(--numbers-16);
@@ -48,7 +48,7 @@
   flex-direction: column;
   gap: var(--numbers-8);
   width: 100%;
-  max-width: 390px; 
+  max-width: 390px;
   box-sizing: border-box;
 }
 
@@ -58,7 +58,7 @@
   max-width: 280px;
   background: var(--bg-surface);
   padding: var(--numbers-8) var(--numbers-16);
-  align-self: flex-end; 
+  align-self: flex-end;
   margin-left: auto;
 }
 
@@ -68,10 +68,28 @@
   border-radius: var(--roundings-medium) var(--roundings-medium)
     var(--roundings-medium) 0;
   padding: var(--numbers-8) var(--numbers-16);
-  align-self: flex-start; 
+  align-self: flex-start;
   margin-right: auto;
 }
+.text {
+  color: var(--colors-stone-600);
+  /* Обеспечиваем перенос текста */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 
+/* Специфичный стиль для текста ответа с ограничением в 6 строк */
+.blockMessageBot .text {
+  display: -webkit-box;
+  -webkit-line-clamp: 6; /* Ограничиваем 6 строками */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(
+    1.2em * 6
+  ); /* Примерная высота 6 строк (зависит от line-height) */
+  line-height: 1.2; /* Убедитесь что соответствует вашему дизайну */
+}
 .nickName {
   color: var(--desk-text);
   font-weight: 400;
@@ -96,7 +114,7 @@
   margin: var(--numbers-16) auto;
   width: 100%;
   color: white;
-  padding:var(--numbers-16);
+  padding: var(--numbers-16);
   cursor: pointer;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
 }
@@ -121,5 +139,3 @@
   cursor: not-allowed;
   transform: none !important;
 }
-
-
