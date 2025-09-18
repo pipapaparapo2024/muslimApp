@@ -10,7 +10,7 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
@@ -49,9 +49,13 @@ export const Home: React.FC = () => {
             <span>{t("sensorsNotAvailableHelp")}</span>
           </div>
         ) : (
-          <div className={styles.sensorSuccess}>
-            <span>✅ {t("sensorsEnabled")}</span>
-          </div>
+          <button
+            className={styles.sensorEnabledButton}
+            onClick={requestSensorPermission}
+          >
+            <CheckCircle size={20} />
+            <span>{t("sensorsEnabled")}</span>
+          </button>
         )}
       </div>
 
