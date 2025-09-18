@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { QiblaMap } from "../QiblaCompass/QiblaMap";
 import { QiblaCompass } from "../QiblaCompass/QiblaCompass";
 import styles from "./QiblaCompassPage.module.css";
@@ -8,23 +8,13 @@ import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
 import { t } from "i18next";
-
-// Проверяем, является ли устройство iOS
-const isIOS = () => {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-};
+import { useSensorPermission } from "../../../hooks/useSensorPermission";
 
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
-  const [sensorPermission, setSensorPermission] = useState<string>("prompt");
-
-  // Загружаем статус разрешения при монтировании
-  useEffect(() => {
-    const saved = localStorage.getItem("sensorPermissionStatus");
-    setSensorPermission(saved || "prompt");
-  }, []);
+  const { sensorPermission, requiresPermission } = useSensorPermission();
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -34,7 +24,7 @@ export const QiblaCompassPage: React.FC = () => {
 
   // Если на вкладке компаса и нет разрешения на iOS, показываем сообщение
   const showPermissionMessage = activeTab === "compass" && 
-                               isIOS() && 
+                               requiresPermission && 
                                sensorPermission !== "granted";
 
   return (

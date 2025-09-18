@@ -1,86 +1,59 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
-export const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
-export const isInTelegram = () => {
-  return (
-    navigator.userAgent.includes("Telegram") ||
-    window.Telegram?.WebApp?.initData !== undefined
-  );
+// Проверяем, является ли устройство iOS
+export const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 };
 
-export const logSensorEvent = (event: string, details?: any) => {
-  console.log(`[Sensor] ${event}`, details || "");
+// Проверяем, требуется ли запрос разрешения
+export const requiresPermission = () => {
+  return isIOS() && 
+         typeof DeviceOrientationEvent !== "undefined" && 
+         (DeviceOrientationEvent as any).requestPermission;
 };
 
 export const useSensorPermission = () => {
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [sensorPermission, setSensorPermission] = useState<string>(() => {
-    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
-    if (isInTelegram() && (!saved || saved === "prompt")) {
-      return "granted";
-    }
-    return saved || "prompt";
-  });
+  const [sensorPermission, setSensorPermission] = useState<string>('prompt');
+  const [isRequesting, setIsRequesting] = useState(false);
 
+  // Загружаем статус из localStorage при монтировании
+  useEffect(() => {
+    const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
+    setSensorPermission(saved || 'prompt');
+  }, []);
+
+  // Сохраняем статус в localStorage при изменении
   useEffect(() => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // Упрощенная проверка доступности датчиков
-  const checkSensorAvailability = useCallback(async (): Promise<boolean> => {
-    if (isInTelegram()) {
-      return true;
-    }
-
-    if (sensorPermission !== "granted") {
-      return false;
-    }
-
-    // Простая проверка - если браузер поддерживает API, считаем доступным
+  // Функция запроса разрешения
+  const requestPermission = useCallback(async () => {
+    setIsRequesting(true);
     try {
-      return typeof DeviceOrientationEvent !== "undefined";
-    } catch (error) {
-      console.error("Sensor check error:", error);
-      return false;
-    }
-  }, [sensorPermission]);
-
-  const requestSensorPermission = useCallback(async () => {
-    if (isInTelegram()) {
-      setSensorPermission("granted");
-      return "granted";
-    }
-
-    setIsRequestingPermission(true);
-
-    try {
-      if (typeof DeviceOrientationEvent !== "undefined" &&
-          (DeviceOrientationEvent as any).requestPermission) {
-        
+      if (requiresPermission()) {
+        // iOS - запрашиваем разрешение
         const result = await (DeviceOrientationEvent as any).requestPermission();
         setSensorPermission(result);
-        return result;
-        
       } else {
-        // На устройствах, где разрешение не требуется
-        setSensorPermission("granted");
-        return "granted";
+        // Android и другие устройства - разрешение не требуется
+        setSensorPermission('granted');
       }
     } catch (err) {
-      console.error("Sensor permission error:", err);
-      setSensorPermission("denied");
-      return "denied";
+      console.error('Sensor permission error:', err);
+      setSensorPermission('denied');
     } finally {
-      setIsRequestingPermission(false);
+      setIsRequesting(false);
     }
   }, []);
 
   return {
     sensorPermission,
-    isRequestingPermission,
-    requestSensorPermission,
-    checkSensorAvailability,
-    isInTelegram: isInTelegram(),
+    isRequesting,
+    requestPermission,
+    requiresPermission: requiresPermission(),
+    isIOS: isIOS()
   };
 };
