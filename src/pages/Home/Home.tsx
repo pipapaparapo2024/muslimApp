@@ -17,40 +17,24 @@ export const Home: React.FC = () => {
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,
-    isRequestingPermission,
-    isIOS // Добавляем проверку на iOS
   } = useHomeLogic();
-
   const { isLoading, error } = useGeoStore();
-
   return (
     <PageWrapper>
       <Header />
-
-      {/* Показываем кнопку только на iOS и когда разрешение еще не получено */}
-      {isIOS && sensorPermission !== "granted" && (
+      {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
+      {sensorPermission}
+      {sensorPermission && (
         <button
           className={styles.allowSensorButton}
           onClick={requestSensorPermission}
-          disabled={isRequestingPermission}
-          style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            zIndex: 1000,
-            padding: '10px 15px',
-            backgroundColor: '#007AFF',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px'
-          }}
         >
-          {isRequestingPermission ? t("requesting") : t("allowSensors")}
+          Allow
         </button>
       )}
-
       <div className={styles.homeRoot}>
+        {/* Кнопка обновления местоположения */}
+
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
@@ -76,16 +60,29 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick(sensorPermission)}
+                    onClick={handleCompassClick}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
                     />
+                    {sensorPermission !== "granted" && (
+                      <div className={styles.permissionPrompt}>
+                        <p>{t("compassNeedsAccess")}</p>
+                        <button
+                          className={styles.permissionButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            requestSensorPermission();
+                          }}
+                        >
+                          {t("allow")}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
-              <div className={styles.locationMay}>{t("locationMay")}</div>
             </div>
 
             <MenuBlocks />
