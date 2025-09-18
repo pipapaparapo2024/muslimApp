@@ -108,6 +108,7 @@ export const ShareStory: React.FC = () => {
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
+          <div className={styles.shareContainter}>
           <button
             type="button"
             onClick={handleShare}
@@ -118,6 +119,7 @@ export const ShareStory: React.FC = () => {
           >
             <Upload /> {loading ? t("loading") : t("share")}
           </button>
+          </div>
         </div>
       </div>
     </PageWrapper>
