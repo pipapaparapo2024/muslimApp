@@ -18,17 +18,22 @@ export const QiblaCompassPage: React.FC = () => {
     sensorPermission,
     isRequestingPermission,
     requestSensorPermission,
-    checkSensorAvailability
+    checkSensorAvailability,
   } = useSensorPermission();
 
   const [isSensorAvailable, setIsSensorAvailable] = useState(false);
-
+  // В компоненте QiblaCompassPage добавьте
+  useEffect(() => {
+    console.log("Sensor permission:", sensorPermission);
+    console.log("Is sensor available:", isSensorAvailable);
+    console.log("Coords:", coords);
+  }, [sensorPermission, isSensorAvailable, coords]);
   // Проверяем доступность датчиков после получения разрешения
   useEffect(() => {
     if (sensorPermission === "granted") {
-      checkSensorAvailability().then(available => {
+      checkSensorAvailability().then((available) => {
         setIsSensorAvailable(available);
-        console.log(`Датчики ${available ? 'доступны' : 'недоступны'}`);
+        console.log(`Датчики ${available ? "доступны" : "недоступны"}`);
       });
     }
   }, [sensorPermission, checkSensorAvailability]);
@@ -75,10 +80,8 @@ export const QiblaCompassPage: React.FC = () => {
             <div className={styles.permissionMessage}>
               <AlertCircle size={32} className={styles.alertIcon} />
               <h3>{t("sensorPermissionDenied")}</h3>
-              <p className={styles.helpText}>
-                {t("sensorPermissionHelp")}
-              </p>
-              <button 
+              <p className={styles.helpText}>{t("sensorPermissionHelp")}</p>
+              <button
                 onClick={handleRetryPermission}
                 className={styles.retryButton}
               >
@@ -92,7 +95,7 @@ export const QiblaCompassPage: React.FC = () => {
               <p className={styles.helpText}>
                 {t("sensorPermissionDescription")}
               </p>
-              <button 
+              <button
                 onClick={handleRetryPermission}
                 className={styles.allowButton}
               >
@@ -110,9 +113,7 @@ export const QiblaCompassPage: React.FC = () => {
           <div className={styles.permissionMessage}>
             <AlertCircle size={32} className={styles.alertIcon} />
             <h3>{t("sensorsNotAvailable")}</h3>
-            <p className={styles.helpText}>
-              {t("sensorsNotAvailableHelp")}
-            </p>
+            <p className={styles.helpText}>{t("sensorsNotAvailableHelp")}</p>
           </div>
         </div>
       );
@@ -133,7 +134,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Compass size={18} strokeWidth={2} /> 
+            <Compass size={18} strokeWidth={2} />
             <span className={styles.toggleText}>{t("compass")}</span>
           </span>
         </label>
@@ -147,7 +148,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Map size={18} strokeWidth={2} /> 
+            <Map size={18} strokeWidth={2} />
             <span className={styles.toggleText}>{t("map")}</span>
           </span>
         </label>
@@ -158,12 +159,14 @@ export const QiblaCompassPage: React.FC = () => {
           <div className={styles.compassSection}>
             <div className={styles.compassContainer}>
               <QiblaCompass
-                permissionGranted={sensorPermission === "granted" && isSensorAvailable}
+                permissionGranted={
+                  sensorPermission === "granted" && isSensorAvailable
+                }
                 coords={coords}
                 showAngle={true}
                 size={300}
               />
-              
+
               {renderCompassContent()}
             </div>
 
@@ -176,7 +179,7 @@ export const QiblaCompassPage: React.FC = () => {
                   <p>{t("faceTowardsKaaba")}</p>
                 </div>
               </div>
-              
+
               <div className={styles.infoCard}>
                 <Info size={20} />
                 <div>
