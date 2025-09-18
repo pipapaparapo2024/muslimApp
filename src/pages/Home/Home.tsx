@@ -23,15 +23,12 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       {/* === КНОПКА ЗАПРОСА ДОСТУПА К ДАТЧИКАМ === */}
-      {sensorPermission}
-      {sensorPermission !="granted" && (
         <button
           className={styles.allowSensorButton}
           onClick={requestSensorPermission}
         >
           Allow
         </button>
-      )}
       <div className={styles.homeRoot}>
         {/* Кнопка обновления местоположения */}
 
