@@ -65,6 +65,7 @@ export const ShareStory: React.FC = () => {
 
       // 2. Отправляем полученный URL в Telegram
       shareToTelegramStory(htmlFileUrl);
+
     } catch (error) {
       console.error("Failed to export and share HTML:", error);
       alert(t("exportFailed"));
@@ -92,6 +93,7 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
+        {/* Убираем imageRef так как скриншоты больше не делаем */}
         <div className={styles.contentWrapper}>
           <img
             src={message}
@@ -107,17 +109,20 @@ export const ShareStory: React.FC = () => {
               <div className={styles.nickName}>@MuslimBot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
+            <div className={styles.buttonsContainer}>
+              {/* Эта кнопка теперь делает ВСЕ: генерацию HTML + загрузку +分享 */}
+              <button
+                type="button"
+                onClick={handleShare}
+                disabled={loading}
+                className={`${styles.shareButton} ${
+                  loading ? styles.shareButtonDisabled : ""
+                }`}
+              >
+                <Upload /> {loading ? t("loading") : t("share")}
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
-            }`}
-          >
-            <Upload /> {loading ? t("loading") : t("share")}
-          </button>
         </div>
       </div>
     </PageWrapper>
