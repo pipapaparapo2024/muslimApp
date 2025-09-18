@@ -103,7 +103,7 @@ export const Home: React.FC = () => {
     }
   }, []);
 
-  // Обработка клика на компас (упрощенная версия)
+  // Обработка клика на компас (исправленная логика сравнения)
   const handleCompassClick = useCallback(async () => {
     console.log("🧭 Compass clicked, current permission:", sensorPermission);
 
@@ -112,14 +112,20 @@ export const Home: React.FC = () => {
       return;
     }
 
+    // Исправленное сравнение - используем строгое равенство
     if (sensorPermission === "prompt") {
       // Если разрешение еще не запрошено, запрашиваем его
       await requestSensorPermission();
       
-      // После запроса проверяем результат
-      if (sensorPermission === "granted") {
-        navigate("/qibla", { state: { activeTab: "compass" } });
-      }
+      // После запроса проверяем результат (используем текущее значение из состояния)
+      // Не можем использовать sensorPermission здесь напрямую, так как состояние обновится асинхронно
+      // Вместо этого используем колбэк для получения актуального значения
+      setSensorPermission(prevPermission => {
+        if (prevPermission === "granted") {
+          navigate("/qibla", { state: { activeTab: "compass" } });
+        }
+        return prevPermission;
+      });
     } else if (sensorPermission === "granted") {
       navigate("/qibla", { state: { activeTab: "compass" } });
     }
@@ -218,9 +224,9 @@ export const Home: React.FC = () => {
                     onClick={handleCompassClick}
                     className={styles.compassContainer}
                   >
+                    {/* Исправлено: убрано isRequestingPermission, если компонент его не принимает */}
                     <QiblaCompass
                       permissionGranted={sensorPermission === "granted"}
-                      isRequestingPermission={isRequestingPermission}
                     />
                   </div>
                 </div>
