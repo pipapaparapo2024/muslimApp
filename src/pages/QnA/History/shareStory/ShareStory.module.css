@@ -94,7 +94,7 @@
   gap: var(--numbers-6);
   align-items: center;
   margin: var(--numbers-16) auto;
-  width: 100%;
+  width: 90%;
   color: white;
   padding:var(--numbers-16);
   cursor: pointer;
