@@ -150,7 +150,7 @@ export const ScannerShareStory: React.FC = () => {
         </div>
 
         {/* Кнопка share ВНЕ элемента для скриншота */}
-        <div className={styles.buttonsContainer}>
+        <div className={styles.blockButton}>
           <button
             type="button"
             onClick={handleShare}
