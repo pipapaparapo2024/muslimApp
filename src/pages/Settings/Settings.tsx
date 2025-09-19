@@ -24,19 +24,13 @@ import { useTranslation } from "react-i18next";
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
-  const { prayers, fetchPrayers } = usePrayerApiStore();
+  const { prayers } = usePrayerApiStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
-  const { city, country, coords:geoCoords } = useGeoStore();
-
-  useEffect(() => {
-    if (geoCoords) {
-      fetchPrayers(geoCoords.lat, geoCoords.lon);
-    }
-  }, []);
+  const { city, country} = useGeoStore();
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);
@@ -46,7 +40,6 @@ export const Settings: React.FC = () => {
     );
     console.log("HTML classes:", document.documentElement.className);
   }, [i18n.language]);
-  console.log("prayers", prayers);
   return (
     <PageWrapper showBackButton>
       <div className={styles.settingsContainer}>

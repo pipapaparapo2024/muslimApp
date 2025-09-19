@@ -6,7 +6,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
 import { Info } from "lucide-react";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
-
+import { useGeoStore } from "../../../../hooks/useGeoStore";
 export const SettingPrayerTimes: React.FC = () => {
   const {
     prayerSetting,
@@ -16,12 +16,19 @@ export const SettingPrayerTimes: React.FC = () => {
     setAllPrayersSelected,
     setAllNotifications,
     fetchPrayerSettings,
+    fetchPrayers,
   } = usePrayerApiStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
   const [localLoading, setLocalLoading] = useState(false);
+  const {coords:geoCoords}=useGeoStore()
 
+  useEffect(() => {
+    if (geoCoords) {
+      fetchPrayers(geoCoords.lat, geoCoords.lon);
+    }
+  }, []);
   useEffect(() => {
     const loadSettings = async () => {
       setLocalLoading(true);
