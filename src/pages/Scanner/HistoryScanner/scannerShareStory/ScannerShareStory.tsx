@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
@@ -8,9 +8,9 @@ import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore
 import { Upload } from "lucide-react";
 import { t } from "i18next";
 import {
-  useHtmlExport,
+  useScreenshotExport,
   shareToTelegramStory,
-} from "../../../../hooks/useHtmlExport";
+} from "../../../../hooks/useScreenshotExport";
 import {
   getStatusClassName,
   getStatusIcon,
@@ -22,7 +22,10 @@ export const ScannerShareStory: React.FC = () => {
   const { id } = useParams<{ id: string | undefined }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null);
-  const { exportHtml, loading } = useHtmlExport();
+  const { exportScreenshot, loading } = useScreenshotExport();
+  
+  // Refs для скриншота
+  const screenshotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
@@ -57,23 +60,39 @@ export const ScannerShareStory: React.FC = () => {
   }, [id, fetchHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id) return;
+    if (!currentItem || !screenshotRef.current || !id) return;
 
     try {
-      const htmlFileUrl = await exportHtml({
+      // Создаем скрытый контейнер для скриншота
+      const hiddenContainer = document.createElement("div");
+      hiddenContainer.style.position = "absolute";
+      hiddenContainer.style.left = "-9999px";
+      hiddenContainer.style.top = "-9999px";
+      hiddenContainer.style.width = `${screenshotRef.current.offsetWidth}px`;
+      hiddenContainer.style.height = `${screenshotRef.current.offsetHeight}px`;
+      hiddenContainer.style.overflow = "hidden";
+
+      // Клонируем содержимое для скриншота
+      const clone = screenshotRef.current.cloneNode(true) as HTMLDivElement;
+      hiddenContainer.appendChild(clone);
+      document.body.appendChild(hiddenContainer);
+
+      // Делаем скриншот и загружаем
+      const screenshotUrl = await exportScreenshot({
         type: "scanner",
+        element: hiddenContainer,
         id: id,
       });
 
-      if (htmlFileUrl) {
-        console.log("HTML file uploaded to:", htmlFileUrl);
-        alert(t("htmlExportedSuccessfully"));
-        shareToTelegramStory(htmlFileUrl);
-      } else {
-        throw new Error("Failed to get HTML file URL");
+      // Убираем временный контейнер
+      document.body.removeChild(hiddenContainer);
+
+      // Делимся в Telegram
+      if (screenshotUrl) {
+        shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
-      console.error("Failed to export and share HTML:", error);
+      console.error("Failed to export and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
@@ -101,7 +120,8 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        <div className={styles.contentWrapper}>
+        {/* Контент для скриншота */}
+        <div className={styles.contentWrapper} ref={screenshotRef}>
           <img
             src={message}
             alt="Message background"
@@ -133,10 +153,10 @@ export const ScannerShareStory: React.FC = () => {
             {currentItem.haramProducts &&
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product: any, index: any) => (
-                <div className={styles.blockInside}>
+                <div key={index} className={styles.blockInside}>
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
-                    <div key={index} className={styles.haranProduct}>
+                    <div className={styles.haranProduct}>
                       {product.name} - {product.reason}
                       <br />
                       {product.source}
@@ -148,20 +168,22 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.scanTitle}>{t("conclusion")}</div>
               <div className={styles.scanDesk}>{currentItem.description}</div>
             </div>
-            <div>
-              <button
-                type="button"
-                onClick={handleShare}
-                disabled={loading}
-                className={`${styles.shareButton} ${
-                  loading ? styles.shareButtonDisabled : ""
-                }`}
-              >
-                <Upload size={18} />
-                {loading ? t("loading") : t("share")}
-              </button>
-            </div>
           </div>
+        </div>
+
+        {/* Кнопка отдельно */}
+        <div>
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={loading}
+            className={`${styles.shareButton} ${
+              loading ? styles.shareButtonDisabled : ""
+            }`}
+          >
+            <Upload size={18} />
+            {loading ? t("loading") : t("share")}
+          </button>
         </div>
       </div>
     </PageWrapper>

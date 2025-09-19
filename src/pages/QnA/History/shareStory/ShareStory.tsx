@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
@@ -7,19 +7,17 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-// Убираем useScreenshot, используем только useHtmlExport
-import { useHtmlExport } from "../../../../hooks/useHtmlExport";
-// Импортируем функцию для分享 в Telegram
-import { shareToTelegramStory } from "../../../../hooks/useHtmlExport";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
+  const { exportScreenshot, loading } = useScreenshotExport();
 
-  // Убираем useScreenshot, используем только useHtmlExport
-  const { exportHtml, loading } = useHtmlExport();
+  // Ref для скриншота
+  const screenshotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -52,27 +50,27 @@ export const ShareStory: React.FC = () => {
     loadData();
   }, [id, getHistoryItem]);
 
-  // ПЕРЕДЕЛЫВАЕМ handleShare - теперь он работает с HTML
   const handleShare = async () => {
-    if (!currentItem) return;
+    if (!currentItem || !screenshotRef.current) return;
 
     try {
-      // 1. Генерируем HTML и загружаем на сервер
-      const htmlFileUrl = await exportHtml({
+      // Делаем скриншот и загружаем
+      const screenshotUrl = await exportScreenshot({
         type: "qna",
+        element: screenshotRef.current,
         id: id,
       });
 
-      // 2. Отправляем полученный URL в Telegram
-      shareToTelegramStory(htmlFileUrl);
+      // Делимся в Telegram
+      if (screenshotUrl) {
+        shareToTelegramStory(screenshotUrl);
+      }
 
     } catch (error) {
-      console.error("Failed to export and share HTML:", error);
+      console.error("Failed to export and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
-
-  // Убираем handleExportHtml - теперь основная кнопка делает все
 
   if (!isLoaded) {
     return (
@@ -93,8 +91,8 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Убираем imageRef так как скриншоты больше не делаем */}
-        <div className={styles.contentWrapper}>
+        {/* Основной контент для скриншота */}
+        <div className={styles.contentWrapper} ref={screenshotRef}>
           <img
             src={message}
             className={styles.messageImage}
@@ -109,20 +107,21 @@ export const ShareStory: React.FC = () => {
               <div className={styles.nickName}>@MuslimBot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
-            <div className={styles.buttonsContainer}>
-              {/* Эта кнопка теперь делает ВСЕ: генерацию HTML + загрузку +分享 */}
-              <button
-                type="button"
-                onClick={handleShare}
-                disabled={loading}
-                className={`${styles.shareButton} ${
-                  loading ? styles.shareButtonDisabled : ""
-                }`}
-              >
-                <Upload /> {loading ? t("loading") : t("share")}
-              </button>
-            </div>
           </div>
+        </div>
+
+        {/* Кнопка отдельно, чтобы не попадала в скриншот */}
+        <div className={styles.buttonsContainer}>
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={loading}
+            className={`${styles.shareButton} ${
+              loading ? styles.shareButtonDisabled : ""
+            }`}
+          >
+            <Upload /> {loading ? t("loading") : t("share")}
+          </button>
         </div>
       </div>
     </PageWrapper>
