@@ -38,7 +38,9 @@
 }  
 
  .shareButton {
+  position:absolute;
   border: none;
+  bottom: -90px;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
