@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
@@ -14,10 +14,10 @@ export const ShareStory: React.FC = () => {
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
-  const { exportScreenshot, loading } = useScreenshotExport();
-
-  // Ref для скриншота
   const screenshotRef = useRef<HTMLDivElement>(null);
+
+  // Используем хук для создания скриншотов
+  const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,23 +51,22 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !screenshotRef.current) return;
+    if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Делаем скриншот и загружаем
+      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
       const screenshotUrl = await exportScreenshot({
         type: "qna",
         element: screenshotRef.current,
         id: id,
       });
 
-      // Делимся в Telegram
+      // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
       }
-
     } catch (error) {
-      console.error("Failed to export and share screenshot:", error);
+      console.error("Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
@@ -91,8 +90,8 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Основной контент для скриншота */}
-        <div className={styles.contentWrapper} ref={screenshotRef}>
+        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
+        <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
             className={styles.messageImage}
@@ -109,8 +108,8 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Кнопка отдельно, чтобы не попадала в скриншот */}
+        
+        {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.buttonsContainer}>
           <button
             type="button"

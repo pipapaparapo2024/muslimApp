@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
@@ -7,10 +7,7 @@ import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import {
-  useScreenshotExport,
-  shareToTelegramStory,
-} from "../../../../hooks/useScreenshotExport";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
 import {
   getStatusClassName,
   getStatusIcon,
@@ -22,42 +19,51 @@ export const ScannerShareStory: React.FC = () => {
   const { id } = useParams<{ id: string | undefined }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null);
-  const { exportScreenshot, loading } = useScreenshotExport();
-  
-  // Ref для скриншота
   const screenshotRef = useRef<HTMLDivElement>(null);
+  const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
+    const preloadImage = (src: string): Promise<void> => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve();
+        img.onerror = () => {
+          console.warn(`Failed to load image: ${src}`);
+          resolve();
+        };
+      });
+    };
+
     const loadItem = async () => {
       if (!id) return;
 
-      try {
-        const item = await fetchHistoryItem(id);
-        if (item) {
-          setCurrentItem(item);
-        }
-        setIsLoaded(true);
-      } catch (error) {
-        console.error("Error loading item:", error);
-        setIsLoaded(true);
+      const item = await fetchHistoryItem(id);
+      if (item) {
+        setCurrentItem(item);
       }
+
+      preloadImage(message)
+        .then(() => setIsLoaded(true))
+        .catch((err) => {
+          console.error("Error during image preloading:", err);
+          setIsLoaded(true);
+        });
     };
 
     loadItem();
   }, [id, fetchHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !screenshotRef.current || !id) return;
+    if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Просто передаем элемент для скриншота
       const screenshotUrl = await exportScreenshot({
         type: "scanner",
         element: screenshotRef.current,
         id: id,
       });
 
-      // Делимся в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
       }
@@ -90,8 +96,8 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Контент для скриншота */}
-        <div className={styles.contentWrapper} ref={screenshotRef}>
+        {/* Элемент для скриншота */}
+        <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
             alt="Message background"
@@ -140,9 +146,9 @@ export const ScannerShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Кнопка для шаринга */}
-        <div className={styles.shareButtonContainer}>
+        
+        {/* Кнопка share ВНЕ элемента для скриншота */}
+        <div className={styles.buttonsContainer}>
           <button
             type="button"
             onClick={handleShare}
@@ -152,7 +158,7 @@ export const ScannerShareStory: React.FC = () => {
             }`}
           >
             <Upload size={18} />
-            {loading ? t("loading") : t("shareToStory")}
+            {loading ? t("loading") : t("share")}
           </button>
         </div>
       </div>
