@@ -306,14 +306,6 @@ export const QiblaCompass: React.FC<QiblaCompassProps> = ({
             zIndex: 6,
           }}
         >
-          {kaabaRelativeAngle.toFixed(1)}°
-          <div style={{ color: "#888", fontWeight: 400, fontSize: "16px" }}>
-            Qibla angle of your location
-          </div>
-          {/* Отладочная информация */}
-          <div style={{ color: "#ccc", fontWeight: 300, fontSize: "12px", marginTop: "5px" }}>
-            Platform: {platform} | Heading: {heading.toFixed(1)}°
-          </div>
         </div>
       )}
     </div>
