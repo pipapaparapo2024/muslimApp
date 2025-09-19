@@ -4,7 +4,7 @@
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
-  margin: 0 auto;
+  /* margin: 0 auto;
   position: relative;
   display: flex;
   min-height: 90vh;
@@ -12,7 +12,7 @@
   height: 100%;
   flex-direction: column;
   align-items: center;
-  padding-bottom: var(--numbers-80);
+  padding-bottom: var(--numbers-80); */
 }
 
 .contentWrapper {
