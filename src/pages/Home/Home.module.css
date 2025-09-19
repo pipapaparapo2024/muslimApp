@@ -43,15 +43,14 @@
 .permissionRequest {
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
   padding: 20px;
   color: #666;
   font-style: italic;
 }
 
-
-.allowSensorButton{
+.allowSensorButton {
   margin: 0 auto;
-  background-color: var(--compass-circle-between);
+  background-color: var(--compass-circle-small);
   padding: var(--numbers-12) var(--numbers-16);
 }
