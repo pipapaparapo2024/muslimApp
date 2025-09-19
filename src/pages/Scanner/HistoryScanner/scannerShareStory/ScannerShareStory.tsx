@@ -136,7 +136,6 @@ export const ScannerShareStory: React.FC = () => {
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
                       {product.name} - {product.reason}
-                      <br />
                       {product.source}
                     </div>
                   </div>
