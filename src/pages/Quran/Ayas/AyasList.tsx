@@ -205,7 +205,7 @@ export const AyahList: React.FC = () => {
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchByAyahNumberOrText")}
+              placeholder={t("searchAyahs")}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
