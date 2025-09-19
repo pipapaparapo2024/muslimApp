@@ -30,13 +30,13 @@
   align-items: center;
 }
 .container img {
-  max-height: 500px;
+  max-height: 550px;
   max-width: 100%;
   height: auto;
   width: auto;
   margin: 0 auto;
   object-fit: contain;
-  padding-top: var(--numbers-48);
+  padding-top: var(--numbers-32);
   position: relative;
   z-index: 1;
 }
