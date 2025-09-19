@@ -22,18 +22,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; 
+  position: relative;
 }
-.blockButton{
-    max-width: 390px;
+.blockButton {
+  max-width: 390px;
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative; 
 }
- .container img {
+.container img {
   max-height: 570px;
   max-width: 100%;
   height: auto;
@@ -43,10 +38,10 @@
   padding-top: var(--numbers-48);
   position: relative;
   z-index: 1;
-}  
+}
 
- .shareButton {
-  position:absolute;
+.shareButton {
+  position: absolute;
   border: none;
   bottom: 0px;
   z-index: 3;
@@ -55,7 +50,7 @@
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
-  margin: var(--numbers-16) auto ;
+  margin: var(--numbers-16) auto;
   width: 100%;
   font-size: var(--numbers-16);
   display: flex;
@@ -87,7 +82,7 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
-} 
+}
 
 .blockScan {
   position: absolute;
@@ -107,11 +102,11 @@
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 2;
-  -webkit-line-clamp: 2; 
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 2); 
+  max-height: calc(1.5em * 2);
   line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -133,7 +128,7 @@
 .halal {
   color: #15803d;
 }
-.mushbooh{
+.mushbooh {
   color: var(--color-stroke-semantic-warning);
 }
 
@@ -149,13 +144,13 @@
   border-radius: var(--roundings-medium);
 }
 
-.QiblaGuidebot{
+.QiblaGuidebot {
   font-size: var(--numbers-14);
   color: var(--desk-text);
 }
 
-.statusProduct{
+.statusProduct {
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-}  
+}
