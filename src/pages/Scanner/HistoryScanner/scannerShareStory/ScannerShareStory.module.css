@@ -1,4 +1,4 @@
-/* .container {
+.container {
   background-image: url("../../../../assets/image/background.png");
   background-size: cover;
   background-position: center;
@@ -14,7 +14,7 @@
   align-items: center;
   padding-bottom: var(--numbers-80);
 }
-
+/* 
 .contentWrapper {
   max-width: 390px;
   width: 100%;
