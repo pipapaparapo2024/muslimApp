@@ -175,13 +175,10 @@ const fetchAyahsBySurah = async (
     }
 
     const responseData = response.data.data;
-    console.log(
-      "ayhs",
-      responseData.ayahs.map((ayah: any) => ({
-        number: ayah.number,
-        text: ayah.text,
-      }))
-    );
+    responseData.ayahs.map((ayah: any) => ({
+      number: ayah.number,
+      text: ayah.text,
+    }));
 
     return {
       ayahs: responseData.ayahs.map((ayah: any) => ({
