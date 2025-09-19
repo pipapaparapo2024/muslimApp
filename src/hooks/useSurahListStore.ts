@@ -284,7 +284,6 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     try {
       const response = await fetchAyahsBySurah(surahId, page, search);
 
-      // ОБНОВЛЯЕМ СОСТОЯНИЕ В STORE
       set({
         ayahs:
           page === 1 ? response.ayahs : [...get().ayahs, ...response.ayahs],

@@ -6,7 +6,7 @@ import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/Moda
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
-import analyze from "../../assets/image/scanner.png";
+import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
 
 export const Scanner: React.FC = () => {
