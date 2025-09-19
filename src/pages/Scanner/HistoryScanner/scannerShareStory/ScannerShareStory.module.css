@@ -79,7 +79,7 @@
 
 .blockScan {
   position: absolute;
-  /* z-index: 2; */
+  z-index: 2;
   top: auto;
   bottom: 0px;
   display: flex;
