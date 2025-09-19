@@ -15,7 +15,7 @@
   padding-bottom: var(--numbers-80);
 }
 
-/* .contentWrapper {
+.contentWrapper {
   max-width: 390px;
   width: 100%;
   height: 100%;
@@ -25,7 +25,7 @@
   position: relative; 
 }
 
-.container img {
+/* .container img {
   max-height: 570px;
   max-width: 100%;
   height: auto;
@@ -35,7 +35,7 @@
   padding-top: var(--numbers-48);
   position: relative;
   z-index: 1;
-} */
+}  */
 
 /* .shareButton {
   border: none;
