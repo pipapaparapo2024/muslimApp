@@ -37,13 +37,13 @@ interface SurahListState {
   variants: Variant[];
   selectedVariant: Variant | null;
   selectedSurah: Surah | null;
-  
+
   // Пагинация для сур
   surahsCurrentPage: number;
   surahsHasNext: boolean;
   surahsHasPrev: boolean;
   surahsPageAmount: number;
-  
+
   // Пагинация для аятов
   ayahs: Ayah[];
   currentPage: number;
@@ -55,7 +55,11 @@ interface SurahListState {
   fetchVariants: () => Promise<void>;
   fetchSurahs: (variantId: string, page?: number) => Promise<void>;
   loadMoreSurahs: (variantId: string) => Promise<void>;
-  fetchAyahs: (surahId: string, page: number, search?: string) => Promise<AyahsResponse>;
+  fetchAyahs: (
+    surahId: string,
+    page: number,
+    search?: string
+  ) => Promise<AyahsResponse>;
   loadMoreAyahs: (surahId: string) => Promise<void>;
   loadPrevAyahs: (surahId: string) => Promise<void>;
   searchAyahs: (surahId: string, query: string) => Promise<void>;
@@ -82,7 +86,9 @@ const fetchVariants = async (): Promise<Variant[]> => {
     });
 
     if (!response.data?.data?.variants) {
-      throw new Error('Invalid API response structure: missing "data.variants"');
+      throw new Error(
+        'Invalid API response structure: missing "data.variants"'
+      );
     }
 
     return response.data.data.variants.map((v: any) => ({
@@ -97,7 +103,7 @@ const fetchVariants = async (): Promise<Variant[]> => {
 
 // Функция для получения сур по variantId с пагинацией
 const fetchSurahsByVariant = async (
-  variantId: string, 
+  variantId: string,
   page: number = 1
 ): Promise<{
   surahs: Surah[];
@@ -169,7 +175,7 @@ const fetchAyahsBySurah = async (
     }
 
     const responseData = response.data.data;
-
+    console.log("ayhs",responseData)
     return {
       ayahs: responseData.ayahs.map((ayah: any) => ({
         number: ayah.number,
@@ -227,17 +233,18 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
   },
 
   fetchSurahs: async (variantId: string, page: number = 1) => {
-    set({ 
-      loading: page === 1, 
-      isLoadingMore: page > 1, 
-      error: null 
+    set({
+      loading: page === 1,
+      isLoadingMore: page > 1,
+      error: null,
     });
-    
+
     try {
       const response = await fetchSurahsByVariant(variantId, page);
-      
+
       set({
-        surahs: page === 1 ? response.surahs : [...get().surahs, ...response.surahs],
+        surahs:
+          page === 1 ? response.surahs : [...get().surahs, ...response.surahs],
         surahsCurrentPage: page,
         surahsHasNext: response.hasNext,
         surahsHasPrev: response.hasPrev,
@@ -254,7 +261,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   loadMoreSurahs: async (variantId: string) => {
     const { surahsCurrentPage, surahsHasNext } = get();
-    
+
     if (!surahsHasNext || get().isLoadingMore) {
       return;
     }
@@ -300,7 +307,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     try {
       set({ isLoadingMore: true, error: null });
       const response = await get().fetchAyahs(surahId, 1, query);
-      
+
       set({
         ayahs: response.ayahs,
         currentPage: 1,
@@ -390,20 +397,20 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     }),
 
   setSelectedSurah: (surah) => set({ selectedSurah: surah }),
-  
+
   setSelectedVariant: (variant) => {
-    set({ 
+    set({
       selectedVariant: variant,
       surahs: [],
       surahsCurrentPage: 1,
       surahsHasNext: false,
       surahsHasPrev: false,
-      surahsPageAmount: 0
+      surahsPageAmount: 0,
     });
     get().fetchSurahs(variant.id);
   },
-  
+
   setSearchQuery: (query: string) => set({ searchQuery: query }),
-  
+
   clearError: () => set({ error: null }),
 }));
