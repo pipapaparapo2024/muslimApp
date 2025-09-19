@@ -50,7 +50,11 @@
 }
 
 .allowSensorButton {
-  margin: 0 auto;
+  margin: var(--numbers-8) auto;
+  max-width: 420px;
+  width: 100%;
   background-color: var(--compass-circle-small);
   padding: var(--numbers-12) var(--numbers-16);
+  color: var(--text);
+  border-radius: var(--roundings-medium);
 }
