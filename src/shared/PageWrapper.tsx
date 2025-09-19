@@ -1,5 +1,8 @@
 import React, { useEffect, type CSSProperties } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { fetchLanguageFromBackend } from "../pages/Home/useHomeLogic";
+import { applyLanguageStyles } from "../hooks/useLanguages";
+import i18n from "../api/i18n";
 
 interface PageProps {
   children: React.ReactNode;
@@ -18,7 +21,27 @@ export const PageWrapper: React.FC<PageProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const tg = window.Telegram?.WebApp;
+  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // 3. Получаем и устанавливаем язык с бекенда
+        const userLanguage = await fetchLanguageFromBackend();
+        if (userLanguage) {
+          await i18n.changeLanguage(userLanguage);
+          applyLanguageStyles(userLanguage);
+          localStorage.setItem("preferred-language", userLanguage);
+        }
 
+        // Помечаем, что инициализация выполнена
+        localStorage.setItem("appInitialized", "true");
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
+    };
+
+    initializeApp();
+  }, []);
   // Функция назад — стабильна при изменении navigateTo
   const handleBack = () => {
     navigate(navigateTo);
@@ -57,12 +80,7 @@ export const PageWrapper: React.FC<PageProps> = ({
         tg.BackButton.hide();
       }
     };
-  }, [
-    showBackButton,
-    navigateTo,
-    tg,
-    location.pathname, 
-  ]);
+  }, [showBackButton, navigateTo, tg, location.pathname]);
 
   const containerStyle: CSSProperties = styleHave
     ? {
