@@ -7,29 +7,25 @@
   margin: 0 auto;
   position: relative;
   display: flex;
-  flex-direction: column;
   min-height: 90vh;
   padding: var(--numbers-12);
-  padding-bottom: var(--numbers-100); /* Увеличиваем отступ снизу для кнопки */
-}
-
-.screenshotArea {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px; /* Отступ между контентом и кнопкой */
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--numbers-80);
 }
 
 .contentWrapper {
   max-width: 390px;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  position: relative; 
 }
 
-.contentWrapper img {
+.container img {
   max-height: 570px;
   max-width: 100%;
   height: auto;
@@ -41,22 +37,13 @@
   z-index: 1;
 }
 
-.buttonsContainer {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  max-width: 390px;
-  margin: 0 auto;
-  z-index: 10;
-}
-
 .shareButton {
   border: none;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
+  margin: var(--numbers-16) auto;
   width: 100%;
   font-size: var(--numbers-16);
   display: flex;
@@ -110,11 +97,11 @@
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 2;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 2; /* Ограничиваем 2 строками */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
+  max-height: calc(1.5em * 2); /* Высота 2 строк (line-height 1.5) */
   line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
