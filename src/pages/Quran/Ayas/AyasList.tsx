@@ -221,8 +221,9 @@ export const AyahList: React.FC = () => {
                 {initialSurah.description}
               </div>
             )}
-          <div>
-            {ayahs.map((ayahs=>ayahs.number))}
+          </div>
+          {ayahs.map((ayahs) => ayahs.number)}
+
           <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
