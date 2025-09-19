@@ -88,7 +88,7 @@
   margin-top: var(--numbers-16);
   flex-grow: 1;
 }
-
+*/
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
@@ -148,4 +148,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-}  */
+}  
