@@ -1,8 +1,32 @@
 import { t } from "i18next";
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import type { Language } from "../../hooks/useLanguages";
+import { quranApi } from "../../api/api";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+
+
+
+export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return null;
+
+    const response = await quranApi.get("api/v1/settings/languages/selected", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const backendLanguage = response.data.data.language.languageCode;
+    console.log("response", response);
+    console.log("backendLanguage", backendLanguage);
+    return backendLanguage;
+  } catch (error) {
+    console.error("Error fetching language:", error);
+    return null;
+  }
+};
+
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();

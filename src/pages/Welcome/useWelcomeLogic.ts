@@ -9,33 +9,14 @@ import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import i18n from "../../api/i18n";
-import { quranApi } from "../../api/api";
-import { type Language, applyLanguageStyles } from "../../hooks/useLanguages";
+import { applyLanguageStyles } from "../../hooks/useLanguages";
 
 interface Step {
   title: string;
   desc: string;
   image: string;
 }
-
-const fetchLanguageFromBackend = async (): Promise<Language | null> => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    if (!token) return null;
-
-    const response = await quranApi.get("api/v1/settings/languages/selected", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const backendLanguage = response.data.data.language.languageCode;
-    console.log("response", response);
-    console.log("backendLanguage", backendLanguage);
-    return backendLanguage;
-  } catch (error) {
-    console.error("Error fetching language:", error);
-    return null;
-  }
-};
+import { fetchLanguageFromBackend } from "../Home/useHomeLogic";
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
