@@ -3,8 +3,6 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
-import { useGeoStore } from "../../hooks/useGeoStore";
-import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import i18n from "../../api/i18n";
 import { applyLanguageStyles } from "../../hooks/useLanguages";
 
@@ -33,8 +31,6 @@ export const useHomeLogic = () => {
   const [isInitializing, setIsInitializing] = useState(false);
   const [initializationError, setInitializationError] = useState<string | null>(null);
 
-  const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
-  const { sendUserSettings } = useUserParametersStore();
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -46,18 +42,6 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // 1. Получаем геолокацию
-        await fetchFromIpApi();
-        const locationData = getLocationData();
-
-        // 2. Отправляем настройки пользователя
-        await sendUserSettings({
-          city: locationData.city,
-          countryName: locationData.country,
-          langcode: langcode,
-          timeZone: locationData.timeZone,
-        });
-
         // 3. Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
@@ -77,7 +61,7 @@ export const useHomeLogic = () => {
     };
 
     initializeApp();
-  }, [fetchFromIpApi, getLocationData, sendUserSettings, langcode]);
+  }, []);
 
   // Синхронизируем состояние с localStorage при изменении
   useEffect(() => {

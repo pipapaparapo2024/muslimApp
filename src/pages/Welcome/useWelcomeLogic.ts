@@ -6,6 +6,8 @@ import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
+import { useGeoStore } from "../../hooks/useGeoStore";
+import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 
 interface Step {
   title: string;
@@ -16,7 +18,7 @@ interface Step {
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  
+
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
@@ -33,6 +35,8 @@ export const useWelcomeLogic = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
+  const { sendUserSettings } = useUserParametersStore();
 
   const {
     isAuthenticated,
@@ -49,6 +53,26 @@ export const useWelcomeLogic = () => {
       }
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // 1. Получаем геолокацию
+        await fetchFromIpApi();
+        const locationData = getLocationData();
+
+        // 2. Отправляем настройки пользователя
+        await sendUserSettings({
+          city: locationData.city,
+          countryName: locationData.country,
+          langcode: langcode,
+          timeZone: locationData.timeZone,
+        });
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
+    };
+    initializeApp();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
