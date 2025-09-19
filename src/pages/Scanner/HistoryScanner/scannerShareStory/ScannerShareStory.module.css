@@ -43,7 +43,7 @@
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
-  margin: var(--numbers-48) auto;
+  margin: var(--numbers-16) auto ;
   width: 100%;
   font-size: var(--numbers-16);
   display: flex;
@@ -81,7 +81,7 @@
   position: absolute;
   /* z-index: 2; */
   top: auto;
-  /* bottom: -130px; */
+  bottom: 0px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
