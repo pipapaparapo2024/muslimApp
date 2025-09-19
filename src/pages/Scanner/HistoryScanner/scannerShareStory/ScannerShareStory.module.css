@@ -26,6 +26,7 @@
 }
 .blockButton {
   display: flex;
+  align-items: center;
 }
 .container img {
   max-height: 570px;
