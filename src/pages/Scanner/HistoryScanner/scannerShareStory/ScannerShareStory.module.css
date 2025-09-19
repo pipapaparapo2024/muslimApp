@@ -14,7 +14,7 @@
   align-items: center;
   padding-bottom: var(--numbers-80);
 }
-/* 
+
 .contentWrapper {
   max-width: 390px;
   width: 100%;
@@ -36,7 +36,7 @@
   position: relative;
   z-index: 1;
 }
-
+/* 
 .shareButton {
   border: none;
   border-radius: var(--roundings-medium);
