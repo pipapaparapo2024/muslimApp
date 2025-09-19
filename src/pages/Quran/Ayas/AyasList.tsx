@@ -61,7 +61,7 @@ export const AyahList: React.FC = () => {
     };
 
     loadInitialAyahs();
-  }, [surahId, fetchAyahs, resetAyahs]);
+  }, []);
   // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
     (query: string): number[] => {
