@@ -123,11 +123,11 @@ export const HistoryScannerDetail: React.FC = () => {
             </div>
           </div>
 
-          {currentItem.haramProducts &&
-            currentItem.haramProducts.length > 0 &&
-            currentItem.haramProducts.map((product, index) => (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("analysisResult")}</div>
+          <div className={styles.blockInside}>
+            <div className={styles.scanTitle}>{t("analysisResult")}</div>
+            {currentItem.haramProducts &&
+              currentItem.haramProducts.length > 0 &&
+              currentItem.haramProducts.map((product, index) => (
                 <div className={styles.scanDesk}>
                   <div key={index}>
                     {product.name} - {product.reason}
@@ -135,8 +135,8 @@ export const HistoryScannerDetail: React.FC = () => {
                     {product.source}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+          </div>
           <div className={styles.blockInside}>
             <div className={styles.scanTitle}>{t("conclusion")}</div>
             <div className={styles.scanDesk}>{currentItem.description}</div>
