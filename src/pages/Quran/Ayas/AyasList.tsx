@@ -230,7 +230,7 @@ export const AyahList: React.FC = () => {
                   className={styles.navButton}
                   disabled={searchResults.length <= 1}
                 >
-                  <ChevronDown size={16} />
+                  <ChevronDown color="var(--text)" size={16} />
                 </button>
               </div>
             )}
