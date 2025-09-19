@@ -130,7 +130,7 @@ const fetchSurahsByVariant = async (
       name: chap.SuraName,
       number: chap.SuraNumber,
       suraPlaceOfWriting:
-        chap.SuraPlaceOfWriting === "makkah" ? "Makkah" : "Madinah",
+        chap.SuraPlaceOfWriting === "Makkah" ? "Makkah" : "Madinah",
       numberOfAyahs: parseInt(chap.AyasAmount, 10),
     }));
 
