@@ -31,28 +31,6 @@ export const AyahList: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  // Поиск по номерам аятов и тексту
-  const searchInAyahs = useCallback(
-    (query: string): number[] => {
-      if (!query.trim() || ayahs.length === 0) return [];
-
-      const searchTerm = query.toLowerCase();
-      
-      return ayahs
-        .filter((ayah) => {
-          // Ищем по номеру аята
-          const numberMatch = ayah.number.toString().includes(searchTerm);
-          
-          // Ищем по тексту аята
-          const textMatch = ayah.text.toLowerCase().includes(searchTerm);
-          
-          return numberMatch || textMatch;
-        })
-        .map((ayah) => ayah.number);
-    },
-    [ayahs]
-  );
-
   // Загрузка первых аятов
   useEffect(() => {
     const loadInitialAyahs = async () => {
@@ -62,26 +40,49 @@ export const AyahList: React.FC = () => {
         resetAyahs();
         const response = await fetchAyahs(surahId, 1);
 
-        if (response && response.ayahs) {
-          useSurahListStore.setState({
-            ayahs: response.ayahs,
-            hasNext: response.hasNext,
-            hasPrev: response.hasPrev,
-            pageAmount: response.pageAmount,
-          });
-        }
+        // Правильное обновление состояния через store
+        useSurahListStore.setState({
+          ayahs: response.ayahs,
+          currentPage: 1,
+          hasNext: response.hasNext,
+          hasPrev: response.hasPrev,
+          pageAmount: response.pageAmount,
+          isLoadingMore: false,
+        });
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
         useSurahListStore.setState({
           hasNext: false,
           hasPrev: false,
           ayahs: [],
+          isLoadingMore: false,
         });
       }
     };
 
     loadInitialAyahs();
   }, [surahId, fetchAyahs, resetAyahs]);
+  // Поиск по номерам аятов и тексту
+  const searchInAyahs = useCallback(
+    (query: string): number[] => {
+      if (!query.trim() || ayahs.length === 0) return [];
+
+      const searchTerm = query.toLowerCase();
+
+      return ayahs
+        .filter((ayah) => {
+          // Ищем по номеру аята
+          const numberMatch = ayah.number.toString().includes(searchTerm);
+
+          // Ищем по тексту аята
+          const textMatch = ayah.text.toLowerCase().includes(searchTerm);
+
+          return numberMatch || textMatch;
+        })
+        .map((ayah) => ayah.number);
+    },
+    [ayahs]
+  );
 
   // Автоматический поиск при изменении запроса
   useEffect(() => {
@@ -99,7 +100,7 @@ export const AyahList: React.FC = () => {
         setSearchResults(results);
         setCurrentResultIndex(results.length > 0 ? 0 : -1);
         setShowSearchNavigation(results.length > 0);
-        
+
         // Автоматически прокручиваем к первому результату
         if (results.length > 0) {
           const firstResult = results[0];
@@ -154,9 +155,10 @@ export const AyahList: React.FC = () => {
 
         // Анимация выделения
         element.style.transform = "scale(1.02)";
-        element.style.backgroundColor = "var(--color-background-semantic-solid-brand)";
+        element.style.backgroundColor =
+          "var(--color-background-semantic-solid-brand)";
         element.style.color = "white";
-        
+
         setTimeout(() => {
           if (element) {
             element.style.transform = "scale(1)";
@@ -222,10 +224,7 @@ export const AyahList: React.FC = () => {
             )}
           </div>
 
-          <div
-            ref={searchContainerRef}
-            className={styles.searchContainer}
-          >
+          <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -299,7 +298,7 @@ export const AyahList: React.FC = () => {
                   >
                     <div className={styles.ayasNember}>{ayah.number}</div>
                     <div className={styles.ayasText}>{ayah.text}</div>
-                    
+
                     {/* Показываем номер аята для поиска по номеру */}
                     {isSearchResult && (
                       <div className={styles.ayahNumberBadge}>
