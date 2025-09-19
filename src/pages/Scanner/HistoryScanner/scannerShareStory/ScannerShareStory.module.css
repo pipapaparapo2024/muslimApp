@@ -7,7 +7,7 @@
   margin: 0 auto;
   position: relative;
   display: flex;
-  min-height: 95vh;
+  min-height: 92vh;
   padding: var(--numbers-12);
   height: 100%;
   flex-direction: column;
