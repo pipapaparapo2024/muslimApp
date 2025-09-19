@@ -45,13 +45,6 @@ export const useHomeLogic = () => {
   // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
   useEffect(() => {
     const initializeApp = async () => {
-      // Проверяем, не выполнялась ли уже инициализация в этой сессии
-      const alreadyInitialized = localStorage.getItem("appInitialized");
-      if (alreadyInitialized) return;
-
-      setIsInitializing(true);
-      setInitializationError(null);
-
       try {
         // 1. Получаем геолокацию
         await fetchFromIpApi();
