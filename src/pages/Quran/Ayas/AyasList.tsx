@@ -31,7 +31,6 @@ export const AyahList: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  // Загрузка первых аятов - ТЕПЕРЬ ПРАВИЛЬНО
   useEffect(() => {
     const loadInitialAyahs = async () => {
       if (!surahId) return;
@@ -39,6 +38,7 @@ export const AyahList: React.FC = () => {
       try {
         resetAyahs();
         await fetchAyahs(surahId, 1); // Просто вызываем action store
+        console.log("ayahssssss",ayahs)
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
       }
