@@ -222,7 +222,7 @@ export const AyahList: React.FC = () => {
                   className={styles.navButton}
                   disabled={searchResults.length <= 1}
                 >
-                  <ChevronUp size={16} />
+                  <ChevronUp color="var(--text)" size={16} />
                 </button>
                 <button
                   type="button"
@@ -279,12 +279,6 @@ export const AyahList: React.FC = () => {
                   >
                     <div className={styles.ayasNember}>{ayah.number}</div>
                     <div className={styles.ayasText}>{ayah.text}</div>
-
-                    {isSearchResult && (
-                      <div className={styles.ayahNumberBadge}>
-                        Аят {ayah.number}
-                      </div>
-                    )}
                   </div>
                 );
               })}
