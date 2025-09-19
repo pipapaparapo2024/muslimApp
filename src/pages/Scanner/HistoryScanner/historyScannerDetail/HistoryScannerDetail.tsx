@@ -131,7 +131,6 @@ export const HistoryScannerDetail: React.FC = () => {
                 <div className={styles.scanDesk}>
                   <div key={index}>
                     {product.name} - {product.reason}
-                    <br />
                     {product.source}
                   </div>
                 </div>
