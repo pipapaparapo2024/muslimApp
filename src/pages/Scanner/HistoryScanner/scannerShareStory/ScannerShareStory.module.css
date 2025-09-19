@@ -25,6 +25,7 @@
   position: relative;
 }
 .blockButton {
+  display: flex;
 }
 .container img {
   max-height: 570px;
