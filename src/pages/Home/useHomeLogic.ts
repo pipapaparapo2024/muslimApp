@@ -3,10 +3,12 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
+import { useGeoStore } from "../../hooks/useGeoStore";
+import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
+import i18n from "../../api/i18n";
+import { applyLanguageStyles } from "../../hooks/useLanguages";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
-
-
 
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
@@ -18,8 +20,6 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
     });
 
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("response", response);
-    console.log("backendLanguage", backendLanguage);
     return backendLanguage;
   } catch (error) {
     console.error("Error fetching language:", error);
@@ -27,16 +27,64 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   }
 };
 
-
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [initializationError, setInitializationError] = useState<string | null>(null);
+
+  const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
+  const { sendUserSettings } = useUserParametersStore();
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
     const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     return saved || "prompt";
   });
+
+  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
+  useEffect(() => {
+    const initializeApp = async () => {
+      // Проверяем, не выполнялась ли уже инициализация в этой сессии
+      const alreadyInitialized = localStorage.getItem("appInitialized");
+      if (alreadyInitialized) return;
+
+      setIsInitializing(true);
+      setInitializationError(null);
+
+      try {
+        // 1. Получаем геолокацию
+        await fetchFromIpApi();
+        const locationData = getLocationData();
+
+        // 2. Отправляем настройки пользователя
+        await sendUserSettings({
+          city: locationData.city,
+          countryName: locationData.country,
+          langcode: langcode,
+          timeZone: locationData.timeZone,
+        });
+
+        // 3. Получаем и устанавливаем язык с бекенда
+        const userLanguage = await fetchLanguageFromBackend();
+        if (userLanguage) {
+          await i18n.changeLanguage(userLanguage);
+          applyLanguageStyles(userLanguage);
+          localStorage.setItem("preferred-language", userLanguage);
+        }
+
+        // Помечаем, что инициализация выполнена
+        localStorage.setItem("appInitialized", "true");
+      } catch (error) {
+        console.error("Initialization error:", error);
+        setInitializationError(error instanceof Error ? error.message : "Unknown error");
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializeApp();
+  }, [fetchFromIpApi, getLocationData, sendUserSettings, langcode]);
 
   // Синхронизируем состояние с localStorage при изменении
   useEffect(() => {
@@ -60,7 +108,6 @@ export const useHomeLogic = () => {
           setSensorPermission("denied");
         }
       } else {
-        // На устройствах, где разрешение не требуется
         window.addEventListener("deviceorientation", () => {}, { once: true });
         setSensorPermission("granted");
       }
@@ -72,16 +119,13 @@ export const useHomeLogic = () => {
     }
   }, []);
 
-  // Навигация с проверкой разрешения
   const handleCompassClick = useCallback(async (currentPermission: string) => {
     if (currentPermission === "denied") {
-      // Если доступ уже запрещен, показываем сообщение
       alert(t("sensorPermissionDeniedMessage"));
       return;
     }
 
     if (currentPermission === "prompt") {
-      // Если разрешение еще не запрашивалось, запрашиваем
       setIsRequestingPermission(true);
       try {
         if (
@@ -100,7 +144,6 @@ export const useHomeLogic = () => {
             alert(t("sensorPermissionRequired"));
           }
         } else {
-          // На устройствах, где разрешение не требуется
           setSensorPermission("granted");
           navigate("/qibla", { state: { activeTab: "compass" } });
         }
@@ -112,7 +155,6 @@ export const useHomeLogic = () => {
         setIsRequestingPermission(false);
       }
     } else if (currentPermission === "granted") {
-      // Если разрешение уже есть, просто переходим
       navigate("/qibla", { state: { activeTab: "compass" } });
     }
   }, [navigate]);
@@ -124,6 +166,8 @@ export const useHomeLogic = () => {
   return {
     sensorPermission,
     isRequestingPermission,
+    isInitializing,
+    initializationError,
     requestSensorPermission,
     handleCompassClick,
     handleMapClick,

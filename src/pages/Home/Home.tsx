@@ -18,15 +18,44 @@ export const Home: React.FC = () => {
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
+    isInitializing,
+    initializationError,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
+
+  // Показываем лоадер во время инициализации
+  if (isInitializing) {
+    return (
+      <PageWrapper>
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner />
+          <p>{t("initializingApp")}</p>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // Показываем ошибку инициализации
+  if (initializationError) {
+    return (
+      <PageWrapper>
+        <div className={styles.errorContainer}>
+          <h2>{t("initializationError")}</h2>
+          <p>{initializationError}</p>
+          <button onClick={() => window.location.reload()}>
+            {t("tryAgain")}
+          </button>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
       <Header />
 
-      {/* Кнопка запроса доступа к датчикам (можно скрыть или оставить для ручного запроса) */}
+      {/* Кнопка запроса доступа к датчикам */}
       <button
         className={styles.allowSensorButton}
         onClick={requestSensorPermission}

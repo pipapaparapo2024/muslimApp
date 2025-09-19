@@ -4,6 +4,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useWelcomeLogic } from "./useWelcomeLogic";
 import { t } from "i18next";
+
 export const Welcome: React.FC = () => {
   const {
     steps,
@@ -13,35 +14,22 @@ export const Welcome: React.FC = () => {
     isAnimating,
     containerRef,
     error,
-    initializationStatus,
     handleNext,
     handleStart,
   } = useWelcomeLogic();
 
-  // Показываем лоадер во время инициализации
-  if (
-    initializationStatus === "pending" ||
-    initializationStatus === "loading"
-  ) {
-    return (
-      <PageWrapper showBackButton={true}>
-        <LoadingSpinner />
-      </PageWrapper>
-    );
-  }
-
   // Показываем ошибку если что-то пошло не так
-  if (initializationStatus === "error" || error) {
+  if (error) {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
-          <h2>Ошибка инициализации</h2>
-          <p>{error || "Неизвестная ошибка"}</p>
+          <h2>{t("initializationError")}</h2>
+          <p>{error}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}
           >
-            Попробовать снова
+            {t("tryAgain")}
           </button>
         </div>
       </PageWrapper>

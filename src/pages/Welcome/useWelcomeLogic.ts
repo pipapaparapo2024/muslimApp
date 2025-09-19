@@ -2,34 +2,21 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
 import { useTranslation } from "react-i18next";
-import { useGeoStore } from "../../hooks/useGeoStore";
-import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
-import i18n from "../../api/i18n";
-import { applyLanguageStyles } from "../../hooks/useLanguages";
 
 interface Step {
   title: string;
   desc: string;
   image: string;
 }
-import { fetchLanguageFromBackend } from "../Home/useHomeLogic";
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const {
-    fetchFromIpApi,
-    getLocationData,
-    isLoading: isGeoLoading,
-    langcode,
-  } = useGeoStore();
-  const { sendUserSettings, isLoading: isSettingsLoading } =
-    useUserParametersStore();
-
+  
   const steps: Step[] = [
     {
       title: t("prayerReminders"),
@@ -45,10 +32,6 @@ export const useWelcomeLogic = () => {
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [initializationStatus, setInitializationStatus] = useState<
-    "pending" | "loading" | "complete" | "error"
-  >("pending");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -58,70 +41,16 @@ export const useWelcomeLogic = () => {
     wasLogged,
   } = useTelegram();
 
-  const initializeApp = useCallback(async () => {
-    if (initializationStatus !== "pending") return;
-
-    setInitializationStatus("loading");
-    setErrorMessage(null);
-
-    try {
-      await fetchFromIpApi();
-      const locationData = getLocationData();
-
-      await sendUserSettings({
-        city: locationData.city,
-        countryName: locationData.country,
-        langcode: langcode,
-        timeZone: locationData.timeZone,
-      });
-
-      const userLanguage = await fetchLanguageFromBackend();
-
-      if (userLanguage) {
-        await i18n.changeLanguage(userLanguage);
-        applyLanguageStyles(userLanguage);
-        localStorage.setItem("preferred-language", userLanguage);
-      }
-
-      setInitializationStatus("complete");
-    } catch (error) {
-      console.error("Initialization error:", error);
-      setInitializationStatus("error");
-      setErrorMessage(error instanceof Error ? error.message : "Unknown error");
-    }
-  }, [
-    fetchFromIpApi,
-    getLocationData,
-    sendUserSettings,
-    langcode,
-    initializationStatus,
-  ]);
-
+  // Убрали логику инициализации, оставили только проверку аутентификации
   useEffect(() => {
-    initializeApp();
-  }, [initializeApp]);
-
-  useEffect(() => {
-    if (initializationStatus === "complete" && !isAuthLoading) {
+    if (!isAuthLoading) {
       if (isAuthenticated && wasLogged) {
         navigate("/home", { replace: true });
-      } else if (!isAuthenticated && authError) {
-        setInitializationStatus("error");
-        setErrorMessage(authError);
       }
     }
-  }, [
-    initializationStatus,
-    isAuthenticated,
-    isAuthLoading,
-    wasLogged,
-    authError,
-    navigate,
-  ]);
+  }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
 
   useEffect(() => {
-    if (initializationStatus !== "complete") return;
-
     let isMounted = true;
     const preloadImages = () => {
       const imagePromises = steps.map((step) => {
@@ -142,7 +71,7 @@ export const useWelcomeLogic = () => {
     return () => {
       isMounted = false;
     };
-  }, [initializationStatus, steps]);
+  }, [steps]);
 
   const handleNext = useCallback(async () => {
     if (isAnimating || step >= steps.length - 1) return;
@@ -181,7 +110,7 @@ export const useWelcomeLogic = () => {
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !isLoaded || initializationStatus !== "complete") return;
+    if (!container || !isLoaded) return;
 
     let startX = 0;
     const onTouchStart = (e: TouchEvent) => {
@@ -191,9 +120,7 @@ export const useWelcomeLogic = () => {
       if (isAnimating) return;
 
       const endX = e.changedTouches[0].clientX;
-      // Свайп ВЛЕВО = вперед (next)
       if (startX - endX > 60 && step < steps.length - 1) handleNext();
-      // Свайп ВПРАВО = назад (prev)
       else if (endX - startX > 60 && step > 0) handlePrev();
     };
 
@@ -204,29 +131,18 @@ export const useWelcomeLogic = () => {
       container.removeEventListener("touchstart", onTouchStart);
       container.removeEventListener("touchend", onTouchEnd);
     };
-  }, [
-    step,
-    isLoaded,
-    isAnimating,
-    handlePrev,
-    handleNext,
-    steps.length,
-    initializationStatus,
-  ]);
+  }, [step, isLoaded, isAnimating, handlePrev, handleNext, steps.length]);
 
   return {
     steps,
     step,
     fade,
-    isLoaded: isLoaded && initializationStatus === "complete",
+    isLoaded,
     isAnimating,
     containerRef,
-    error: errorMessage || authError,
-    initializationStatus,
+    error: authError,
     handleNext,
     handlePrev,
     handleStart,
-    isGeoLoading,
-    isSettingsLoading,
   };
 };
