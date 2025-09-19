@@ -38,7 +38,7 @@ export const AyahList: React.FC = () => {
       try {
         resetAyahs();
         await fetchAyahs(surahId, 1); // Просто вызываем action store
-        console.log("ayahssssss",ayahs)
+        console.log("ayahssssss", ayahs);
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
       }
@@ -247,61 +247,54 @@ export const AyahList: React.FC = () => {
             <div className={styles.errorContainer}>
               <p>Error: {error}</p>
             </div>
-          ) : ayahs.length === 0 && isLoadingMore ? (
-            <LoadingSpinner />
-          ) : ayahs.length === 0 ? (
-            <div className={styles.emptyState}>
-              <p>Нет аятов для отображения</p>
-            </div>
           ) : (
-            <>
-              {/* Список аятов */}
-              {ayahs.map((ayah, index) => {
-                const isSearchResult = isAyahInSearchResults(ayah.number);
-                const isCurrentResult =
-                  isSearchResult &&
-                  searchResults[currentResultIndex] === ayah.number;
+            <LoadingSpinner />
+          )}
+          {/* Список аятов */}
+          {ayahs.map((ayah, index) => {
+            const isSearchResult = isAyahInSearchResults(ayah.number);
+            const isCurrentResult =
+              isSearchResult &&
+              searchResults[currentResultIndex] === ayah.number;
 
-                return (
-                  <div
-                    key={ayah.number || index}
-                    ref={(el) => {
-                      if (el && ayah.number) {
-                        resultRefs.current.set(ayah.number, el);
-                      }
-                    }}
-                    className={`${styles.blockAyas} ${
-                      isSearchResult ? styles.searchResult : ""
-                    } ${isCurrentResult ? styles.highlightedResult : ""}`}
-                    style={{
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    <div className={styles.ayasNember}>{ayah.number}</div>
-                    <div className={styles.ayasText}>{ayah.text}</div>
-                  </div>
-                );
-              })}
+            return (
+              <div
+                key={ayah.number || index}
+                ref={(el) => {
+                  if (el && ayah.number) {
+                    resultRefs.current.set(ayah.number, el);
+                  }
+                }}
+                className={`${styles.blockAyas} ${
+                  isSearchResult ? styles.searchResult : ""
+                } ${isCurrentResult ? styles.highlightedResult : ""}`}
+                style={{
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <div className={styles.ayasNember}>{ayah.number}</div>
+                <div className={styles.ayasText}>{ayah.text}</div>
+              </div>
+            );
+          })}
 
-              {hasNext && (
-                <div className={styles.loadMoreContainer}>
-                  <button
-                    className={styles.loadMoreButton}
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore}
-                  >
-                    {isLoadingMore ? (
-                      <Loader size={20} className={styles.spinner} />
-                    ) : (
-                      <>
-                        <ChevronDown size={20} />
-                        {t("loadMore")}
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </>
+          {hasNext && (
+            <div className={styles.loadMoreContainer}>
+              <button
+                className={styles.loadMoreButton}
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? (
+                  <Loader size={20} className={styles.spinner} />
+                ) : (
+                  <>
+                    <ChevronDown size={20} />
+                    {t("loadMore")}
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>
