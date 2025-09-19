@@ -175,7 +175,7 @@ const fetchAyahsBySurah = async (
     }
 
     const responseData = response.data.data;
-    console.log("ayhs",responseData)
+    console.log("ayhs", responseData);
     return {
       ayahs: responseData.ayahs.map((ayah: any) => ({
         number: ayah.number,
@@ -282,8 +282,22 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     search: string = ""
   ): Promise<AyahsResponse> => {
     try {
-      return await fetchAyahsBySurah(surahId, page, search);
+      const response = await fetchAyahsBySurah(surahId, page, search);
+
+      // ОБНОВЛЯЕМ СОСТОЯНИЕ В STORE
+      set({
+        ayahs:
+          page === 1 ? response.ayahs : [...get().ayahs, ...response.ayahs],
+        currentPage: page,
+        hasNext: response.hasNext,
+        hasPrev: response.hasPrev,
+        pageAmount: response.pageAmount,
+        isLoadingMore: false,
+      });
+
+      return response;
     } catch (error) {
+      set({ isLoadingMore: false });
       const message =
         error instanceof Error ? error.message : "Не удалось загрузить аяты";
       throw new Error(message);

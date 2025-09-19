@@ -13,7 +13,7 @@ export const AyahList: React.FC = () => {
   const { surah: initialSurah } = location.state || {};
 
   const {
-    ayahs = [],
+    ayahs,
     error,
     hasNext,
     fetchAyahs,
@@ -31,37 +31,22 @@ export const AyahList: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-  // Загрузка первых аятов
+  // Загрузка первых аятов - ТЕПЕРЬ ПРАВИЛЬНО
   useEffect(() => {
     const loadInitialAyahs = async () => {
       if (!surahId) return;
 
       try {
         resetAyahs();
-        const response = await fetchAyahs(surahId, 1);
-
-        // Правильное обновление состояния через store
-        useSurahListStore.setState({
-          ayahs: response.ayahs,
-          currentPage: 1,
-          hasNext: response.hasNext,
-          hasPrev: response.hasPrev,
-          pageAmount: response.pageAmount,
-          isLoadingMore: false,
-        });
+        await fetchAyahs(surahId, 1); // Просто вызываем action store
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
-        useSurahListStore.setState({
-          hasNext: false,
-          hasPrev: false,
-          ayahs: [],
-          isLoadingMore: false,
-        });
       }
     };
 
     loadInitialAyahs();
-  }, []);
+  }, [surahId, resetAyahs, fetchAyahs]); // Добавили зависимости
+
   // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
     (query: string): number[] => {
@@ -71,12 +56,8 @@ export const AyahList: React.FC = () => {
 
       return ayahs
         .filter((ayah) => {
-          // Ищем по номеру аята
           const numberMatch = ayah.number.toString().includes(searchTerm);
-
-          // Ищем по тексту аята
           const textMatch = ayah.text.toLowerCase().includes(searchTerm);
-
           return numberMatch || textMatch;
         })
         .map((ayah) => ayah.number);
@@ -101,7 +82,6 @@ export const AyahList: React.FC = () => {
         setCurrentResultIndex(results.length > 0 ? 0 : -1);
         setShowSearchNavigation(results.length > 0);
 
-        // Автоматически прокручиваем к первому результату
         if (results.length > 0) {
           const firstResult = results[0];
           const element = resultRefs.current.get(firstResult);
@@ -147,13 +127,11 @@ export const AyahList: React.FC = () => {
 
       setCurrentResultIndex(newIndex);
 
-      // Прокрутка к найденному аяту
       const resultNumber = searchResults[newIndex];
       const element = resultRefs.current.get(resultNumber);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        // Анимация выделения
         element.style.transform = "scale(1.02)";
         element.style.backgroundColor =
           "var(--color-background-semantic-solid-brand)";
@@ -222,7 +200,6 @@ export const AyahList: React.FC = () => {
               </div>
             )}
           </div>
-          {ayahs.map((ayahs) => ayahs.number)}
 
           <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
@@ -270,8 +247,12 @@ export const AyahList: React.FC = () => {
             <div className={styles.errorContainer}>
               <p>Error: {error}</p>
             </div>
-          ) : ayahs.length === 0 ? (
+          ) : ayahs.length === 0 && isLoadingMore ? (
             <LoadingSpinner />
+          ) : ayahs.length === 0 ? (
+            <div className={styles.emptyState}>
+              <p>Нет аятов для отображения</p>
+            </div>
           ) : (
             <>
               {/* Список аятов */}
@@ -299,7 +280,6 @@ export const AyahList: React.FC = () => {
                     <div className={styles.ayasNember}>{ayah.number}</div>
                     <div className={styles.ayasText}>{ayah.text}</div>
 
-                    {/* Показываем номер аята для поиска по номеру */}
                     {isSearchResult && (
                       <div className={styles.ayahNumberBadge}>
                         Аят {ayah.number}
@@ -309,7 +289,6 @@ export const AyahList: React.FC = () => {
                 );
               })}
 
-              {/* Кнопка загрузки следующих аятов */}
               {hasNext && (
                 <div className={styles.loadMoreContainer}>
                   <button
