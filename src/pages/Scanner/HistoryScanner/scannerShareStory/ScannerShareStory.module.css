@@ -12,7 +12,7 @@
   height: 100%;
   flex-direction: column;
   align-items: center;
-  padding-bottom: var(--numbers-48);
+  padding-bottom: var(--numbers-80);
 }
 
 .contentWrapper {
@@ -36,7 +36,7 @@
   position: relative;
   z-index: 1;
 }
-
+/* 
 .shareButton {
   border: none;
   border-radius: var(--roundings-medium);
@@ -54,7 +54,7 @@
   padding: var(--numbers-16);
   cursor: pointer;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
-}
+} */
 
 .shareButton:hover:not(:disabled) {
   transform: translateY(-2px);

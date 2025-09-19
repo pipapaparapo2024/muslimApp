@@ -148,7 +148,7 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.scanTitle}>{t("conclusion")}</div>
               <div className={styles.scanDesk}>{currentItem.description}</div>
             </div>
-            <div className={styles.buttonsContainer}>
+            <div>
               <button
                 type="button"
                 onClick={handleShare}
