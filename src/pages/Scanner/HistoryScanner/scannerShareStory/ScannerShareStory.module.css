@@ -44,7 +44,7 @@
 .shareButton {
   position: absolute;
   border: none;
-  bottom: 0px;
+  bottom: 15px;
   z-index: 3;
   top: auto;
   border-radius: var(--roundings-medium);
