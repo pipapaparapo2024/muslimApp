@@ -1,4 +1,4 @@
-.container {
+/* .container {
   background-image: url("../../../../assets/image/background.png");
   background-size: cover;
   background-position: center;
@@ -22,7 +22,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* position: relative;  */
+  position: relative; 
 }
 
 .container img {
@@ -97,11 +97,11 @@
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 2;
-  -webkit-line-clamp: 2; /* Ограничиваем 2 строками */
+  -webkit-line-clamp: 2; 
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 2); /* Высота 2 строк (line-height 1.5) */
+  max-height: calc(1.5em * 2); 
   line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -148,4 +148,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-}
+} */
