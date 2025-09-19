@@ -24,36 +24,23 @@ export const ScannerShareStory: React.FC = () => {
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { exportScreenshot, loading } = useScreenshotExport();
   
-  // Refs для скриншота
+  // Ref для скриншота
   const screenshotRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const preloadImage = (src: string): Promise<void> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-        img.onerror = () => {
-          console.warn(`Failed to load image: ${src}`);
-          resolve();
-        };
-      });
-    };
-
     const loadItem = async () => {
       if (!id) return;
 
-      const item = await fetchHistoryItem(id);
-      if (item) {
-        setCurrentItem(item);
+      try {
+        const item = await fetchHistoryItem(id);
+        if (item) {
+          setCurrentItem(item);
+        }
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Error loading item:", error);
+        setIsLoaded(true);
       }
-
-      preloadImage(message)
-        .then(() => setIsLoaded(true))
-        .catch((err) => {
-          console.error("Error during image preloading:", err);
-          setIsLoaded(true);
-        });
     };
 
     loadItem();
@@ -63,29 +50,12 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !screenshotRef.current || !id) return;
 
     try {
-      // Создаем скрытый контейнер для скриншота
-      const hiddenContainer = document.createElement("div");
-      hiddenContainer.style.position = "absolute";
-      hiddenContainer.style.left = "-9999px";
-      hiddenContainer.style.top = "-9999px";
-      hiddenContainer.style.width = `${screenshotRef.current.offsetWidth}px`;
-      hiddenContainer.style.height = `${screenshotRef.current.offsetHeight}px`;
-      hiddenContainer.style.overflow = "hidden";
-
-      // Клонируем содержимое для скриншота
-      const clone = screenshotRef.current.cloneNode(true) as HTMLDivElement;
-      hiddenContainer.appendChild(clone);
-      document.body.appendChild(hiddenContainer);
-
-      // Делаем скриншот и загружаем
+      // Просто передаем элемент для скриншота
       const screenshotUrl = await exportScreenshot({
         type: "scanner",
-        element: hiddenContainer,
+        element: screenshotRef.current,
         id: id,
       });
-
-      // Убираем временный контейнер
-      document.body.removeChild(hiddenContainer);
 
       // Делимся в Telegram
       if (screenshotUrl) {
@@ -171,8 +141,8 @@ export const ScannerShareStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка отдельно */}
-        <div>
+        {/* Кнопка для шаринга */}
+        <div className={styles.shareButtonContainer}>
           <button
             type="button"
             onClick={handleShare}
@@ -182,7 +152,7 @@ export const ScannerShareStory: React.FC = () => {
             }`}
           >
             <Upload size={18} />
-            {loading ? t("loading") : t("share")}
+            {loading ? t("loading") : t("shareToStory")}
           </button>
         </div>
       </div>
