@@ -46,7 +46,7 @@
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  bottom: -10px;
+  bottom: -30px;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -106,7 +106,7 @@
 
 .shareButton {
   position: absolute;
-  bottom: 15px;
+  bottom: 30px;
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
@@ -119,7 +119,7 @@
   gap: var(--numbers-6);
   align-items: center;
   margin: var(--numbers-16) auto;
-  width: 94%;
+  width: 90%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
