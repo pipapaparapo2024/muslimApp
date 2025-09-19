@@ -44,10 +44,10 @@
 
 .illustration img {
   max-height: 350px;
-  padding: 55px 0;
-  width: 100%;
-  max-width: 220px;
+  max-width: 100%;
   height: auto;
+  width: auto;
+  object-fit: contain;
 }
 
 .halalCheck span {
