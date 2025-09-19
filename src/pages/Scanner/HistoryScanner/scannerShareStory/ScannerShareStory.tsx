@@ -7,7 +7,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
 import {
   getStatusClassName,
   getStatusIcon,
@@ -125,11 +128,11 @@ export const ScannerShareStory: React.FC = () => {
               </div>
             </div>
 
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
-              currentItem.haramProducts.map((product: any, index: any) => (
-                <div key={index} className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+            <div className={styles.blockInside}>
+              <div className={styles.scanTitle}>{t("analysisResult")}</div>
+              {currentItem.haramProducts &&
+                currentItem.haramProducts.length > 0 &&
+                currentItem.haramProducts.map((product: any) => (
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
                       {product.name} - {product.reason}
@@ -137,15 +140,15 @@ export const ScannerShareStory: React.FC = () => {
                       {product.source}
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+            </div>
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("conclusion")}</div>
               <div className={styles.scanDesk}>{currentItem.description}</div>
             </div>
           </div>
         </div>
-        
+
         {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.buttonsContainer}>
           <button
