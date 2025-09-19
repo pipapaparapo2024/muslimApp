@@ -110,7 +110,7 @@ export const ShareStory: React.FC = () => {
         </div>
         
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
-        <div className={styles.buttonsContainer}>
+        <div className={styles.blockButton}>
           <button
             type="button"
             onClick={handleShare}

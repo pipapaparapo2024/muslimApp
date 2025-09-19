@@ -36,12 +36,17 @@
   z-index: 1;
 }
 
+.blockButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .blockMessages {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  /* bottom: -110px; */
+  bottom: -10px;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -100,6 +105,9 @@
 }
 
 .shareButton {
+  position: absolute;
+  bottom: 15px;
+  z-index: 3;
   border: none;
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
@@ -111,7 +119,7 @@
   gap: var(--numbers-6);
   align-items: center;
   margin: var(--numbers-16) auto;
-  width: 100%;
+  width: 94%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
