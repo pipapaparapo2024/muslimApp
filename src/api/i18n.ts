@@ -142,7 +142,7 @@ const resources = {
 
       //Home
       
-      locationMay: "Location may be inaccurate. Please consider this",
+      locationMay: "Location may be inaccurate. Please consider this!",
       loadPrevious: "Load Previous",
       loadMore: "Load More",
 
@@ -401,7 +401,7 @@ const resources = {
       loadingChapters: "جاري تحميل الفصول...",
       searchInAyahs: "بحث الآيات",
       //Home
-      locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا", //Ayahs
+      locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا!", //Ayahs
 
       //Ayahs
       loadPrevious: "تحميل السابق",
