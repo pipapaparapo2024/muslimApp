@@ -80,13 +80,12 @@
 .blockScan {
   position: absolute;
   /* z-index: 2; */
-  /* top: auto;
+  top: auto;
   bottom: -130px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
-  margin-top: var(--numbers-16);
-  flex-grow: 1; */
+  /* flex-grow: 1;  */
 }
 
 .blockInside {
