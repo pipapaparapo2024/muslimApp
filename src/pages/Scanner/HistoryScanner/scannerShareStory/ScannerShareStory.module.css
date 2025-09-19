@@ -76,10 +76,10 @@
   cursor: not-allowed;
   transform: none !important;
 } */
-/* 
+
 .blockScan {
   position: absolute;
-  z-index: 2;
+  /* z-index: 2; */
   top: auto;
   bottom: -130px;
   display: flex;
@@ -88,7 +88,7 @@
   margin-top: var(--numbers-16);
   flex-grow: 1;
 }
-*/
+
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
