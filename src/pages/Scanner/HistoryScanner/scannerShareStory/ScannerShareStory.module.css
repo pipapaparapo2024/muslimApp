@@ -81,7 +81,7 @@
   position: absolute;
   z-index: 2;
   top: auto;
-  bottom: 0px;
+  bottom: -40px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
