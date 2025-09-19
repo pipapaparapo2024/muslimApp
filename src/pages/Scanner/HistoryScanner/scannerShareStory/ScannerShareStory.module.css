@@ -28,7 +28,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 var(--numbers-14);
 }
 .container img {
   max-height: 570px;
@@ -53,7 +52,7 @@
   background: green;
   transition: all 0.3s ease;
   margin: var(--numbers-16) auto;
-  width: 100%;
+  width: 90%;
   font-size: var(--numbers-16);
   display: flex;
   justify-content: center;
