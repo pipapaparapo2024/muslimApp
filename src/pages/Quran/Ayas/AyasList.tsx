@@ -211,7 +211,6 @@ export const AyahList: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} navigateTo="/quran">
       <div className={styles.container}>
-        {/* Header всегда отображается */}
         <div className={styles.blockHeader}>
           <div className={styles.text}>
             <div className={styles.title}>
@@ -222,8 +221,8 @@ export const AyahList: React.FC = () => {
                 {initialSurah.description}
               </div>
             )}
-          </div>
-
+          <div>
+            {ayahs.map((ayahs=>ayahs.number))}
           <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
