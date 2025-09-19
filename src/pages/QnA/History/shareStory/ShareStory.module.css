@@ -41,7 +41,7 @@
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  bottom: -110px;
+  /* bottom: -110px; */
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -73,23 +73,21 @@
 }
 .text {
   color: var(--colors-stone-600);
-  /* Обеспечиваем перенос текста */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
-/* Специфичный стиль для текста ответа с ограничением в 6 строк */
 .blockMessageBot .text {
   display: -webkit-box;
   line-clamp: 6;
-  -webkit-line-clamp: 6; /* Ограничиваем 6 строками */
+  -webkit-line-clamp: 6; 
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: calc(
     1.2em * 6
-  ); /* Примерная высота 6 строк (зависит от line-height) */
-  line-height: 1.2; /* Убедитесь что соответствует вашему дизайну */
+  ); 
+  line-height: 1.2; 
 }
 .nickName {
   color: var(--desk-text);
