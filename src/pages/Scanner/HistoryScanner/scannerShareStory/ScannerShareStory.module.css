@@ -37,7 +37,7 @@
   z-index: 1;
 }  
 
-/* .shareButton {
+ .shareButton {
   border: none;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
@@ -75,7 +75,7 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
-} */
+} 
 
 .blockScan {
   position: absolute;
