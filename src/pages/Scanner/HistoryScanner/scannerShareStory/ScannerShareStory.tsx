@@ -157,7 +157,7 @@ export const ScannerShareStory: React.FC = () => {
               loading ? styles.shareButtonDisabled : ""
             }`}
           >
-            <Upload size={18} />
+            <Upload size={18} />sdfsdfsdfdsf
             {loading ? t("loading") : t("share")}
           </button>
         </div>
