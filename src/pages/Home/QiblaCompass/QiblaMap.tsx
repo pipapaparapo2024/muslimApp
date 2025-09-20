@@ -7,6 +7,7 @@ import { useGeoStore } from "../../../hooks/useGeoStore";
 import { useMapStore } from "../../../hooks/useQiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";
+import { t } from "i18next";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
@@ -377,7 +378,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
             }}
             disabled={isRequestingPermission}
           >
-            {isRequestingPermission ? "Requesting..." : "Allow Geo"}
+            {isRequestingPermission ? t("requesting...") : t("allowSensors")}
           </button>
         </div>
       )}

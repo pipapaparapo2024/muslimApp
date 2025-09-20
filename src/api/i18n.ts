@@ -102,11 +102,11 @@ const resources = {
       tryAgain: "Try Again",
 
       //Camera Page
-      again:"Again",
-      send:"Send",
+      again: "Again",
+      send: "Send",
 
       // Friends
-      haventInvited:"You haven't invited any friends yet",
+      haventInvited: "You haven't invited any friends yet",
       earnRewards: "🎁 Earn Rewards by Sharing",
       inviteFriendsDesc:
         "Invite friends and get exclusive bonuses — the more you share, the more you gain.",
@@ -142,7 +142,9 @@ const resources = {
       ayahs: "Ayahs",
 
       //Home
-      
+      allowSensors: "Allow Sensors",
+
+      requsting: "Requesting...",
       locationMay: "Location may be inaccurate. Please consider this!",
       loadPrevious: "Load Previous",
       loadMore: "Load More",
@@ -365,12 +367,12 @@ const resources = {
       tryAgain: "حاول مرة أخرى",
 
       //Camera Page
-      again:"مرة أخرى",
-      send:"يرسل",
+      again: "مرة أخرى",
+      send: "يرسل",
 
       // Friends
       earnRewards: "🎁 اربح مكافآت بالمشاركة",
-      haventInvited:"لم تقم بدعوة أي أصدقاء حتى الآن",
+      haventInvited: "لم تقم بدعوة أي أصدقاء حتى الآن",
       inviteFriendsDesc:
         "ادعُ أصدقاءك واحصل على مكافآت حصرية — كلما شاركت أكثر، كلما ربحت أكثر.",
       inviteFriends: "ادعُ الأصدقاء",
@@ -402,9 +404,12 @@ const resources = {
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
       searchInAyahs: "بحث الآيات",
+
       //Home
       locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا!", //Ayahs
-
+      allowSensors: "السماح لأجهزة الاستشعار",
+      requsting: "جارٍ الطلب...",
+      
       //Ayahs
       loadPrevious: "تحميل السابق",
       loadMore: "تحميل المزيد",
