@@ -5,7 +5,6 @@ import { useSurahListStore, type Surah } from "../../../hooks/useSurahListStore"
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -242,14 +241,6 @@ export const SurahList: React.FC = () => {
                   disabled={searchResults.length <= 1}
                 >
                   <ChevronUp color="var(--text)" size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigateSearchResults("next")}
-                  className={styles.navButton}
-                  disabled={searchResults.length <= 1}
-                >
-                  <ChevronDown color="var(--text)" size={16} />
                 </button>
               </div>
             )}
