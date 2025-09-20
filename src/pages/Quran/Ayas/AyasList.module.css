@@ -79,6 +79,9 @@
 
 .searchNavigation {
   display: flex;
+  position: fixed;
+  left: 75%;
+  z-index: 2;
   align-items: center;
   gap: var(--numbers-4);
   margin-left: var(--numbers-8);
@@ -98,7 +101,7 @@
   height: 28px;
   border: 1px solid var(--color-border);
   border-radius: var(--roundings-small);
-  background: var(--bg-surface);
+  background: var(--bg-app);
   cursor: pointer;
   transition: all 0.2s ease;
 }
