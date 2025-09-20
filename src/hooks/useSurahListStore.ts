@@ -103,7 +103,7 @@ const fetchVariants = async (): Promise<Variant[]> => {
 
 // Функция для получения сур по variantId с пагинацией
 const fetchSurahsByVariant = async (
-  variantId: string,
+  variantId: string
 ): Promise<{
   surahs: Surah[];
   hasNext: boolean;
@@ -153,13 +153,11 @@ const fetchSurahsByVariant = async (
 // Функция для получения аятов по ID суры
 const fetchAyahsBySurah = async (
   surahId: string,
-  page: number = 1,
   search: string = ""
 ): Promise<AyahsResponse> => {
   try {
-    const response = await quranApi.get("/api/v1/quran/ayas", {
+    const response = await quranApi.get("/api/v1/quran/ayas/all", {
       params: {
-        page,
         suraId: surahId,
         search: search || "",
       },
@@ -271,15 +269,13 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchAyahs: async (
     surahId: string,
-    page: number = 1,
-    search: string = ""
+    page: number = 1
   ): Promise<AyahsResponse> => {
     try {
-      const response = await fetchAyahsBySurah(surahId, page, search);
+      const response = await fetchAyahsBySurah(surahId);
 
       set({
-        ayahs:
-          page === 1 ? response.ayahs : [...get().ayahs, ...response.ayahs],
+        ayahs: response.ayahs,
         currentPage: page,
         hasNext: response.hasNext,
         hasPrev: response.hasPrev,
