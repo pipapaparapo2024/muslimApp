@@ -370,16 +370,15 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       {showPermissionButton && (
         <div className={styles.permissionOverlay}>
           <div className={styles.permissionBlur}></div>
-          <button
+          <div
             className={styles.permissionButton}
             onClick={(e) => {
               e.stopPropagation();
               onRequestPermission && onRequestPermission();
             }}
-            disabled={isRequestingPermission}
           >
             {isRequestingPermission ? t("requesting...") : t("allowSensors")}
-          </button>
+          </div>
         </div>
       )}
     </div>
