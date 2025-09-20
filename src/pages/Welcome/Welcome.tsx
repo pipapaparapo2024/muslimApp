@@ -4,6 +4,7 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useWelcomeLogic } from "./useWelcomeLogic";
 import { t } from "i18next";
+import { useTelegram } from "../../hooks/useTelegram";
 
 export const Welcome: React.FC = () => {
   const {
@@ -17,6 +18,7 @@ export const Welcome: React.FC = () => {
     handleNext,
     handleStart,
   } = useWelcomeLogic();
+  const { isAuthenticated, wasLogged } = useTelegram();
 
   // Показываем ошибку если что-то пошло не так
   if (error) {
@@ -46,72 +48,74 @@ export const Welcome: React.FC = () => {
   }
 
   // Основной рендер
-  return (
-    <PageWrapper>
-      <div ref={containerRef} className={styles.welcomeRoot}>
-        {/* Текст */}
-        <div className={styles.welcomeStep}>
+  if (!isAuthenticated && !wasLogged) {
+    return (
+      <PageWrapper>
+        <div ref={containerRef} className={styles.welcomeRoot}>
+          {/* Текст */}
+          <div className={styles.welcomeStep}>
+            <div
+              className={styles.welcomeTitle}
+              style={{
+                opacity: fade ? 0 : 1,
+                transform: fade ? "translateY(20px)" : "translateY(0)",
+                transition: "opacity 0.3s ease, transform 0.3s ease",
+              }}
+            >
+              {steps[step].title}
+            </div>
+            <div
+              className={styles.welcomeDesc}
+              style={{
+                opacity: fade ? 0 : 1,
+                transform: fade ? "translateY(20px)" : "translateY(0)",
+                transition: "opacity 0.3s ease, transform 0.3s ease",
+              }}
+            >
+              {steps[step].desc}
+            </div>
+          </div>
+
+          {/* Картинка */}
           <div
-            className={styles.welcomeTitle}
+            className={styles.welcomeImage}
             style={{
               opacity: fade ? 0 : 1,
               transform: fade ? "translateY(20px)" : "translateY(0)",
               transition: "opacity 0.3s ease, transform 0.3s ease",
             }}
           >
-            {steps[step].title}
+            <img src={steps[step].image} alt={steps[step].title} />
           </div>
-          <div
-            className={styles.welcomeDesc}
-            style={{
-              opacity: fade ? 0 : 1,
-              transform: fade ? "translateY(20px)" : "translateY(0)",
-              transition: "opacity 0.3s ease, transform 0.3s ease",
-            }}
-          >
-            {steps[step].desc}
-          </div>
-        </div>
 
-        {/* Картинка */}
-        <div
-          className={styles.welcomeImage}
-          style={{
-            opacity: fade ? 0 : 1,
-            transform: fade ? "translateY(20px)" : "translateY(0)",
-            transition: "opacity 0.3s ease, transform 0.3s ease",
-          }}
-        >
-          <img src={steps[step].image} alt={steps[step].title} />
-        </div>
-
-        {/* Кнопка и пагинация */}
-        <div className={styles.welcomeBottom}>
-          <div className={styles.welcomePagination}>
-            {steps.map((_, i) => (
-              <div
-                key={i}
-                className={
-                  i === step
-                    ? `${styles.welcomeDot} ${styles.welcomeDotActive}`
-                    : styles.welcomeDot
-                }
-              />
-            ))}
+          {/* Кнопка и пагинация */}
+          <div className={styles.welcomeBottom}>
+            <div className={styles.welcomePagination}>
+              {steps.map((_, i) => (
+                <div
+                  key={i}
+                  className={
+                    i === step
+                      ? `${styles.welcomeDot} ${styles.welcomeDotActive}`
+                      : styles.welcomeDot
+                  }
+                />
+              ))}
+            </div>
+            <button
+              className={styles.welcomeButton}
+              onClick={step === steps.length - 1 ? handleStart : handleNext}
+              disabled={isAnimating}
+              style={{
+                opacity: isAnimating ? 0.7 : 1,
+                cursor: isAnimating ? "not-allowed" : "pointer",
+              }}
+            >
+              {step === steps.length - 1 ? t("start") : t("next")}
+            </button>
           </div>
-          <button
-            className={styles.welcomeButton}
-            onClick={step === steps.length - 1 ? handleStart : handleNext}
-            disabled={isAnimating}
-            style={{
-              opacity: isAnimating ? 0.7 : 1,
-              cursor: isAnimating ? "not-allowed" : "pointer",
-            }}
-          >
-            {step === steps.length - 1 ? t("start") : t("next")}
-          </button>
         </div>
-      </div>
-    </PageWrapper>
-  );
+      </PageWrapper>
+    );
+  }
 };
