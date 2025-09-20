@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
@@ -284,7 +285,7 @@ export const SurahList: React.FC = () => {
         <div className={styles.blockChapter}>
           {!loading && surahs.length === 0 ? (
             <div className={styles.noResults}>
-              {t("noChaptersFound")}
+              <LoadingSpinner/>
             </div>
           ) : (
             surahs.map((surah) => {
