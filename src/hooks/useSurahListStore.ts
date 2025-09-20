@@ -104,7 +104,6 @@ const fetchVariants = async (): Promise<Variant[]> => {
 // Функция для получения сур по variantId с пагинацией
 const fetchSurahsByVariant = async (
   variantId: string,
-  page: number = 1
 ): Promise<{
   surahs: Surah[];
   hasNext: boolean;
@@ -114,7 +113,6 @@ const fetchSurahsByVariant = async (
   try {
     const response = await quranApi.get("/api/v1/quran/suras/all", {
       params: {
-        page,
         varId: variantId,
         search: "",
       },
