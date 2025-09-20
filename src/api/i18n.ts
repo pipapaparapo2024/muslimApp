@@ -131,11 +131,13 @@ const resources = {
       selected: "Selected",
 
       // Quran
+
       holyQuran: "Holy Quran",
       discoverChapters: "Discover the Quran's 114 chapters",
       searchChapters: "Search Chapters",
-      searchAyahs: "Search Verse",
-      searchInAyahs: "Search Ayahs",
+      searchAyahs: "Search Ayahs",
+      searchSurahs: "Search Surahs",
+
       translation: "Translation:",
       noChaptersFound: "No chapters found for",
       loadingChapters: "Loading chapters...",
@@ -399,7 +401,8 @@ const resources = {
       holyQuran: "القرآن الكريم",
       discoverChapters: "اكتشف فصول القرآن الـ 114",
       searchChapters: "ابحث في الفصول",
-      searchAyahs: "بحث الآية",
+      searchSurahs: "بحث السور",
+      searchAyahs: "بحث الآيات",
       translation: "الترجمة:",
       noChaptersFound: "لم يتم العثور على فصول لـ",
       loadingChapters: "جاري تحميل الفصول...",
@@ -409,7 +412,7 @@ const resources = {
       locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا!", //Ayahs
       allowSensors: "السماح لأجهزة الاستشعار",
       requsting: "جارٍ الطلب...",
-      
+
       //Ayahs
       loadPrevious: "تحميل السابق",
       loadMore: "تحميل المزيد",
