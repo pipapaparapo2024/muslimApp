@@ -6,21 +6,30 @@ import { useGeoStore } from "../../../hooks/useGeoStore";
 import { useMapStore } from "../../../hooks/useQiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";
+import { t } from "i18next";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
+
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
   webkitCompassAccuracy?: number;
 }
+
 interface QiblaMapProps {
   fullscreen?: boolean;
   onMapClick?: () => void;
+  sensorPermission?: string;
+  onRequestSensorPermission?: () => Promise<void>;
+  isRequestingPermission?: boolean;
 }
 
 export const QiblaMap: React.FC<QiblaMapProps> = ({
   fullscreen = false,
   onMapClick,
+  sensorPermission = "prompt",
+  onRequestSensorPermission,
+  isRequestingPermission = false,
 }) => {
   const navigate = useNavigate();
   const { coords: geoCoords } = useGeoStore();
@@ -34,6 +43,12 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   const initializedRef = useRef(false);
   const currentCoordsRef = useRef(geoCoords || { lat: 0, lon: 0 });
   const [userHeading, setUserHeading] = useState<number>(0);
+  const [showPermissionOverlay, setShowPermissionOverlay] = useState(true);
+
+  // Показывать оверлей только если разрешение не получено
+  useEffect(() => {
+    setShowPermissionOverlay(sensorPermission !== "granted");
+  }, [sensorPermission]);
 
   // Стабильная утилита
   const createLatLng = useCallback(
@@ -181,13 +196,10 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   );
 
   // Обработчик ориентации
-  // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
-      // Приводим к кастомному типу для iOS
       const iosEvent = event as unknown as DeviceOrientationEventiOS;
 
-      // Проверяем доступность данных компаса
       const hasStandardCompass = event.alpha !== null;
       const hasWebKitCompass = iosEvent.webkitCompassHeading !== undefined;
 
@@ -195,11 +207,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
 
       let newHeading: number;
 
-      // Приоритет для webkitCompassHeading (более точный в iOS)
       if (hasWebKitCompass) {
         newHeading = iosEvent.webkitCompassHeading!;
       } else {
-        // Стандартный способ для Android и других устройств
         newHeading = (event.alpha! + 360) % 360;
       }
 
@@ -209,6 +219,14 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     },
     [updateUserMarkerRotation]
   );
+
+  // Обработчик клика по кнопке разрешения
+  const handlePermissionClick = async () => {
+    if (onRequestSensorPermission) {
+      await onRequestSensorPermission();
+    }
+  };
+
   // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
@@ -282,12 +300,16 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     map.on("moveend", handleMapMove);
     map.on("zoomend", handleMapMove);
     map.on("click", (e: L.LeafletMouseEvent) => {
+      if (showPermissionOverlay) return; // Блокируем клики по карте пока оверлей виден
+      
       const clickedCoords = { lat: e.latlng.lat, lon: e.latlng.lng };
       setTempCoords(clickedCoords);
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
     userMarkerRef.current.on("dragend", () => {
+      if (showPermissionOverlay) return;
+      
       const newPos = userMarkerRef.current!.getLatLng();
       const clickedCoords = { lat: newPos.lat, lon: newPos.lng };
       setTempCoords(clickedCoords);
@@ -325,6 +347,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     setTempCoords,
     updateDirectionLine,
     updateMapElements,
+    showPermissionOverlay,
   ]);
 
   // === Обновление при изменении geoCoords ===
@@ -347,17 +370,41 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   }, [userHeading, updateUserMarkerRotation]);
 
   return (
-    <div
-      onClick={() => {
-        if (fullscreen) return;
-        if (onMapClick) {
-          onMapClick();
-        } else {
-          navigate("/qibla");
-        }
-      }}
-      ref={mapRef}
-      className={fullscreen ? styles.fullscreen : styles.mapContainer}
-    />
+    <div className={fullscreen ? styles.fullscreenWrapper : styles.mapWrapper}>
+      <div
+        onClick={() => {
+          if (fullscreen || showPermissionOverlay) return;
+          if (onMapClick) {
+            onMapClick();
+          } else {
+            navigate("/qibla");
+          }
+        }}
+        ref={mapRef}
+        className={fullscreen ? styles.fullscreen : styles.mapContainer}
+      />
+      
+      {/* Оверлей с кнопкой разрешения */}
+      {showPermissionOverlay && (
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionContent}>
+            <h3>{t("sensorPermissionTitle")}</h3>
+            <p>{t("sensorPermissionMessage")}</p>
+            <button 
+              onClick={handlePermissionClick}
+              disabled={isRequestingPermission}
+              className={styles.permissionButton}
+            >
+              {isRequestingPermission ? t("requesting") : t("allowSensors")}
+            </button>
+            {sensorPermission === "denied" && (
+              <p className={styles.permissionError}>
+                {t("sensorPermissionDeniedHint")}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

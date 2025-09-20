@@ -55,15 +55,6 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка запроса доступа к датчикам */}
-      <button
-        className={styles.allowSensorButton}
-        onClick={requestSensorPermission}
-        disabled={isRequestingPermission}
-      >
-        {isRequestingPermission ? t("requesting") : t("allowSensors")}
-      </button>
-
       <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
@@ -86,7 +77,12 @@ export const Home: React.FC = () => {
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap onMapClick={handleMapClick} />
+                    <QiblaMap 
+                      onMapClick={handleMapClick}
+                      sensorPermission={sensorPermission}
+                      onRequestSensorPermission={requestSensorPermission}
+                      isRequestingPermission={isRequestingPermission}
+                    />
                   </div>
 
                   <div
