@@ -1,4 +1,3 @@
-// useHomeLogic.ts
 import { t } from "i18next";
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -67,6 +66,14 @@ export const useHomeLogic = () => {
   useEffect(() => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
+
+  // === ФУНКЦИЯ СБРОСА РАЗРЕШЕНИЯ ===
+  const resetSensorPermission = useCallback(() => {
+    setSensorPermission("prompt");
+    localStorage.removeItem(SENSOR_PERMISSION_STATUS);
+    localStorage.removeItem("userHeading");
+    alert(t("permissionResetSuccess"));
+  }, []);
 
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
@@ -146,6 +153,7 @@ export const useHomeLogic = () => {
     isInitializing,
     initializationError,
     requestSensorPermission,
+    resetSensorPermission, // Экспортируем функцию сброса
     handleCompassClick,
     handleMapClick,
   };

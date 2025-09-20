@@ -1,4 +1,3 @@
-// Home.tsx
 import React from "react";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -16,6 +15,7 @@ export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
+    resetSensorPermission, // Добавляем функцию сброса
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
@@ -55,6 +55,17 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
+
+      {/* Кнопка сброса разрешения (только для отладки) */}
+      {sensorPermission === "granted" && (
+        <button 
+          className={styles.resetPermissionButton}
+          onClick={resetSensorPermission}
+          title={t("resetPermissionHint")}
+        >
+          {t("resetPermission")}
+        </button>
+      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
