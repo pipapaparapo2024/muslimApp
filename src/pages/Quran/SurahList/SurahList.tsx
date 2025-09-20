@@ -151,9 +151,6 @@ export const SurahList: React.FC = () => {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
 
         element.style.transform = "scale(1.02)";
-        element.style.backgroundColor =
-          "var(--color-background-semantic-solid-brand)";
-        element.style.color = "white";
 
         setTimeout(() => {
           if (element) {
