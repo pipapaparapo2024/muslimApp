@@ -34,7 +34,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
+  /* background: rgba(255, 255, 255, 0.7); */
   backdrop-filter: blur(4px);
 }
 
@@ -47,13 +47,3 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: background 0.2s;
 }
-/* 
-.userIcon {
-  background: none !important;
-  border: none !important;
-}
-
-.custom-user-icon {
-  background: none !important;
-  border: none !important;
-}   */
