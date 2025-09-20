@@ -137,9 +137,9 @@
 
 .searchNavigation {
   display: flex;
-  position: absolute;
+  position: fixed;
   bottom: var(--numbers-20);
-  left: 90%;
+  left: 75%;
   align-items: center;
   gap: var(--numbers-4);
   margin-left: var(--numbers-8);
