@@ -67,49 +67,6 @@
     font-weight: var(--font-400);
 }
 
-
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-
-/* AyasList.module.css */
-.loadMoreContainer {
-  display: flex;
-  justify-content: center;
-}
-
-.loadMoreButton {
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-8);
-  background: var(--color-background-semantic-solid-brand);
-  color: var(--color-text-inversed);
-  border: none;
-  border-radius: var(--roundings-medium);
-  padding: var(--numbers-12) var(--numbers-24);
-  font-size: var(--numbers-14);
-  font-weight: var(--font-600);
-  cursor: pointer;
-  transition: transform 0.1s ease, background 0.2s ease;
-}
-
-.loadMoreButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.loadMoreButton:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-
-/* AyasList.module.css */
 .searchContainer {
   position: relative;
   gap: var(--numbers-8);

@@ -135,72 +135,38 @@
   background: var(--bg-app);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.loadMoreContainer {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  padding: 20px 0;
-}
-
-.loadMoreButton {
+.searchNavigation {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background-color: var(--color-background-semantic-solid-brand);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 500;
+  gap: var(--numbers-4);
+  margin-left: var(--numbers-8);
+}
+
+.resultsCount {
+  font-size: var(--numbers-12);
+  color: var(--color-text-secondary);
+  margin-right: var(--numbers-4);
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--roundings-small);
+  background: var(--bg-surface);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.loadMoreButton:hover:not(:disabled) {
-  background-color: var(--color-background-semantic-solid-brand-hover);
+.navButton:hover {
+  background: var(--color-background-semantic-solid-brand);
+  color: var(--color-text-inversed);
 }
 
-.loadMoreButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.spinner {
+.searchSpinner {
   animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.errorContainer {
-  color: var(--color-text-semantic-solid-negative);
-  text-align: center;
-  padding: 16px;
-  margin: 16px 0;
-  background-color: var(--color-background-semantic-solid-negative);
-  border-radius: 8px;
-}
-
-.noResults {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--desk-text);
-  font-size: 16px;
+  margin-left: var(--numbers-8);
 }
