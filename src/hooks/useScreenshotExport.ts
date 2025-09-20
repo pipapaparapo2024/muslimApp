@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { quranApi } from "../api/api";
 import { shareStory } from "@telegram-apps/sdk";
-import { toBlob } from 'html-to-image';
+import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   success: boolean;
@@ -17,35 +17,35 @@ interface ExportOptions {
 
 // Функция для подготовки элемента к скриншоту
 function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
-  const originalStyle = el.getAttribute('style') || '';
-  const wasHidden = getComputedStyle(el).display === 'none';
-  
+  const originalStyle = el.getAttribute("style") || "";
+  const wasHidden = getComputedStyle(el).display === "none";
+
   if (!wasHidden) return { restore: () => {} };
-  
-  Object.assign(el.style, { 
-    display: 'block', 
-    position: 'fixed', 
-    left: '-99999px', 
-    top: '0',
-    visibility: 'visible'
+
+  Object.assign(el.style, {
+    display: "block",
+    position: "fixed",
+    left: "-99999px",
+    top: "0",
+    visibility: "visible",
   });
-  
+
   return {
     restore() {
-      el.setAttribute('style', originalStyle);
-    }
+      el.setAttribute("style", originalStyle);
+    },
   };
 }
 
 // Функция для ожидания загрузки шрифтов
 async function waitFonts(): Promise<void> {
   if (document.fonts && document.fonts.ready) {
-    try { 
-      await document.fonts.ready; 
+    try {
+      await document.fonts.ready;
     } catch {}
   }
   // Небольшая задержка для перерисовки
-  await new Promise(r => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
 }
 
 export const useScreenshotExport = () => {
@@ -59,23 +59,34 @@ export const useScreenshotExport = () => {
       const blob = await toBlob(element, {
         pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
         cacheBust: true,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         filter: (node: HTMLElement) => {
-          const tag = node.tagName?.toUpperCase?.() || '';
+          const tag = node.tagName?.toUpperCase?.() || "";
           // Исключаем элементы, которые не должны попадать в скриншот
-          if (node.getAttribute && node.getAttribute('data-story-visible') === "hide") {
+          if (
+            node.getAttribute &&
+            node.getAttribute("data-story-visible") === "hide"
+          ) {
             return false;
           }
-          if (['IFRAME', 'VIDEO', 'CANVAS'].includes(tag)) {
+          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
+            return false; // Добавляем LINK чтобы исключить внешние CSS
+          }
+          // Исключаем элементы с внешними ссылками
+          if (
+            node.getAttribute &&
+            node.getAttribute("href")?.includes("fonts.googleapis.com")
+          ) {
             return false;
           }
           return true;
         },
-        skipFonts: false
+        skipFonts: true, // Пропускаем загрузку внешних шрифтов
+        fontEmbedCSS: "", // Отключаем встраивание шрифтов
       });
 
       if (!blob) {
-        throw new Error('Failed to create screenshot blob');
+        throw new Error("Failed to create screenshot blob");
       }
 
       return blob;
@@ -84,34 +95,47 @@ export const useScreenshotExport = () => {
     }
   };
 
-  const uploadScreenshot = async (blob: Blob, type: "qna" | "scanner", id: string): Promise<string> => {
-    const formData = new FormData();
-    formData.append('image', blob, `story-${Date.now()}.png`);
-    formData.append('id', id);
+  const uploadScreenshot = async (
+    blob: Blob,
+    type: "qna" | "scanner",
+    id: string
+  ): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append("image", blob, `story-${Date.now()}.png`);
+      formData.append("id", id);
 
-    const endpoint = type === "qna" 
-      ? "/api/v1/qa/image/story" 
-      : "/api/v1/qa/scanner/image/story";
+      const endpoint =
+        type === "qna"
+          ? "/api/v1/qa/image/story"
+          : "/api/v1/qa/scanner/image/story";
 
-    const response = await quranApi.post<StoryResponse>(
-      endpoint,
-      formData,
-      {
+      const response = await quranApi.post<StoryResponse>(endpoint, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
-    );
+        timeout: 30000, // Добавляем таймаут
+      });
 
-    if (response.data.success && response.data.storyUrl) {
-      return response.data.storyUrl;
-    } else {
-      throw new Error(response.data.message || "Failed to upload screenshot");
+      if (response.data.success && response.data.storyUrl) {
+        return response.data.storyUrl;
+      } else {
+        throw new Error(response.data.message || "Failed to upload screenshot");
+      }
+    } catch (error: any) {
+      if (error.response?.status === 502) {
+        throw new Error(
+          "Server is temporarily unavailable. Please try again later."
+        );
+      }
+      throw error;
     }
   };
 
-  const exportScreenshot = async (options: ExportOptions): Promise<string | undefined> => {
+  const exportScreenshot = async (
+    options: ExportOptions
+  ): Promise<string | undefined> => {
     setLoading(true);
     try {
       if (!options.id || !options.element) {
@@ -120,9 +144,13 @@ export const useScreenshotExport = () => {
 
       // Делаем скриншот
       const screenshotBlob = await captureScreenshot(options.element);
-      
+
       // Загружаем на сервер
-      const storyUrl = await uploadScreenshot(screenshotBlob, options.type, options.id);
+      const storyUrl = await uploadScreenshot(
+        screenshotBlob,
+        options.type,
+        options.id
+      );
       return storyUrl;
     } catch (error) {
       console.error("Screenshot export error:", error);
