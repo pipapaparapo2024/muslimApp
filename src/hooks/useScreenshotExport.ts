@@ -111,7 +111,7 @@ export const useScreenshotExport = () => {
           timeout: 30000, // Добавляем таймаут
         }
       );
-
+      console.log("responsestory",response)
       if (response.data.success && response.data.storyUrl) {
         return response.data.storyUrl;
       } else {
