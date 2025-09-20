@@ -1,3 +1,4 @@
+// Home.tsx
 import React from "react";
 import styles from "./Home.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
@@ -55,15 +56,6 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка запроса доступа к датчикам */}
-      <button
-        className={styles.allowSensorButton}
-        onClick={requestSensorPermission}
-        disabled={isRequestingPermission}
-      >
-        {isRequestingPermission ? t("requesting") : t("allowSensors")}
-      </button>
-
       <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
@@ -86,7 +78,12 @@ export const Home: React.FC = () => {
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap onMapClick={handleMapClick} />
+                    <QiblaMap 
+                      onMapClick={handleMapClick} 
+                      showPermissionButton={sensorPermission !== "granted"}
+                      onRequestPermission={requestSensorPermission}
+                      isRequestingPermission={isRequestingPermission}
+                    />
                   </div>
 
                   <div

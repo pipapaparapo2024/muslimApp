@@ -1,3 +1,4 @@
+// QiblaMap.tsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";
@@ -16,11 +17,17 @@ interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
 interface QiblaMapProps {
   fullscreen?: boolean;
   onMapClick?: () => void;
+  showPermissionButton?: boolean;
+  onRequestPermission?: () => void;
+  isRequestingPermission?: boolean;
 }
 
 export const QiblaMap: React.FC<QiblaMapProps> = ({
   fullscreen = false,
   onMapClick,
+  showPermissionButton = false,
+  onRequestPermission,
+  isRequestingPermission = false,
 }) => {
   const navigate = useNavigate();
   const { coords: geoCoords } = useGeoStore();
@@ -180,7 +187,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     [createLatLng, updateDirectionLine]
   );
 
-  // Обработчик ориентации
   // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
@@ -209,6 +215,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     },
     [updateUserMarkerRotation]
   );
+  
   // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
@@ -358,6 +365,22 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       }}
       ref={mapRef}
       className={fullscreen ? styles.fullscreen : styles.mapContainer}
-    />
+    >
+      {showPermissionButton && (
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionBlur}></div>
+          <button
+            className={styles.permissionButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestPermission && onRequestPermission();
+            }}
+            disabled={isRequestingPermission}
+          >
+            {isRequestingPermission ? "Requesting..." : "Allow Geo"}
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
