@@ -30,6 +30,7 @@ export const useHomeLogic = () => {
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [initializationError, setInitializationError] = useState<string | null>(null);
+  const [orientationListenerActive, setOrientationListenerActive] = useState(false);
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -70,10 +71,12 @@ export const useHomeLogic = () => {
   // === ФУНКЦИЯ СБРОСА РАЗРЕШЕНИЯ ===
   const resetSensorPermission = useCallback(() => {
     setSensorPermission("prompt");
+    setOrientationListenerActive(false); // Отключаем слушатель
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
     alert(t("permissionResetSuccess"));
   }, []);
+
 
   // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
@@ -152,6 +155,7 @@ export const useHomeLogic = () => {
     isRequestingPermission,
     isInitializing,
     initializationError,
+    orientationListenerActive,
     requestSensorPermission,
     resetSensorPermission, // Экспортируем функцию сброса
     handleCompassClick,

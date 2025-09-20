@@ -58,7 +58,7 @@ export const Home: React.FC = () => {
 
       {/* Кнопка сброса разрешения (только для отладки) */}
       {sensorPermission === "granted" && (
-        <button 
+        <button
           className={styles.resetPermissionButton}
           onClick={resetSensorPermission}
           title={t("resetPermissionHint")}
@@ -89,11 +89,12 @@ export const Home: React.FC = () => {
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap 
-                      onMapClick={handleMapClick} 
+                    <QiblaMap
+                      onMapClick={handleMapClick}
                       showPermissionButton={sensorPermission !== "granted"}
                       onRequestPermission={requestSensorPermission}
                       isRequestingPermission={isRequestingPermission}
+                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
                     />
                   </div>
 

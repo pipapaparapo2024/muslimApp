@@ -21,6 +21,7 @@ interface QiblaMapProps {
   showPermissionButton?: boolean;
   onRequestPermission?: () => void;
   isRequestingPermission?: boolean;
+  orientationListenerActive?: boolean; // Добавляем новый проп
 }
 
 export const QiblaMap: React.FC<QiblaMapProps> = ({
@@ -29,6 +30,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   showPermissionButton = false,
   onRequestPermission,
   isRequestingPermission = false,
+  orientationListenerActive = true, // По умолчанию активно
 }) => {
   const navigate = useNavigate();
   const { coords: geoCoords } = useGeoStore();
@@ -191,6 +193,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
+      // Если слушатель не активен, не обрабатываем события
+      if (!orientationListenerActive) return;
+
       // Приводим к кастомному типу для iOS
       const iosEvent = event as unknown as DeviceOrientationEventiOS;
 
@@ -214,9 +219,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateUserMarkerRotation(newHeading);
       localStorage.setItem("userHeading", newHeading.toString());
     },
-    [updateUserMarkerRotation]
+    [updateUserMarkerRotation, orientationListenerActive] // Добавляем зависимость
   );
-  
+
   // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
@@ -302,11 +307,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
-    // Добавляем ориентацию
-    if (window.DeviceOrientationEvent) {
+    if (window.DeviceOrientationEvent && orientationListenerActive) {
       window.addEventListener("deviceorientation", handleOrientation);
     }
-
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.off("moveend", handleMapMove);
@@ -330,6 +333,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     createLatLng,
     geoCoords,
     handleOrientation,
+    orientationListenerActive,
     setTempCoords,
     updateDirectionLine,
     updateMapElements,
