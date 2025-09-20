@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
-import { Search, Loader, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Loader, ChevronUp } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 

@@ -17,9 +17,18 @@ export const Welcome: React.FC = () => {
     error,
     handleNext,
     handleStart,
+    isInitialized,
   } = useWelcomeLogic();
   const { isAuthenticated, wasLogged } = useTelegram();
 
+  // Показываем лоадер пока проверяем аутентификацию
+  if (!isInitialized) {
+    return (
+      <PageWrapper>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
+  }
   // Показываем ошибку если что-то пошло не так
   if (error) {
     return (

@@ -37,6 +37,7 @@ export const useWelcomeLogic = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
+    const [isInitialized, setIsInitialized] = useState(false);
 
   const {
     isAuthenticated,
@@ -51,6 +52,7 @@ export const useWelcomeLogic = () => {
       if (isAuthenticated && wasLogged) {
         navigate("/home", { replace: true });
       }
+      setIsInitialized(true); // ← Добавьте эту строку
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
   useEffect(() => {
@@ -168,5 +170,6 @@ export const useWelcomeLogic = () => {
     handleNext,
     handlePrev,
     handleStart,
+    isInitialized,
   };
 };
