@@ -114,6 +114,8 @@ export const useScreenshotExport = () => {
         }
       );
       console.log("responsestory", response);
+      console.log("responsestoryurl", response.data.data.url);
+      console.log("responsestorysuccess", response.data.data.success);
       if (response.data.data.success && response.data.data.url) {
         return response.data.data.url;
       } else {
