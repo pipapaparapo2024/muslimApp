@@ -97,7 +97,6 @@ export const useScreenshotExport = () => {
 
   const uploadScreenshot = async (
     blob: Blob,
-    type: "qna" | "scanner",
     id: string
   ): Promise<string> => {
     try {
@@ -105,12 +104,7 @@ export const useScreenshotExport = () => {
       formData.append("image", blob, `story-${Date.now()}.png`);
       formData.append("id", id);
 
-      const endpoint =
-        type === "qna"
-          ? "/api/v1/qa/image/story"
-          : "/api/v1/qa/scanner/image/story";
-
-      const response = await quranApi.post<StoryResponse>(endpoint, formData, {
+      const response = await quranApi.post<StoryResponse>("/api/v1/qa/story", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -148,7 +142,6 @@ export const useScreenshotExport = () => {
       // Загружаем на сервер
       const storyUrl = await uploadScreenshot(
         screenshotBlob,
-        options.type,
         options.id
       );
       return storyUrl;
