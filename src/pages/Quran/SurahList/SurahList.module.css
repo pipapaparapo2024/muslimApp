@@ -140,6 +140,7 @@
   position: fixed;
   bottom: var(--numbers-20);
   left: 75%;
+  z-index: 2;
   align-items: center;
   gap: var(--numbers-4);
   margin-left: var(--numbers-8);
