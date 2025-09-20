@@ -5,7 +5,6 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { Search, Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { t } from "i18next";
-import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
@@ -243,12 +242,10 @@ export const AyahList: React.FC = () => {
 
         {/* Содержимое аятов */}
         <div className={styles.ayatlist}>
-          {error ? (
+          {error && (
             <div className={styles.errorContainer}>
               <p>Error: {error}</p>
             </div>
-          ) : (
-            <LoadingSpinner />
           )}
           {/* Список аятов */}
           {ayahs.map((ayah, index) => {
