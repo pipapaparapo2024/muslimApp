@@ -10,7 +10,6 @@ interface StoryResponse {
 }
 
 interface ExportOptions {
-  type: "qna" | "scanner";
   element: HTMLElement | null;
   id: string | undefined;
 }
@@ -95,22 +94,23 @@ export const useScreenshotExport = () => {
     }
   };
 
-  const uploadScreenshot = async (
-    blob: Blob,
-    id: string
-  ): Promise<string> => {
+  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
     try {
       const formData = new FormData();
-      formData.append("image", blob, `story-${Date.now()}.png`);
+      formData.append("file", blob, `story-${Date.now()}.png`);
       formData.append("id", id);
 
-      const response = await quranApi.post<StoryResponse>("/api/v1/qa/story", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-        timeout: 30000, // Добавляем таймаут
-      });
+      const response = await quranApi.post<StoryResponse>(
+        "/api/v1/qa/story",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          timeout: 30000, // Добавляем таймаут
+        }
+      );
 
       if (response.data.success && response.data.storyUrl) {
         return response.data.storyUrl;
@@ -140,10 +140,7 @@ export const useScreenshotExport = () => {
       const screenshotBlob = await captureScreenshot(options.element);
 
       // Загружаем на сервер
-      const storyUrl = await uploadScreenshot(
-        screenshotBlob,
-        options.id
-      );
+      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
       return storyUrl;
     } catch (error) {
       console.error("Screenshot export error:", error);

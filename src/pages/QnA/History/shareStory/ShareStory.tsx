@@ -56,7 +56,6 @@ export const ShareStory: React.FC = () => {
     try {
       // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
       const screenshotUrl = await exportScreenshot({
-        type: "qna",
         element: screenshotRef.current,
         id: id,
       });
