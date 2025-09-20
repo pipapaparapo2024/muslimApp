@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SurahList.module.css";
-import {
-  useSurahListStore,
-  type Surah,
-} from "../../../hooks/useSurahListStore";
+import { useSurahListStore, type Surah } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
 import {
@@ -30,10 +27,8 @@ export const SurahList: React.FC = () => {
     selectedVariant,
     loading,
     error,
-    surahsHasNext,
-    isLoadingMore,
-    loadMoreSurahs,
   } = useSurahListStore();
+  
   const { language } = useLanguage();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -42,7 +37,6 @@ export const SurahList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
 
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -198,16 +192,6 @@ export const SurahList: React.FC = () => {
     });
   };
 
-  const handleLoadMore = async () => {
-    if (selectedVariant && surahsHasNext && !isLoadingMore) {
-      try {
-        await loadMoreSurahs(selectedVariant.id);
-      } catch (err) {
-        console.error("Error loading more surahs:", err);
-      }
-    }
-  };
-
   // Проверяем, является ли сура результатом поиска
   const isSurahInSearchResults = useCallback(
     (surahNumber: number) => {
@@ -239,7 +223,7 @@ export const SurahList: React.FC = () => {
             <div className={styles.diskHeader}>{t("discoverChapters")}</div>
           </div>
 
-          <div ref={searchContainerRef} className={styles.searchContainer}>
+          <div className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -283,9 +267,13 @@ export const SurahList: React.FC = () => {
         {error && <div>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {!loading && surahs.length === 0 ? (
+          {loading ? (
             <div className={styles.noResults}>
               <LoadingSpinner/>
+            </div>
+          ) : surahs.length === 0 ? (
+            <div className={styles.noResults}>
+              {t("noChaptersFound")}
             </div>
           ) : (
             surahs.map((surah) => {
@@ -367,25 +355,6 @@ export const SurahList: React.FC = () => {
           )}
         </div>
       </div>
-      {/* Кнопка загрузки следующих сур */}
-      {surahsHasNext && !localSearchQuery && (
-        <div className={styles.loadMoreContainer}>
-          <button
-            className={styles.loadMoreButton}
-            onClick={handleLoadMore}
-            disabled={isLoadingMore}
-          >
-            {isLoadingMore ? (
-              <Loader size={20} className={styles.spinner} />
-            ) : (
-              <>
-                <ChevronDown size={20} />
-                {t("loadMore")}
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </PageWrapper>
   );
 };

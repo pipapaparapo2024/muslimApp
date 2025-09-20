@@ -14,11 +14,8 @@ export const AyahList: React.FC = () => {
   const {
     ayahs,
     error,
-    hasNext,
     fetchAyahs,
-    loadMoreAyahs,
     resetAyahs,
-    isLoadingMore,
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -27,7 +24,6 @@ export const AyahList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
 
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -36,15 +32,14 @@ export const AyahList: React.FC = () => {
 
       try {
         resetAyahs();
-        await fetchAyahs(surahId, 1); // Просто вызываем action store
-        console.log("ayahssssss", ayahs);
+        await fetchAyahs(surahId);
       } catch (err) {
         console.error("Error loading initial ayahs:", err);
       }
     };
 
     loadInitialAyahs();
-  }, [surahId, resetAyahs, fetchAyahs]); // Добавили зависимости
+  }, [surahId, resetAyahs, fetchAyahs]);
 
   // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
@@ -166,17 +161,6 @@ export const AyahList: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
-  // Загрузка следующих аятов
-  const handleLoadMore = useCallback(async () => {
-    if (!surahId || !hasNext || isLoadingMore) return;
-
-    try {
-      await loadMoreAyahs(surahId);
-    } catch (err) {
-      console.error("Error loading more ayahs:", err);
-    }
-  }, [surahId, hasNext, isLoadingMore, loadMoreAyahs]);
-
   // Проверяем, является ли аят результатом поиска
   const isAyahInSearchResults = useCallback(
     (ayahNumber: number) => {
@@ -200,7 +184,7 @@ export const AyahList: React.FC = () => {
             )}
           </div>
 
-          <div ref={searchContainerRef} className={styles.searchContainer}>
+          <div className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -247,6 +231,7 @@ export const AyahList: React.FC = () => {
               <p>Error: {error}</p>
             </div>
           )}
+          
           {/* Список аятов */}
           {ayahs.map((ayah, index) => {
             const isSearchResult = isAyahInSearchResults(ayah.number);
@@ -274,25 +259,6 @@ export const AyahList: React.FC = () => {
               </div>
             );
           })}
-
-          {hasNext && (
-            <div className={styles.loadMoreContainer}>
-              <button
-                className={styles.loadMoreButton}
-                onClick={handleLoadMore}
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? (
-                  <Loader size={20} className={styles.spinner} />
-                ) : (
-                  <>
-                    <ChevronDown size={20} />
-                    {t("loadMore")}
-                  </>
-                )}
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </PageWrapper>
