@@ -112,7 +112,7 @@ const fetchSurahsByVariant = async (
   pageAmount: number;
 }> => {
   try {
-    const response = await quranApi.get("/api/v1/quran/suras", {
+    const response = await quranApi.get("/api/v1/quran/suras/all", {
       params: {
         page,
         varId: variantId,
