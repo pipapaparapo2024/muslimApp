@@ -233,22 +233,16 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
     }
   },
 
-  fetchSurahs: async (variantId: string, page: number = 1) => {
+  fetchSurahs: async (variantId: string) => {
     set({
-      loading: page === 1,
-      isLoadingMore: page > 1,
       error: null,
     });
 
     try {
-      const response = await fetchSurahsByVariant(variantId, page);
+      const response = await fetchSurahsByVariant(variantId);
 
       set({
-        surahs:
-          page === 1 ? response.surahs : [...get().surahs, ...response.surahs],
-        surahsCurrentPage: page,
-        surahsHasNext: response.hasNext,
-        surahsHasPrev: response.hasPrev,
+        surahs: response.surahs,
         surahsPageAmount: response.pageAmount,
         loading: false,
         isLoadingMore: false,
