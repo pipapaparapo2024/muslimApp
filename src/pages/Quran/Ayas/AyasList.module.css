@@ -7,10 +7,10 @@
   padding: var(--numbers-16);
   border-radius: 0 0 var(--roundings-big) var(--roundings-big);
 }
-.text{
-    display: flex;
-    flex-direction: column;
-    gap: var(--numbers-4);
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
 }
 .title {
   font-size: var(--numbers-20);
@@ -38,10 +38,10 @@
   font-weight: var(--font-500);
   font-size: var(--numbers-16);
 }
-.ayatlist{
-    display: flex;
-    flex-direction: column;
-    gap: var(--numbers-8);
+.ayatlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
 }
 .blockAyas {
   background-color: var(--bg-surface);
@@ -64,7 +64,7 @@
   flex-shrink: 0;
 }
 .ayasText {
-    font-weight: var(--font-400);
+  font-weight: var(--font-400);
 }
 
 .searchContainer {
@@ -125,12 +125,6 @@
   padding: var(--numbers-32);
   color: var(--color-text-secondary);
   font-style: italic;
-}
-
-@keyframes highlight {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
 }
 
 .blockAyas {

@@ -170,3 +170,10 @@
   animation: spin 1s linear infinite;
   margin-left: var(--numbers-8);
 }
+
+.highlightedResult {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--color-background-semantic-solid-brand);
+  z-index: 10;
+}

@@ -5,6 +5,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
 import { Search, Loader, ChevronDown, ChevronUp } from "lucide-react";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
@@ -16,6 +17,7 @@ export const AyahList: React.FC = () => {
     error,
     fetchAyahs,
     resetAyahs,
+    loading,
   } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -40,6 +42,16 @@ export const AyahList: React.FC = () => {
 
     loadInitialAyahs();
   }, [surahId, resetAyahs, fetchAyahs]);
+
+  // Функция для сброса всех стилей
+  const resetAllHighlightStyles = useCallback(() => {
+    resultRefs.current.forEach((element) => {
+      element.style.border = "";
+      element.style.backgroundColor = "";
+      element.style.color = "";
+      element.style.transform = "scale(1)";
+    });
+  }, []);
 
   // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
@@ -66,6 +78,7 @@ export const AyahList: React.FC = () => {
         setSearchResults([]);
         setCurrentResultIndex(-1);
         setShowSearchNavigation(false);
+        resetAllHighlightStyles();
         return;
       }
 
@@ -77,17 +90,14 @@ export const AyahList: React.FC = () => {
         setShowSearchNavigation(results.length > 0);
 
         if (results.length > 0) {
+          resetAllHighlightStyles();
           const firstResult = results[0];
           const element = resultRefs.current.get(firstResult);
           if (element) {
             setTimeout(() => {
               element.scrollIntoView({ behavior: "smooth", block: "center" });
+              element.style.border = "2px solid var(--color-background-semantic-solid-brand)";
               element.style.transform = "scale(1.02)";
-              setTimeout(() => {
-                if (element) {
-                  element.style.transform = "scale(1)";
-                }
-              }, 300);
             }, 100);
           }
         }
@@ -103,12 +113,21 @@ export const AyahList: React.FC = () => {
 
     const timeoutId = setTimeout(handleSearch, 300);
     return () => clearTimeout(timeoutId);
-  }, [localSearchQuery, searchInAyahs]);
+  }, [localSearchQuery, searchInAyahs, resetAllHighlightStyles]);
 
   // Навигация по результатам поиска
   const navigateSearchResults = useCallback(
     (direction: "next" | "prev") => {
       if (searchResults.length === 0) return;
+
+      // Сбрасываем стили предыдущего элемента
+      if (currentResultIndex >= 0) {
+        const prevElement = resultRefs.current.get(searchResults[currentResultIndex]);
+        if (prevElement) {
+          prevElement.style.border = "";
+          prevElement.style.transform = "scale(1)";
+        }
+      }
 
       let newIndex;
       if (direction === "next") {
@@ -125,16 +144,8 @@ export const AyahList: React.FC = () => {
       const element = resultRefs.current.get(resultNumber);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
-
+        element.style.border = "2px solid var(--color-background-semantic-solid-brand)";
         element.style.transform = "scale(1.02)";
-
-        setTimeout(() => {
-          if (element) {
-            element.style.transform = "scale(1)";
-            element.style.backgroundColor = "";
-            element.style.color = "";
-          }
-        }, 1000);
       }
     },
     [searchResults, currentResultIndex]
@@ -228,34 +239,35 @@ export const AyahList: React.FC = () => {
               <p>Error: {error}</p>
             </div>
           )}
-          
-          {/* Список аятов */}
-          {ayahs.map((ayah, index) => {
-            const isSearchResult = isAyahInSearchResults(ayah.number);
-            const isCurrentResult =
-              isSearchResult &&
-              searchResults[currentResultIndex] === ayah.number;
+          {loading ? (
+            <div className={styles.noResults}>
+              <LoadingSpinner/>
+            </div>
+          ) : (
+            ayahs.map((ayah, index) => {
+              const isSearchResult = isAyahInSearchResults(ayah.number);
+              const isCurrentResult =
+                isSearchResult &&
+                searchResults[currentResultIndex] === ayah.number;
 
-            return (
-              <div
-                key={ayah.number || index}
-                ref={(el) => {
-                  if (el && ayah.number) {
-                    resultRefs.current.set(ayah.number, el);
-                  }
-                }}
-                className={`${styles.blockAyas} ${
-                  isSearchResult ? styles.searchResult : ""
-                } ${isCurrentResult ? styles.highlightedResult : ""}`}
-                style={{
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <div className={styles.ayasNember}>{ayah.number}</div>
-                <div className={styles.ayasText}>{ayah.text}</div>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={ayah.number || index}
+                  ref={(el) => {
+                    if (el && ayah.number) {
+                      resultRefs.current.set(ayah.number, el);
+                    }
+                  }}
+                  className={`${styles.blockAyas} ${
+                    isSearchResult ? styles.searchResult : ""
+                  } ${isCurrentResult ? styles.highlightedResult : ""}`}
+                >
+                  <div className={styles.ayasNember}>{ayah.number}</div>
+                  <div className={styles.ayasText}>{ayah.text}</div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </PageWrapper>
