@@ -5,7 +5,9 @@ import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   success: boolean;
-  storyUrl?: string;
+  data: {
+    url?: string;
+  };
   message?: string;
 }
 
@@ -111,9 +113,9 @@ export const useScreenshotExport = () => {
           timeout: 30000, // Добавляем таймаут
         }
       );
-      console.log("responsestory",response)
-      if (response.data.success && response.data.storyUrl) {
-        return response.data.storyUrl;
+      console.log("responsestory", response);
+      if (response.data.success && response.data.data.url) {
+        return response.data.data.url;
       } else {
         throw new Error(response.data.message || "Failed to upload screenshot");
       }
