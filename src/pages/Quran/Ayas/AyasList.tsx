@@ -215,14 +215,6 @@ export const AyahList: React.FC = () => {
                 >
                   <ChevronUp color="var(--text)" size={16} />
                 </button>
-                <button
-                  type="button"
-                  onClick={() => navigateSearchResults("next")}
-                  className={styles.navButton}
-                  disabled={searchResults.length <= 1}
-                >
-                  <ChevronDown color="var(--text)" size={16} />
-                </button>
               </div>
             )}
 

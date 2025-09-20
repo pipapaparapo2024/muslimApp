@@ -82,6 +82,7 @@
   position: fixed;
   left: 75%;
   z-index: 2;
+  bottom: var(--numbers-20);
   align-items: center;
   gap: var(--numbers-4);
   margin-left: var(--numbers-8);
