@@ -4,8 +4,8 @@ import { shareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
-  success: boolean;
   data: {
+    success: boolean;
     url?: string;
   };
   message?: string;
@@ -114,7 +114,7 @@ export const useScreenshotExport = () => {
         }
       );
       console.log("responsestory", response);
-      if (response.data.success && response.data.data.url) {
+      if (response.data.data.success && response.data.data.url) {
         return response.data.data.url;
       } else {
         throw new Error(response.data.message || "Failed to upload screenshot");
