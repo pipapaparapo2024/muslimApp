@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { quranApi } from "../api/api";
-import { shareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
@@ -160,46 +159,39 @@ export const useScreenshotExport = () => {
 export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
 
-  console.log("=== TELEGRAM DEBUG INFO ===");
-  console.log("URL to share:", url);
-  console.log("shareStory available:", typeof shareStory !== 'undefined');
-  console.log("isAvailable():", shareStory.isAvailable());
-  
-  // Проверяем наличие WebApp
   const webApp = (window as any).Telegram?.WebApp;
-  console.log("WebApp available:", !!webApp);
-  console.log("WebApp version:", webApp?.version);
-  console.log("WebApp platform:", webApp?.platform);
   
-  // ✅ Правильная проверка через SDK
-  if (typeof shareStory !== 'undefined' && shareStory.isAvailable?.()) {
-    console.log("Using shareStory SDK");
+  console.log("=== TELEGRAM DEBUG INFO ===");
+  console.log("WebApp version:", webApp?.version);
+  console.log("Platform:", webApp?.platform);
+  
+  // 1. Используем WebApp.share() если доступен (более новая версия)
+  if (webApp && typeof webApp.share === 'function') {
     try {
-      await shareStory(url, {
-        widgetLink: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
+      console.log("Using WebApp.share()");
+      await webApp.share(url);
       return;
-    } catch (sdkError) {
-      console.error("SDK share failed:", sdkError);
+    } catch (error) {
+      console.warn("WebApp.share failed:", error);
     }
   }
-
-  // Альтернативный способ через WebApp
-  if (webApp) {
-    console.log("Trying WebApp share method");
+  
+  // 2. Используем WebApp.openLink() с правильным форматом
+  if (webApp && typeof webApp.openLink === 'function') {
     try {
+      console.log("Using WebApp.openLink()");
+      
       // Правильный формат для分享 в историю
-      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
-      webApp.openLink(shareUrl);
+      const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=Check this out!`;
+      
+      webApp.openLink(telegramShareUrl);
       return;
-    } catch (webAppError) {
-      console.error("WebApp share failed:", webAppError);
+    } catch (error) {
+      console.warn("WebApp.openLink failed:", error);
     }
   }
 
-  console.log("Using fallback to window.open");
+  // 3. Fallback для старых версий
+  console.log("Using fallback");
   window.open(url, "_blank");
 };
