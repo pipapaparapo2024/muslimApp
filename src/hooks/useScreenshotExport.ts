@@ -159,76 +159,18 @@ export const useScreenshotExport = () => {
 
 export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
-  console.log("Sharing URL:", url);
 
-  // Более надежная проверка нахождения в Telegram
-  const isTelegram = typeof window !== 'undefined' && 
-                    (window as any).Telegram?.WebApp?.initData !== undefined;
-
-  if (!isTelegram) {
-    console.log("Not in Telegram, using fallback");
-    window.open(url, "_blank");
+  // ✅ Правильная проверка через SDK
+  if (shareStory.isAvailable()) {
+    await shareStory(url, {
+      widgetLink: {
+        url: "https://t.me/QiblaGuidebot",
+        name: "@QiblaGuidebot",
+      },
+    });
     return;
   }
 
-  // Проверяем, является ли URL допустимым для шаринга
-  if (!url.startsWith('https://')) {
-    console.error("Invalid URL for sharing:", url);
-    return;
-  }
-
-  // 1. Пробуем нативный способ через SDK
-  try {
-    // Добавляем более точную проверку доступности
-    console.log("Using shareStory SDK",shareStory.isAvailable());
-    if (shareStory.isAvailable()) {
-      shareStory(url, {
-        widgetLink: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
-      return;
-      
-    }
-  } catch (sdkError) {
-    console.warn("SDK share failed:", sdkError);
-  }
-
-  // 2. Пробуем через Telegram WebApp API
-  try {
-    const webApp = (window as any).Telegram?.WebApp;
-    if (webApp && typeof webApp.openLink === 'function') {
-      console.log("Using WebApp openLink");
-      // Формируем правильный deep link для историй
-      const storyDeepLink = `tg://share?url=${encodeURIComponent(url)}`;
-      webApp.openLink(storyDeepLink);
-      return;
-    }
-  } catch (webAppError) {
-    console.warn("WebApp share failed:", webAppError);
-  }
-
-  // 3. Прямой deep link
-  try {
-    console.log("Using direct deep link");
-    const storyDeepLink = `tg://share?url=${encodeURIComponent(url)}`;
-    
-    // Создаем iframe для открытия deep link (работает лучше в мобильных браузерах)
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = storyDeepLink;
-    document.body.appendChild(iframe);
-    
-    // Удаляем iframe через короткое время
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-      // Fallback на обычное открытие
-      window.open(url, "_blank");
-    }, 1000);
-    
-  } catch (error) {
-    console.log("Using final fallback");
-    window.open(url, "_blank");
-  }
+  // Fallback для случаев, когда SDK недоступен
+  window.open(url, "_blank");
 };
