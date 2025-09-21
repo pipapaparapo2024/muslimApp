@@ -59,16 +59,14 @@ export const Home: React.FC = () => {
       {sensorPermission==="granted"&&
         <div>fggg</div>
       }
-      {sensorPermission === "granted" ||
-        (sensorPermission === "denied" && (
+      {sensorPermission === "granted"  && (
           <button
             className={styles.resetPermissionButton}
             onClick={resetSensorPermission}
-            title={t("resetPermissionHint")}
           >
             {t("resetPermission")}
           </button>
-        ))}
+        )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
