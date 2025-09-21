@@ -159,14 +159,15 @@ export const useScreenshotExport = () => {
 
 export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
-
+  console.log("urllll",url)
   // Сначала пробуем нативный способ
   if (window.Telegram?.WebApp && shareStory.isAvailable()) {
+    console.log("shareStory")
     try {
       shareStory(url, {
         widgetLink: {
-          url: "https://t.me/YourBotName",
-          name: "@YourBotName",
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
         },
       });
       return;
@@ -175,7 +176,6 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
     }
   }
 
-  // Fallback 1: Deep link
   try {
     const deepLink = `tg://share?url=${encodeURIComponent(url)}`;
     window.location.href = deepLink;
