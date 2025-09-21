@@ -57,7 +57,7 @@ export const Home: React.FC = () => {
       <Header />
 
       {/* Кнопка сброса разрешения (только для отладки) */}
-      {sensorPermission === "granted"  && (
+      {sensorPermission === "granted" && (
         <button
           className={styles.resetPermissionButton}
           onClick={resetSensorPermission}

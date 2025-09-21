@@ -161,7 +161,7 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
   if (!url) return;
   console.log("Sharing URL:", url);
 
-  // Проверяем, находимся ли мы в Telegram
+  // Более надежная проверка нахождения в Telegram
   const isTelegram = typeof window !== 'undefined' && 
                     (window as any).Telegram?.WebApp?.initData !== undefined;
 
@@ -171,9 +171,16 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
     return;
   }
 
-  // Пробуем нативный способ через SDK
+  // Проверяем, является ли URL допустимым для шаринга
+  if (!url.startsWith('https://')) {
+    console.error("Invalid URL for sharing:", url);
+    return;
+  }
+
+  // 1. Пробуем нативный способ через SDK
   try {
-    if (shareStory.isAvailable()) {
+    // Добавляем более точную проверку доступности
+    if (typeof shareStory !== 'undefined' && shareStory.isAvailable?.()) {
       console.log("Using shareStory SDK");
       await shareStory(url, {
         widgetLink: {
@@ -187,32 +194,39 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
     console.warn("SDK share failed:", sdkError);
   }
 
-  // Пробуем через Telegram WebApp API
+  // 2. Пробуем через Telegram WebApp API
   try {
     const webApp = (window as any).Telegram?.WebApp;
-    if (webApp && webApp.share) {
-      console.log("Using WebApp share");
-      webApp.share(url, "Поделиться в историях");
+    if (webApp && typeof webApp.openLink === 'function') {
+      console.log("Using WebApp openLink");
+      // Формируем правильный deep link для историй
+      const storyDeepLink = `tg://share?url=${encodeURIComponent(url)}`;
+      webApp.openLink(storyDeepLink);
       return;
     }
   } catch (webAppError) {
     console.warn("WebApp share failed:", webAppError);
   }
 
-  // Fallback: deep link
+  // 3. Прямой deep link
   try {
-    console.log("Using deep link fallback");
-    const deepLink = `tg://share?url=${encodeURIComponent(url)}`;
+    console.log("Using direct deep link");
+    const storyDeepLink = `tg://share?url=${encodeURIComponent(url)}`;
     
-    // Пробуем открыть deep link
-    window.location.href = deepLink;
+    // Создаем iframe для открытия deep link (работает лучше в мобильных браузерах)
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = storyDeepLink;
+    document.body.appendChild(iframe);
     
-    // Резервный вариант через время
+    // Удаляем iframe через короткое время
     setTimeout(() => {
+      document.body.removeChild(iframe);
+      // Fallback на обычное открытие
       window.open(url, "_blank");
-    }, 300);
+    }, 1000);
+    
   } catch (error) {
-    // Final fallback
     console.log("Using final fallback");
     window.open(url, "_blank");
   }
