@@ -176,53 +176,33 @@ export const shareToTelegramStory = async (
   
   const tg = (window as any).Telegram;
   
-  // Расширенная диагностика
   console.log("=== TELEGRAM ENVIRONMENT DEBUG ===");
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-  console.log("IsExpanded:", tg?.WebApp?.isExpanded);
-  console.log("InitData:", tg?.WebApp?.initData ? "Exists" : "Missing");
 
-  // Проверяем, находимся ли мы в Telegram WebApp
   if (!tg || !tg.WebApp) {
     console.error("Not in Telegram WebApp environment");
     return;
   }
 
-  // Проверяем поддержку shareStory на текущей платформе
   const isAndroid = tg.WebApp.platform === "android";
   const isIos = tg.WebApp.platform === "ios";
   
-  console.log("Platform detected:", tg.WebApp.platform);
-  console.log("shareStory supported:", typeof tg.WebApp.shareStory === "function");
-
   try {
-    // Для Android может потребоваться альтернативный подход
     if (isAndroid) {
-      console.log("Android platform detected - using alternative approach");
+      console.log("Android platform detected");
       
-      // Попробуем использовать прямой вызов метода
-      if (typeof tg.WebApp.shareStory === "function") {
-        await tg.WebApp.shareStory(url, {
-          widget: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot"
-          }
-        });
-      } else {
-        // Альтернативный метод для Android
-        await shareStoryAndroidFallback(url);
-      }
-    } else if (isIos) {
-      // Стандартный вызов для iOS
+      // ОСНОВНОЙ МЕТОД для Android - используем SDK после инициализации
+      await initTelegramSdkForAndroid(); // ← ДОБАВЬТЕ ЭТУ ФУНКЦИЮ
+      
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-    } else {
-      console.log("Unknown platform, trying standard method");
+      
+    } else if (isIos) {
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
@@ -234,41 +214,32 @@ export const shareToTelegramStory = async (
     console.log("shareStory completed successfully");
   } catch (error) {
     console.error("Share story failed:", error);
-    // Дополнительная обработка ошибок для Android
     if (isAndroid) {
-      handleAndroidShareError(url);
+      // Используем глубокую ссылку как запасной вариант
+      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
     }
   }
 };
 
-// Фолбэк для Android
-const shareStoryAndroidFallback = async (url: string): Promise<void> => {
-  const tg = (window as any).Telegram;
-  
+// ДОБАВЬТЕ ЭТУ ФУНКЦИЮ ДЛЯ ИНИЦИАЛИЗАЦИИ SDK ДЛЯ ANDROID
+const initTelegramSdkForAndroid = async (): Promise<void> => {
   try {
-    // Попробуем использовать postEvent
-    if (tg && tg.WebApp && tg.WebApp.postEvent) {
-      tg.WebApp.postEvent('share_story', {
-        url: url,
-        widget: JSON.stringify({
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot"
-        })
-      });
+    // Проверяем, инициализирован ли уже SDK
+    const tg = (window as any).Telegram;
+    if (tg && tg.WebApp && tg.WebApp.initData) {
+      console.log("WebApp already initialized");
+      return;
     }
+    
+    // Явно инициализируем SDK
+    await init();
+    console.log("Telegram SDK initialized for Android");
+    
+    // Даем время на инициализацию
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
   } catch (error) {
-    console.error("Android fallback also failed:", error);
-  }
-};
-
-// Обработка ошибок для Android
-const handleAndroidShareError = (url: string): void => {
-  console.warn("Android-specific error handling");
-  
-  // Попробуем открыть ссылку напрямую (как запасной вариант)
-  try {
-    window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
-  } catch (fallbackError) {
-    console.error("All share methods failed:", fallbackError);
+    console.error("Failed to initialize Telegram SDK for Android:", error);
+    throw error;
   }
 };
