@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
-import { shareStory } from "@telegram-apps/sdk";
+import { init, shareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
@@ -51,7 +51,22 @@ async function waitFonts(): Promise<void> {
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
+    const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
+  // Инициализируем SDK при загрузке хука
+  useEffect(() => {
+    const initializeSdk = async () => {
+      try {
+        await init(); // Инициализируем SDK
+        setSdkInitialized(true);
+        console.log("Telegram SDK initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize Telegram SDK:", error);
+        setSdkInitialized(false);
+      }
+    };
 
+    initializeSdk();
+  }, []);
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
     await waitFonts();
     const preparation = prepareElementForScreenshot(element);
@@ -180,7 +195,7 @@ export const shareToTelegramStory = async (
         name: "@QiblaGuidebot",
       },
     });
-    console.log("shareStory finish")
+    console.log("shareStory finish");
     return;
   } catch (sdkError) {
     console.error("SDK share failed:", sdkError);
