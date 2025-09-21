@@ -157,32 +157,35 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (
-  url: string | undefined
-): Promise<void> => {
+export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
 
   console.log("=== TELEGRAM DEBUG INFO ===");
   console.log("URL to share:", url);
-  console.log("shareStory available:", typeof shareStory !== "undefined");
+  console.log("shareStory available:", typeof shareStory !== 'undefined');
   console.log("isAvailable():", shareStory.isAvailable());
   // Проверяем наличие WebApp
   const webApp = (window as any).Telegram?.WebApp;
   console.log("WebApp available:", !!webApp);
   console.log("WebApp version:", webApp?.version);
   console.log("WebApp platform:", webApp?.platform);
-
+  
   // ✅ Правильная проверка через SDK
-  console.log("Using shareStory SDK");
-  try {
-    await shareStory(url, {
-      widgetLink: {
-        url: "https://t.me/QiblaGuidebot",
-        name: "@QiblaGuidebot",
-      },
-    });
-    return;
-  } catch (sdkError) {
-    console.error("SDK share failed:", sdkError);
+  if (typeof shareStory !== 'undefined' && shareStory.isAvailable()) {
+    console.log("Using shareStory SDK");
+    console.log("shareStory.isAvailable()",shareStory.isAvailable())
+    try {
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      return;
+    } catch (sdkError) {
+      console.error("SDK share failed:", sdkError);
+    }
   }
+
+
 };
