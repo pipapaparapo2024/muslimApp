@@ -156,42 +156,20 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
-  if (!url) return;
-
-  const webApp = (window as any).Telegram?.WebApp;
+export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
+  // Формируем правильный deep link для Stories
+  const deepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
   
-  console.log("=== TELEGRAM DEBUG INFO ===");
-  console.log("WebApp version:", webApp?.version);
-  console.log("Platform:", webApp?.platform);
+  // Открываем через iframe (лучше работает в мобильных браузерах)
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = deepLink;
+  document.body.appendChild(iframe);
   
-  // 1. Используем WebApp.share() если доступен (более новая версия)
-  if (webApp && typeof webApp.share === 'function') {
-    try {
-      console.log("Using WebApp.share()");
-      await webApp.share(url);
-      return;
-    } catch (error) {
-      console.warn("WebApp.share failed:", error);
-    }
-  }
-  
-  // 2. Используем WebApp.openLink() с правильным форматом
-  if (webApp && typeof webApp.openLink === 'function') {
-    try {
-      console.log("Using WebApp.openLink()");
-      
-      // Правильный формат для分享 в историю
-      const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=Check this out!`;
-      
-      webApp.openLink(telegramShareUrl);
-      return;
-    } catch (error) {
-      console.warn("WebApp.openLink failed:", error);
-    }
-  }
-
-  // 3. Fallback для старых версий
-  console.log("Using fallback");
-  window.open(url, "_blank");
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+  }, 1000);
 };
+
+// Использование
+shareToTelegramStory('https://your-image-url.com/image.jpg');
