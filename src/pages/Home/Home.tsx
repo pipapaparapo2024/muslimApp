@@ -142,23 +142,34 @@ export const Home: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // URL вашего изображения (замените на реальный URL)
-      const imageUrl = 'https://example.com/your-story-image.png';
-      
-      // Ссылка для открытия нативного интерфейса публикации истории
-      const shareUrl = `tg://share?url=${encodeURIComponent(imageUrl)}`;
-      
-      // Пытаемся открыть через WebApp API
-      if (window.Telegram?.WebApp?.openLink) {
-        window.Telegram.WebApp.openLink(shareUrl);
-      } else {
-        // Fallback: открываем в новом окне/вкладке
-        window.open(shareUrl, '_blank');
+      // 1. Способ через WebApp (если доступен)
+      if (window.Telegram?.WebApp?.showPopup) {
+        window.Telegram.WebApp.showPopup({
+          title: 'Публикация истории',
+          message: 'Для публикации истории используйте кнопку "📷" в основном интерфейсе Telegram',
+          // buttons: [{ type: 'ok' }]
+        });
+      } 
+      // 2. Способ через открытие клиента Telegram
+      else if (window.Telegram?.WebApp?.openTelegramLink) {
+        // Открываем глубокую ссылку в Telegram
+        window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=https://your-app.com');
+      }
+      // 3. Fallback - пытаемся открыть стандартный интерфейс
+      else {
+        // Эта ссылка откроет интерфейс "поделиться" в Telegram
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent('https://your-app.com')}&text=${encodeURIComponent('Посмотрите мою историю!')}`;
+        
+        if (window.Telegram?.WebApp?.openLink) {
+          window.Telegram.WebApp.openLink(shareUrl);
+        } else {
+          window.open(shareUrl, '_blank');
+        }
       }
 
     } catch (error) {
       console.error('Ошибка при публикации истории:', error);
-      alert('Не удалось открыть интерфейс публикации');
+      alert('Не удалось открыть интерфейс публикации. Возможно, функция недоступна в этой версии Telegram.');
     } finally {
       setTimeout(() => setIsLoading(false), 2000);
     }
@@ -170,6 +181,19 @@ export const Home: React.FC = () => {
     } else {
       alert('Откройте приложение в Telegram для публикации историй');
     }
+  };
+
+  // Альтернативный способ для десктопных версий Telegram
+  const openTelegramApp = () => {
+    // Ссылка для открытия Telegram с глубокой ссылкой
+    const tgAppLink = 'tg://resolve?domain=your_bot_username&start=share_story';
+    const tgWebLink = 'https://t.me/your_bot_username?start=share_story';
+    
+    // Пытаемся открыть приложение, если не получится - откроем веб-версию
+    window.location.href = tgAppLink;
+    setTimeout(() => {
+      window.location.href = tgWebLink;
+    }, 1000);
   };
 
   return (
@@ -210,9 +234,17 @@ export const Home: React.FC = () => {
         {isLoading && <p style={styles.loadingText}>Открываем редактор историй...</p>}
         
         {!isTelegram && (
-          <p style={styles.warningText}>
-            ⚠️ Функция публикации историй доступна только в приложении Telegram
-          </p>
+          <div style={styles.warningContainer}>
+            <p style={styles.warningText}>
+              ⚠️ Функция публикации историй доступна только в приложении Telegram
+            </p>
+            <button 
+              style={styles.alternativeButton}
+              onClick={openTelegramApp}
+            >
+              📲 Открыть в Telegram
+            </button>
+          </div>
         )}
       </div>
     </div>
@@ -295,14 +327,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: '0',
     fontStyle: 'italic',
   },
+  warningContainer: {
+    marginTop: '15px',
+    textAlign: 'center',
+  },
   warningText: {
     color: '#ff6b6b',
     fontSize: '14px',
-    textAlign: 'center',
-    margin: '15px 0 0 0',
+    margin: '0 0 10px 0',
     backgroundColor: '#fff0f0',
     padding: '10px',
     borderRadius: '8px',
     border: '1px solid #ffd6d6',
   },
+  alternativeButton: {
+    background: '#0088cc',
+    color: 'white',
+    border: 'none',
+    padding: '10px 16px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    cursor: 'pointer',
+  },
 };
+
+export default Home;
