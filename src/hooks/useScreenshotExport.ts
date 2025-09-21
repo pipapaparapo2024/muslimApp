@@ -157,21 +157,35 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = (url: string | undefined): void => {
-  if (!url) {
-    console.error("No URL provided for sharing");
-    return;
+export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+  if (!url) return;
+
+  // Сначала пробуем нативный способ
+  if (window.Telegram?.WebApp && shareStory.isAvailable()) {
+    try {
+      shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/YourBotName",
+          name: "@YourBotName",
+        },
+      });
+      return;
+    } catch (error) {
+      console.warn("Native share failed, trying fallback", error);
+    }
   }
 
-  if (shareStory.isAvailable()) {
-    shareStory(url, {
-      widgetLink: {
-        url: "https://t.me/YourBotName",
-        name: "@YourBotName",
-      },
-    });
-  } else {
-    console.log("Sharing to Telegram story:", url);
+  // Fallback 1: Deep link
+  try {
+    const deepLink = `tg://share?url=${encodeURIComponent(url)}`;
+    window.location.href = deepLink;
+    
+    // Если через время не сработало - показываем изображение
+    setTimeout(() => {
+      window.open(url, "_blank");
+    }, 300);
+  } catch (error) {
+    // Final fallback
     window.open(url, "_blank");
   }
 };
