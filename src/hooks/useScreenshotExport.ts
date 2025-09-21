@@ -164,13 +164,6 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
   console.log("URL to share:", url);
   console.log("shareStory available:", typeof shareStory !== 'undefined');
   console.log("isAvailable():", shareStory.isAvailable());
-  if (navigator.share) {
-  await navigator.share({
-    title: 'Мой заголовок',
-    text: 'Посмотри, что я нашёл!',
-    // files: [url],
-  });
-}
   // Проверяем наличие WebApp
   const webApp = (window as any).Telegram?.WebApp;
   console.log("WebApp available:", !!webApp);
