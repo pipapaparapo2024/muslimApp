@@ -8,6 +8,11 @@ import { applyLanguageStyles } from "../../hooks/useLanguages";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 
+interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
+}
+
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -31,11 +36,28 @@ export const useHomeLogic = () => {
   const [isInitializing, setIsInitializing] = useState(false);
   const [initializationError, setInitializationError] = useState<string | null>(null);
 
-  // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
     const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     return saved || "prompt";
   });
+
+  // Функция обработки данных компаса
+  const handleOrientation = useCallback((event: DeviceOrientationEvent) => {
+    const iosEvent = event as unknown as DeviceOrientationEventiOS;
+    const hasStandardCompass = event.alpha !== null;
+    const hasWebKitCompass = iosEvent.webkitCompassHeading !== undefined;
+
+    if (!hasStandardCompass && !hasWebKitCompass) return;
+
+    let newHeading: number;
+    if (hasWebKitCompass) {
+      newHeading = iosEvent.webkitCompassHeading!;
+    } else {
+      newHeading = (event.alpha! + 360) % 360;
+    }
+
+    localStorage.setItem("userHeading", newHeading.toString());
+  }, []);
 
   // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
   useEffect(() => {
@@ -43,7 +65,6 @@ export const useHomeLogic = () => {
       try {
         setIsInitializing(true);
         
-        // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
@@ -63,7 +84,7 @@ export const useHomeLogic = () => {
     initializeApp();
   }, []);
 
-  // Синхронизируем состояние с localStorage при изменении
+  // Синхронизируем состояние с localStorage
   useEffect(() => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
@@ -73,25 +94,57 @@ export const useHomeLogic = () => {
     setSensorPermission("prompt");
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
+    // Удаляем слушатель при сбросе
+    window.removeEventListener("deviceorientation", handleOrientation as EventListener);
     alert(t("permissionResetSuccess"));
-  }, []);
+  }, [handleOrientation]);
 
   // ЗАПРОС ДОСТУПА К ДАТЧИКАМ
   const requestSensorPermission = useCallback(async (): Promise<string> => {
     setIsRequestingPermission(true);
     try {
+      // Проверяем поддержку API запроса разрешения (iOS 13+)
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
-        (DeviceOrientationEvent as any).requestPermission
+        typeof (DeviceOrientationEvent as any).requestPermission === "function"
       ) {
+        console.log("Requesting sensor permission on iOS...");
+        
         const result = await (DeviceOrientationEvent as any).requestPermission();
-        setSensorPermission(result); // "granted" или "denied"
+        console.log("iOS Permission result:", result);
+        
+        setSensorPermission(result);
+        
+        // Если разрешение получено, добавляем слушатель
+        if (result === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation as EventListener);
+        }
+        
         return result;
-      } else {
-        // Для браузеров без API запроса разрешения
-        window.addEventListener("deviceorientation", () => {}, { once: true });
+      } 
+      // Для Android и других браузеров
+      else if (typeof DeviceOrientationEvent !== "undefined") {
+        console.log("No permission API, assuming granted for non-iOS");
+        
+        // Пробуем добавить слушатель - если сработает, значит разрешение есть
+        const testListener = () => {
+          console.log("Device orientation supported without permission request");
+        };
+        
+        window.addEventListener("deviceorientation", testListener as EventListener, { once: true });
+        setTimeout(() => {
+          window.removeEventListener("deviceorientation", testListener as EventListener);
+        }, 100);
+        
         setSensorPermission("granted");
+        window.addEventListener("deviceorientation", handleOrientation as EventListener);
         return "granted";
+      } 
+      // Браузер не поддерживает DeviceOrientation
+      else {
+        console.log("DeviceOrientation not supported");
+        setSensorPermission("unsupported");
+        return "unsupported";
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
@@ -100,7 +153,7 @@ export const useHomeLogic = () => {
     } finally {
       setIsRequestingPermission(false);
     }
-  }, []);
+  }, [handleOrientation]);
 
   const handleCompassClick = useCallback(async () => {
     if (sensorPermission === "denied") {
@@ -110,7 +163,6 @@ export const useHomeLogic = () => {
 
     if (sensorPermission === "prompt") {
       const result = await requestSensorPermission();
-      // После запроса разрешения, если оно granted, переходим
       if (result === "granted") {
         navigate("/qibla", { state: { activeTab: "compass" } });
       }

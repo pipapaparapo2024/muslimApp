@@ -284,11 +284,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
-    // Добавляем слушатель только если разрешение granted
-    if (window.DeviceOrientationEvent && sensorPermission === "granted") {
-      window.addEventListener("deviceorientation", handleOrientation);
-    }
-
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.off("moveend", handleMapMove);
