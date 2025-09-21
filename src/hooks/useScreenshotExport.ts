@@ -157,16 +157,18 @@ export const useScreenshotExport = () => {
 };
 
 export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
-  // Формируем правильный deep link для Stories
-  const deepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
+  const webApp = (window as any).Telegram?.WebApp;
   
-  // Открываем через iframe (лучше работает в мобильных браузерах)
-  const iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = deepLink;
-  document.body.appendChild(iframe);
-  
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-  }, 1000);
+  if (webApp && typeof webApp.openLink === 'function') {
+    try {
+      const storyDeepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
+      webApp.openLink(storyDeepLink);
+    } catch (error) {
+      // Fallback на обычный deep link
+      window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, '_blank');
+    }
+  } else {
+    // Fallback для браузера
+    window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, '_blank');
+  }
 };
