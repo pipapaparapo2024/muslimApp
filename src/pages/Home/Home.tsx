@@ -55,7 +55,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-
+      {sensorPermission}
       {/* Кнопка сброса разрешения (только для отладки) */}
       {sensorPermission === "granted" ||
         (sensorPermission === "denied" && (

@@ -51,7 +51,7 @@ async function waitFonts(): Promise<void> {
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
-    const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
+  const [, setSdkInitialized] = useState<boolean>(false);
   // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
