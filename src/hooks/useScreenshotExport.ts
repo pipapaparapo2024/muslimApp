@@ -157,23 +157,26 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
   if (!url) return;
+  // Расширенная диагностика
+  console.log("=== EXTENDED TELEGRAM DEBUG ===");
+  console.log("User agent:", navigator.userAgent);
 
-  console.log("=== TELEGRAM DEBUG INFO ===");
-  console.log("URL to share:", url);
-  console.log("shareStory available:", typeof shareStory !== 'undefined');
-  console.log("isAvailable():", shareStory.isAvailable());
-  // Проверяем наличие WebApp
-  const webApp = (window as any).Telegram?.WebApp;
-  console.log("WebApp available:", !!webApp);
-  console.log("WebApp version:", webApp?.version);
-  console.log("WebApp platform:", webApp?.platform);
-  
-  // ✅ Правильная проверка через SDK
-  if (typeof shareStory !== 'undefined' && shareStory.isAvailable()) {
+  // Проверяем наличие объекта WebApp
+  const tg = (window as any).Telegram;
+  console.log("Telegram object:", tg);
+
+  if (tg && tg.WebApp) {
+    console.log("WebApp platform:", tg.WebApp.platform);
+    console.log("WebApp version:", tg.WebApp.version);
+    console.log("WebApp.initData:", tg.WebApp.initData); // Если есть initData - мы точно в клиенте
+    console.log("WebApp.isExpanded:", tg.WebApp.isExpanded);
+  }
+  if (typeof shareStory !== "undefined" && shareStory.isAvailable()) {
     console.log("Using shareStory SDK");
-    console.log("shareStory.isAvailable()",shareStory.isAvailable())
     try {
       await shareStory(url, {
         widgetLink: {
@@ -186,6 +189,4 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
       console.error("SDK share failed:", sdkError);
     }
   }
-
-
 };
