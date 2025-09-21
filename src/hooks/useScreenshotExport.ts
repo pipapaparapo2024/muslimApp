@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { quranApi } from "../api/api";
+import { shareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
@@ -156,14 +157,55 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
+export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+  if (!url) return;
+
+  console.log("=== TELEGRAM DEBUG INFO ===");
+  console.log("URL to share:", url);
+  console.log("shareStory available:", typeof shareStory !== 'undefined');
+  console.log("isAvailable():", shareStory.isAvailable());
+  if (navigator.share) {
+  await navigator.share({
+    title: 'Мой заголовок',
+    text: 'Посмотри, что я нашёл!',
+    // files: [url],
+  });
+}
+  // Проверяем наличие WebApp
   const webApp = (window as any).Telegram?.WebApp;
-  console.log("imageUrl", imageUrl);
-  try {
-    const storyDeepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
-    webApp.openLink(storyDeepLink);
-  } catch (error) {
-    // Fallback на обычный deep link
-    window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, "_blank");
+  console.log("WebApp available:", !!webApp);
+  console.log("WebApp version:", webApp?.version);
+  console.log("WebApp platform:", webApp?.platform);
+  
+  // ✅ Правильная проверка через SDK
+  if (typeof shareStory !== 'undefined' && shareStory.isAvailable?.()) {
+    console.log("Using shareStory SDK");
+    try {
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      return;
+    } catch (sdkError) {
+      console.error("SDK share failed:", sdkError);
+    }
   }
+
+  // Альтернативный способ через WebApp
+  if (webApp) {
+    console.log("Trying WebApp share method");
+    try {
+      // Правильный формат для分享 в историю
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
+      webApp.openLink(shareUrl);
+      return;
+    } catch (webAppError) {
+      console.error("WebApp share failed:", webAppError);
+    }
+  }
+
+  console.log("Using fallback to window.open");
+  window.open(url, "_blank");
 };
