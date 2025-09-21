@@ -30,7 +30,6 @@ export const useHomeLogic = () => {
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [initializationError, setInitializationError] = useState<string | null>(null);
-  const [orientationListenerActive, setOrientationListenerActive] = useState(false);
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -38,11 +37,13 @@ export const useHomeLogic = () => {
     return saved || "prompt";
   });
 
-  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
+  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // 3. Получаем и устанавливаем язык с бекенда
+        setIsInitializing(true);
+        
+        // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
@@ -50,7 +51,6 @@ export const useHomeLogic = () => {
           localStorage.setItem("preferred-language", userLanguage);
         }
 
-        // Помечаем, что инициализация выполнена
         localStorage.setItem("appInitialized", "true");
       } catch (error) {
         console.error("Initialization error:", error);
@@ -68,83 +68,56 @@ export const useHomeLogic = () => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // === ФУНКЦИЯ СБРОСА РАЗРЕШЕНИЯ ===
+  // ФУНКЦИЯ СБРОСА РАЗРЕШЕНИЯ
   const resetSensorPermission = useCallback(() => {
     setSensorPermission("prompt");
-    setOrientationListenerActive(false); // Отключаем слушатель
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
     alert(t("permissionResetSuccess"));
   }, []);
 
-
-  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
-  const requestSensorPermission = useCallback(async () => {
+  // ЗАПРОС ДОСТУПА К ДАТЧИКАМ
+  const requestSensorPermission = useCallback(async (): Promise<string> => {
     setIsRequestingPermission(true);
     try {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
         (DeviceOrientationEvent as any).requestPermission
       ) {
-        const result = await (
-          DeviceOrientationEvent as any
-        ).requestPermission();
-        if (result === "granted") {
-          setSensorPermission("granted");
-        } else {
-          setSensorPermission("denied");
-        }
+        const result = await (DeviceOrientationEvent as any).requestPermission();
+        setSensorPermission(result); // "granted" или "denied"
+        return result;
       } else {
+        // Для браузеров без API запроса разрешения
         window.addEventListener("deviceorientation", () => {}, { once: true });
         setSensorPermission("granted");
+        return "granted";
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
       setSensorPermission("denied");
+      return "denied";
     } finally {
       setIsRequestingPermission(false);
     }
   }, []);
 
-  const handleCompassClick = useCallback(async (currentPermission: string) => {
-    if (currentPermission === "denied") {
+  const handleCompassClick = useCallback(async () => {
+    if (sensorPermission === "denied") {
       alert(t("sensorPermissionDeniedMessage"));
       return;
     }
 
-    if (currentPermission === "prompt") {
-      setIsRequestingPermission(true);
-      try {
-        if (
-          typeof DeviceOrientationEvent !== "undefined" &&
-          (DeviceOrientationEvent as any).requestPermission
-        ) {
-          const result = await (
-            DeviceOrientationEvent as any
-          ).requestPermission();
-          
-          if (result === "granted") {
-            setSensorPermission("granted");
-            navigate("/qibla", { state: { activeTab: "compass" } });
-          } else {
-            setSensorPermission("denied");
-            alert(t("sensorPermissionRequired"));
-          }
-        } else {
-          setSensorPermission("granted");
-          navigate("/qibla", { state: { activeTab: "compass" } });
-        }
-      } catch (err) {
-        console.error("Sensor permission error:", err);
-        setSensorPermission("denied");
-        alert(t("sensorPermissionError"));
-      } finally {
-        setIsRequestingPermission(false);
+    if (sensorPermission === "prompt") {
+      const result = await requestSensorPermission();
+      // После запроса разрешения, если оно granted, переходим
+      if (result === "granted") {
+        navigate("/qibla", { state: { activeTab: "compass" } });
       }
-    } else if (currentPermission === "granted") {
+    } else if (sensorPermission === "granted") {
       navigate("/qibla", { state: { activeTab: "compass" } });
     }
-  }, [navigate]);
+  }, [sensorPermission, requestSensorPermission, navigate]);
 
   const handleMapClick = useCallback(() => {
     navigate("/qibla", { state: { activeTab: "map" } });
@@ -155,9 +128,8 @@ export const useHomeLogic = () => {
     isRequestingPermission,
     isInitializing,
     initializationError,
-    orientationListenerActive,
     requestSensorPermission,
-    resetSensorPermission, // Экспортируем функцию сброса
+    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
   };

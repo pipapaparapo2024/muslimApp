@@ -15,7 +15,7 @@ export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
-    resetSensorPermission, // Добавляем функцию сброса
+    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
@@ -25,7 +25,6 @@ export const Home: React.FC = () => {
 
   const { isLoading, error } = useGeoStore();
 
-  // Показываем лоадер во время инициализации
   if (isInitializing) {
     return (
       <PageWrapper>
@@ -37,7 +36,6 @@ export const Home: React.FC = () => {
     );
   }
 
-  // Показываем ошибку инициализации
   if (initializationError) {
     return (
       <PageWrapper>
@@ -56,17 +54,16 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка сброса разрешения (только для отладки) */}
-      {sensorPermission === "granted" ||
-        (sensorPermission === "denied" && (
-          <button
-            className={styles.resetPermissionButton}
-            onClick={resetSensorPermission}
-            title={t("resetPermissionHint")}
-          >
-            {t("resetPermission")}
-          </button>
-        ))}
+      {/* Кнопка сброса разрешения (показывается когда разрешение не в состоянии prompt) */}
+      {sensorPermission !== "prompt" && (
+        <button
+          className={styles.resetPermissionButton}
+          onClick={resetSensorPermission}
+          title={t("resetPermissionHint")}
+        >
+          {t("resetPermission")}
+        </button>
+      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -92,15 +89,15 @@ export const Home: React.FC = () => {
                   <div onClick={handleMapClick} className={styles.mapContainer}>
                     <QiblaMap
                       onMapClick={handleMapClick}
-                      showPermissionButton={sensorPermission !== "granted"}
+                      showPermissionButton={sensorPermission === "prompt"}
                       onRequestPermission={requestSensorPermission}
                       isRequestingPermission={isRequestingPermission}
-                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
+                      sensorPermission={sensorPermission}
                     />
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick(sensorPermission)}
+                    onClick={() => handleCompassClick()}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass

@@ -1,4 +1,3 @@
-// QiblaMap.tsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";
@@ -11,17 +10,19 @@ import { t } from "i18next";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
+
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   webkitCompassHeading?: number;
   webkitCompassAccuracy?: number;
 }
+
 interface QiblaMapProps {
   fullscreen?: boolean;
   onMapClick?: () => void;
   showPermissionButton?: boolean;
   onRequestPermission?: () => void;
   isRequestingPermission?: boolean;
-  orientationListenerActive?: boolean; // Добавляем новый проп
+  sensorPermission?: string;
 }
 
 export const QiblaMap: React.FC<QiblaMapProps> = ({
@@ -30,7 +31,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   showPermissionButton = false,
   onRequestPermission,
   isRequestingPermission = false,
-  orientationListenerActive = true, // По умолчанию активно
+  sensorPermission = "prompt",
 }) => {
   const navigate = useNavigate();
   const { coords: geoCoords } = useGeoStore();
@@ -45,26 +46,24 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
   const currentCoordsRef = useRef(geoCoords || { lat: 0, lon: 0 });
   const [userHeading, setUserHeading] = useState<number>(0);
 
-  // Стабильная утилита
   const createLatLng = useCallback(
     (lat: number, lng: number): L.LatLngExpression => [lat, lng],
     []
   );
 
-  // Иконка пользователя с вращением
   const createUserIcon = useCallback((heading: number) => {
     return L.divIcon({
       html: `<div style="transform: rotate(${heading}deg); width: 27px; height: 27px; display: flex; align-items: center; justify-content: center;">
-                  <svg width="50" height="50" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6.69945 2.36418C7.25335 1.57065 7.92847 0.93061 8.89949 0.930634C9.87051 0.930636 10.5456 1.57065 11.0995 2.36418C11.6567 3.16239 12.2415 4.33732 12.9723 5.7989L14.6717 9.19702C15.2644 10.3824 15.7304 11.3131 16.021 12.0337C16.2951 12.7137 16.5007 13.4007 16.3386 14.0128C16.0947 14.934 15.3754 15.6534 14.4541 15.8973C13.8421 16.0594 13.155 15.8538 12.4751 15.5796C11.7545 15.2891 10.8238 14.823 9.63837 14.2303C9.21643 14.0193 9.12804 13.9828 9.04934 13.9672C8.95056 13.9477 8.84889 13.9471 8.75034 13.9665L8.74965 13.9672C8.67093 13.9828 8.58244 14.0194 8.16062 14.2303C6.97523 14.823 6.0445 15.2891 5.32391 15.5796C4.64395 15.8538 3.9569 16.0593 3.34484 15.8973C2.42363 15.6533 1.70428 14.934 1.46037 14.0128C1.29834 13.4008 1.50387 12.7137 1.77802 12.0337C2.06858 11.3131 2.53463 10.3824 3.12732 9.19702L4.82673 5.7989C5.55751 4.33733 6.14235 3.16239 6.69945 2.36418Z" fill="var(--bg-surface)" stroke="#15803D" stroke-width="1.5"/>
-</svg></div>`,
+        <svg width="50" height="50" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6.69945 2.36418C7.25335 1.57065 7.92847 0.93061 8.89949 0.930634C9.87051 0.930636 10.5456 1.57065 11.0995 2.36418C11.6567 3.16239 12.2415 4.33732 12.9723 5.7989L14.6717 9.19702C15.2644 10.3824 15.7304 11.3131 16.021 12.0337C16.2951 12.7137 16.5007 13.4007 16.3386 14.0128C16.0947 14.934 15.3754 15.6534 14.4541 15.8973C13.8421 16.0594 13.155 15.8538 12.4751 15.5796C11.7545 15.2891 10.8238 14.823 9.63837 14.2303C9.21643 14.0193 9.12804 13.9828 9.04934 13.9672C8.95056 13.9477 8.84889 13.9471 8.75034 13.9665L8.74965 13.9672C8.67093 13.9828 8.58244 14.0194 8.16062 14.2303C6.97523 14.823 6.0445 15.2891 5.32391 15.5796C4.64395 15.8538 3.9569 16.0593 3.34484 15.8973C2.42363 15.6533 1.70428 14.934 1.46037 14.0128C1.29834 13.4008 1.50387 12.7137 1.77802 12.0337C2.06858 11.3131 2.53463 10.3824 3.12732 9.19702L4.82673 5.7989C5.55751 4.33733 6.14235 3.16239 6.69945 2.36418Z" fill="var(--bg-surface)" stroke="#15803D" stroke-width="1.5"/>
+        </svg>
+      </div>`,
       className: "custom-user-icon",
       iconSize: [27, 27],
       iconAnchor: [13.5, 13.5],
     });
   }, []);
 
-  // Иконка Каабы с белым фоном
   const createKaabaIcon = useCallback(() => {
     return L.divIcon({
       html: `<div style="
@@ -85,7 +84,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     });
   }, []);
 
-  // Иконка Каабы на краю карты
   const createEdgeKaabaIcon = useCallback(() => {
     return L.divIcon({
       html: `<div style="
@@ -106,7 +104,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     });
   }, []);
 
-  // Обновление вращения маркера пользователя
   const updateUserMarkerRotation = useCallback(
     (heading: number) => {
       if (userMarkerRef.current) {
@@ -117,7 +114,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     [createUserIcon]
   );
 
-  // Обновление линии направления и иконки Каабы на краю
   const updateDirectionLine = useCallback(() => {
     if (!leafletMapRef.current || !userMarkerRef.current) return;
 
@@ -125,7 +121,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     const lat = userPos.lat;
     const lon = userPos.lng;
 
-    // Обновляем линию
     if (directionLineRef.current) {
       directionLineRef.current.setLatLngs([
         [lat, lon],
@@ -133,7 +128,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       ]);
     }
 
-    // Проверяем видимость Каабы для маркера на краю
     const mapBounds = leafletMapRef.current.getBounds();
     const kaabaVisible = mapBounds.contains([KAABA_LAT, KAABA_LON]);
 
@@ -167,7 +161,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     }
   }, []);
 
-  // Обновление элементов карты (позиция, вид, линия)
   const updateMapElements = useCallback(
     (lat: number, lon: number, updateView = true) => {
       if (!leafletMapRef.current) return;
@@ -190,28 +183,20 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     [createLatLng, updateDirectionLine]
   );
 
-  // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
-      // Если слушатель не активен, не обрабатываем события
-      if (!orientationListenerActive) return;
+      if (sensorPermission !== "granted") return;
 
-      // Приводим к кастомному типу для iOS
       const iosEvent = event as unknown as DeviceOrientationEventiOS;
-
-      // Проверяем доступность данных компаса
       const hasStandardCompass = event.alpha !== null;
       const hasWebKitCompass = iosEvent.webkitCompassHeading !== undefined;
 
       if (!hasStandardCompass && !hasWebKitCompass) return;
 
       let newHeading: number;
-
-      // Приоритет для webkitCompassHeading (более точный в iOS)
       if (hasWebKitCompass) {
         newHeading = iosEvent.webkitCompassHeading!;
       } else {
-        // Стандартный способ для Android и других устройств
         newHeading = (event.alpha! + 360) % 360;
       }
 
@@ -219,10 +204,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateUserMarkerRotation(newHeading);
       localStorage.setItem("userHeading", newHeading.toString());
     },
-    [updateUserMarkerRotation, orientationListenerActive] // Добавляем зависимость
+    [updateUserMarkerRotation, sensorPermission]
   );
 
-  // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
 
@@ -240,12 +224,10 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       maxZoom: 19,
     }).addTo(map);
 
-    // Kaaba marker - всегда видимый
     kaabaMarkerRef.current = L.marker(createLatLng(KAABA_LAT, KAABA_LON), {
       icon: createKaabaIcon(),
     }).addTo(map);
 
-    // User marker
     const initialHeading = parseFloat(
       localStorage.getItem("userHeading") || "0"
     );
@@ -257,7 +239,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       }
     ).addTo(map);
 
-    // Direction line
     directionLineRef.current = L.polyline(
       [
         [displayCoords.lat, displayCoords.lon],
@@ -271,7 +252,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       }
     ).addTo(map);
 
-    // Edge Kaaba marker (initially hidden)
     edgeKaabaMarkerRef.current = L.marker(
       createLatLng(displayCoords.lat, displayCoords.lon),
       {
@@ -280,14 +260,11 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       }
     ).addTo(map);
 
-    // Устанавливаем ссылки перед вызовом updateDirectionLine
     leafletMapRef.current = map;
     initializedRef.current = true;
 
-    // Обновляем направление сразу после создания всех элементов
     updateDirectionLine();
 
-    // Обновление при движении/зуме карты
     const handleMapMove = () => {
       updateDirectionLine();
     };
@@ -307,9 +284,11 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
-    if (window.DeviceOrientationEvent && orientationListenerActive) {
+    // Добавляем слушатель только если разрешение granted
+    if (window.DeviceOrientationEvent && sensorPermission === "granted") {
       window.addEventListener("deviceorientation", handleOrientation);
     }
+
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.off("moveend", handleMapMove);
@@ -333,13 +312,12 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     createLatLng,
     geoCoords,
     handleOrientation,
-    orientationListenerActive,
+    sensorPermission,
     setTempCoords,
     updateDirectionLine,
     updateMapElements,
   ]);
 
-  // === Обновление при изменении geoCoords ===
   useEffect(() => {
     if (
       initializedRef.current &&
@@ -351,7 +329,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     }
   }, [geoCoords, updateMapElements]);
 
-  // === Обновление вращения маркера ===
   useEffect(() => {
     if (initializedRef.current && userMarkerRef.current) {
       updateUserMarkerRotation(userHeading);
@@ -371,7 +348,8 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       ref={mapRef}
       className={fullscreen ? styles.fullscreen : styles.mapContainer}
     >
-      {showPermissionButton && (
+      {/* Кнопка запроса разрешения */}
+      {sensorPermission === "prompt" && showPermissionButton && (
         <div className={styles.permissionOverlay}>
           <div className={styles.permissionBlur}></div>
           <div
@@ -382,6 +360,16 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
             }}
           >
             {isRequestingPermission ? t("requesting...") : t("allowSensors")}
+          </div>
+        </div>
+      )}
+
+      {/* Сообщение об отказе */}
+      {sensorPermission === "denied" && (
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionBlur}></div>
+          <div className={styles.permissionDeniedMessage}>
+            {t("sensorPermissionDeniedMessage")}
           </div>
         </div>
       )}
