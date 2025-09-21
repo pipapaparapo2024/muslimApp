@@ -161,6 +161,7 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
   if (!url) return;
   console.log("urllll",url)
   // Сначала пробуем нативный способ
+  console.log("shareStory.isAvailable()",shareStory.isAvailable())
   if (shareStory.isAvailable()) {
     console.log("shareStory")
     try {
