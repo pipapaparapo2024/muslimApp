@@ -32,6 +32,7 @@ import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
 import { CameraPage } from "./pages/Scanner/cameraPage/CameraPage";
+import { QiblaInstructions } from "./components/QiblaInstructions";
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
   viewport.expand();
@@ -120,7 +121,7 @@ export const App: React.FC = () => {
           path="/scanner/ScannerShareHistory/:id"
           element={<ScannerShareStory />}
         />
-
+  <Route path="/qibla-instructions" element={<QiblaInstructions/>}/>
         <Route path="/scanner/notScanned" element={<NotScaned />} />
         <Route path="/qna" element={<QnA />} />
         <Route path="/qna/analyzing" element={<AnalyzingPromise />} />
