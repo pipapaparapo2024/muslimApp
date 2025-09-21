@@ -15,6 +15,7 @@ export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
+    resetSensorPermission, // Добавляем функцию сброса
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
@@ -55,14 +56,16 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка запроса доступа к датчикам */}
-      <button
-        className={styles.allowSensorButton}
-        onClick={requestSensorPermission}
-        disabled={isRequestingPermission}
-      >
-        {isRequestingPermission ? t("requesting") : t("allowSensors")}
-      </button>
+      {/* Кнопка сброса разрешения (только для отладки) */}
+      {sensorPermission === "granted"  && (
+        <button
+          className={styles.resetPermissionButton}
+          onClick={resetSensorPermission}
+          title={t("resetPermissionHint")}
+        >
+          {t("resetPermission")}
+        </button>
+      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -86,7 +89,13 @@ export const Home: React.FC = () => {
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap onMapClick={handleMapClick} />
+                    <QiblaMap
+                      onMapClick={handleMapClick}
+                      showPermissionButton={sensorPermission !== "granted"}
+                      onRequestPermission={requestSensorPermission}
+                      isRequestingPermission={isRequestingPermission}
+                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
+                    />
                   </div>
 
                   <div

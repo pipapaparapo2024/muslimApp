@@ -1,3 +1,4 @@
+// QiblaMap.tsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";
@@ -6,6 +7,7 @@ import { useGeoStore } from "../../../hooks/useGeoStore";
 import { useMapStore } from "../../../hooks/useQiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";
+import { t } from "i18next";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
@@ -16,11 +18,19 @@ interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
 interface QiblaMapProps {
   fullscreen?: boolean;
   onMapClick?: () => void;
+  showPermissionButton?: boolean;
+  onRequestPermission?: () => void;
+  isRequestingPermission?: boolean;
+  orientationListenerActive?: boolean; // Добавляем новый проп
 }
 
 export const QiblaMap: React.FC<QiblaMapProps> = ({
   fullscreen = false,
   onMapClick,
+  showPermissionButton = false,
+  onRequestPermission,
+  isRequestingPermission = false,
+  orientationListenerActive = true, // По умолчанию активно
 }) => {
   const navigate = useNavigate();
   const { coords: geoCoords } = useGeoStore();
@@ -180,10 +190,12 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     [createLatLng, updateDirectionLine]
   );
 
-  // Обработчик ориентации
   // Обработчик ориентации (ИСПРАВЛЕННЫЙ)
   const handleOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
+      // Если слушатель не активен, не обрабатываем события
+      if (!orientationListenerActive) return;
+
       // Приводим к кастомному типу для iOS
       const iosEvent = event as unknown as DeviceOrientationEventiOS;
 
@@ -207,8 +219,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateUserMarkerRotation(newHeading);
       localStorage.setItem("userHeading", newHeading.toString());
     },
-    [updateUserMarkerRotation]
+    [updateUserMarkerRotation, orientationListenerActive] // Добавляем зависимость
   );
+
   // === ОСНОВНОЙ ЭФФЕКТ: инициализация карты (один раз) ===
   useEffect(() => {
     if (!mapRef.current || initializedRef.current) return;
@@ -294,11 +307,9 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       updateMapElements(clickedCoords.lat, clickedCoords.lon, true);
     });
 
-    // Добавляем ориентацию
-    if (window.DeviceOrientationEvent) {
+    if (window.DeviceOrientationEvent && orientationListenerActive) {
       window.addEventListener("deviceorientation", handleOrientation);
     }
-
     return () => {
       if (leafletMapRef.current) {
         leafletMapRef.current.off("moveend", handleMapMove);
@@ -322,6 +333,7 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
     createLatLng,
     geoCoords,
     handleOrientation,
+    orientationListenerActive,
     setTempCoords,
     updateDirectionLine,
     updateMapElements,
@@ -358,6 +370,21 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       }}
       ref={mapRef}
       className={fullscreen ? styles.fullscreen : styles.mapContainer}
-    />
+    >
+      {showPermissionButton && (
+        <div className={styles.permissionOverlay}>
+          <div className={styles.permissionBlur}></div>
+          <div
+            className={styles.permissionButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRequestPermission && onRequestPermission();
+            }}
+          >
+            {isRequestingPermission ? t("requesting...") : t("allowSensors")}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
