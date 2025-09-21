@@ -75,7 +75,6 @@ export const useScreenshotExport = () => {
       const blob = await toBlob(element, {
         pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
         cacheBust: true,
-        backgroundColor: "#ffffff",
         filter: (node: HTMLElement) => {
           const tag = node.tagName?.toUpperCase?.() || "";
           // Исключаем элементы, которые не должны попадать в скриншот
@@ -179,11 +178,13 @@ export const shareToTelegramStory = async (
   console.log("=== TELEGRAM ENVIRONMENT DEBUG ===");
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
+  console.log("User Premium:", tg?.WebApp?.initDataUnsafe?.user?.is_premium);
 
-  // Более надежная проверка на наличие Telegram WebApp
+  // Проверяем, находимся ли мы в Telegram WebApp
   const isTelegramWebApp = tg && tg.WebApp && tg.WebApp.initData;
-  const isAndroid = tg?.WebApp?.platform === "android";
-  const isIos = tg?.WebApp?.platform === "ios";
+  // const isAndroid = tg?.WebApp?.platform === "android";
+  // const isIos = tg?.WebApp?.platform === "ios";
+  const hasPremium = tg?.WebApp?.initDataUnsafe?.user?.is_premium;
   
   try {
     // Если не в Telegram WebApp, используем глубокую ссылку
@@ -193,30 +194,41 @@ export const shareToTelegramStory = async (
       return;
     }
 
-    // Для всех платформ пытаемся использовать shareStory API
+    // Для пользователей с Premium пробуем использовать прямой подход
+    if (hasPremium) {
+      console.log("Premium user detected, using direct sharing approach");
+      
+      // Прямое открытие ссылки для Premium пользователей
+      window.open(url, '_blank');
+      
+      // Добавляем небольшую задержку для обработки
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return;
+    }
+
+    // Для обычных пользователей используем стандартный подход
     try {
       // Убедимся, что SDK инициализирован
-      await initTelegramSdkForAndroid();
+      await initTelegramSdk();
       
-      await shareStory(url, {
-        widgetLink: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
-      
-      console.log("shareStory completed successfully");
+      // Проверяем, доступна ли функция shareStory
+      if (typeof shareStory === 'function') {
+        await shareStory(url, {
+          widgetLink: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+        console.log("shareStory completed successfully");
+      } else {
+        throw new Error("shareStory function not available");
+      }
       
     } catch (shareError) {
       console.warn("shareStory failed, falling back to deep link:", shareError);
       
-      // Запасной вариант: открываем глубокую ссылку
-      if (isAndroid || isIos) {
-        window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
-      } else {
-        // Для desktop или других платформ
-        window.open(url, '_blank');
-      }
+      // Запасной вариант
+      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
     }
     
   } catch (error) {
@@ -227,8 +239,8 @@ export const shareToTelegramStory = async (
   }
 };
 
-// Улучшенная функция инициализации
-const initTelegramSdkForAndroid = async (): Promise<void> => {
+// Универсальная функция инициализации SDK
+const initTelegramSdk = async (): Promise<void> => {
   try {
     const tg = (window as any).Telegram;
     
@@ -237,18 +249,13 @@ const initTelegramSdkForAndroid = async (): Promise<void> => {
       return;
     }
     
-    // Явно инициализируем SDK с таймаутом
-    await Promise.race([
-      init(),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("SDK initialization timeout")), 2000)
-      )
-    ]);
-    
+    // Пытаемся инициализировать SDK
+    await init();
     console.log("Telegram SDK initialized successfully");
     
   } catch (error) {
     console.error("Telegram SDK initialization failed:", error);
-    throw error;
+    // Не бросаем ошибку дальше, так как есть fallback-варианты
   }
 };
+
