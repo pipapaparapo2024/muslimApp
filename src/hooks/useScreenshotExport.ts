@@ -192,7 +192,6 @@ export const shareToTelegramStory = async (
     if (isAndroid) {
       console.log("Android platform detected");
       
-      // ОСНОВНОЙ МЕТОД для Android - используем SDK после инициализации
       await initTelegramSdkForAndroid(); // ← ДОБАВЬТЕ ЭТУ ФУНКЦИЮ
       
       await shareStory(url, {
