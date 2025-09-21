@@ -32,7 +32,6 @@ import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
 import { CameraPage } from "./pages/Scanner/cameraPage/CameraPage";
-import WebApp from "@twa-dev/sdk";
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
   viewport.expand();
@@ -54,10 +53,7 @@ export const App: React.FC = () => {
       window.Telegram.WebApp.disableVerticalSwipes();
     }
   }, []);
-  useEffect(() => {
-    // Инициализируем WebApp
-    WebApp.ready();
-  }, []);
+  
   useEffect(() => {
     const initializeApp = () => {
       const tg = window.Telegram?.WebApp;
