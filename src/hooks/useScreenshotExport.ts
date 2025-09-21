@@ -170,6 +170,3 @@ export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
     document.body.removeChild(iframe);
   }, 1000);
 };
-
-// Использование
-shareToTelegramStory('https://your-image-url.com/image.jpg');
