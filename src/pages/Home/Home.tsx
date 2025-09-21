@@ -57,15 +57,16 @@ export const Home: React.FC = () => {
       <Header />
 
       {/* Кнопка сброса разрешения (только для отладки) */}
-      {sensorPermission === "granted" && (
-        <button
-          className={styles.resetPermissionButton}
-          onClick={resetSensorPermission}
-          title={t("resetPermissionHint")}
-        >
-          {t("resetPermission")}
-        </button>
-      )}
+      {sensorPermission === "granted" ||
+        (sensorPermission === "denied" && (
+          <button
+            className={styles.resetPermissionButton}
+            onClick={resetSensorPermission}
+            title={t("resetPermissionHint")}
+          >
+            {t("resetPermission")}
+          </button>
+        ))}
 
       <div className={styles.homeRoot}>
         {isLoading && (
