@@ -181,14 +181,15 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
   try {
     // Добавляем более точную проверку доступности
     console.log("Using shareStory SDK",shareStory.isAvailable());
-    if (typeof shareStory !== 'undefined' && shareStory.isAvailable()) {
-      await shareStory(url, {
+    if (shareStory.isAvailable()) {
+      shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
       return;
+      
     }
   } catch (sdkError) {
     console.warn("SDK share failed:", sdkError);
