@@ -252,26 +252,3 @@ const initTelegramSdkForAndroid = async (): Promise<void> => {
     throw error;
   }
 };
-
-// ДОБАВЬТЕ ЭТУ ФУНКЦИЮ ДЛЯ ИНИЦИАЛИЗАЦИИ SDK ДЛЯ ANDROID
-const initTelegramSdkForAndroid = async (): Promise<void> => {
-  try {
-    // Проверяем, инициализирован ли уже SDK
-    const tg = (window as any).Telegram;
-    if (tg && tg.WebApp && tg.WebApp.initData) {
-      console.log("WebApp already initialized");
-      return;
-    }
-    
-    // Явно инициализируем SDK
-    await init();
-    console.log("Telegram SDK initialized for Android");
-    
-    // Даем время на инициализацию
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-  } catch (error) {
-    console.error("Failed to initialize Telegram SDK for Android:", error);
-    throw error;
-  }
-};
