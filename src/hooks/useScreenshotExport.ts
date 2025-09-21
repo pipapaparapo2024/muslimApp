@@ -159,34 +159,61 @@ export const useScreenshotExport = () => {
 
 export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
-  console.log("urllll",url)
-  // Сначала пробуем нативный способ
-  console.log("shareStory.isAvailable()",shareStory.isAvailable())
-  if (shareStory.isAvailable()) {
-    console.log("shareStory")
-    try {
-      shareStory(url, {
+  console.log("Sharing URL:", url);
+
+  // Проверяем, находимся ли мы в Telegram
+  const isTelegram = typeof window !== 'undefined' && 
+                    (window as any).Telegram?.WebApp?.initData !== undefined;
+
+  if (!isTelegram) {
+    console.log("Not in Telegram, using fallback");
+    window.open(url, "_blank");
+    return;
+  }
+
+  // Пробуем нативный способ через SDK
+  try {
+    if (shareStory.isAvailable()) {
+      console.log("Using shareStory SDK");
+      await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
       return;
-    } catch (error) {
-      console.warn("Native share failed, trying fallback", error);
     }
+  } catch (sdkError) {
+    console.warn("SDK share failed:", sdkError);
   }
 
+  // Пробуем через Telegram WebApp API
   try {
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp && webApp.share) {
+      console.log("Using WebApp share");
+      webApp.share(url, "Поделиться в историях");
+      return;
+    }
+  } catch (webAppError) {
+    console.warn("WebApp share failed:", webAppError);
+  }
+
+  // Fallback: deep link
+  try {
+    console.log("Using deep link fallback");
     const deepLink = `tg://share?url=${encodeURIComponent(url)}`;
+    
+    // Пробуем открыть deep link
     window.location.href = deepLink;
     
-    // Если через время не сработало - показываем изображение
+    // Резервный вариант через время
     setTimeout(() => {
       window.open(url, "_blank");
     }, 300);
   } catch (error) {
     // Final fallback
+    console.log("Using final fallback");
     window.open(url, "_blank");
   }
 };
