@@ -180,19 +180,23 @@ export const shareToTelegramStory = async (
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
 
-  if (!tg || !tg.WebApp) {
-    console.error("Not in Telegram WebApp environment");
-    return;
-  }
-
-  const isAndroid = tg.WebApp.platform === "android";
-  const isIos = tg.WebApp.platform === "ios";
+  // Более надежная проверка на наличие Telegram WebApp
+  const isTelegramWebApp = tg && tg.WebApp && tg.WebApp.initData;
+  const isAndroid = tg?.WebApp?.platform === "android";
+  const isIos = tg?.WebApp?.platform === "ios";
   
   try {
-    if (isAndroid) {
-      console.log("Android platform detected");
-      
-      await initTelegramSdkForAndroid(); // ← ДОБАВЬТЕ ЭТУ ФУНКЦИЮ
+    // Если не в Telegram WebApp, используем глубокую ссылку
+    if (!isTelegramWebApp) {
+      console.log("Not in WebApp, using deep link");
+      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
+      return;
+    }
+
+    // Для всех платформ пытаемся использовать shareStory API
+    try {
+      // Убедимся, что SDK инициализирован
+      await initTelegramSdkForAndroid();
       
       await shareStory(url, {
         widgetLink: {
@@ -201,22 +205,51 @@ export const shareToTelegramStory = async (
         },
       });
       
-    } else if (isIos) {
-      await shareStory(url, {
-        widgetLink: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
+      console.log("shareStory completed successfully");
+      
+    } catch (shareError) {
+      console.warn("shareStory failed, falling back to deep link:", shareError);
+      
+      // Запасной вариант: открываем глубокую ссылку
+      if (isAndroid || isIos) {
+        window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
+      } else {
+        // Для desktop или других платформ
+        window.open(url, '_blank');
+      }
     }
     
-    console.log("shareStory completed successfully");
   } catch (error) {
-    console.error("Share story failed:", error);
-    if (isAndroid) {
-      // Используем глубокую ссылку как запасной вариант
-      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
+    console.error("Share story completely failed:", error);
+    
+    // Последний запасной вариант
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
+  }
+};
+
+// Улучшенная функция инициализации
+const initTelegramSdkForAndroid = async (): Promise<void> => {
+  try {
+    const tg = (window as any).Telegram;
+    
+    // Если уже инициализирован, возвращаемся
+    if (tg && tg.WebApp && tg.WebApp.initData) {
+      return;
     }
+    
+    // Явно инициализируем SDK с таймаутом
+    await Promise.race([
+      init(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("SDK initialization timeout")), 2000)
+      )
+    ]);
+    
+    console.log("Telegram SDK initialized successfully");
+    
+  } catch (error) {
+    console.error("Telegram SDK initialization failed:", error);
+    throw error;
   }
 };
 
