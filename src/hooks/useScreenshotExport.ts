@@ -158,17 +158,12 @@ export const useScreenshotExport = () => {
 
 export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
   const webApp = (window as any).Telegram?.WebApp;
-  console.log("imageUrl",imageUrl)
-  if (webApp && typeof webApp.openLink === 'function') {
-    try {
-      const storyDeepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
-      webApp.openLink(storyDeepLink);
-    } catch (error) {
-      // Fallback на обычный deep link
-      window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, '_blank');
-    }
-  } else {
-    // Fallback для браузера
-    window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, '_blank');
+  console.log("imageUrl", imageUrl);
+  try {
+    const storyDeepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
+    webApp.openLink(storyDeepLink);
+  } catch (error) {
+    // Fallback на обычный deep link
+    window.open(`tg://share?url=${encodeURIComponent(imageUrl)}`, "_blank");
   }
 };
