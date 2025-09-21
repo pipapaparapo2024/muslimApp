@@ -158,7 +158,7 @@ export const useScreenshotExport = () => {
 
 export const shareToTelegramStory = async (imageUrl: string): Promise<void> => {
   const webApp = (window as any).Telegram?.WebApp;
-  
+  console.log("imageUrl",imageUrl)
   if (webApp && typeof webApp.openLink === 'function') {
     try {
       const storyDeepLink = `tg://share?url=${encodeURIComponent(imageUrl)}`;
