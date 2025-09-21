@@ -60,6 +60,7 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
+      console.log("screenshotUrl",screenshotUrl)
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
