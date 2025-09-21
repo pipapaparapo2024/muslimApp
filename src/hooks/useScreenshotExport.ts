@@ -172,18 +172,17 @@ export const shareToTelegramStory = async (
     console.log("WebApp.initData:", tg.WebApp.initData); // Если есть initData - мы точно в клиенте
     console.log("WebApp.isExpanded:", tg.WebApp.isExpanded);
   }
-  if (typeof shareStory !== "undefined" && shareStory.isAvailable()) {
-    console.log("Using shareStory SDK");
-    try {
-      await shareStory(url, {
-        widgetLink: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
-      return;
-    } catch (sdkError) {
-      console.error("SDK share failed:", sdkError);
-    }
+  console.log("Using shareStory SDK");
+  try {
+    await shareStory(url, {
+      widgetLink: {
+        url: "https://t.me/QiblaGuidebot",
+        name: "@QiblaGuidebot",
+      },
+    });
+    console.log("shareStory finish")
+    return;
+  } catch (sdkError) {
+    console.error("SDK share failed:", sdkError);
   }
 };
