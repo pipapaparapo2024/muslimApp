@@ -160,17 +160,46 @@ export const useScreenshotExport = () => {
 export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
   if (!url) return;
 
+  console.log("=== TELEGRAM DEBUG INFO ===");
+  console.log("URL to share:", url);
+  console.log("shareStory available:", typeof shareStory !== 'undefined');
+  console.log("isAvailable():", shareStory.isAvailable?.());
+  
+  // Проверяем наличие WebApp
+  const webApp = (window as any).Telegram?.WebApp;
+  console.log("WebApp available:", !!webApp);
+  console.log("WebApp version:", webApp?.version);
+  console.log("WebApp platform:", webApp?.platform);
+  
   // ✅ Правильная проверка через SDK
-  if (shareStory.isAvailable()) {
-    await shareStory(url, {
-      widgetLink: {
-        url: "https://t.me/QiblaGuidebot",
-        name: "@QiblaGuidebot",
-      },
-    });
-    return;
+  if (typeof shareStory !== 'undefined' && shareStory.isAvailable?.()) {
+    console.log("Using shareStory SDK");
+    try {
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      return;
+    } catch (sdkError) {
+      console.error("SDK share failed:", sdkError);
+    }
   }
 
-  // Fallback для случаев, когда SDK недоступен
+  // Альтернативный способ через WebApp
+  if (webApp) {
+    console.log("Trying WebApp share method");
+    try {
+      // Правильный формат для分享 в историю
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}`;
+      webApp.openLink(shareUrl);
+      return;
+    } catch (webAppError) {
+      console.error("WebApp share failed:", webAppError);
+    }
+  }
+
+  console.log("Using fallback to window.open");
   window.open(url, "_blank");
 };
