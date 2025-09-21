@@ -15,7 +15,6 @@ export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
-    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
@@ -25,6 +24,7 @@ export const Home: React.FC = () => {
 
   const { isLoading, error } = useGeoStore();
 
+  // Показываем лоадер во время инициализации
   if (isInitializing) {
     return (
       <PageWrapper>
@@ -36,6 +36,7 @@ export const Home: React.FC = () => {
     );
   }
 
+  // Показываем ошибку инициализации
   if (initializationError) {
     return (
       <PageWrapper>
@@ -54,16 +55,14 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
 
-      {/* Кнопка сброса разрешения (показывается когда разрешение не в состоянии prompt) */}
-      {sensorPermission !== "prompt" && (
-        <button
-          className={styles.resetPermissionButton}
-          onClick={resetSensorPermission}
-          title={t("resetPermissionHint")}
-        >
-          {t("resetPermission")}
-        </button>
-      )}
+      {/* Кнопка запроса доступа к датчикам */}
+      <button
+        className={styles.allowSensorButton}
+        onClick={requestSensorPermission}
+        disabled={isRequestingPermission}
+      >
+        {isRequestingPermission ? t("requesting") : t("allowSensors")}
+      </button>
 
       <div className={styles.homeRoot}>
         {isLoading && (
@@ -87,17 +86,11 @@ export const Home: React.FC = () => {
 
                 <div className={styles.qiblaBlockRow}>
                   <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap
-                      onMapClick={handleMapClick}
-                      showPermissionButton={sensorPermission === "prompt"}
-                      onRequestPermission={requestSensorPermission}
-                      isRequestingPermission={isRequestingPermission}
-                      sensorPermission={sensorPermission}
-                    />
+                    <QiblaMap onMapClick={handleMapClick} />
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick()}
+                    onClick={() => handleCompassClick(sensorPermission)}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
