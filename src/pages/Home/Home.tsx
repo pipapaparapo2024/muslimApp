@@ -143,15 +143,15 @@ export const Home: React.FC = () => {
 
     try {
       // 1. Способ через WebApp (если доступен)
-      if (window.Telegram?.WebApp?.showPopup) {
-        window.Telegram.WebApp.showPopup({
-          title: 'Публикация истории',
-          message: 'Для публикации истории используйте кнопку "📷" в основном интерфейсе Telegram',
-          // buttons: [{ type: 'ok' }]
-        });
-      } 
+      // if (window.Telegram?.WebApp?.showPopup) {
+      //   window.Telegram.WebApp.showPopup({
+      //     title: 'Публикация истории',
+      //     message: 'Для публикации истории используйте кнопку "📷" в основном интерфейсе Telegram',
+      //     // buttons: [{ type: 'ok' }]
+      //   });
+      // } 
       // 2. Способ через открытие клиента Telegram
-      else if (window.Telegram?.WebApp?.openTelegramLink) {
+      if (window.Telegram?.WebApp?.openTelegramLink) {
         // Открываем глубокую ссылку в Telegram
         window.Telegram.WebApp.openTelegramLink('https://t.me/share/url?url=https://your-app.com');
       }
