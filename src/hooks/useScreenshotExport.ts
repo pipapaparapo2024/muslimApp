@@ -180,8 +180,8 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
   // 1. Пробуем нативный способ через SDK
   try {
     // Добавляем более точную проверку доступности
-    if (typeof shareStory !== 'undefined' && shareStory.isAvailable?.()) {
-      console.log("Using shareStory SDK");
+    console.log("Using shareStory SDK",shareStory.isAvailable());
+    if (typeof shareStory !== 'undefined' && shareStory.isAvailable()) {
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
