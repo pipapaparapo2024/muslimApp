@@ -175,11 +175,14 @@ export const shareToTelegramStory = async (
 
   const tg = (window as any).Telegram;
 
-  console.log("=== TELEGRAM ENVIRONMENT DEBUG ===");
+  
+  console.log("=== DEBUG SHARE STORY ===");
+  console.log("URL:", url);
+  console.log("Telegram WebApp:", tg?.WebApp);
+  console.log("User Premium:", tg?.WebApp?.initDataUnsafe?.user?.is_premium);
+  console.log("shareStory function available:", typeof shareStory === 'function');
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-  console.log("User Premium:", tg?.WebApp?.initDataUnsafe?.user?.is_premium);
-
   try {
     await initTelegramSdk();
     if (typeof shareStory === "function") {
@@ -199,19 +202,17 @@ export const shareToTelegramStory = async (
   }
 };
 
-// Универсальная функция инициализации SDK
 const initTelegramSdk = async (): Promise<void> => {
   try {
-    const tg = (window as any).Telegram;
-
-    // Если уже инициализирован, возвращаемся
-    if (tg && tg.WebApp && tg.WebApp.initData) {
+    // Проверяем, инициализирован ли уже SDK
+    if ((window as any).Telegram?.WebApp?.initData) {
       return;
     }
-    // Пытаемся инициализировать SDK
+    
+    // Пробуем инициализировать
     await init();
     console.log("Telegram SDK initialized successfully");
   } catch (error) {
-    console.error("Telegram SDK initialization failed:", error);
+    console.warn("Telegram SDK initialization failed, but continuing:", error);
   }
 };
