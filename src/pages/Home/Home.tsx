@@ -80,7 +80,25 @@ export const Home: React.FC = () => {
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
-                <div className={styles.titleFaceKaaba}>{t("faceTheKaaba")}</div>
+                <div className={styles.titleFaceKaaba}>
+                  {t("faceTheKaaba")}{" "}
+                  {sensorPermission && (
+                    <div className={styles.permissionOverlay}>
+                      <div className={styles.permissionBlur}></div>
+                      <div
+                        className={styles.permissionButton}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          requestSensorPermission && requestSensorPermission();
+                        }}
+                      >
+                        {isRequestingPermission
+                          ? t("requesting...")
+                          : t("allowSensors")}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className={styles.diskFaceKaaba}>
                   {t("useMapForSalah")}
                 </div>
