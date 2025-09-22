@@ -189,12 +189,20 @@ export const shareToTelegramStory = async (
     console.log("Telegram SDK init attempted");
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
-      await shareStory(url, {
+       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
+      if (tg?.WebApp?.shareStory) {
+        return await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+      }
       console.log("shareStory completed successfully");
     } else {
       throw new Error("shareStory function not available");
