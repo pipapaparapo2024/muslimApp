@@ -147,7 +147,7 @@ const resources = {
       allowSensors: "Allow Sensors",
 
       requsting: "Requesting...",
-      locationMay: "Location may be inaccurate. Please consider this",
+      locationMay: "Location may be inaccurate. Please consider this.",
       loadPrevious: "Load Previous",
       loadMore: "Load More",
 
