@@ -10,6 +10,7 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { TriangleAlert } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
@@ -118,7 +119,15 @@ export const Home: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className={styles.locationMay}>{t("locationMay")}</div>
+              <div className={styles.locationMay}>
+                {t("locationMay")}{" "}
+                <TriangleAlert
+                  strokeWidth={1.5}
+                  size={18}
+                  color="white"
+                  fill="#F59E0B"
+                />
+              </div>
             </div>
 
             <MenuBlocks />

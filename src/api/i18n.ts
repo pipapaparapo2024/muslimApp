@@ -147,7 +147,7 @@ const resources = {
       allowSensors: "Allow Sensors",
 
       requsting: "Requesting...",
-      locationMay: "Location may be inaccurate. Please consider this!",
+      locationMay: "Location may be inaccurate. Please consider this",
       loadPrevious: "Load Previous",
       loadMore: "Load More",
 
@@ -409,7 +409,7 @@ const resources = {
       searchInAyahs: "بحث الآيات",
 
       //Home
-      locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا!", //Ayahs
+      locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا", //Ayahs
       allowSensors: "السماح لأجهزة الاستشعار",
       requsting: "جارٍ الطلب...",
 
