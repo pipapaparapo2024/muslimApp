@@ -3,7 +3,7 @@ import WebApp from "@twa-dev/sdk";
 
 // Создаём экземпляр API
 export const quranApi = axios.create({
-  baseURL: 'https://islamapp.myfavouritegames.org',
+  baseURL: 'https://islam_app.myfavouritegames.org',
 });
 
 // Request interceptor — добавляем accessToken и initData
