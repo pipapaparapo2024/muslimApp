@@ -172,70 +172,30 @@ export const shareToTelegramStory = async (
   url: string | undefined
 ): Promise<void> => {
   if (!url) return;
-  
+
   const tg = (window as any).Telegram;
-  
+
   console.log("=== TELEGRAM ENVIRONMENT DEBUG ===");
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
   console.log("User Premium:", tg?.WebApp?.initDataUnsafe?.user?.is_premium);
 
-  // Проверяем, находимся ли мы в Telegram WebApp
-  const isTelegramWebApp = tg && tg.WebApp && tg.WebApp.initData;
-  // const isAndroid = tg?.WebApp?.platform === "android";
-  // const isIos = tg?.WebApp?.platform === "ios";
-  const hasPremium = tg?.WebApp?.initDataUnsafe?.user?.is_premium;
-  
   try {
-    // Если не в Telegram WebApp, используем глубокую ссылку
-    if (!isTelegramWebApp) {
-      console.log("Not in WebApp, using deep link");
-      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
-      return;
+    await initTelegramSdk();
+    if (typeof shareStory === "function") {
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      console.log("shareStory completed successfully");
+    } else {
+      throw new Error("shareStory function not available");
     }
-
-    // Для пользователей с Premium пробуем использовать прямой подход
-    if (hasPremium) {
-      console.log("Premium user detected, using direct sharing approach");
-      
-      // Прямое открытие ссылки для Premium пользователей
-      window.open(url, '_blank');
-      
-      // Добавляем небольшую задержку для обработки
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return;
-    }
-
-    // Для обычных пользователей используем стандартный подход
-    try {
-      // Убедимся, что SDK инициализирован
-      await initTelegramSdk();
-      
-      // Проверяем, доступна ли функция shareStory
-      if (typeof shareStory === 'function') {
-        await shareStory(url, {
-          widgetLink: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot",
-          },
-        });
-        console.log("shareStory completed successfully");
-      } else {
-        throw new Error("shareStory function not available");
-      }
-      
-    } catch (shareError) {
-      console.warn("shareStory failed, falling back to deep link:", shareError);
-      
-      // Запасной вариант
-      window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
-    }
-    
   } catch (error) {
     console.error("Share story completely failed:", error);
-    
-    // Последний запасной вариант
-    window.open(`tg://share?url=${encodeURIComponent(url)}`, '_blank');
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
   }
 };
 
@@ -243,19 +203,15 @@ export const shareToTelegramStory = async (
 const initTelegramSdk = async (): Promise<void> => {
   try {
     const tg = (window as any).Telegram;
-    
+
     // Если уже инициализирован, возвращаемся
     if (tg && tg.WebApp && tg.WebApp.initData) {
       return;
     }
-    
     // Пытаемся инициализировать SDK
     await init();
     console.log("Telegram SDK initialized successfully");
-    
   } catch (error) {
     console.error("Telegram SDK initialization failed:", error);
-    // Не бросаем ошибку дальше, так как есть fallback-варианты
   }
 };
-
