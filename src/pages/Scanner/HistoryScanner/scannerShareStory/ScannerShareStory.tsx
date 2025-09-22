@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
+import background from "../../../../assets/image/background.png"; // Импортируем фон
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -26,16 +27,23 @@ export const ScannerShareStory: React.FC = () => {
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
-    const preloadImage = (src: string): Promise<void> => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-        img.onerror = () => {
-          console.warn(`Failed to load image: ${src}`);
-          resolve();
-        };
+    const preloadImages = (): Promise<void[]> => {
+      const imagePromises = [
+        message,
+        background
+      ].map(src => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => {
+            console.warn(`Failed to load image: ${src}`);
+            resolve();
+          };
+        });
       });
+
+      return Promise.all(imagePromises);
     };
 
     const loadItem = async () => {
@@ -46,12 +54,13 @@ export const ScannerShareStory: React.FC = () => {
         setCurrentItem(item);
       }
 
-      preloadImage(message)
-        .then(() => setIsLoaded(true))
-        .catch((err) => {
-          console.error("Error during image preloading:", err);
-          setIsLoaded(true);
-        });
+      try {
+        await preloadImages();
+        setIsLoaded(true);
+      } catch (err) {
+        console.error("Error during image preloading:", err);
+        setIsLoaded(true);
+      }
     };
 
     loadItem();
@@ -62,13 +71,12 @@ export const ScannerShareStory: React.FC = () => {
 
     try {
       const screenshotUrl = await exportScreenshot({
-        type: "scanner",
         element: screenshotRef.current,
         id: id,
       });
 
       if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to export and share screenshot:", error);
@@ -99,12 +107,34 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Элемент для скриншота с инлайн стилями для гарантии */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Фон как инлайн стиль для гарантии отображения */}
+          <div 
+            className={styles.backgroundContainer}
+            style={{
+              backgroundImage: `url(${background})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 0
+            }}
+          />
+          
+          {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
-            className={styles.backgroundImage}
+            className={styles.foregroundImage}
+            crossOrigin="anonymous" // Важно для CORS
           />
+          
+          {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
             <div
               className={`${styles.accessBlock} ${getStatusClassName(
@@ -130,17 +160,18 @@ export const ScannerShareStory: React.FC = () => {
 
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                  <div className={styles.scanDesk}>
-              {currentItem.haramProducts &&
-                currentItem.haramProducts.length > 0 &&
-                currentItem.haramProducts.map((product: any) => (
-                    <div className={styles.haranProduct}>
+              <div className={styles.scanDesk}>
+                {currentItem.haramProducts &&
+                  currentItem.haramProducts.length > 0 &&
+                  currentItem.haramProducts.map((product: any, index: number) => (
+                    <div key={index} className={styles.haranProduct}>
                       {product.name} - {product.reason}
                       {product.source}
                     </div>
-                ))}
-                  </div>
+                  ))}
+              </div>
             </div>
+            
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("conclusion")}</div>
               <div className={styles.scanDesk}>{currentItem.description}</div>
@@ -157,6 +188,7 @@ export const ScannerShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
+            data-story-visible="hide" // Помечаем для исключения из скриншота
           >
             <Upload size={18} />
             {loading ? t("loading") : t("share")}

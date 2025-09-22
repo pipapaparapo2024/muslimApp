@@ -26,9 +26,13 @@ function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
   Object.assign(el.style, {
     display: "block",
     position: "fixed",
-    left: "-99999px",
+    left: "0",
     top: "0",
+    width: "100%",
+    height: "100%",
     visibility: "visible",
+    zIndex: "9999",
+    background: "white"
   });
 
   return {
@@ -49,9 +53,32 @@ async function waitFonts(): Promise<void> {
   await new Promise((r) => setTimeout(r, 0));
 }
 
+// Функция для предзагрузки изображений
+async function preloadImages(element: HTMLElement): Promise<void> {
+  const images = element.querySelectorAll('img');
+  const promises = Array.from(images).map(img => {
+    if (img.complete) return Promise.resolve();
+    
+    return new Promise<void>((resolve, ) => {
+      img.onload = () => resolve();
+      img.onerror = () => {
+        console.warn('Failed to load image:', img.src);
+        resolve(); // Продолжаем даже если картинка не загрузилась
+      };
+      // Если изображение уже загружается, ждем
+      if (!img.complete) {
+        setTimeout(() => resolve(), 1000); // Таймаут на случай проблем
+      }
+    });
+  });
+
+  await Promise.all(promises);
+}
+
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [, setSdkInitialized] = useState<boolean>(false);
+  
   // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
@@ -67,15 +94,24 @@ export const useScreenshotExport = () => {
 
     initializeSdk();
   }, []);
+
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    // Ждем загрузки шрифтов и изображений
     await waitFonts();
+    await preloadImages(element);
+
     const preparation = prepareElementForScreenshot(element);
 
     try {
       const blob = await toBlob(element, {
-        pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
+        pixelRatio: Math.min(2, window.devicePixelRatio || 1),
         cacheBust: true,
         filter: (node: HTMLElement) => {
+          // Исключаем только кнопку шаринга
+          if (node.classList?.contains?.('shareButton')) {
+            return false;
+          }
+          
           const tag = node.tagName?.toUpperCase?.() || "";
           // Исключаем элементы, которые не должны попадать в скриншот
           if (
@@ -84,20 +120,17 @@ export const useScreenshotExport = () => {
           ) {
             return false;
           }
-          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
-            return false; // Добавляем LINK чтобы исключить внешние CSS
-          }
-          // Исключаем элементы с внешними ссылками
-          if (
-            node.getAttribute &&
-            node.getAttribute("href")?.includes("fonts.googleapis.com")
-          ) {
+          
+          // Разрешаем IMG и другие важные теги
+          if (["IFRAME", "VIDEO", "CANVAS"].includes(tag)) {
             return false;
           }
+          
           return true;
         },
-        skipFonts: true, // Пропускаем загрузку внешних шрифтов
-        fontEmbedCSS: "", // Отключаем встраивание шрифтов
+        skipFonts: false, // Разрешаем шрифты
+        backgroundColor: '#ffffff', // Белый фон для гарантии
+        quality: 0.95, // Высокое качество
       });
 
       if (!blob) {
@@ -184,38 +217,35 @@ export const shareToTelegramStory = async (
   );
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
+  
   try {
     await init();
     console.log("Telegram SDK init attempted");
-    // if (typeof shareStory === "function") {
-    //   console.log("Calling shareStory with URL:", url);
-    //    await shareStory(url, {
-    //     widgetLink: {
-    //       url: "https://t.me/QiblaGuidebot",
-    //       name: "@QiblaGuidebot",
-    //     },
-    //   });
-    if (shareStory.isAvailable()) {
-      shareStory(url, {
+    
+    if (typeof shareStory === "function") {
+      console.log("Calling shareStory with URL:", url);
+      await shareStory(url, {
         widgetLink: {
-          url: `https://t.me/funnyTestsBot?start=ref-${2}`,
-          name: "@funnyTestsBot",
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
         },
       });
-      if (tg?.WebApp?.shareStory) {
-        return await tg.WebApp.shareStory(url, {
-          widget: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot",
-          },
-        });
-      }
+      
       console.log("shareStory completed successfully");
+    } else if (tg?.WebApp?.shareStory) {
+      console.log("Using Telegram WebApp shareStory");
+      await tg.WebApp.shareStory(url, {
+        widget: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
     } else {
       throw new Error("shareStory function not available");
     }
   } catch (error) {
     console.error("Share story completely failed:", error);
+    // Fallback: открываем ссылку в новом окне
     window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
   }
 };
