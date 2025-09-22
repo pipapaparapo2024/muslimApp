@@ -120,13 +120,13 @@ export const Home: React.FC = () => {
                 </div>
               </div>
               <div className={styles.locationMay}>
-                {t("locationMay")}{" "}
                 <TriangleAlert
                   strokeWidth={1.5}
                   size={18}
                   color="white"
                   fill="#F59E0B"
                 />
+                {t("locationMay")}{" "}
               </div>
             </div>
 
