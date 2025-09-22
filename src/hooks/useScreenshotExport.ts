@@ -190,10 +190,10 @@ export const shareToTelegramStory = async (
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
        await shareStory(url, {
-        // widgetLink: {
-        //   url: "https://t.me/QiblaGuidebot",
-        //   name: "@QiblaGuidebot",
-        // },
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
       });
       if (tg?.WebApp?.shareStory) {
         return await tg.WebApp.shareStory(url, {
