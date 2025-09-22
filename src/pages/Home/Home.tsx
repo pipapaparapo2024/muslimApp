@@ -82,20 +82,17 @@ export const Home: React.FC = () => {
               <div className={styles.qiblaBlock}>
                 <div className={styles.titleFaceKaaba}>
                   {t("faceTheKaaba")}{" "}
-                  {sensorPermission && (
-                    <div className={styles.permissionOverlay}>
-                      <div className={styles.permissionBlur}></div>
-                      <div
-                        className={styles.permissionButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          requestSensorPermission && requestSensorPermission();
-                        }}
-                      >
-                        {isRequestingPermission
-                          ? t("requesting...")
-                          : t("allowSensors")}
-                      </div>
+                  {sensorPermission === "prompt" && (
+                    <div
+                      className={styles.permissionButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        requestSensorPermission && requestSensorPermission();
+                      }}
+                    >
+                      {isRequestingPermission
+                        ? t("requesting...")
+                        : t("allowSensors")}
                     </div>
                   )}
                 </div>
@@ -107,9 +104,6 @@ export const Home: React.FC = () => {
                   <div onClick={handleMapClick} className={styles.mapContainer}>
                     <QiblaMap
                       onMapClick={handleMapClick}
-                      showPermissionButton={sensorPermission !== "granted"}
-                      onRequestPermission={requestSensorPermission}
-                      isRequestingPermission={isRequestingPermission}
                       orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
                     />
                   </div>

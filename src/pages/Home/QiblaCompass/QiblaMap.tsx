@@ -7,7 +7,6 @@ import { useGeoStore } from "../../../hooks/useGeoStore";
 import { useMapStore } from "../../../hooks/useQiblaMapStore";
 import { useNavigate } from "react-router-dom";
 import mekka from "../../../assets/icons/kaaba.svg";
-import { t } from "i18next";
 
 const KAABA_LAT = 21.4225;
 const KAABA_LON = 39.8262;
@@ -27,9 +26,6 @@ interface QiblaMapProps {
 export const QiblaMap: React.FC<QiblaMapProps> = ({
   fullscreen = false,
   onMapClick,
-  showPermissionButton = false,
-  onRequestPermission,
-  isRequestingPermission = false,
   orientationListenerActive = true, // По умолчанию активно
 }) => {
   const navigate = useNavigate();
@@ -371,20 +367,6 @@ export const QiblaMap: React.FC<QiblaMapProps> = ({
       ref={mapRef}
       className={fullscreen ? styles.fullscreen : styles.mapContainer}
     >
-      {showPermissionButton && (
-        <div className={styles.permissionOverlay}>
-          <div className={styles.permissionBlur}></div>
-          <div
-            className={styles.permissionButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              onRequestPermission && onRequestPermission();
-            }}
-          >
-            {isRequestingPermission ? t("requesting...") : t("allowSensors")}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

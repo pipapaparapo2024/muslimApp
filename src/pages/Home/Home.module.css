@@ -7,6 +7,8 @@
 
 .titleFaceKaaba {
   font-weight: var(--font-600);
+  display: flex;
+  gap: var(--numbers-8);
   margin: var(--numbers-16) 0 var(--numbers-4);
 }
 .diskFaceKaaba {
@@ -59,4 +61,17 @@
   padding: var(--numbers-12) var(--numbers-16);
   color: var(--text);
   border-radius: var(--roundings-medium);
+}
+
+
+
+.permissionButton {
+  position: relative;
+  z-index: 1001;
+  border: none;
+  color: var(--compass-circle-small);
+  font-weight: var(--font-500);
+  font-size: var(--numbers-16);
+  cursor: pointer;
+  transition: background 0.2s;
 }
