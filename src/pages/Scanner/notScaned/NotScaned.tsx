@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
 import styles from './NotScanner.module.css';
-import scanempty from "../../../assets/image/emptyscan.svg";
+import scanempty from "../../../assets/image/notscan.svg";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { t } from "i18next";
 
