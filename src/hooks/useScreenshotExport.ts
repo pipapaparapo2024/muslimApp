@@ -175,17 +175,20 @@ export const shareToTelegramStory = async (
 
   const tg = (window as any).Telegram;
 
-  
   console.log("=== DEBUG SHARE STORY ===");
   console.log("URL:", url);
   console.log("Telegram WebApp:", tg?.WebApp);
-  console.log("User Premium:", tg?.WebApp?.initDataUnsafe?.user?.is_premium);
-  console.log("shareStory function available:", typeof shareStory === 'function');
+  console.log(
+    "shareStory function available:",
+    typeof shareStory === "function"
+  );
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
   try {
-    await initTelegramSdk();
+    await init();
+    console.log("Telegram SDK init attempted");
     if (typeof shareStory === "function") {
+      console.log("Calling shareStory with URL:", url);
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
@@ -199,20 +202,5 @@ export const shareToTelegramStory = async (
   } catch (error) {
     console.error("Share story completely failed:", error);
     window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
-  }
-};
-
-const initTelegramSdk = async (): Promise<void> => {
-  try {
-    // Проверяем, инициализирован ли уже SDK
-    if ((window as any).Telegram?.WebApp?.initData) {
-      return;
-    }
-    
-    // Пробуем инициализировать
-    await init();
-    console.log("Telegram SDK initialized successfully");
-  } catch (error) {
-    console.warn("Telegram SDK initialization failed, but continuing:", error);
   }
 };
