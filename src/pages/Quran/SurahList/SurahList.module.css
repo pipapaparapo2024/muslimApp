@@ -179,14 +179,6 @@
 }
 
 
-/* Добавьте в конец файла */
-
-.container {
-  position: relative;
-  height: 100vh;
-  overflow-y: auto;
-}
-
 .scrollToTopButton {
   position: fixed;
   left: 75%;
