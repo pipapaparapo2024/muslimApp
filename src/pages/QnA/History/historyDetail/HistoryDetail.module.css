@@ -25,7 +25,16 @@
   align-self: flex-end;
   margin-left: auto;
 }
-
+.blockMessageUser .text {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
 .blockMessageBot {
   margin-left: var(--numbers-16);
   background: var(--bg-surface);
@@ -40,13 +49,11 @@
 
 .blockMessageBot .text {
   display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
+  line-clamp: 12;
+  -webkit-line-clamp: 12;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
-  line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
