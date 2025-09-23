@@ -96,10 +96,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
-  width: 100%; /* Добавил ширину */
-  max-width: 390px; /* Ограничиваем ширину */
-  padding: 0 var(--numbers-16); /* Добавил отступы */
-  box-sizing: border-box; /* Важно для правильного расчета ширины */
+  padding: 0 var(--numbers-16); 
 }
 
 .blockInside {
