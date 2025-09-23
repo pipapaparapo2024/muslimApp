@@ -42,6 +42,9 @@ export const SurahList: React.FC = () => {
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const getScrollButtonPosition = () => {
+    return language === "ar" ? "20%" : "75%";
+  };
 
   useEffect(() => {
     fetchVariants();
@@ -375,6 +378,7 @@ export const SurahList: React.FC = () => {
             className={styles.scrollToTopButton}
             onClick={scrollToTop}
             aria-label={t("scrollToTop")}
+            style={{ left: getScrollButtonPosition() }}
           >
             <ArrowUp size={20} />
           </button>
