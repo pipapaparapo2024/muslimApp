@@ -83,7 +83,7 @@ export const Home: React.FC = () => {
               <div className={styles.qiblaBlock}>
                 <div className={styles.titleFaceKaaba}>
                   {t("faceTheKaaba")}{" "}
-                  {sensorPermission === "prompt" && (
+                  {sensorPermission === "prompt" ? (
                     <div
                       className={`${styles.permissionButton} ${
                         sensorPermission === "prompt" &&
@@ -98,6 +98,13 @@ export const Home: React.FC = () => {
                         ? t("requesting...")
                         : t("allowSensors")}
                     </div>
+                  ) : (
+                    <button
+                      className={styles.permissionButton}
+                      onClick={resetSensorPermission}
+                    >
+                      {t("resetPermission")}
+                    </button>
                   )}
                 </div>
                 <div className={styles.diskFaceKaaba}>
