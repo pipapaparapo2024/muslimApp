@@ -77,7 +77,7 @@
   margin-right: auto;
 }
 .text {
-  color: var(--colors-stone-600);
+  color: var(--desk-text);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }

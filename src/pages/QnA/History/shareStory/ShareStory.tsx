@@ -103,7 +103,7 @@ export const ShareStory: React.FC = () => {
               <div className={styles.text}>{currentItem.question}</div>
             </div>
             <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@MuslimBot</div>
+              <div className={styles.nickName}>@QiblaGuidebot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
