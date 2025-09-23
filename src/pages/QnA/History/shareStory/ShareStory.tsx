@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
+import background from "../../../../assets/image/background.png"; // Добавляем фон
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -20,24 +21,31 @@ export const ShareStory: React.FC = () => {
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
+    const preloadImages = (): Promise<void[]> => {
+      const imagePromises = [
+        message,
+        background
+      ].map(src => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => {
+            console.warn(`Failed to load image: ${src}`);
+            resolve();
+          };
+        });
+      });
+
+      return Promise.all(imagePromises);
+    };
+
     const loadData = async () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
-          });
-        };
-
         const item = await getHistoryItem(id);
-        await preloadImage(message);
+        await preloadImages();
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -60,10 +68,10 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl",screenshotUrl)
+      console.log("screenshotUrl", screenshotUrl);
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
@@ -90,25 +98,46 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
+        {/* Элемент для скриншота с инлайн стилями для гарантии */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Фон как инлайн стиль для гарантии отображения */}
+          <div 
+            className={styles.backgroundContainer}
+            style={{
+              backgroundImage: `url(${background})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 0
+            }}
+          />
+          
+          {/* Основное изображение */}
           <img
             src={message}
-            className={styles.messageImage}
             alt="Message background"
+            className={styles.foregroundImage}
+            crossOrigin="anonymous" // Важно для CORS
           />
+          
+          {/* Контент поверх изображений */}
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
               <div className={styles.nickName}>{t("you")}</div>
               <div className={styles.text}>{currentItem.question}</div>
             </div>
             <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@QiblaGuidebot</div>
+              <div className={styles.nickName}>@MuslimBot</div>
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
         </div>
-        
+
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
@@ -118,8 +147,10 @@ export const ShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
+            data-story-visible="hide" // Помечаем для исключения из скриншота
           >
-            <Upload /> {loading ? t("loading") : t("share")}
+            <Upload size={18} />
+            {loading ? t("loading") : t("share")}
           </button>
         </div>
       </div>
