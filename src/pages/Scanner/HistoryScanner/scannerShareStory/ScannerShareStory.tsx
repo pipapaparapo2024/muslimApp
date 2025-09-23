@@ -104,29 +104,14 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Убираем backgroundContainer из contentWrapper */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          <div
-            className={styles.backgroundContainer}
-            style={{
-              backgroundImage: `url(${background})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              zIndex: 0,
-            }}
-          />
-
           {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
             className={styles.foregroundImage}
-            crossOrigin="anonymous" // Важно для CORS
+            crossOrigin="anonymous"
           />
 
           {/* Контент поверх изображений */}
@@ -148,23 +133,28 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  currentItem.products.join(", ")
+                  {currentItem.products.join(", ")}{" "}
+                  {/* Исправлено: добавил {} */}
                 </div>
               </div>
             )}
+
             {currentItem.haramProducts &&
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product: any, index: number) => (
-                <div className={styles.blockInside}>
+                <div key={index} className={styles.blockInside}>
+                  {" "}
+                  {/* Добавил key */}
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
-                    <div key={index} className={styles.haranProduct}>
+                    <div className={styles.haranProduct}>
                       {product.name} - {product.reason}
                       {product.source}
                     </div>
                   </div>
                 </div>
               ))}
+
             {currentItem.description && (
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("conclusion")}</div>
@@ -173,6 +163,7 @@ export const ScannerShareStory: React.FC = () => {
             )}
           </div>
         </div>
+
         {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
@@ -182,7 +173,7 @@ export const ScannerShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
-            data-story-visible="hide" // Помечаем для исключения из скриншота
+            data-story-visible="hide"
           >
             <Upload size={18} />
             {loading ? t("loading") : t("share")}

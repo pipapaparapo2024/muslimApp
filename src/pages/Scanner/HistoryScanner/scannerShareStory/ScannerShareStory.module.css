@@ -23,12 +23,15 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  /* Убираем фон здесь, так как он уже в .container */
 }
+
 .blockButton {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .container img {
   max-height: 550px;
   max-width: 100%;
@@ -93,6 +96,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
+  width: 100%; /* Добавил ширину */
+  max-width: 390px; /* Ограничиваем ширину */
+  padding: 0 var(--numbers-16); /* Добавил отступы */
+  box-sizing: border-box; /* Важно для правильного расчета ширины */
 }
 
 .blockInside {
@@ -100,6 +107,7 @@
   background: var(--bg-surface);
   padding: var(--numbers-8) var(--numbers-16);
 }
+
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 2;
@@ -112,23 +120,28 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
+
 .scanTitle {
   font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
 }
+
 .scanDesk {
   font-weight: var(--font-400);
   margin: var(--numbers-4) 0 var(--numbers-8) 0;
   color: var(--desk-text);
   font-size: var(--numbers-14);
 }
+
 .haram {
   color: #ef4444;
 }
+
 .halal {
   color: #15803d;
 }
+
 .mushbooh {
   color: var(--color-stroke-semantic-warning);
 }
