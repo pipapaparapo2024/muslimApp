@@ -100,7 +100,6 @@ export const ScannerShareStory: React.FC = () => {
   return (
     <PageWrapper
       showBackButton={true}
-      styleHave={false}
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
