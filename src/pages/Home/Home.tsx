@@ -85,7 +85,10 @@ export const Home: React.FC = () => {
                   {t("faceTheKaaba")}{" "}
                   {sensorPermission === "prompt" && (
                     <div
-                      className={styles.permissionButton}
+                      className={`${styles.permissionButton} ${
+                        sensorPermission === "prompt" &&
+                        styles.permissionButtonPusle
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         requestSensorPermission && requestSensorPermission();

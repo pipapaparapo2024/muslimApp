@@ -1,4 +1,4 @@
-.headerRow {
+ч.headerRow {
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
@@ -61,7 +61,7 @@
   top: -15%;
   left: 80%;
   transform: translateX(-50%);
-  background-color: var(--color-background-semantic-solid-brand); /* green-700 */
+  background-color: var(--color-background-semantic-solid-brand); 
   color: white;
   font-size: 10px;
   font-weight: var(--font-600);
