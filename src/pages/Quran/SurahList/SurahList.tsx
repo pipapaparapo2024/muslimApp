@@ -15,6 +15,7 @@ import {
   Loader,
   Menu,
   Search,
+  ArrowUp // Добавляем иконку стрелки вверх
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
@@ -37,9 +38,11 @@ export const SurahList: React.FC = () => {
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для кнопки "Наверх"
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchVariants();
@@ -50,6 +53,32 @@ export const SurahList: React.FC = () => {
       fetchSurahs(selectedVariant.id);
     }
   }, [selectedVariant, fetchSurahs]);
+
+  // Обработчик скролла для показа/скрытия кнопки "Наверх"
+  useEffect(() => {
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrollTop = containerRef.current.scrollTop;
+        setShowScrollToTop(scrollTop > 300); // Показываем кнопку после прокрутки 300px
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  // Функция прокрутки наверх
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Поиск по сурам
   const searchInSurahs = useCallback(
@@ -194,7 +223,6 @@ export const SurahList: React.FC = () => {
     });
   };
 
-
   // Проверяем, является ли сура результатом поиска
   const isSurahInSearchResults = useCallback(
     (surahNumber: number) => {
@@ -205,7 +233,7 @@ export const SurahList: React.FC = () => {
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/home">
-      <div className={styles.container}>
+      <div className={styles.container} ref={containerRef}>
         <div className={styles.headerContainer}>
           <img src={quaran} alt="Quran" className={styles.quranImage} />
           <div className={styles.holyHeader}>
@@ -353,6 +381,17 @@ export const SurahList: React.FC = () => {
             })
           )}
         </div>
+
+        {/* Кнопка "Наверх" */}
+        {showScrollToTop && (
+          <button 
+            className={styles.scrollToTopButton}
+            onClick={scrollToTop}
+            aria-label={t("scrollToTop")}
+          >
+            <ArrowUp size={20} />
+          </button>
+        )}
       </div>
     </PageWrapper>
   );
