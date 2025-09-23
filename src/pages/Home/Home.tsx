@@ -57,14 +57,6 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       {sensorPermission}
-      {sensorPermission === "granted" && (
-        <button
-          className={styles.resetPermissionButton}
-          onClick={resetSensorPermission}
-        >
-          {t("resetPermission")}
-        </button>
-      )}
 
       <div className={styles.homeRoot}>
         {isLoading && (
