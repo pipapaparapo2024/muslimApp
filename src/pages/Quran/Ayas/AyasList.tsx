@@ -6,11 +6,13 @@ import styles from "./AyasList.module.css";
 import { Search, Loader, ChevronUp, ChevronDown, ArrowUp } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import { useLanguage } from "../../../hooks/useLanguages";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
   const { surah: initialSurah } = location.state || {};
+  const { language } = useLanguage();
 
   const { ayahs, error, fetchAyahs, resetAyahs, loading } = useSurahListStore();
 
@@ -31,13 +33,15 @@ export const AyahList: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    
+
     // Проверяем сразу при монтировании
     handleScroll();
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+  const getScrollButtonPosition = () => {
+    return language === "ar" ? "5%" : "85%";
+  };
   // Функция прокрутки наверх
   const scrollToTop = () => {
     window.scrollTo({
@@ -296,6 +300,7 @@ export const AyahList: React.FC = () => {
             className={styles.scrollToTopButton}
             onClick={scrollToTop}
             aria-label={t("scrollToTop")}
+            style={{ left: getScrollButtonPosition() }}
           >
             <ArrowUp size={20} />
           </button>
