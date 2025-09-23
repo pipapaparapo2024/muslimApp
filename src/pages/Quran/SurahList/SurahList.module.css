@@ -138,6 +138,7 @@
 .searchNavigation {
   bottom: var(--numbers-20);
   align-items: center;
+  display: flex;
   gap: var(--numbers-4);
   margin-left: var(--numbers-8);
 }
@@ -183,7 +184,7 @@
   position: fixed;
   left: 75%;
   bottom: 20px;
-  z-index: 2;
+  z-index: 3;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -202,23 +203,4 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   background: var(--color-background-semantic-solid-brand-hover);
-}
-
-/* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
-  .scrollToTopButton {
-    left: 80%;
-    bottom: 15px;
-    width: 45px;
-    height: 45px;
-  }
-}
-
-@media (max-width: 480px) {
-  .scrollToTopButton {
-    left: 85%;
-    bottom: 10px;
-    width: 40px;
-    height: 40px;
-  }
 }
