@@ -59,7 +59,7 @@ export const SurahList: React.FC = () => {
     const handleScroll = () => {
       if (containerRef.current) {
         const scrollTop = containerRef.current.scrollTop;
-        setShowScrollToTop(scrollTop > 300); // Показываем кнопку после прокрутки 300px
+        setShowScrollToTop(scrollTop > 50); // Показываем кнопку после прокрутки 300px
       }
     };
 
