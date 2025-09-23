@@ -8,7 +8,6 @@
   position: relative;
   display: flex;
   min-height: 92vh;
-  padding: var(--numbers-12);
   height: 100%;
   flex-direction: column;
   align-items: center;
@@ -23,7 +22,6 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  /* Убираем фон здесь, так как он уже в .container */
 }
 
 .blockButton {

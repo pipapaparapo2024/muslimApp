@@ -104,7 +104,6 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Убираем backgroundContainer из contentWrapper */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           {/* Основное изображение */}
           <img
