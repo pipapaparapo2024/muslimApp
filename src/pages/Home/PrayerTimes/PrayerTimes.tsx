@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
-import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
+import { useCombinedLogic } from "../useCombinedLogic";
+import { toDate } from "../useCombinedLogic";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const PrayerTimes: React.FC = () => {
@@ -25,7 +26,7 @@ export const PrayerTimes: React.FC = () => {
     formatTime,
     getMinutesUntilPrayer,
     isPrayerPassed,
-  } = usePrayerTimesLogic({
+  } = useCombinedLogic({
     prayers,
     isLoading,
     error,

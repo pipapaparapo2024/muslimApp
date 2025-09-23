@@ -8,11 +8,21 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
-import { useHomeLogic } from "./useHomeLogic";
+import { useCombinedLogic } from "./useCombinedLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert } from "lucide-react";
+import { usePrayerApiStore } from "../../hooks/usePrayerApiStore"; // Добавляем импорт
+import { useDataTimeStore } from "../../hooks/useDataTimeStore"; // Добавляем импорт
 
 export const Home: React.FC = () => {
+  // Получаем данные из хранилищ
+  const { isLoading: geoLoading, error: geoError, coords: geoCoords } = useGeoStore();
+  const { prayers, isLoading: prayersLoading, error: prayersError, fetchPrayers } = usePrayerApiStore();
+  const is24Hour = useDataTimeStore((state) => state.is24Hour);
+
+  const isLoading = geoLoading || prayersLoading;
+  const error = geoError || prayersError;
+
   const {
     sensorPermission,
     requestSensorPermission,
@@ -21,11 +31,16 @@ export const Home: React.FC = () => {
     handleMapClick,
     isRequestingPermission,
     isInitializing,
-    languageReady, // Получаем состояние готовности языка
+    languageReady, 
     initializationError,
-  } = useHomeLogic();
-
-  const { isLoading, error } = useGeoStore();
+  } = useCombinedLogic({
+    prayers,
+    isLoading,
+    error,
+    fetchPrayers,
+    geoCoords,
+    is24Hour,
+  });
 
   // Показываем лоадер во время инициализации языка
   if (isInitializing || !languageReady) {
