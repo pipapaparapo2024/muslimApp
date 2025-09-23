@@ -71,17 +71,7 @@ export const SurahList: React.FC = () => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  const handleSurahClick = (surah: Surah) => (e: React.MouseEvent) => {
-    // Проверяем, был ли клик по кнопке scrollToTop
-    if ((e.target as HTMLElement).closest(`.${styles.scrollToTopButton}`)) {
-      return; // Игнорируем клик, если он был по кнопке
-    }
 
-    setSelectedSurah(surah);
-    navigate(`/quran/${surah.id}`, {
-      state: { surah, variantId: selectedVariant?.id },
-    });
-  };
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -222,6 +212,13 @@ export const SurahList: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
+  const handleSurahClick = (surah: Surah) => {
+    setSelectedSurah(surah);
+    navigate(`/quran/${surah.id}`, {
+      state: { surah, variantId: selectedVariant?.id },
+    });
+  };
+
   // Проверяем, является ли сура результатом поиска
   const isSurahInSearchResults = useCallback(
     (surahNumber: number) => {
@@ -295,7 +292,7 @@ export const SurahList: React.FC = () => {
         {/* Ошибка */}
         {error && <div className={styles.error}>Error: {error}</div>}
 
-        <div className={styles.blockChapter}>
+        <div className={styles.blockChapter} >
           {!loading && surahs.length === 0 ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
@@ -316,7 +313,7 @@ export const SurahList: React.FC = () => {
                   className={`${styles.surahItem} ${
                     isSearchResult ? styles.searchResult : ""
                   } ${isCurrentResult ? styles.highlightedResult : ""}`}
-                  onClick={handleSurahClick(surah)} 
+                  onClick={() => handleSurahClick(surah)}
                 >
                   <div className={styles.blockNameNumber}>
                     <div className={styles.surahNumber}>{surah.number}</div>
