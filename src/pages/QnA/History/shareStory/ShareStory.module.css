@@ -1,5 +1,5 @@
 .container {
-  /* background-image: url("../../../../assets/image/background.png"); */
+  background-image: url("../../../../assets/image/background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -12,16 +12,6 @@
   flex-direction: column;
   align-items: center;
   padding-bottom: var(--numbers-80);
-}
-.backgroundImage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none; 
 }
 .contentWrapper {
   max-width: 390px;

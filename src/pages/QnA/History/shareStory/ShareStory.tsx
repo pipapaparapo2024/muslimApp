@@ -7,11 +7,8 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import {
-  useScreenshotExport,
-  shareToTelegramStory,
-} from "../../../../hooks/useScreenshotExport";
-import background from "../../../../assets/image/background.png";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
@@ -63,7 +60,7 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl", screenshotUrl);
+      console.log("screenshotUrl",screenshotUrl)
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
@@ -93,20 +90,7 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        <img
-          src={background}
-          alt="Background"
-          className={styles.backgroundImage}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            zIndex: 0,
-          }}
-        />
+        
         {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
@@ -125,7 +109,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-
+        
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
