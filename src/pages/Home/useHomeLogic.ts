@@ -1,4 +1,3 @@
-
 import { t } from "i18next";
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +17,6 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
       headers: { Authorization: `Bearer ${token}` },
     });
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("selectedlang",backendLanguage)
     return backendLanguage;
   } catch (error) {
     console.error("Error fetching language:", error);
@@ -30,8 +28,11 @@ export const useHomeLogic = () => {
   const navigate = useNavigate();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true); // Начинаем с true
-  const [initializationError, setInitializationError] = useState<string | null>(null);
-  const [orientationListenerActive, setOrientationListenerActive] = useState(false);
+  const [initializationError, setInitializationError] = useState<string | null>(
+    null
+  );
+  const [orientationListenerActive, setOrientationListenerActive] =
+    useState(false);
   const [languageReady, setLanguageReady] = useState(false); // Новое состояние для языка
 
   // Инициализируем состояние из localStorage
@@ -46,17 +47,23 @@ export const useHomeLogic = () => {
       try {
         // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
+        console.log("selectedlang", userLanguage);
+
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }
-        
+
         // Помечаем, что язык готов
         setLanguageReady(true);
       } catch (error) {
         console.error("Language initialization error:", error);
-        setInitializationError(error instanceof Error ? error.message : "Language initialization error");
+        setInitializationError(
+          error instanceof Error
+            ? error.message
+            : "Language initialization error"
+        );
         setLanguageReady(true); // Все равно продолжаем, даже с ошибкой
       } finally {
         setIsInitializing(false);
@@ -106,45 +113,48 @@ export const useHomeLogic = () => {
     }
   }, []);
 
-  const handleCompassClick = useCallback(async (currentPermission: string) => {
-    if (currentPermission === "denied") {
-      alert(t("sensorPermissionDeniedMessage"));
-      return;
-    }
+  const handleCompassClick = useCallback(
+    async (currentPermission: string) => {
+      if (currentPermission === "denied") {
+        alert(t("sensorPermissionDeniedMessage"));
+        return;
+      }
 
-    if (currentPermission === "prompt") {
-      setIsRequestingPermission(true);
-      try {
-        if (
-          typeof DeviceOrientationEvent !== "undefined" &&
-          (DeviceOrientationEvent as any).requestPermission
-        ) {
-          const result = await (
-            DeviceOrientationEvent as any
-          ).requestPermission();
-          
-          if (result === "granted") {
+      if (currentPermission === "prompt") {
+        setIsRequestingPermission(true);
+        try {
+          if (
+            typeof DeviceOrientationEvent !== "undefined" &&
+            (DeviceOrientationEvent as any).requestPermission
+          ) {
+            const result = await (
+              DeviceOrientationEvent as any
+            ).requestPermission();
+
+            if (result === "granted") {
+              setSensorPermission("granted");
+              navigate("/qibla", { state: { activeTab: "compass" } });
+            } else {
+              setSensorPermission("denied");
+              alert(t("sensorPermissionRequired"));
+            }
+          } else {
             setSensorPermission("granted");
             navigate("/qibla", { state: { activeTab: "compass" } });
-          } else {
-            setSensorPermission("denied");
-            alert(t("sensorPermissionRequired"));
           }
-        } else {
-          setSensorPermission("granted");
-          navigate("/qibla", { state: { activeTab: "compass" } });
+        } catch (err) {
+          console.error("Sensor permission error:", err);
+          setSensorPermission("denied");
+          alert(t("sensorPermissionError"));
+        } finally {
+          setIsRequestingPermission(false);
         }
-      } catch (err) {
-        console.error("Sensor permission error:", err);
-        setSensorPermission("denied");
-        alert(t("sensorPermissionError"));
-      } finally {
-        setIsRequestingPermission(false);
+      } else if (currentPermission === "granted") {
+        navigate("/qibla", { state: { activeTab: "compass" } });
       }
-    } else if (currentPermission === "granted") {
-      navigate("/qibla", { state: { activeTab: "compass" } });
-    }
-  }, [navigate]);
+    },
+    [navigate]
+  );
 
   const handleMapClick = useCallback(() => {
     navigate("/qibla", { state: { activeTab: "map" } });
