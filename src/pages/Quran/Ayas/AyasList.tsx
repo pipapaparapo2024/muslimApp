@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./AyasList.module.css";
-import { Search, Loader, ChevronUp } from "lucide-react";
+import { Search, Loader, ChevronUp, ChevronDown, ArrowUp } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
@@ -12,21 +12,39 @@ export const AyahList: React.FC = () => {
   const location = useLocation();
   const { surah: initialSurah } = location.state || {};
 
-  const {
-    ayahs,
-    error,
-    fetchAyahs,
-    resetAyahs,
-    loading,
-  } = useSurahListStore();
+  const { ayahs, error, fetchAyahs, resetAyahs, loading } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  // Обработчик скролла для показа/скрытия кнопки "Наверх"
+  useEffect(() => {
+    const handleScroll = () => {
+      // Используем window.scrollY вместо scrollTop контейнера
+      const scrollY = window.scrollY;
+      setShowScrollToTop(scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    
+    // Проверяем сразу при монтировании
+    handleScroll();
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Функция прокрутки наверх
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const loadInitialAyahs = async () => {
@@ -96,7 +114,8 @@ export const AyahList: React.FC = () => {
           if (element) {
             setTimeout(() => {
               element.scrollIntoView({ behavior: "smooth", block: "center" });
-              element.style.border = "2px solid var(--color-background-semantic-solid-brand)";
+              element.style.border =
+                "2px solid var(--color-background-semantic-solid-brand)";
               element.style.transform = "scale(1.02)";
             }, 100);
           }
@@ -122,7 +141,9 @@ export const AyahList: React.FC = () => {
 
       // Сбрасываем стили предыдущего элемента
       if (currentResultIndex >= 0) {
-        const prevElement = resultRefs.current.get(searchResults[currentResultIndex]);
+        const prevElement = resultRefs.current.get(
+          searchResults[currentResultIndex]
+        );
         if (prevElement) {
           prevElement.style.border = "";
           prevElement.style.transform = "scale(1)";
@@ -144,7 +165,8 @@ export const AyahList: React.FC = () => {
       const element = resultRefs.current.get(resultNumber);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
-        element.style.border = "2px solid var(--color-background-semantic-solid-brand)";
+        element.style.border =
+          "2px solid var(--color-background-semantic-solid-brand)";
         element.style.transform = "scale(1.02)";
       }
     },
@@ -215,6 +237,14 @@ export const AyahList: React.FC = () => {
                 >
                   <ChevronUp color="var(--text)" size={16} />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => navigateSearchResults("prev")}
+                  className={styles.navButton}
+                  disabled={searchResults.length <= 1}
+                >
+                  <ChevronDown color="var(--text)" size={16} />
+                </button>
               </div>
             )}
 
@@ -233,7 +263,7 @@ export const AyahList: React.FC = () => {
           )}
           {loading ? (
             <div className={styles.noResults}>
-              <LoadingSpinner/>
+              <LoadingSpinner />
             </div>
           ) : (
             ayahs.map((ayah, index) => {
@@ -261,6 +291,15 @@ export const AyahList: React.FC = () => {
             })
           )}
         </div>
+        {showScrollToTop && (
+          <button
+            className={styles.scrollToTopButton}
+            onClick={scrollToTop}
+            aria-label={t("scrollToTop")}
+          >
+            <ArrowUp size={20} />
+          </button>
+        )}
       </div>
     </PageWrapper>
   );
