@@ -49,8 +49,8 @@
 
 .blockMessageBot .text {
   display: -webkit-box;
-  line-clamp: 12;
-  -webkit-line-clamp: 12;
+  line-clamp: 15;
+  -webkit-line-clamp: 15;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
