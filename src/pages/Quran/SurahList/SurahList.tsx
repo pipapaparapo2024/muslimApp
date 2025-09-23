@@ -65,10 +65,10 @@ export const SurahList: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    
+
     // Проверяем сразу при монтировании
     handleScroll();
-    
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -248,7 +248,7 @@ export const SurahList: React.FC = () => {
             </div>
             <div className={styles.diskHeader}>{t("discoverChapters")}</div>
           </div>
-
+          {language}
           <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
