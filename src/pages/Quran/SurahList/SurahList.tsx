@@ -15,7 +15,7 @@ import {
   Loader,
   Menu,
   Search,
-  ArrowUp, // Добавляем иконку стрелки вверх
+  ArrowUp,
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
@@ -38,7 +38,7 @@ export const SurahList: React.FC = () => {
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
-  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для кнопки "Наверх"
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -381,13 +381,15 @@ export const SurahList: React.FC = () => {
         </div>
 
         {/* Кнопка "Наверх" */}
-        <button
-          className={styles.scrollToTopButton}
-          onClick={scrollToTop}
-          aria-label={t("scrollToTop")}
-        >
-          <ArrowUp size={20} />
-        </button>
+        {showScrollToTop && (
+          <button
+            className={styles.scrollToTopButton}
+            onClick={scrollToTop}
+            aria-label={t("scrollToTop")}
+          >
+            <ArrowUp size={20} />
+          </button>
+        )}
       </div>
     </PageWrapper>
   );
