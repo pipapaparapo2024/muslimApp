@@ -72,13 +72,15 @@ export const SurahList: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Функция прокрутки наверх
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+const scrollToTop = (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
 
   // Поиск по сурам
   const searchInSurahs = useCallback(
@@ -370,8 +372,6 @@ export const SurahList: React.FC = () => {
             })
           )}
         </div>
-
-        {/* Кнопка "Наверх" */}
         {showScrollToTop && (
           <button
             className={styles.scrollToTopButton}
