@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/messageMuslim.png";
-import background from "../../../../assets/image/background.png";
+import background from "../../../../assets/image/background.png"; // Импортируем фон
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -105,15 +105,7 @@ export const ScannerShareStory: React.FC = () => {
     >
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Фоновое изображение */}
-          <img
-            src={background}
-            alt="Background"
-            className={styles.backgroundImage}
-            crossOrigin="anonymous"
-          />
-          
-          {/* Основное изображение сообщения */}
+          {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
@@ -140,7 +132,8 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}
+                  {currentItem.products.join(", ")}{" "}
+                  {/* Исправлено: добавил {} */}
                 </div>
               </div>
             )}
@@ -149,6 +142,8 @@ export const ScannerShareStory: React.FC = () => {
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product: any, index: number) => (
                 <div key={index} className={styles.blockInside}>
+                  {" "}
+                  {/* Добавил key */}
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
