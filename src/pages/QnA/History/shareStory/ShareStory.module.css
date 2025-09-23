@@ -78,8 +78,6 @@
 }
 .text {
   color: var(--desk-text);
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 }
 
 .blockMessageBot .text {

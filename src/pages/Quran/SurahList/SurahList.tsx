@@ -15,7 +15,7 @@ import {
   Loader,
   Menu,
   Search,
-  ArrowUp // Добавляем иконку стрелки вверх
+  ArrowUp, // Добавляем иконку стрелки вверх
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
@@ -65,8 +65,8 @@ export const SurahList: React.FC = () => {
 
     const container = containerRef.current;
     if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+      container.addEventListener("scroll", handleScroll);
+      return () => container.removeEventListener("scroll", handleScroll);
     }
   }, []);
 
@@ -75,7 +75,7 @@ export const SurahList: React.FC = () => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: "smooth",
       });
     }
   };
@@ -299,9 +299,7 @@ export const SurahList: React.FC = () => {
 
         <div className={styles.blockChapter}>
           {!loading && surahs.length === 0 ? (
-            <div className={styles.noResults}>
-              {t("noChaptersFound")}
-            </div>
+            <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
             surahs.map((surah) => {
               const isSearchResult = isSurahInSearchResults(surah.number);
@@ -383,15 +381,13 @@ export const SurahList: React.FC = () => {
         </div>
 
         {/* Кнопка "Наверх" */}
-        {showScrollToTop && (
-          <button 
-            className={styles.scrollToTopButton}
-            onClick={scrollToTop}
-            aria-label={t("scrollToTop")}
-          >
-            <ArrowUp size={20} />
-          </button>
-        )}
+        <button
+          className={styles.scrollToTopButton}
+          onClick={scrollToTop}
+          aria-label={t("scrollToTop")}
+        >
+          <ArrowUp size={20} />
+        </button>
       </div>
     </PageWrapper>
   );
