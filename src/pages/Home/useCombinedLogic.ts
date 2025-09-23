@@ -150,7 +150,7 @@ export const useCombinedLogic = ({
       console.log("Language ready, fetching prayers...");
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-  }, [languageReady, geoCoords, fetchPrayers]);
+  }, [languageReady, geoCoords]);
 
   // Синхронизация состояния сенсора с localStorage
   useEffect(() => {
