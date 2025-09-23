@@ -36,6 +36,21 @@
   align-self: flex-start;
   margin-right: auto;
 }
+
+
+.blockMessageBot .text {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.5em * 2);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .copy {
   color: var(--color-background-semantic-solid-brand);
   display: flex;

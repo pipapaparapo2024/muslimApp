@@ -57,33 +57,6 @@
   box-sizing: border-box;
 }
 
-
-.blockMessageBot .text {
-  display: -webkit-box;
-  line-clamp: 12;
-  -webkit-line-clamp: 12;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
-  line-height: 1.5;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-.blockMessageUser .text {
-  display: -webkit-box;
-  line-clamp: 3;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
-  line-height: 1.5;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-
 .blockMessageUser {
   border-radius: var(--roundings-medium) var(--roundings-medium) 0
     var(--roundings-medium);
@@ -112,25 +85,18 @@
 .blockMessageBot .text {
   display: -webkit-box;
   line-clamp: 6;
-  -webkit-line-clamp: 6; 
+  -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(
-    1.2em * 6
-  ); 
-  line-height: 1.2; 
+  max-height: calc(1.2em * 6);
+  line-height: 1.2;
 }
 .nickName {
   color: var(--desk-text);
   font-weight: 400;
   font-size: var(--numbers-14);
 }
-
-.text {
-  color: var(--colors-stone-600);
-}
-
 .shareButton {
   position: absolute;
   bottom: 30px;
