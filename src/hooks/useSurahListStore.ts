@@ -85,7 +85,7 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
+    console.log("suralist",response)
     if (!response.data?.data?.suras) {
       throw new Error('Invalid API response structure: missing "data.suras"');
     }

@@ -41,13 +41,11 @@ export const useHomeLogic = () => {
     return saved || "prompt";
   });
 
-  // ИНИЦИАЛИЗАЦИЯ ЯЗЫКА - выполняется первой
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
         // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
-        console.log("selectedlang", userLanguage);
 
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
