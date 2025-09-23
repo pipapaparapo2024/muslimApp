@@ -33,6 +33,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   word-wrap: break-word;
+  color: var(--desk-text);
   overflow-wrap: break-word;
 }
 .blockMessageBot {
@@ -46,7 +47,6 @@
   margin-right: auto;
 }
 
-
 .blockMessageBot .text {
   display: -webkit-box;
   line-clamp: 12;
@@ -56,6 +56,7 @@
   text-overflow: ellipsis;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  color: var(--desk-text);
 }
 
 .copy {
@@ -79,8 +80,3 @@
   font-size: var(--numbers-14);
   margin-bottom: var(--numbers-4);
 }
-
-.text {
-  color: var(--desk-text);
-}
-
