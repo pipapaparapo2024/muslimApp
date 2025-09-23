@@ -114,32 +114,33 @@ export const HistoryScannerDetail: React.FC = () => {
             {t(getStatusTranslationKey(currentItem.engType))}
           </div>
 
-          <div className={styles.blockInside}>
-            <div className={styles.scanTitle}>{t("ingredients")}</div>
-            <div className={styles.scanDesk}>
-              {currentItem.products &&
-                currentItem.products.length > 0 &&
-                currentItem.products.join(", ")}
+          {currentItem.products && currentItem.products.length > 0 && (
+            <div className={styles.blockInside}>
+              <div className={styles.scanTitle}>{t("ingredients")}</div>
+              <div className={styles.scanDesk}>
+                currentItem.products.join(", ")
+              </div>
             </div>
-          </div>
-
-          <div className={styles.blockInside}>
-            <div className={styles.scanTitle}>{t("analysisResult")}</div>
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
-              currentItem.haramProducts.map((product, index) => (
+          )}
+          {currentItem.haramProducts &&
+            currentItem.haramProducts.length > 0 &&
+            currentItem.haramProducts.map((product, index) => (
+              <div className={styles.blockInside}>
+                <div className={styles.scanTitle}>{t("analysisResult")}</div>
                 <div className={styles.scanDesk}>
                   <div key={index}>
                     {product.name} - {product.reason}
                     {product.source}
                   </div>
                 </div>
-              ))}
-          </div>
-          <div className={styles.blockInside}>
-            <div className={styles.scanTitle}>{t("conclusion")}</div>
-            <div className={styles.scanDesk}>{currentItem.description}</div>
-          </div>
+              </div>
+            ))}
+          {currentItem.description && (
+            <div className={styles.blockInside}>
+              <div className={styles.scanTitle}>{t("conclusion")}</div>
+              <div className={styles.scanDesk}>{currentItem.description}</div>
+            </div>
+          )}
         </div>
         <Share
           shareUrl={`/scanner/ScannerShareHistory/${id}`}
