@@ -1,6 +1,6 @@
 import React, { useEffect, type CSSProperties } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchLanguageFromBackend } from "../pages/Home/useCombinedLogic";
+import { fetchLanguageFromBackend } from "../pages/Home/useHomeLogic";
 import { applyLanguageStyles } from "../hooks/useLanguages";
 import i18n from "../api/i18n";
 

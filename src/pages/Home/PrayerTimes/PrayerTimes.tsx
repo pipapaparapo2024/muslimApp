@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
-import { useCombinedLogic } from "../useCombinedLogic";
-import { toDate } from "../useCombinedLogic";
+import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const PrayerTimes: React.FC = () => {
@@ -26,7 +25,7 @@ export const PrayerTimes: React.FC = () => {
     formatTime,
     getMinutesUntilPrayer,
     isPrayerPassed,
-  } = useCombinedLogic({
+  } = usePrayerTimesLogic({
     prayers,
     isLoading,
     error,
@@ -35,12 +34,9 @@ export const PrayerTimes: React.FC = () => {
     is24Hour,
   });
 
-  // Добавляем проверку на загрузку молитв
   if (isLoading) {
     return (
-      <div className={styles.prayerTimesContainer}>
         <LoadingSpinner />
-      </div>
     );
   }
 

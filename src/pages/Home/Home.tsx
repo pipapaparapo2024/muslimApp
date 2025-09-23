@@ -8,42 +8,26 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
-import { useCombinedLogic } from "./useCombinedLogic";
+import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert } from "lucide-react";
-import { usePrayerApiStore } from "../../hooks/usePrayerApiStore"; // Добавляем импорт
-import { useDataTimeStore } from "../../hooks/useDataTimeStore"; // Добавляем импорт
 
 export const Home: React.FC = () => {
-  // Получаем данные из хранилищ
-  const { isLoading: geoLoading, error: geoError, coords: geoCoords } = useGeoStore();
-  const { prayers, isLoading: prayersLoading, error: prayersError, fetchPrayers } = usePrayerApiStore();
-  const is24Hour = useDataTimeStore((state) => state.is24Hour);
-
-  const isLoading = geoLoading || prayersLoading;
-  const error = geoError || prayersError;
-
   const {
     sensorPermission,
     requestSensorPermission,
-    resetSensorPermission,
+    resetSensorPermission, // Добавляем функцию сброса
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
     isInitializing,
-    languageReady, 
     initializationError,
-  } = useCombinedLogic({
-    prayers,
-    isLoading,
-    error,
-    fetchPrayers,
-    geoCoords,
-    is24Hour,
-  });
+  } = useHomeLogic();
 
-  // Показываем лоадер во время инициализации языка
-  if (isInitializing || !languageReady) {
+  const { isLoading, error } = useGeoStore();
+
+  // Показываем лоадер во время инициализации
+  if (isInitializing) {
     return (
       <PageWrapper>
         <div className={styles.loadingContainer}>
@@ -72,11 +56,20 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
+      {sensorPermission}
+      {sensorPermission === "granted" && (
+        <button
+          className={styles.resetPermissionButton}
+          onClick={resetSensorPermission}
+        >
+          {t("resetPermission")}
+        </button>
+      )}
+
       <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
-            <p>{t("loadingPrayers")}</p>
           </div>
         )}
 
@@ -85,13 +78,12 @@ export const Home: React.FC = () => {
         {!isLoading && !error && (
           <>
             <div className={styles.prayerTimesQiblaContainer}>
-              {/* PrayerTimes загружается только после инициализации языка */}
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
                 <div className={styles.titleFaceKaaba}>
                   {t("faceTheKaaba")}{" "}
-                  {sensorPermission === "prompt" ? (
+                  {sensorPermission === "prompt" && (
                     <div
                       className={`${styles.permissionButton} ${
                         sensorPermission === "prompt" &&
@@ -106,13 +98,6 @@ export const Home: React.FC = () => {
                         ? t("requesting...")
                         : t("allowSensors")}
                     </div>
-                  ) : (
-                    <button
-                      className={styles.permissionButton}
-                      onClick={resetSensorPermission}
-                    >
-                      {t("resetPermission")}
-                    </button>
                   )}
                 </div>
                 <div className={styles.diskFaceKaaba}>
@@ -123,7 +108,7 @@ export const Home: React.FC = () => {
                   <div onClick={handleMapClick} className={styles.mapContainer}>
                     <QiblaMap
                       onMapClick={handleMapClick}
-                      orientationListenerActive={sensorPermission === "granted"}
+                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
                     />
                   </div>
 
