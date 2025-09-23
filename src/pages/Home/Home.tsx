@@ -16,18 +16,19 @@ export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
-    resetSensorPermission, // Добавляем функцию сброса
+    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
     isInitializing,
+    languageReady, // Получаем состояние готовности языка
     initializationError,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
 
-  // Показываем лоадер во время инициализации
-  if (isInitializing) {
+  // Показываем лоадер во время инициализации языка
+  if (isInitializing || !languageReady) {
     return (
       <PageWrapper>
         <div className={styles.loadingContainer}>
@@ -60,6 +61,7 @@ export const Home: React.FC = () => {
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
+            <p>{t("loadingPrayers")}</p>
           </div>
         )}
 
@@ -68,6 +70,7 @@ export const Home: React.FC = () => {
         {!isLoading && !error && (
           <>
             <div className={styles.prayerTimesQiblaContainer}>
+              {/* PrayerTimes загружается только после инициализации языка */}
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
@@ -105,7 +108,7 @@ export const Home: React.FC = () => {
                   <div onClick={handleMapClick} className={styles.mapContainer}>
                     <QiblaMap
                       onMapClick={handleMapClick}
-                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
+                      orientationListenerActive={sensorPermission === "granted"}
                     />
                   </div>
 

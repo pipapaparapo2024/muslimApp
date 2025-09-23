@@ -22,16 +22,16 @@ export const useScreenshotExport = () => {
   const generateHTMLTemplate = (element: HTMLElement): string => {
     // Создаем глубокий клон элемента с сохранением всех стилей
     const clone = element.cloneNode(true) as HTMLElement;
-    
+
     // Удаляем кнопку шаринга и другие элементы, которые не должны быть в скриншоте
     const elementsToRemove = clone.querySelectorAll(
       '[data-story-visible="hide"], .shareButton, .blockButton, button'
     );
-    elementsToRemove.forEach(el => el.remove());
+    elementsToRemove.forEach((el) => el.remove());
 
     // Получаем вычисленные стили для элемента и его детей
     const styles = getElementStyles(element);
-    
+
     // Получаем HTML структуру
     const htmlContent = clone.innerHTML;
 
@@ -150,12 +150,12 @@ export const useScreenshotExport = () => {
   const getElementStyles = (element: HTMLElement): string => {
     // Собираем важные стили из элемента
     const computedStyle = window.getComputedStyle(element);
-    
+
     // Получаем стили для фоновых изображений
     const backgroundImage = computedStyle.backgroundImage;
-    let backgroundStyles = '';
-    
-    if (backgroundImage && backgroundImage !== 'none') {
+    let backgroundStyles = "";
+
+    if (backgroundImage && backgroundImage !== "none") {
       backgroundStyles = `
         .contentWrapper {
             background-image: ${backgroundImage} !important;
@@ -165,42 +165,61 @@ export const useScreenshotExport = () => {
         }
       `;
     }
-    
+
     // Собираем стили для всех дочерних элементов
-    const childrenStyles = Array.from(element.querySelectorAll('*'))
-      .map(child => {
+    const childrenStyles = Array.from(element.querySelectorAll("*"))
+      .map((child) => {
         const childComputed = window.getComputedStyle(child as HTMLElement);
         const classes = Array.from((child as HTMLElement).classList);
-        if (classes.length === 0) return '';
-        
-        const classSelectors = classes.map(cls => `.${cls}`).join('');
+        if (classes.length === 0) return "";
+
+        const classSelectors = classes.map((cls) => `.${cls}`).join("");
         return `
           ${classSelectors} {
             ${getImportantStyles(childComputed)}
           }
         `;
       })
-      .join('');
-    
+      .join("");
+
     return backgroundStyles + childrenStyles;
   };
 
   const getImportantStyles = (computedStyle: CSSStyleDeclaration): string => {
     // Собираем только самые важные стили
     const importantProperties = [
-      'display', 'position', 'width', 'height', 'top', 'left', 'right', 'bottom',
-      'margin', 'padding', 'border', 'background', 'color', 'font-size',
-      'font-weight', 'text-align', 'z-index', 'opacity', 'visibility',
-      'flex-direction', 'justify-content', 'align-items', 'gap'
+      "display",
+      "position",
+      "width",
+      "height",
+      "top",
+      "left",
+      "right",
+      "bottom",
+      "margin",
+      "padding",
+      "border",
+      "background",
+      "color",
+      "font-size",
+      "font-weight",
+      "text-align",
+      "z-index",
+      "opacity",
+      "visibility",
+      "flex-direction",
+      "justify-content",
+      "align-items",
+      "gap",
     ];
-    
+
     return importantProperties
-      .map(prop => {
+      .map((prop) => {
         const value = computedStyle.getPropertyValue(prop);
-        return value ? `${prop}: ${value} !important;` : '';
+        return value ? `${prop}: ${value} !important;` : "";
       })
       .filter(Boolean)
-      .join(' ');
+      .join(" ");
   };
 
   const exportScreenshot = async (
@@ -222,7 +241,7 @@ export const useScreenshotExport = () => {
         "/api/v1/screenshot/generate",
         {
           html: htmlTemplate,
-          id: options.id
+          id: options.id,
         },
         {
           headers: {
@@ -236,7 +255,9 @@ export const useScreenshotExport = () => {
       if (response.data.status && response.data.data.url) {
         return response.data.data.url;
       } else {
-        throw new Error(response.data.message || "Failed to generate screenshot");
+        throw new Error(
+          response.data.message || "Failed to generate screenshot"
+        );
       }
     } catch (error) {
       console.error("Screenshot export error:", error);
@@ -250,12 +271,14 @@ export const useScreenshotExport = () => {
 };
 
 // Функция шаринга остается без изменений
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
   if (!url) return;
 
   try {
     await init();
-    
+
     if (typeof shareStory === "function") {
       await shareStory(url, {
         widgetLink: {

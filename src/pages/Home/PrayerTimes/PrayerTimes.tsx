@@ -34,9 +34,12 @@ export const PrayerTimes: React.FC = () => {
     is24Hour,
   });
 
+  // Добавляем проверку на загрузку молитв
   if (isLoading) {
     return (
+      <div className={styles.prayerTimesContainer}>
         <LoadingSpinner />
+      </div>
     );
   }
 

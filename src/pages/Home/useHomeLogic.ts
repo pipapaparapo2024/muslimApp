@@ -28,9 +28,10 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true); // Начинаем с true
   const [initializationError, setInitializationError] = useState<string | null>(null);
   const [orientationListenerActive, setOrientationListenerActive] = useState(false);
+  const [languageReady, setLanguageReady] = useState(false); // Новое состояние для языка
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -38,29 +39,30 @@ export const useHomeLogic = () => {
     return saved || "prompt";
   });
 
-  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
+  // ИНИЦИАЛИЗАЦИЯ ЯЗЫКА - выполняется первой
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeLanguage = async () => {
       try {
-        // 3. Получаем и устанавливаем язык с бекенда
+        // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }
-
-        // Помечаем, что инициализация выполнена
-        localStorage.setItem("appInitialized", "true");
+        
+        // Помечаем, что язык готов
+        setLanguageReady(true);
       } catch (error) {
-        console.error("Initialization error:", error);
-        setInitializationError(error instanceof Error ? error.message : "Unknown error");
+        console.error("Language initialization error:", error);
+        setInitializationError(error instanceof Error ? error.message : "Language initialization error");
+        setLanguageReady(true); // Все равно продолжаем, даже с ошибкой
       } finally {
         setIsInitializing(false);
       }
     };
 
-    initializeApp();
+    initializeLanguage();
   }, []);
 
   // Синхронизируем состояние с localStorage при изменении
@@ -68,17 +70,14 @@ export const useHomeLogic = () => {
     localStorage.setItem(SENSOR_PERMISSION_STATUS, sensorPermission);
   }, [sensorPermission]);
 
-  // === ФУНКЦИЯ СБРОСА РАЗРЕШЕНИЯ ===
   const resetSensorPermission = useCallback(() => {
     setSensorPermission("prompt");
-    setOrientationListenerActive(false); // Отключаем слушатель
+    setOrientationListenerActive(false);
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
     alert(t("permissionResetSuccess"));
   }, []);
 
-
-  // === ЗАПРОС ДОСТУПА К ДАТЧИКАМ ===
   const requestSensorPermission = useCallback(async () => {
     setIsRequestingPermission(true);
     try {
@@ -154,10 +153,11 @@ export const useHomeLogic = () => {
     sensorPermission,
     isRequestingPermission,
     isInitializing,
+    languageReady, // Экспортируем состояние готовности языка
     initializationError,
     orientationListenerActive,
     requestSensorPermission,
-    resetSensorPermission, // Экспортируем функцию сброса
+    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
   };
