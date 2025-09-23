@@ -91,7 +91,7 @@
   border-radius: var(--roundings-medium);
   padding: var(--numbers-4) var(--numbers-8); 
   color: white;
-  /* background-color: var(--compass-circle-small); */
+  background-color: var(--compass-circle-small);
   font-weight: var(--font-500);
   font-size: var(--numbers-16);
   cursor: pointer;
