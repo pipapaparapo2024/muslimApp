@@ -43,7 +43,7 @@ export const SurahList: React.FC = () => {
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const getScrollButtonPosition = () => {
-    return language === "ar" ? "20%" : "75%";
+    return language === "ar" ? "5%" : "75%";
   };
 
   useEffect(() => {
