@@ -52,6 +52,7 @@ const resources = {
       minutes: "min",
       noPrayersSelected: "No Prayers Selected",
       // Qibla
+      aliUnus:"Ali Unus",
       faceTheKaaba: "Face the Kaaba",
       useMapForSalah: "Use the map to align yourself correctly for Salah.",
 
@@ -325,7 +326,7 @@ const resources = {
       faceTheKaaba: "مواجهة الكعبة",
       useMapForSalah: "استخدم الخريطة لمحاذاة نفسك بشكل صحيح للصلاة.",
       noPrayersSelected: "لم يتم اختيار أي صلاة",
-
+      aliUnus:"علي أونس",
       // QnA
       needGuidance: "تحتاج إلى توجيه؟",
       getClearAnswers:

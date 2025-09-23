@@ -208,7 +208,7 @@ export const SurahList: React.FC = () => {
                 className={styles.sahihInternational}
                 onClick={() => navigate("/quran/translation")}
               >
-                {selectedVariant?.name}
+                {selectedVariant?.name =="Ali Unus" && t("aliUnus")}
                 {language === "ar" ? (
                   <ChevronLeft size={20} />
                 ) : (
