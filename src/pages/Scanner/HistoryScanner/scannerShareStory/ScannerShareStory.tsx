@@ -28,10 +28,7 @@ export const ScannerShareStory: React.FC = () => {
 
   useEffect(() => {
     const preloadImages = (): Promise<void[]> => {
-      const imagePromises = [
-        message,
-        background
-      ].map(src => {
+      const imagePromises = [message, background].map((src) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
           img.src = src;
@@ -107,25 +104,23 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Элемент для скриншота с инлайн стилями для гарантии */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Фон как инлайн стиль для гарантии отображения */}
-          <div 
+          <div
             className={styles.backgroundContainer}
             style={{
               backgroundImage: `url(${background})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              position: 'absolute',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
-              height: '100%',
-              zIndex: 0
+              width: "100%",
+              height: "100%",
+              zIndex: 0,
             }}
           />
-          
+
           {/* Основное изображение */}
           <img
             src={message}
@@ -133,7 +128,7 @@ export const ScannerShareStory: React.FC = () => {
             className={styles.foregroundImage}
             crossOrigin="anonymous" // Важно для CORS
           />
-          
+
           {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
             <div
@@ -146,39 +141,38 @@ export const ScannerShareStory: React.FC = () => {
                 {getStatusIcon(currentItem.engType)}
                 {t(getStatusTranslationKey(currentItem.engType))}
               </div>
-              <div className={styles.QiblaGuidebot}> @QiblaGuidebot</div>
+              <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
             </div>
 
-            <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("ingredients")}</div>
-              <div className={styles.scanDesk}>
-                {currentItem.products &&
-                  currentItem.products.length > 0 &&
-                  currentItem.products.join(", ")}
+            {currentItem.products && currentItem.products.length > 0 && (
+              <div className={styles.blockInside}>
+                <div className={styles.scanTitle}>{t("ingredients")}</div>
+                <div className={styles.scanDesk}>
+                  currentItem.products.join(", ")
+                </div>
               </div>
-            </div>
-
-            <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("analysisResult")}</div>
-              <div className={styles.scanDesk}>
-                {currentItem.haramProducts &&
-                  currentItem.haramProducts.length > 0 &&
-                  currentItem.haramProducts.map((product: any, index: number) => (
+            )}
+            {currentItem.haramProducts &&
+              currentItem.haramProducts.length > 0 &&
+              currentItem.haramProducts.map((product: any, index: number) => (
+                <div className={styles.blockInside}>
+                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                  <div className={styles.scanDesk}>
                     <div key={index} className={styles.haranProduct}>
                       {product.name} - {product.reason}
                       {product.source}
                     </div>
-                  ))}
+                  </div>
+                </div>
+              ))}
+            {currentItem.description && (
+              <div className={styles.blockInside}>
+                <div className={styles.scanTitle}>{t("conclusion")}</div>
+                <div className={styles.scanDesk}>{currentItem.description}</div>
               </div>
-            </div>
-            
-            <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("conclusion")}</div>
-              <div className={styles.scanDesk}>{currentItem.description}</div>
-            </div>
+            )}
           </div>
         </div>
-
         {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
