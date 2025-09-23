@@ -21,7 +21,6 @@ export const PageWrapper: React.FC<PageProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const tg = window.Telegram?.WebApp;
-  // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ - выполняется при каждом входе на Home
   useEffect(() => {
     const initializeApp = async () => {
       try {

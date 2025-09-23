@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SurahList.module.css";
-import { useSurahListStore, type Surah } from "../../../hooks/useSurahListStore";
+import {
+  useSurahListStore,
+  type Surah,
+} from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -14,7 +18,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
-import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
@@ -27,7 +30,6 @@ export const SurahList: React.FC = () => {
     loading,
     error,
   } = useSurahListStore();
-  
   const { language } = useLanguage();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -36,6 +38,7 @@ export const SurahList: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchNavigation, setShowSearchNavigation] = useState(false);
 
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   useEffect(() => {
@@ -150,6 +153,9 @@ export const SurahList: React.FC = () => {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
 
         element.style.transform = "scale(1.02)";
+        element.style.backgroundColor =
+          "var(--color-background-semantic-solid-brand)";
+        element.style.color = "white";
 
         setTimeout(() => {
           if (element) {
@@ -188,6 +194,7 @@ export const SurahList: React.FC = () => {
     });
   };
 
+
   // Проверяем, является ли сура результатом поиска
   const isSurahInSearchResults = useCallback(
     (surahNumber: number) => {
@@ -208,7 +215,7 @@ export const SurahList: React.FC = () => {
                 className={styles.sahihInternational}
                 onClick={() => navigate("/quran/translation")}
               >
-                {selectedVariant?.name =="Ali Unus" && t("aliUnus")}
+                {selectedVariant?.name}
                 {language === "ar" ? (
                   <ChevronLeft size={20} />
                 ) : (
@@ -219,7 +226,7 @@ export const SurahList: React.FC = () => {
             <div className={styles.diskHeader}>{t("discoverChapters")}</div>
           </div>
 
-          <div className={styles.searchContainer}>
+          <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
@@ -242,6 +249,14 @@ export const SurahList: React.FC = () => {
                 >
                   <ChevronUp color="var(--text)" size={16} />
                 </button>
+                <button
+                  type="button"
+                  onClick={() => navigateSearchResults("next")}
+                  className={styles.navButton}
+                  disabled={searchResults.length <= 1}
+                >
+                  <ChevronDown color="var(--text)" size={16} />
+                </button>
               </div>
             )}
 
@@ -255,11 +270,7 @@ export const SurahList: React.FC = () => {
         {error && <div>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {loading ? (
-            <div className={styles.noResults}>
-              <LoadingSpinner/>
-            </div>
-          ) : surahs.length === 0 ? (
+          {!loading && surahs.length === 0 ? (
             <div className={styles.noResults}>
               {t("noChaptersFound")}
             </div>
