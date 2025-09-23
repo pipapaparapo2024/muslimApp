@@ -3,7 +3,7 @@ import WebApp from "@twa-dev/sdk";
 
 // Создаём экземпляр API
 export const quranApi = axios.create({
-  baseURL: 'https://islamapp.myfavouritegames.org',
+  baseURL: "https://islamapp.myfavouritegames.org",
 });
 
 // Request interceptor — добавляем accessToken и initData
@@ -18,7 +18,12 @@ quranApi.interceptors.request.use((config) => {
   }
 
   if (process.env.NODE_ENV === "development") {
-    console.log("[API Request]", config.url, config.method?.toUpperCase(), config.params || "");
+    console.log(
+      "[API Request]",
+      config.url,
+      config.method?.toUpperCase(),
+      config.params || ""
+    );
   }
 
   return config;
@@ -74,7 +79,9 @@ quranApi.interceptors.response.use(
 
         // Закрываем бот
         if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.showAlert("Сессия истекла. Перезапустите бота.");
+          window.Telegram.WebApp.showAlert(
+            "Сессия истекла. Перезапустите бота."
+          );
           setTimeout(() => window.Telegram?.WebApp.close(), 1500);
         } else {
           window.location.href = "/login";
@@ -93,7 +100,9 @@ quranApi.interceptors.response.use(
   }
 );
 
-export function isErrorWithMessage(error: unknown): error is { message: string } {
+export function isErrorWithMessage(
+  error: unknown
+): error is { message: string } {
   return (
     typeof error === "object" &&
     error !== null &&

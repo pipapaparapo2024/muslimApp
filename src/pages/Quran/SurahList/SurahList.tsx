@@ -42,7 +42,6 @@ export const SurahList: React.FC = () => {
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchVariants();
@@ -57,27 +56,25 @@ export const SurahList: React.FC = () => {
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
-      if (containerRef.current) {
-        const scrollTop = containerRef.current.scrollTop;
-        setShowScrollToTop(scrollTop > 50);
-      }
+      // Используем window.scrollY вместо scrollTop контейнера
+      const scrollY = window.scrollY;
+      setShowScrollToTop(scrollY > 300);
     };
 
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      return () => container.removeEventListener("scroll", handleScroll);
-    }
+    window.addEventListener("scroll", handleScroll);
+    
+    // Проверяем сразу при монтировании
+    handleScroll();
+    
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Функция прокрутки наверх
   const scrollToTop = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   // Поиск по сурам
@@ -186,8 +183,6 @@ export const SurahList: React.FC = () => {
         setTimeout(() => {
           if (element) {
             element.style.transform = "scale(1)";
-            element.style.backgroundColor = "";
-            element.style.color = "";
           }
         }, 1000);
       }
@@ -230,7 +225,7 @@ export const SurahList: React.FC = () => {
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/home">
-      <div className={styles.container} ref={containerRef}>
+      <div className={styles.container}>
         <div className={styles.headerContainer}>
           <img src={quaran} alt="Quran" className={styles.quranImage} />
           <div className={styles.holyHeader}>
@@ -292,7 +287,7 @@ export const SurahList: React.FC = () => {
         </div>
 
         {/* Ошибка */}
-        {error && <div>Error: {error}</div>}
+        {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
           {!loading && surahs.length === 0 ? (
@@ -316,9 +311,6 @@ export const SurahList: React.FC = () => {
                     isSearchResult ? styles.searchResult : ""
                   } ${isCurrentResult ? styles.highlightedResult : ""}`}
                   onClick={() => handleSurahClick(surah)}
-                  style={{
-                    transition: "all 0.3s ease",
-                  }}
                 >
                   <div className={styles.blockNameNumber}>
                     <div className={styles.surahNumber}>{surah.number}</div>
