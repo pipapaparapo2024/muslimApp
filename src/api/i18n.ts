@@ -52,7 +52,7 @@ const resources = {
       minutes: "min",
       noPrayersSelected: "No Prayers Selected",
       // Qibla
-      aliUnus:"Ali Unus",
+      aliUnus: "Ali Unus",
       faceTheKaaba: "Face the Kaaba",
       useMapForSalah: "Use the map to align yourself correctly for Salah.",
 
@@ -146,7 +146,7 @@ const resources = {
 
       //Home
       allowSensors: "Allow Sensors",
-
+      resetPermission: "Reset Permission",
       requsting: "Requesting...",
       locationMay: "Location may be inaccurate. Please consider this.",
       loadPrevious: "Load Previous",
@@ -326,7 +326,7 @@ const resources = {
       faceTheKaaba: "مواجهة الكعبة",
       useMapForSalah: "استخدم الخريطة لمحاذاة نفسك بشكل صحيح للصلاة.",
       noPrayersSelected: "لم يتم اختيار أي صلاة",
-      aliUnus:"علي أونس",
+      aliUnus: "علي أونس",
       // QnA
       needGuidance: "تحتاج إلى توجيه؟",
       getClearAnswers:
@@ -410,6 +410,8 @@ const resources = {
       searchInAyahs: "بحث الآيات",
 
       //Home
+      resetPermission: "إعادة تعيين الإذن",
+
       locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا", //Ayahs
       allowSensors: "السماح لأجهزة الاستشعار",
       requsting: "جارٍ الطلب...",
