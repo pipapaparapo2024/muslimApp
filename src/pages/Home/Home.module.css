@@ -89,7 +89,7 @@
   z-index: 1001;
   border: none;
   border-radius: var(--roundings-medium);
-  padding: var(--numbers-4) var(--numbers-8); 
+  padding: var(--numbers-2) var(--numbers-6); 
   color: white;
   background-color: var(--compass-circle-small);
   font-weight: var(--font-500);
