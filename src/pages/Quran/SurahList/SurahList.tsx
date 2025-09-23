@@ -72,15 +72,11 @@ export const SurahList: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-const scrollToTop = (e: React.MouseEvent) => {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
-};
+  const scrollToTop = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.scrollTo(0, 0);
+  };
 
   // Поиск по сурам
   const searchInSurahs = useCallback(
