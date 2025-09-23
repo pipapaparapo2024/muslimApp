@@ -75,7 +75,10 @@ export const SurahList: React.FC = () => {
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    window.scrollTo(0, 0);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   // Поиск по сурам
@@ -289,7 +292,12 @@ export const SurahList: React.FC = () => {
         {/* Ошибка */}
         {error && <div className={styles.error}>Error: {error}</div>}
 
-        <div className={styles.blockChapter}>
+        <div
+          className={styles.blockChapter}
+          style={{
+            pointerEvents: showScrollToTop ? "none" : "auto",
+          }}
+        >
           {!loading && surahs.length === 0 ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
