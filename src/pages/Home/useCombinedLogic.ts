@@ -150,7 +150,7 @@ export const useCombinedLogic = ({
       console.log("Language ready, fetching prayers...");
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-  }, [languageReady, geoCoords]); // Убрал fetchPrayers из зависимостей
+  }, [languageReady, geoCoords, fetchPrayers]);
 
   // Синхронизация состояния сенсора с localStorage
   useEffect(() => {
@@ -158,7 +158,7 @@ export const useCombinedLogic = ({
   }, [sensorPermission]);
 
   // Функции для молитв
-  const formatTime = useCallback((date: Date): string => {
+  const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
       return "—:— —";
     }
@@ -175,9 +175,9 @@ export const useCombinedLogic = ({
       const formattedMinutes = minutes.toString().padStart(2, "0");
       return `${hour12}:${formattedMinutes} ${ampm}`;
     }
-  }, [is24Hour]); // Добавил is24Hour в зависимости
+  };
 
-  const getMinutesUntilPrayer = useCallback((
+  const getMinutesUntilPrayer = (
     prayerTime: string | Date | undefined
   ): number => {
     const date = toDate(prayerTime);
@@ -189,9 +189,9 @@ export const useCombinedLogic = ({
     return prayerTotal >= currentTotal
       ? prayerTotal - currentTotal
       : prayerTotal + 24 * 60 - currentTotal;
-  }, [now]);
+  };
 
-  const isPrayerPassed = useCallback((prayerTime: string | Date | undefined): boolean => {
+  const isPrayerPassed = (prayerTime: string | Date | undefined): boolean => {
     const date = toDate(prayerTime);
     if (!date) return false;
 
@@ -199,7 +199,7 @@ export const useCombinedLogic = ({
     const currentTotal = now.getHours() * 60 + now.getMinutes();
 
     return prayerTotal < currentTotal;
-  }, [now]);
+  };
 
   const sortedPrayers = useMemo(() => {
     return [...prayers].sort((a, b) => {
@@ -213,17 +213,17 @@ export const useCombinedLogic = ({
       const bTime = toDate(b.time)?.getTime() || 0;
       return aTime - bTime;
     });
-  }, [prayers, isPrayerPassed]); // Заменил now на isPrayerPassed
+  }, [prayers, now]);
 
-  const handlePrayerClick = useCallback((prayer: Prayers) => {
+  const handlePrayerClick = (prayer: Prayers) => {
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
-  }, []);
+  };
 
-  const handleCloseModal = useCallback(() => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedPrayer(null);
-  }, []);
+  };
 
   // Функции для сенсоров и навигации
   const resetSensorPermission = useCallback(() => {
