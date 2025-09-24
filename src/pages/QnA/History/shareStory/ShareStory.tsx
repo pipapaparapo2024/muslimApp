@@ -1,146 +1,199 @@
-import React, { useEffect, useRef, useState } from "react";
-import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/shareStory.png";
+import { useEffect, useState } from "react";
+import { quranApi } from "../../../../api/api";
+import { init, shareStory } from "@telegram-apps/sdk";
+import { toBlob } from "html-to-image";
 
-import { PageWrapper } from "../../../../shared/PageWrapper";
-import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
-import { useParams } from "react-router-dom";
-import { useHistoryStore } from "../../../../hooks/useHistoryStore";
-import { Upload } from "lucide-react";
-import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+interface StoryResponse {
+  status: boolean;
+  data: {
+    url?: string;
+  };
+  message?: string;
+}
 
-export const ShareStory: React.FC = () => {
-  const [isReady, setIsReady] = useState(false);
-  const [currentItem, setCurrentItem] = useState<any>(null);
-  const { id } = useParams<{ id: string }>();
-  const { getHistoryItem } = useHistoryStore();
-  const screenshotRef = useRef<HTMLDivElement>(null);
-  const { loading, exportScreenshot } = useScreenshotExport();
+interface ExportOptions {
+  element: HTMLElement | null;
+  id: string | undefined;
+}
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!id) return;
+// Упрощенная функция создания скриншота БЕЗ base64
+const createScreenshot = async (element: HTMLElement): Promise<Blob> => {
+  console.log('📸 Creating screenshot');
+  
+  // Создаем клон ДО любой обработки
+  const clone = element.cloneNode(true) as HTMLElement;
+  
+  // Применяем стили для корректного отображения
+  Object.assign(clone.style, {
+    position: 'fixed',
+    left: '0',
+    top: '0',
+    width: `${element.offsetWidth}px`,
+    height: 'auto',
+    display: 'block',
+    visibility: 'visible',
+    background: '#ffffff',
+    zIndex: '99999',
+    margin: '0',
+    padding: '0'
+  });
 
-      try {
-        const item = await getHistoryItem(id);
-        setCurrentItem(item);
-        
-        // Функция проверки готовности
-        const checkReady = (): boolean => {
-          if (!screenshotRef.current) {
+  document.body.appendChild(clone);
+
+  try {
+    // Ждем рендеринга
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    });
+
+    // Дополнительная задержка для изображений
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+
+    const blob = await toBlob(clone, {
+      pixelRatio: 2,
+      backgroundColor: '#ffffff',
+      skipFonts: true,
+      quality: 0.9,
+      cacheBust: true,
+      filter: (node: Node) => {
+        if (node instanceof HTMLElement) {
+          // Исключаем кнопку share если она есть
+          if (node.getAttribute('data-exclude-from-screenshot')) {
             return false;
           }
-
-          const images = screenshotRef.current.querySelectorAll('img');
-          const allLoaded = Array.from(images).every(img => 
-            img.complete && img.naturalHeight > 0
-          );
-          
-          return allLoaded && screenshotRef.current.offsetWidth > 0;
-        };
-
-        // Проверяем готовность сразу
-        if (checkReady()) {
-          setIsReady(true);
-        } else {
-          // Если не готово, проверяем периодически
-          const interval = setInterval(() => {
-            if (checkReady()) {
-              setIsReady(true);
-              clearInterval(interval);
-            }
-          }, 100);
-
-          // Таймаут на случай проблем
-          setTimeout(() => {
-            clearInterval(interval);
-            setIsReady(true); // Все равно продолжаем
-          }, 3000);
+          const style = window.getComputedStyle(node);
+          return style.display !== 'none' && 
+                 style.visibility !== 'hidden' && 
+                 parseFloat(style.opacity) > 0;
         }
-
-      } catch (error) {
-        console.error("Error loading data:", error);
-        setIsReady(true);
+        return true;
       }
-    };
+    });
 
-    loadData();
-  }, [id, getHistoryItem]);
-
-  const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) {
-      alert('Please wait for content to load');
-      return;
+    if (!blob) {
+      throw new Error("Failed to create screenshot blob");
     }
 
-    try {
-      const screenshotUrl = await exportScreenshot({
-        element: screenshotRef.current,
-        id: id,
-      });
+    console.log('✅ Screenshot created successfully');
+    return blob;
 
-      console.log("Screenshot URL:", screenshotUrl);
-      
-      if (screenshotUrl) {
-        await shareToTelegramStory(screenshotUrl);
+  } finally {
+    // Всегда убираем клон из DOM
+    if (document.body.contains(clone)) {
+      document.body.removeChild(clone);
+    }
+  }
+};
+
+export const useScreenshotExport = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  useEffect(() => {
+    const initializeSdk = async () => {
+      try {
+        await init();
+        console.log("✅ Telegram SDK initialized");
+      } catch (error) {
+        console.error("❌ Telegram SDK init failed:", error);
       }
-    } catch (error) {
-      console.error("Failed to create and share screenshot:", error);
-      alert(t("exportFailed"));
+    };
+    initializeSdk();
+  }, []);
+
+  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
+    console.log('📤 Uploading screenshot, size:', blob.size);
+    
+    const formData = new FormData();
+    formData.append("file", blob, `story-${id}-${Date.now()}.png`);
+    formData.append("id", id);
+
+    const response = await quranApi.post<StoryResponse>(
+      "/api/v1/qa/story",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        timeout: 30000,
+      }
+    );
+
+    if (response.data.status && response.data.data.url) {
+      return response.data.data.url;
+    } else {
+      throw new Error(response.data.message || "Upload failed");
     }
   };
 
-  if (!isReady || !currentItem) {
-    return (
-      <PageWrapper showBackButton={true}>
-        <LoadingSpinner />
-        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-          {t("loading")}
-        </div>
-      </PageWrapper>
-    );
+  const exportScreenshot = async (options: ExportOptions): Promise<string | undefined> => {
+    if (!options.element || !options.id) {
+      throw new Error("Element and ID are required");
+    }
+
+    setLoading(true);
+    
+    try {
+      console.log('🚀 Starting export process');
+      
+      // Проверяем что элемент готов
+      if (options.element.offsetWidth === 0) {
+        throw new Error('Element is not visible');
+      }
+
+      // Создаем скриншот
+      const blob = await createScreenshot(options.element);
+      
+      if (blob.size === 0) {
+        throw new Error('Screenshot is empty');
+      }
+
+      // Загружаем на сервер
+      const url = await uploadScreenshot(blob, options.id);
+      
+      console.log('✅ Export completed successfully');
+      return url;
+
+    } catch (error) {
+      console.error('❌ Export failed:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { 
+    loading, 
+    exportScreenshot 
+  };
+};
+
+export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+  if (!url) {
+    console.error('❌ No URL provided');
+    return;
   }
 
-  return (
-    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
-      <div className={styles.container}>
-        
-        {/* Элемент для скриншота */}
-        <div ref={screenshotRef} className={styles.contentWrapper}>
-          <img
-            src={message}
-            className={styles.messageImage}
-            alt="Message background"
-            crossOrigin="anonymous"
-          />
-          <div className={styles.blockMessages}>
-            <div className={styles.blockMessageUser}>
-              <div className={styles.nickName}>{t("you")}</div>
-              <div className={styles.text}>{currentItem.question}</div>
-            </div>
-            <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@QiblaGuidebot</div>
-              <div className={styles.text}>{currentItem.answer}</div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Кнопка share ВНЕ элемента для скриншота */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
-            }`}
-            data-exclude-from-screenshot="true"
-          >
-            <Upload /> {loading ? t("loading") : t("share")}
-          </button>
-        </div>
-      </div>
-    </PageWrapper>
-  );
+  console.log('📤 Sharing URL:', url);
+  
+  try {
+    if (typeof shareStory === "function") {
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      console.log('✅ Shared successfully');
+    } else {
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
+    }
+  } catch (error) {
+    console.error('❌ Share failed:', error);
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };
