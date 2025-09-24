@@ -20,7 +20,7 @@
   justify-content: center;
   margin: var(--numbers-36) 0;
   max-height: 400px;
-  width: 100%;
+  width: auto;
   height: auto;
   object-fit: contain;
 }
