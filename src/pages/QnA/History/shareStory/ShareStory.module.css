@@ -31,7 +31,6 @@
   margin: 0 auto;
   object-fit: contain;
   padding-top: var(--numbers-48);
-  position: relative;
   z-index: 1;
 }
 

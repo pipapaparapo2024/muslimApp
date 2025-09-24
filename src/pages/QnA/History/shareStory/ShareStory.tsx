@@ -94,7 +94,6 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
