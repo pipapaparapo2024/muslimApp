@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/messageMuslim.png";
+import message from "../../../../assets/image/shareStory.png";
+
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
