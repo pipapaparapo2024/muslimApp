@@ -30,10 +30,7 @@ export const Home: React.FC = () => {
   if (isInitializing) {
     return (
       <PageWrapper>
-        <div className={styles.loadingContainer}>
-          <LoadingSpinner />
-          <p>{t("initializingApp")}</p>
-        </div>
+        <LoadingSpinner />
       </PageWrapper>
     );
   }
