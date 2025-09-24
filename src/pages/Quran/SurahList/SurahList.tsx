@@ -54,15 +54,8 @@ export const SurahList: React.FC = () => {
   }, [surahs]);
 
   useEffect(() => {
-    fetchVariants();
-  }, []);
-
-  useEffect(() => {
-    if (selectedVariant) {
-      fetchSurahs(selectedVariant.id);
-    }
-  }, [selectedVariant, fetchSurahs]);
-
+    fetchVariants(); // Теперь fetchVariants сам установит selectedVariant и загрузит суры
+  }, [fetchVariants]);
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {

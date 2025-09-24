@@ -150,9 +150,12 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       const variants = await fetchVariants();
       set({ variants, loading: false });
 
-      // Если варианты получены и ничего ещё не выбрано — выбираем первый
-      if (variants.length > 0 && !get().selectedVariant) {
-        get().setSelectedVariant(variants[0]);
+      // Автоматически выбираем первый вариант после загрузки
+      if (variants.length > 0) {
+        const selectedVariant = variants[0];
+        set({ selectedVariant });
+        // Немедленно загружаем суры для выбранного варианта
+        await get().fetchSurahs(selectedVariant.id);
       }
     } catch (error) {
       const message =
@@ -163,7 +166,6 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchSurahs: async (variantId: string) => {
     set({ loading: true, error: null });
-    console.log("variantId", variantId);
     try {
       const surahs = await fetchSurahsByVariant(variantId);
       set({ surahs, loading: false });
