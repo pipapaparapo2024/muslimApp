@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
+import { init, shareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
@@ -50,7 +51,22 @@ async function waitFonts(): Promise<void> {
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [, setSdkInitialized] = useState<boolean>(false);
+  // Инициализируем SDK при загрузке хука
+  useEffect(() => {
+    const initializeSdk = async () => {
+      try {
+        await init(); // Инициализируем SDK
+        setSdkInitialized(true);
+        console.log("Telegram SDK initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize Telegram SDK:", error);
+        setSdkInitialized(false);
+      }
+    };
 
+    initializeSdk();
+  }, []);
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
     await waitFonts();
     const preparation = prepareElementForScreenshot(element);
@@ -59,7 +75,6 @@ export const useScreenshotExport = () => {
       const blob = await toBlob(element, {
         pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
         cacheBust: true,
-        backgroundColor: "#ffffff",
         filter: (node: HTMLElement) => {
           const tag = node.tagName?.toUpperCase?.() || "";
           // Исключаем элементы, которые не должны попадать в скриншот
@@ -112,9 +127,6 @@ export const useScreenshotExport = () => {
           timeout: 30000, // Добавляем таймаут
         }
       );
-      console.log("responsestory", response);
-      console.log("responsestoryurl", response.data.data.url);
-      console.log("responsestorysuccess", response.data.status);
       if (response.data.status && response.data.data.url) {
         return response.data.data.url;
       } else {
@@ -156,41 +168,47 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
   if (!url) return;
 
-  const webApp = (window as any).Telegram?.WebApp;
-  
-  console.log("=== TELEGRAM DEBUG INFO ===");
-  console.log("WebApp version:", webApp?.version);
-  console.log("Platform:", webApp?.platform);
-  
-  // 1. Используем WebApp.share() если доступен (более новая версия)
-  if (webApp && typeof webApp.share === 'function') {
-    try {
-      console.log("Using WebApp.share()");
-      await webApp.share(url);
-      return;
-    } catch (error) {
-      console.warn("WebApp.share failed:", error);
-    }
-  }
-  
-  // 2. Используем WebApp.openLink() с правильным форматом
-  if (webApp && typeof webApp.openLink === 'function') {
-    try {
-      console.log("Using WebApp.openLink()");
-      
-      const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=Check this out!`;
-      
-      webApp.openLink(telegramShareUrl);
-      return;
-    } catch (error) {
-      console.warn("WebApp.openLink failed:", error);
-    }
-  }
+  const tg = (window as any).Telegram;
 
-  // 3. Fallback для старых версий
-  console.log("Using fallback");
-  window.open(url, "_blank");
+  console.log("=== DEBUG SHARE STORY ===");
+  console.log("URL:", url);
+  console.log("Telegram WebApp:", tg?.WebApp);
+  console.log(
+    "shareStory function available:",
+    typeof shareStory === "function"
+  );
+  console.log("Platform:", tg?.WebApp?.platform);
+  console.log("Version:", tg?.WebApp?.version);
+  try {
+    await init();
+    console.log("Telegram SDK init attempted");
+    if (typeof shareStory === "function") {
+      console.log("Calling shareStory with URL:", url);
+       await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      if (tg?.WebApp?.shareStory) {
+        return await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+      }
+      console.log("shareStory completed successfully");
+    } else {
+      throw new Error("shareStory function not available");
+    }
+  } catch (error) {
+    console.error("Share story completely failed:", error);
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };

@@ -31,7 +31,6 @@ export const SurahList: React.FC = () => {
     error,
   } = useSurahListStore();
   const { language } = useLanguage();
-
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
@@ -54,7 +53,7 @@ export const SurahList: React.FC = () => {
   useEffect(() => {
     fetchVariants(); 
   }, [fetchVariants]);
-  
+
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {

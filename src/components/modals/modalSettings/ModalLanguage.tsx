@@ -5,7 +5,7 @@ import en from "../../../assets/icons/united-king.svg";
 import ar from "../../../assets/icons/saudi-arab.svg";
 import { t } from "i18next";
 import { type Language } from "../../../hooks/useLanguages";
-
+import { useSurahListStore } from "../../../hooks/useSurahListStore";
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -28,6 +28,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
 
   const handleSelect = (lang: Language) => {
     onLanguageChange?.(lang);
+    
     onClose?.();
   };
 
