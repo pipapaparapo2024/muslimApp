@@ -103,7 +103,7 @@
 
 .shareButton {
   position: absolute;
-  /* bottom: -40px; */
+  bottom: -100px;
   bottom: 0;
   z-index: 3;
   border: none;
