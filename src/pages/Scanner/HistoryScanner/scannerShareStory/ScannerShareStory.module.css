@@ -1,7 +1,7 @@
 .container {
+  position: relative;
   overflow: hidden;
   margin: 0 auto;
-  position: relative;
   display: flex;
   min-height: 96vh;
   height: 100%;
@@ -10,23 +10,28 @@
   padding-bottom: var(--numbers-32);
 }
 
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
 .contentWrapper {
+  position: relative;
+  z-index: 2;
   max-width: 390px;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
 }
 
-.blockButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.container img {
+.foregroundImage {
   max-height: 550px;
   max-width: 100%;
   height: auto;
@@ -36,6 +41,14 @@
   padding-top: var(--numbers-32);
   position: relative;
   z-index: 1;
+}
+
+.blockButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 3;
 }
 
 .shareButton {

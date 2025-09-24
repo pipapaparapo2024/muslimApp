@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
+import background from "../../../../assets/image/background.png"; // Добавлен импорт фона
 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
@@ -17,7 +18,6 @@ export const ShareStory: React.FC = () => {
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
 
-  // Используем хук для создания скриншотов
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -25,20 +25,23 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
+        const preloadImages = (): Promise<void[]> => {
+          const imagePromises = [message, background].map((src) => {
+            return new Promise<void>((resolve) => {
+              const img = new Image();
+              img.src = src;
+              img.onload = () => resolve();
+              img.onerror = () => {
+                console.warn(`Failed to load image: ${src}`);
+                resolve();
+              };
+            });
           });
+          return Promise.all(imagePromises);
         };
 
         const item = await getHistoryItem(id);
-        await preloadImage(message);
+        await preloadImages();
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -55,16 +58,14 @@ export const ShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
-      console.log("screenshotUrl",screenshotUrl)
-      // Отправляем скриншот в Telegram
+      console.log("screenshotUrl", screenshotUrl);
       if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
@@ -91,13 +92,21 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
+        {/* Фоновое изображение */}
+        <img
+          src={background}
+          className={styles.backgroundImage}
+          alt="Background"
+          crossOrigin="anonymous"
+        />
         
-        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
+        {/* Оберточный div для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
             className={styles.messageImage}
             alt="Message background"
+            crossOrigin="anonymous"
           />
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
@@ -120,6 +129,7 @@ export const ShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
+            data-story-visible="hide"
           >
             <Upload /> {loading ? t("loading") : t("share")}
           </button>
