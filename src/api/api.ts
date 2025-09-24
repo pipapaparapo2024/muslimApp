@@ -53,8 +53,8 @@ quranApi.interceptors.response.use(
         const response = await quranApi.post("/auth/refresh");
 
         // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
-        const { accessToken } = response.data.data;
-
+        const { accessToken } = response.data.accessToken;
+        console.log("accessToken",accessToken)
         if (!accessToken) {
           throw new Error("Refresh failed: no accessToken in response");
         }
