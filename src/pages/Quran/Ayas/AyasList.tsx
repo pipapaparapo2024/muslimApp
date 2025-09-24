@@ -24,24 +24,29 @@ export const AyahList: React.FC = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  
+  // Сортировка аятов по номеру
+  const sortedAyahs = React.useMemo(() => {
+    return [...ayahs].sort((a, b) => a.number - b.number);
+  }, [ayahs]);
+
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
-      // Используем window.scrollY вместо scrollTop контейнера
       const scrollY = window.scrollY;
       setShowScrollToTop(scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    // Проверяем сразу при монтировании
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  
   const getScrollButtonPosition = () => {
     return language === "ar" ? "5%" : "85%";
   };
+
   // Функция прокрутки наверх
   const scrollToTop = () => {
     window.scrollTo({
@@ -78,11 +83,11 @@ export const AyahList: React.FC = () => {
   // Поиск по номерам аятов и тексту
   const searchInAyahs = useCallback(
     (query: string): number[] => {
-      if (!query.trim() || ayahs.length === 0) return [];
+      if (!query.trim() || sortedAyahs.length === 0) return [];
 
       const searchTerm = query.toLowerCase();
 
-      return ayahs
+      return sortedAyahs
         .filter((ayah) => {
           const numberMatch = ayah.number.toString().includes(searchTerm);
           const textMatch = ayah.text.toLowerCase().includes(searchTerm);
@@ -90,7 +95,7 @@ export const AyahList: React.FC = () => {
         })
         .map((ayah) => ayah.number);
     },
-    [ayahs]
+    [sortedAyahs]
   );
 
   // Автоматический поиск при изменении запроса
@@ -243,7 +248,7 @@ export const AyahList: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigateSearchResults("prev")}
+                  onClick={() => navigateSearchResults("next")}
                   className={styles.navButton}
                   disabled={searchResults.length <= 1}
                 >
@@ -270,7 +275,7 @@ export const AyahList: React.FC = () => {
               <LoadingSpinner />
             </div>
           ) : (
-            ayahs.map((ayah, index) => {
+            sortedAyahs.map((ayah, index) => {
               const isSearchResult = isAyahInSearchResults(ayah.number);
               const isCurrentResult =
                 isSearchResult &&

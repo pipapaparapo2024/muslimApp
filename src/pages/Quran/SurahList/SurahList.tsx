@@ -42,9 +42,15 @@ export const SurahList: React.FC = () => {
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  
   const getScrollButtonPosition = () => {
     return language === "ar" ? "5%" : "85%";
   };
+
+  // Сортировка сур по номеру
+  const sortedSurahs = React.useMemo(() => {
+    return [...surahs].sort((a, b) => a.number - b.number);
+  }, [surahs]);
 
   useEffect(() => {
     fetchVariants();
@@ -81,11 +87,11 @@ export const SurahList: React.FC = () => {
   // Поиск по сурам
   const searchInSurahs = useCallback(
     (query: string): number[] => {
-      if (!query.trim() || surahs.length === 0) return [];
+      if (!query.trim() || sortedSurahs.length === 0) return [];
 
       const searchTerm = query.toLowerCase();
 
-      return surahs
+      return sortedSurahs
         .filter((surah) => {
           const numberMatch = surah.number.toString().includes(searchTerm);
           const nameMatch = surah.name.toLowerCase().includes(searchTerm);
@@ -109,7 +115,7 @@ export const SurahList: React.FC = () => {
         })
         .map((surah) => surah.number);
     },
-    [surahs]
+    [sortedSurahs]
   );
 
   // Автоматический поиск при изменении запроса
@@ -290,10 +296,10 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter} >
-          {!loading && surahs.length === 0 ? (
+          {!loading && sortedSurahs.length === 0 ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
-            surahs.map((surah) => {
+            sortedSurahs.map((surah) => {
               const isSearchResult = isSurahInSearchResults(surah.number);
               const isCurrentResult =
                 isSearchResult &&
