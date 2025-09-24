@@ -1,8 +1,4 @@
 .container {
-  background-image: url("../../../../assets/image/background.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   overflow: hidden;
   margin: 0 auto;
   position: relative;

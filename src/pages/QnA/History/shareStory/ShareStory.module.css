@@ -65,7 +65,38 @@
   align-self: flex-end;
   margin-left: auto;
 }
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
 
+.container {
+  position: relative; /* Добавить */
+  overflow: hidden;
+  margin: 0 auto;
+  display: flex;
+  min-height: 90vh;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--numbers-80);
+}
+
+.contentWrapper {
+  position: relative; /* Добавить */
+  z-index: 2; /* Чтобы контент был поверх фона */
+  max-width: 390px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .blockMessageBot {
   background: var(--bg-surface);
   max-width: 280px;
