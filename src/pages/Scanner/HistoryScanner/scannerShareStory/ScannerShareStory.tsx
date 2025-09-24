@@ -105,6 +105,7 @@ export const ScannerShareStory: React.FC = () => {
     >
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
@@ -112,6 +113,7 @@ export const ScannerShareStory: React.FC = () => {
             crossOrigin="anonymous"
           />
 
+          {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
             <div
               className={`${styles.accessBlock} ${getStatusClassName(
