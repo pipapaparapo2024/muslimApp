@@ -16,6 +16,101 @@ interface ExportOptions {
   id: string | undefined;
 }
 
+// Функция для конвертации изображения в base64
+const imageToBase64 = (img: HTMLImageElement): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      reject(new Error('Canvas context not available'));
+      return;
+    }
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    try {
+      ctx.drawImage(img, 0, 0);
+      const dataURL = canvas.toDataURL('image/png');
+      resolve(dataURL);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+// Функция для замены всех изображений на base64
+const replaceImagesWithBase64 = async (element: HTMLElement): Promise<{ restore: () => void }> => {
+  console.log('🖼️ Converting images to base64');
+  
+  const images = Array.from(element.querySelectorAll('img'));
+  const originalSrcMap = new Map<HTMLImageElement, string>();
+  
+  const conversionPromises = images.map(async (img) => {
+    if (img.complete && img.naturalHeight !== 0) {
+      try {
+        const originalSrc = img.src;
+        originalSrcMap.set(img, originalSrc);
+        
+        const base64 = await imageToBase64(img);
+        img.src = base64;
+        console.log('✅ Image converted to base64');
+      } catch (error) {
+        console.warn('❌ Failed to convert image to base64:', error);
+      }
+    }
+  });
+
+  await Promise.all(conversionPromises);
+
+  return {
+    restore() {
+      console.log('🔄 Restoring original image sources');
+      images.forEach((img) => {
+        const originalSrc = originalSrcMap.get(img);
+        if (originalSrc) {
+          img.src = originalSrc;
+        }
+      });
+    }
+  };
+};
+
+// Функция для предзагрузки изображений
+const preloadImages = async (element: HTMLElement): Promise<void> => {
+  const images = Array.from(element.querySelectorAll('img'));
+  console.log('⏳ Preloading images:', images.length);
+
+  const loadPromises = images.map((img, index) => {
+    return new Promise<void>((resolve) => {
+      if (img.complete && img.naturalHeight !== 0) {
+        console.log(`✅ Image ${index} already loaded`);
+        resolve();
+        return;
+      }
+
+      img.onload = () => {
+        console.log(`✅ Image ${index} loaded`);
+        resolve();
+      };
+      
+      img.onerror = () => {
+        console.warn(`❌ Image ${index} failed to load`);
+        resolve();
+      };
+
+      // Таймаут на случай проблем с загрузкой
+      setTimeout(() => {
+        console.warn(`⏰ Image ${index} load timeout`);
+        resolve();
+      }, 5000);
+    });
+  });
+
+  await Promise.all(loadPromises);
+};
+
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
@@ -36,142 +131,105 @@ export const useScreenshotExport = () => {
     initializeSdk();
   }, []);
 
-  // Функция для извлечения только изображения из элемента
-  const extractImageOnly = (element: HTMLElement): HTMLElement => {
-    console.log('🖼️ Extracting image only from element');
-    
-    // Создаем контейнер только для изображения
-    const imageContainer = document.createElement('div');
-    Object.assign(imageContainer.style, {
-      width: '100%',
-      height: 'auto',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      background: '#ffffff'
-    });
-
-    // Находим все изображения в элементе
-    const images = element.querySelectorAll('img');
-    console.log('📷 Found images:', images.length);
-
-    if (images.length > 0) {
-      // Клонируем первое изображение (основное)
-      const originalImg = images[0] as HTMLImageElement;
-      const clonedImg = originalImg.cloneNode(true) as HTMLImageElement;
-      
-      // Применяем стили для корректного отображения
-      Object.assign(clonedImg.style, {
-        maxWidth: '100%',
-        maxHeight: '100%',
-        width: 'auto',
-        height: 'auto',
-        display: 'block',
-        objectFit: 'contain'
-      });
-
-      imageContainer.appendChild(clonedImg);
-    } else {
-      // Если изображений нет, создаем fallback
-      const fallbackText = document.createElement('div');
-      fallbackText.textContent = 'No image found';
-      fallbackText.style.padding = '20px';
-      fallbackText.style.color = '#000000';
-      imageContainer.appendChild(fallbackText);
-    }
-
-    return imageContainer;
-  };
-
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log('📸 Starting image-only screenshot capture...');
+    console.log('📸 Starting screenshot capture process...');
     
-    // Извлекаем только изображение
-    const imageOnlyElement = extractImageOnly(element);
+    // Предзагружаем изображения
+    await preloadImages(element);
     
-    // Добавляем элемент в DOM временно
-    Object.assign(imageOnlyElement.style, {
-      position: 'fixed',
-      left: '0px',
-      top: '0px',
-      zIndex: '99999',
-      visibility: 'visible'
+    // Конвертируем изображения в base64
+    const base64Restore = await replaceImagesWithBase64(element);
+    
+    // Создаем клон элемента для скриншота
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Применяем стили для корректного отображения
+    Object.assign(clone.style, {
+      position: "fixed",
+      left: "0px",
+      top: "0px",
+      zIndex: "99999",
+      width: "100%",
+      height: "auto",
+      opacity: "1",
+      visibility: "visible",
+      display: "block",
+      transform: "none",
+      background: "#ffffff"
     });
-    
-    document.body.appendChild(imageOnlyElement);
+
+    // Добавляем клон в DOM
+    document.body.appendChild(clone);
 
     try {
-      // Ждем загрузки изображения
-      await new Promise<void>((resolve) => {
-        const img = imageOnlyElement.querySelector('img');
-        if (img) {
-          if (img.complete && img.naturalHeight !== 0) {
-            console.log('✅ Image already loaded');
-            resolve();
-          } else {
-            img.onload = () => {
-              console.log('✅ Image loaded successfully');
-              resolve();
-            };
-            img.onerror = () => {
-              console.warn('❌ Image failed to load, continuing anyway');
-              resolve();
-            };
-            // Таймаут на случай проблем с загрузкой
-            setTimeout(resolve, 3000);
-          }
-        } else {
-          resolve();
-        }
-      });
+      // Даем время на рендеринг base64 изображений
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      console.log('🎯 Taking screenshot of image only...');
+      console.log('🎯 Taking screenshot with base64 images...');
       
-      const blob = await toBlob(imageOnlyElement, {
+      const blob = await toBlob(clone, {
         pixelRatio: 2, // Увеличиваем качество для изображений
         backgroundColor: '#ffffff',
         cacheBust: true,
-        skipFonts: true,
+        skipFonts: true, // Отключаем внешние шрифты для надежности
         skipAutoScale: false,
+        quality: 0.95, // Высокое качество
         style: {
           transform: 'none',
           opacity: '1'
         },
         filter: (node: Node) => {
-          // Фильтруем только нужные элементы
+          // Пропускаем только видимые элементы
           if (node instanceof HTMLElement) {
             const style = window.getComputedStyle(node);
-            return style.display !== 'none' && 
-                   style.visibility !== 'hidden' && 
-                   style.opacity !== '0';
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+              return false;
+            }
           }
           return true;
         }
       });
 
       if (!blob) {
-        throw new Error("❌ Failed to create image blob");
+        throw new Error("❌ Failed to create screenshot blob");
       }
 
-      console.log('✅ Image screenshot created successfully, size:', blob.size);
+      console.log('✅ Screenshot created successfully with base64 images, size:', blob.size, 'type:', blob.type);
       return blob;
+
     } catch (error) {
-      console.error('❌ Image capture error:', error);
-      throw error;
-    } finally {
-      // Удаляем временный элемент из DOM
-      if (document.body.contains(imageOnlyElement)) {
-        document.body.removeChild(imageOnlyElement);
+      console.error('❌ Screenshot capture error:', error);
+      
+      // Fallback: пробуем без base64 конвертации
+      console.log('🔄 Trying fallback method without base64...');
+      const fallbackBlob = await toBlob(element, {
+        pixelRatio: 1,
+        backgroundColor: '#ffffff',
+        skipFonts: true,
+      });
+      
+      if (!fallbackBlob) {
+        throw error;
       }
+      
+      return fallbackBlob;
+      
+    } finally {
+      // Всегда убираем клон из DOM
+      if (document.body.contains(clone)) {
+        document.body.removeChild(clone);
+      }
+      // Восстанавливаем оригинальные src изображений
+      base64Restore.restore();
     }
   };
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
     try {
-      console.log('📤 Uploading image to server...');
+      console.log('📤 Uploading screenshot to server...');
       
       const formData = new FormData();
-      formData.append("file", blob, `image-${id}-${Date.now()}.png`);
+      formData.append("file", blob, `story-${id}-${Date.now()}.png`);
       formData.append("id", id);
 
       const response = await quranApi.post<StoryResponse>(
@@ -192,7 +250,7 @@ export const useScreenshotExport = () => {
         console.log('✅ Upload successful, URL:', response.data.data.url);
         return response.data.data.url;
       } else {
-        throw new Error(response.data.message || "❌ Failed to upload image");
+        throw new Error(response.data.message || "❌ Failed to upload screenshot");
       }
     } catch (error: any) {
       console.error('❌ Upload error:', error);
@@ -203,7 +261,7 @@ export const useScreenshotExport = () => {
   const exportScreenshot = async (
     options: ExportOptions
   ): Promise<string | undefined> => {
-    console.group('🚀 Starting image export process');
+    console.group('🚀 Starting export process with base64 images');
     
     setLoading(true);
     try {
@@ -211,16 +269,16 @@ export const useScreenshotExport = () => {
         throw new Error("❌ ID and element are required for export");
       }
 
-      console.log('📸 Step 1: Capturing image...');
+      console.log('📸 Step 1: Capturing screenshot with base64...');
       const screenshotBlob = await captureScreenshot(options.element);
 
       console.log('📤 Step 2: Uploading to server...');
-      const imageUrl = await uploadScreenshot(screenshotBlob, options.id);
+      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
       
-      console.log('✅ Image export completed successfully');
-      return imageUrl;
+      console.log('✅ Export completed successfully');
+      return storyUrl;
     } catch (error) {
-      console.error('❌ Image export error:', error);
+      console.error('❌ Screenshot export error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -228,9 +286,50 @@ export const useScreenshotExport = () => {
     }
   };
 
+  // Функция для тестирования base64 конвертации
+  const testBase64Conversion = async (element: HTMLElement): Promise<string> => {
+    console.log('🧪 Testing base64 image conversion...');
+    
+    await preloadImages(element);
+    const base64Restore = await replaceImagesWithBase64(element);
+    
+    try {
+      // Создаем временный элемент для просмотра результата
+      const testContainer = document.createElement('div');
+      testContainer.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 10000;
+        border: 2px solid red;
+        max-width: 300px;
+        max-height: 300px;
+        overflow: auto;
+        background: white;
+        padding: 10px;
+      `;
+      
+      const clone = element.cloneNode(true) as HTMLElement;
+      testContainer.appendChild(clone);
+      document.body.appendChild(testContainer);
+      
+      // Показываем на 10 секунд
+      setTimeout(() => {
+        if (document.body.contains(testContainer)) {
+          document.body.removeChild(testContainer);
+        }
+      }, 10000);
+      
+      return 'Base64 conversion test completed';
+    } finally {
+      base64Restore.restore();
+    }
+  };
+
   return { 
     loading, 
     exportScreenshot,
+    testBase64Conversion,
     sdkInitialized 
   };
 };
@@ -243,8 +342,8 @@ export const shareToTelegramStory = async (
     return;
   }
 
-  console.group('📤 Sharing image to Telegram Story');
-  console.log("Image URL:", url);
+  console.group('📤 Sharing to Telegram Story');
+  console.log("URL:", url);
   
   try {
     if (typeof shareStory === "function") {
