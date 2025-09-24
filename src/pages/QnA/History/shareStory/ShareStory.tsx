@@ -11,13 +11,11 @@ import { t } from "i18next";
 import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [imagesLoaded, setImagesLoaded] = useState(false); // Добавляем состояние загрузки изображений
+  const [isReady, setIsReady] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
-
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -28,23 +26,42 @@ export const ShareStory: React.FC = () => {
         const item = await getHistoryItem(id);
         setCurrentItem(item);
         
-        // Правильная предзагрузка изображения
-        const img = new Image();
-        img.onload = () => {
-          console.log('✅ Background image loaded');
-          setImagesLoaded(true);
-          setIsLoaded(true);
+        // Функция проверки готовности
+        const checkReady = (): boolean => {
+          if (!screenshotRef.current) {
+            return false;
+          }
+
+          const images = screenshotRef.current.querySelectorAll('img');
+          const allLoaded = Array.from(images).every(img => 
+            img.complete && img.naturalHeight > 0
+          );
+          
+          return allLoaded && screenshotRef.current.offsetWidth > 0;
         };
-        img.onerror = () => {
-          console.warn('❌ Background image failed to load');
-          setImagesLoaded(true);
-          setIsLoaded(true);
-        };
-        img.src = message;
-        
+
+        // Проверяем готовность сразу
+        if (checkReady()) {
+          setIsReady(true);
+        } else {
+          // Если не готово, проверяем периодически
+          const interval = setInterval(() => {
+            if (checkReady()) {
+              setIsReady(true);
+              clearInterval(interval);
+            }
+          }, 100);
+
+          // Таймаут на случай проблем
+          setTimeout(() => {
+            clearInterval(interval);
+            setIsReady(true); // Все равно продолжаем
+          }, 3000);
+        }
+
       } catch (error) {
         console.error("Error loading data:", error);
-        setIsLoaded(true);
+        setIsReady(true);
       }
     };
 
@@ -52,8 +69,8 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current || !imagesLoaded) {
-      alert('Please wait for images to load');
+    if (!currentItem || !id || !screenshotRef.current) {
+      alert('Please wait for content to load');
       return;
     }
 
@@ -74,27 +91,13 @@ export const ShareStory: React.FC = () => {
     }
   };
 
-  if (!isLoaded || !imagesLoaded) {
-    return (
-      <PageWrapper showBackButton={true}>
-        <div>Loading images...</div>
-        <LoadingSpinner />
-      </PageWrapper>
-    );
-  }
-
-  if (!isLoaded) {
+  if (!isReady || !currentItem) {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
-      </PageWrapper>
-    );
-  }
-
-  if (!currentItem) {
-    return (
-      <PageWrapper showBackButton={true}>
-        <div>{t("requestNotFound")}</div>
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          {t("loading")}
+        </div>
       </PageWrapper>
     );
   }
@@ -103,12 +106,13 @@ export const ShareStory: React.FC = () => {
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
         
-        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
+        {/* Элемент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
             className={styles.messageImage}
             alt="Message background"
+            crossOrigin="anonymous"
           />
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
@@ -122,7 +126,7 @@ export const ShareStory: React.FC = () => {
           </div>
         </div>
         
-        {/* Кнопка share находится ВНЕ элемента для скриншота */}
+        {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
@@ -131,6 +135,7 @@ export const ShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
+            data-exclude-from-screenshot="true"
           >
             <Upload /> {loading ? t("loading") : t("share")}
           </button>

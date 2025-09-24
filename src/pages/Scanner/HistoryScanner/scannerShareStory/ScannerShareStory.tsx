@@ -1,25 +1,201 @@
+// import React, { useEffect, useRef, useState } from "react";
+// import styles from "./ScannerShareStory.module.css";
+// import message from "../../../../assets/image/shareStory.png";
+// import background from "../../../../assets/image/background.png";
+// import { PageWrapper } from "../../../../shared/PageWrapper";
+// import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
+// import { useParams } from "react-router-dom";
+// import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
+// import { Upload } from "lucide-react";
+// import { t } from "i18next";
+// import {
+//   useScreenshotExport,
+//   shareToTelegramStory,
+// } from "../../../../hooks/useScreenshotExport";
+// import {
+//   getStatusClassName,
+//   getStatusIcon,
+//   getStatusTranslationKey,
+// } from "../../productStatus";
+
+// export const ScannerShareStory: React.FC = () => {
+//   const [isLoaded, setIsLoaded] = useState(false);
+//   const { id } = useParams<{ id: string | undefined }>();
+//   const { fetchHistoryItem } = useHistoryScannerStore();
+//   const [currentItem, setCurrentItem] = useState<any>(null);
+//   const screenshotRef = useRef<HTMLDivElement>(null);
+//   const { loading, exportScreenshot } = useScreenshotExport();
+
+//   useEffect(() => {
+//     const preloadImages = (): Promise<void[]> => {
+//       const imagePromises = [message, background].map((src) => {
+//         return new Promise<void>((resolve) => {
+//           const img = new Image();
+//           img.src = src;
+//           img.onload = () => resolve();
+//           img.onerror = () => {
+//             console.warn(`Failed to load image: ${src}`);
+//             resolve();
+//           };
+//         });
+//       });
+
+//       return Promise.all(imagePromises);
+//     };
+
+//     const loadItem = async () => {
+//       if (!id) return;
+
+//       const item = await fetchHistoryItem(id);
+//       if (item) {
+//         setCurrentItem(item);
+//       }
+
+//       try {
+//         await preloadImages();
+//         setIsLoaded(true);
+//       } catch (err) {
+//         console.error("Error during image preloading:", err);
+//         setIsLoaded(true);
+//       }
+//     };
+
+//     loadItem();
+//   }, [id, fetchHistoryItem]);
+
+//   const handleShare = async () => {
+//     if (!currentItem || !id || !screenshotRef.current) return;
+
+//     try {
+//       const screenshotUrl = await exportScreenshot({
+//         element: screenshotRef.current,
+//         id: id,
+//       });
+
+//       if (screenshotUrl) {
+//         await shareToTelegramStory(screenshotUrl);
+//       }
+//     } catch (error) {
+//       console.error("Failed to export and share screenshot:", error);
+//       alert(t("exportFailed"));
+//     }
+//   };
+
+//   if (!isLoaded) {
+//     return (
+//       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
+//         <LoadingSpinner />
+//       </PageWrapper>
+//     );
+//   }
+
+//   if (!currentItem) {
+//     return (
+//       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
+//         <div>{t("itemNotFound")}</div>
+//       </PageWrapper>
+//     );
+//   }
+
+//   return (
+//     <PageWrapper
+//       showBackButton={true}
+//       styleHave={false}
+//       navigateTo="/scanner/historyScanner"
+//     >
+//       <div className={styles.container}>
+//         <div ref={screenshotRef} className={styles.contentWrapper}>
+//           {/* Основное изображение */}
+//           <img
+//             src={message}
+//             alt="Message background"
+//             className={styles.foregroundImage}
+//             crossOrigin="anonymous"
+//           />
+
+//           {/* Контент поверх изображений */}
+//           <div className={styles.blockScan}>
+//             <div
+//               className={`${styles.accessBlock} ${getStatusClassName(
+//                 currentItem.engType,
+//                 styles
+//               )}`}
+//             >
+//               <div className={styles.statusProduct}>
+//                 {getStatusIcon(currentItem.engType)}
+//                 {t(getStatusTranslationKey(currentItem.engType))}
+//               </div>
+//               <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
+//             </div>
+
+//             {currentItem.products && currentItem.products.length > 0 && (
+//               <div className={styles.blockInside}>
+//                 <div className={styles.scanTitle}>{t("ingredients")}</div>
+//                 <div className={styles.scanDesk}>
+//                   {currentItem.products.join(", ")}{" "}
+//                   {/* Исправлено: добавил {} */}
+//                 </div>
+//               </div>
+//             )}
+
+//             {currentItem.haramProducts &&
+//               currentItem.haramProducts.length > 0 &&
+//               currentItem.haramProducts.map((product: any, index: number) => (
+//                 <div key={index} className={styles.blockInside}>
+//                   {" "}
+//                   {/* Добавил key */}
+//                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
+//                   <div className={styles.scanDesk}>
+//                     <div className={styles.haranProduct}>
+//                       {product.name} - {product.reason}
+//                       {product.source}
+//                     </div>
+//                   </div>
+//                 </div>
+//               ))}
+
+//             {currentItem.description && (
+//               <div className={styles.blockInside}>
+//                 <div className={styles.scanTitle}>{t("conclusion")}</div>
+//                 <div className={styles.scanDesk}>{currentItem.description}</div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* Кнопка share ВНЕ элемента для скриншота */}
+//         <div className={styles.blockButton}>
+//           <button
+//             type="button"
+//             onClick={handleShare}
+//             disabled={loading}
+//             className={`${styles.shareButton} ${
+//               loading ? styles.shareButtonDisabled : ""
+//             }`}
+//             data-story-visible="hide"
+//           >
+//             <Upload size={18} />
+//             {loading ? t("loading") : t("share")}
+//           </button>
+//         </div>
+//       </div>
+//     </PageWrapper>
+//   );
+// };
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import {
-  useScreenshotExport,
-  shareToTelegramStory,
-} from "../../../../hooks/useScreenshotExport";
-import {
-  getStatusClassName,
-  getStatusIcon,
-  getStatusTranslationKey,
-} from "../../productStatus";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import { getStatusClassName, getStatusIcon, getStatusTranslationKey } from "../../productStatus";
 
 export const ScannerShareStory: React.FC = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const { id } = useParams<{ id: string | undefined }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null);
@@ -27,36 +203,44 @@ export const ScannerShareStory: React.FC = () => {
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
-    const preloadImages = (): Promise<void[]> => {
-      const imagePromises = [message, background].map((src) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.src = src;
-          img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn(`Failed to load image: ${src}`);
-            resolve();
-          };
-        });
-      });
-
-      return Promise.all(imagePromises);
-    };
-
     const loadItem = async () => {
       if (!id) return;
 
-      const item = await fetchHistoryItem(id);
-      if (item) {
-        setCurrentItem(item);
-      }
-
       try {
-        await preloadImages();
-        setIsLoaded(true);
-      } catch (err) {
-        console.error("Error during image preloading:", err);
-        setIsLoaded(true);
+        const item = await fetchHistoryItem(id);
+        setCurrentItem(item || null);
+
+        // Проверка готовности
+        const checkReady = (): boolean => {
+          if (!screenshotRef.current) return false;
+          
+          const images = screenshotRef.current.querySelectorAll('img');
+          const allLoaded = Array.from(images).every(img => 
+            img.complete && img.naturalHeight > 0
+          );
+          
+          return allLoaded && screenshotRef.current.offsetWidth > 0;
+        };
+
+        if (checkReady()) {
+          setIsReady(true);
+        } else {
+          const interval = setInterval(() => {
+            if (checkReady()) {
+              setIsReady(true);
+              clearInterval(interval);
+            }
+          }, 100);
+
+          setTimeout(() => {
+            clearInterval(interval);
+            setIsReady(true);
+          }, 3000);
+        }
+
+      } catch (error) {
+        console.error("Error loading item:", error);
+        setIsReady(true);
       }
     };
 
@@ -81,10 +265,13 @@ export const ScannerShareStory: React.FC = () => {
     }
   };
 
-  if (!isLoaded) {
+  if (!isReady) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <LoadingSpinner />
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          {t("loading")}
+        </div>
       </PageWrapper>
     );
   }
@@ -98,14 +285,9 @@ export const ScannerShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper
-      showBackButton={true}
-      styleHave={false}
-      navigateTo="/scanner/historyScanner"
-    >
+    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/scanner/historyScanner">
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
@@ -113,14 +295,8 @@ export const ScannerShareStory: React.FC = () => {
             crossOrigin="anonymous"
           />
 
-          {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
-            <div
-              className={`${styles.accessBlock} ${getStatusClassName(
-                currentItem.engType,
-                styles
-              )}`}
-            >
+            <div className={`${styles.accessBlock} ${getStatusClassName(currentItem.engType, styles)}`}>
               <div className={styles.statusProduct}>
                 {getStatusIcon(currentItem.engType)}
                 {t(getStatusTranslationKey(currentItem.engType))}
@@ -132,18 +308,14 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}{" "}
-                  {/* Исправлено: добавил {} */}
+                  {currentItem.products.join(", ")}
                 </div>
               </div>
             )}
 
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
+            {currentItem.haramProducts && currentItem.haramProducts.length > 0 && (
               currentItem.haramProducts.map((product: any, index: number) => (
                 <div key={index} className={styles.blockInside}>
-                  {" "}
-                  {/* Добавил key */}
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
@@ -152,7 +324,8 @@ export const ScannerShareStory: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
 
             {currentItem.description && (
               <div className={styles.blockInside}>
@@ -163,16 +336,13 @@ export const ScannerShareStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
             onClick={handleShare}
             disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
-            }`}
-            data-story-visible="hide"
+            className={`${styles.shareButton} ${loading ? styles.shareButtonDisabled : ""}`}
+            data-exclude-from-screenshot="true"
           >
             <Upload size={18} />
             {loading ? t("loading") : t("share")}
