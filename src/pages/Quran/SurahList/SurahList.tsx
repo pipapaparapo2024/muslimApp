@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, use } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SurahList.module.css";
 import {
@@ -31,6 +31,7 @@ export const SurahList: React.FC = () => {
     error,
   } = useSurahListStore();
   const { language } = useLanguage();
+  const [load,setLoad]=useState(false)
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
@@ -52,6 +53,7 @@ export const SurahList: React.FC = () => {
 
   useEffect(() => {
     fetchVariants(); 
+    setLoad(true)
   }, [fetchVariants]);
 
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
@@ -288,7 +290,7 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {!loading && sortedSurahs.length === 0 ? (
+          {!loading && sortedSurahs.length === 0 && !load ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
             sortedSurahs.map((surah) => {
