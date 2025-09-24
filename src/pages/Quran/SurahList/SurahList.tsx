@@ -16,6 +16,7 @@ import {
   Menu,
   Search,
   ArrowUp,
+  AlertCircle,
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
@@ -30,6 +31,7 @@ export const SurahList: React.FC = () => {
     selectedVariant,
     loading,
     error,
+    variants,
   } = useSurahListStore();
   const { language } = useLanguage();
 
@@ -52,15 +54,18 @@ export const SurahList: React.FC = () => {
     return [...surahs].sort((a, b) => a.number - b.number);
   }, [surahs]);
 
+  // Загрузка вариантов при монтировании
   useEffect(() => {
-    fetchVariants();
+    const initializeData = async () => {
+      try {
+        await fetchVariants();
+      } catch (error) {
+        console.error("Failed to initialize variants:", error);
+      }
+    };
+    
+    initializeData();
   }, [fetchVariants]);
-
-  useEffect(() => {
-    if (selectedVariant) {
-      fetchSurahs(selectedVariant.id);
-    }
-  }, [selectedVariant, fetchSurahs]);
 
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
@@ -216,9 +221,14 @@ export const SurahList: React.FC = () => {
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
   const handleSurahClick = (surah: Surah) => {
+    if (!selectedVariant) {
+      console.error("No variant selected");
+      return;
+    }
+
     setSelectedSurah(surah);
     navigate(`/quran/${surah.id}`, {
-      state: { surah, variantId: selectedVariant?.id },
+      state: { surah, variantId: selectedVariant.id },
     });
   };
 
@@ -229,6 +239,39 @@ export const SurahList: React.FC = () => {
     },
     [searchResults]
   );
+
+  // Если варианты еще загружаются
+  if (loading && variants.length === 0) {
+    return (
+      <PageWrapper showBackButton={true} navigateTo="/home">
+        <div className={styles.loadingContainer}>
+          <Loader size={32} className={styles.spinner} />
+          <div>{t("loadingVariants")}</div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // Если нет выбранного варианта (но варианты загружены)
+  if (!selectedVariant && variants.length > 0) {
+    return (
+      <PageWrapper showBackButton={true} navigateTo="/home">
+        <div className={styles.errorContainer}>
+          <AlertCircle size={48} color="var(--color-stroke-semantic-warning)" />
+          <h3 className={styles.errorTitle}>{t("variantNotSelected")}</h3>
+          <p className={styles.errorMessage}>
+            {t("pleaseSelectVariantFirst")}
+          </p>
+          <button 
+            className={styles.selectVariantButton}
+            onClick={() => navigate("/quran/translation")}
+          >
+            {t("selectTranslationVariant")}
+          </button>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/home">
@@ -295,7 +338,15 @@ export const SurahList: React.FC = () => {
         {/* Ошибка */}
         {error && <div className={styles.error}>Error: {error}</div>}
 
-        <div className={styles.blockChapter} >
+        {/* Загрузка сур */}
+        {loading && surahs.length === 0 && (
+          <div className={styles.loadingSurahs}>
+            <Loader size={24} className={styles.spinner} />
+            <div>{t("loadingSurahs")}</div>
+          </div>
+        )}
+
+        <div className={styles.blockChapter}>
           {!loading && sortedSurahs.length === 0 ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
