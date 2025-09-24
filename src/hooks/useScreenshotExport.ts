@@ -16,6 +16,96 @@ interface ExportOptions {
   id: string | undefined;
 }
 
+// Функция для конвертации изображений в base64
+const convertImagesToBase64 = async (element: HTMLElement): Promise<{ restore: () => void }> => {
+  const images = Array.from(element.querySelectorAll('img'));
+  const originalSrcs: string[] = [];
+  
+  for (const img of images) {
+    originalSrcs.push(img.src);
+    
+    try {
+      // Пропускаем уже base64 изображения
+      if (img.src.startsWith('data:')) continue;
+      
+      const base64 = await imageToBase64(img.src);
+      img.src = base64;
+    } catch (error) {
+      console.warn('Failed to convert image to base64:', img.src, error);
+      // В случае ошибки оставляем оригинальный src
+    }
+  }
+  
+  return {
+    restore: () => {
+      images.forEach((img, index) => {
+        if (index < originalSrcs.length) {
+          img.src = originalSrcs[index];
+        }
+      });
+    }
+  };
+};
+
+// Функция для конвертации одного изображения в base64
+const imageToBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Рисуем изображение на canvas
+      ctx?.drawImage(img, 0, 0);
+      
+      try {
+        // Конвертируем в base64
+        const dataUrl = canvas.toDataURL('image/png');
+        resolve(dataUrl);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    img.onerror = () => {
+      console.warn('Image load failed, using original URL:', url);
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
+
+// Функция для ожидания загрузки всех изображений
+const waitForImages = (element: HTMLElement): Promise<void[]> => {
+  const images = Array.from(element.querySelectorAll('img'));
+  const promises = images.map(img => {
+    if (img.complete) {
+      return Promise.resolve();
+    }
+    
+    return new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.onerror = () => {
+        console.warn('Image failed to load:', img.src);
+        resolve(); // Продолжаем даже если картинка не загрузилась
+      };
+      
+      // Таймаут на случай вечных загрузок
+      setTimeout(() => {
+        console.warn('Image load timeout:', img.src);
+        resolve();
+      }, 5000);
+    });
+  });
+  
+  return Promise.all(promises);
+};
+
 // Функция для подготовки элемента к скриншоту
 function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
   const originalStyle = el.getAttribute("style") || "";
@@ -52,11 +142,12 @@ async function waitFonts(): Promise<void> {
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [, setSdkInitialized] = useState<boolean>(false);
+  
   // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
       try {
-        await init(); // Инициализируем SDK
+        await init();
         setSdkInitialized(true);
         console.log("Telegram SDK initialized successfully");
       } catch (error) {
@@ -67,37 +158,34 @@ export const useScreenshotExport = () => {
 
     initializeSdk();
   }, []);
+
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    // Сначала ждем загрузки шрифтов
     await waitFonts();
+    
+    // Ждем загрузки всех изображений
+    await waitForImages(element);
+    
+    // Конвертируем изображения в base64
+    const imageConversion = await convertImagesToBase64(element);
+    
+    // Ждем немного для применения изменений
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     const preparation = prepareElementForScreenshot(element);
 
     try {
       const blob = await toBlob(element, {
-        pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
-        cacheBust: true,
+        pixelRatio: Math.min(2, window.devicePixelRatio || 1),
+        cacheBust: false, // Отключаем, т.к. используем base64
+        backgroundColor: '#ffffff',
         filter: (node: HTMLElement) => {
-          const tag = node.tagName?.toUpperCase?.() || "";
           // Исключаем элементы, которые не должны попадать в скриншот
-          if (
-            node.getAttribute &&
-            node.getAttribute("data-story-visible") === "hide"
-          ) {
-            return false;
-          }
-          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
-            return false; // Добавляем LINK чтобы исключить внешние CSS
-          }
-          // Исключаем элементы с внешними ссылками
-          if (
-            node.getAttribute &&
-            node.getAttribute("href")?.includes("fonts.googleapis.com")
-          ) {
+          if (node.getAttribute && node.getAttribute("data-story-visible") === "hide") {
             return false;
           }
           return true;
         },
-        skipFonts: true, // Пропускаем загрузку внешних шрифтов
-        fontEmbedCSS: "", // Отключаем встраивание шрифтов
       });
 
       if (!blob) {
@@ -106,6 +194,8 @@ export const useScreenshotExport = () => {
 
       return blob;
     } finally {
+      // Восстанавливаем оригинальные src изображений
+      imageConversion.restore();
       preparation.restore();
     }
   };
@@ -124,9 +214,10 @@ export const useScreenshotExport = () => {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          timeout: 30000, // Добавляем таймаут
+          timeout: 30000,
         }
       );
+      
       if (response.data.status && response.data.data.url) {
         return response.data.data.url;
       } else {
@@ -134,9 +225,7 @@ export const useScreenshotExport = () => {
       }
     } catch (error: any) {
       if (error.response?.status === 502) {
-        throw new Error(
-          "Server is temporarily unavailable. Please try again later."
-        );
+        throw new Error("Server is temporarily unavailable. Please try again later.");
       }
       throw error;
     }
@@ -178,37 +267,34 @@ export const shareToTelegramStory = async (
   console.log("=== DEBUG SHARE STORY ===");
   console.log("URL:", url);
   console.log("Telegram WebApp:", tg?.WebApp);
-  console.log(
-    "shareStory function available:",
-    typeof shareStory === "function"
-  );
-  console.log("Platform:", tg?.WebApp?.platform);
-  console.log("Version:", tg?.WebApp?.version);
+  console.log("shareStory function available:", typeof shareStory === "function");
+  
   try {
     await init();
     console.log("Telegram SDK init attempted");
+    
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
-       await shareStory(url, {
+      await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      if (tg?.WebApp?.shareStory) {
-        return await tg.WebApp.shareStory(url, {
-          widget: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot",
-          },
-        });
-      }
       console.log("shareStory completed successfully");
+    } else if (tg?.WebApp?.shareStory) {
+      return await tg.WebApp.shareStory(url, {
+        widget: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
     } else {
       throw new Error("shareStory function not available");
     }
   } catch (error) {
     console.error("Share story completely failed:", error);
+    // Fallback: открываем в новом окне
     window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
   }
 };
