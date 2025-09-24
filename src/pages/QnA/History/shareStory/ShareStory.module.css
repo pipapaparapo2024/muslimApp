@@ -20,7 +20,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  /* position: relative; */
 }
 
 .container img {
@@ -31,7 +31,7 @@
   margin: 0 auto;
   object-fit: contain;
   padding-top: var(--numbers-48);
-  position: relative;
+  /* position: relative; */
   z-index: 1;
 }
 
