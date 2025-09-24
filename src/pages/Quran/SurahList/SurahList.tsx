@@ -54,7 +54,7 @@ export const SurahList: React.FC = () => {
 
   useEffect(() => {
     fetchVariants();
-  }, [fetchVariants]);
+  }, []);
 
   useEffect(() => {
     if (selectedVariant) {
