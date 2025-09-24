@@ -316,16 +316,26 @@ export const useScreenshotExport = () => {
         cacheBust: false,
         backgroundColor: '#ffffff',
         quality: 0.95,
-        filter: (node: HTMLElement) => {
+        filter: (node: Node) => {
+          // Проверяем, что это HTMLElement (а не текстовый узел или комментарий)
+          if (!(node instanceof HTMLElement)) {
+            return true; // Пропускаем не-HTML элементы
+          }
+          
           // Исключаем элементы, которые не должны попадать в скриншот
           if (node.getAttribute && node.getAttribute("data-story-visible") === "hide") {
             return false;
           }
           
           // Исключаем скрытые элементы
-          const style = getComputedStyle(node);
-          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-            return false;
+          try {
+            const style = getComputedStyle(node);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+              return false;
+            }
+          } catch (error) {
+            console.warn('❌ Error getting computed style for node:', node, error);
+            return true; // В случае ошибки оставляем элемент
           }
           
           return true;
@@ -456,7 +466,7 @@ export const useScreenshotExport = () => {
   return { 
     loading, 
     exportScreenshot,
-    testScreenshot, // Экспортируем функцию тестирования
+    testScreenshot,
     sdkInitialized 
   };
 };
