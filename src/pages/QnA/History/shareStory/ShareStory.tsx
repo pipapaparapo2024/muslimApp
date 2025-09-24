@@ -8,7 +8,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -61,7 +64,7 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl",screenshotUrl)
+      console.log("screenshotUrl", screenshotUrl);
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
@@ -91,7 +94,6 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        
         {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
@@ -110,7 +112,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button

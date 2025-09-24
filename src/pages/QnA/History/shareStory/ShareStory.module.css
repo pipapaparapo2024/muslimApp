@@ -103,7 +103,7 @@
 
 .shareButton {
   position: absolute;
-  bottom: 40px; /* Изменено с 30px на 40px */
+  bottom: -40px;
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
