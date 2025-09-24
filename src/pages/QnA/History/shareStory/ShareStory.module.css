@@ -104,7 +104,7 @@
 .shareButton {
   position: absolute;
   bottom: -100px;
-  bottom: 0;
+  /* bottom: 0; */
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
