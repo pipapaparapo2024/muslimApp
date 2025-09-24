@@ -9,7 +9,7 @@ interface HistoryItem {
 }
 
 interface HistoryItemResponse {
-  item: ScanResult | null; // Может быть null
+  item: ScanResult | null;
   status: number;
   statusText: string;
 }
@@ -42,6 +42,25 @@ interface HistoryState {
   clearHistory: () => void;
 }
 
+// Тестовые данные для пустой истории
+const EMPTY_HISTORY_RESPONSE = {
+  data: {
+    hasNext: false,
+    hasPrev: false,
+    history: [], // Пустой массив истории
+    pageAmount: 1,
+    status: "success"
+  },
+  status: 200,
+  statusText: "OK",
+  headers: {},
+  config: {}
+};
+
+// Флаг для тестирования (можно управлять через env переменные)
+const IS_TEST_MODE = process.env.NODE_ENV === 'development';
+const USE_MOCK_DATA = IS_TEST_MODE; // Добавьте эту переменную для контроля
+
 export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
   history: [],
   isLoading: false,
@@ -53,6 +72,21 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
 
   fetchHistory: async (page: number = 1): Promise<void> => {
     set({ isLoading: true, error: null });
+
+    // Если в тестовом режиме, возвращаем пустую историю
+    if (USE_MOCK_DATA) {
+      setTimeout(() => {
+        set({
+          history: [],
+          currentPage: page,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+          isLoading: false,
+        });
+      }, 500); // Имитация задержки сети
+      return;
+    }
 
     try {
       const response = await quranApi.get<HistoryResponse>(
@@ -83,6 +117,14 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
   fetchHistoryItem: async (id: string): Promise<ScanResult | null> => {
     set({ isLoading: true, error: null });
 
+    // Если в тестовом режиме, возвращаем null
+    if (USE_MOCK_DATA) {
+      setTimeout(() => {
+        set({ isLoading: false });
+      }, 300);
+      return null;
+    }
+
     try {
       const response = await quranApi.get<HistoryItemResponse>(
         `/api/v1/qa/scanner/history/${id}`,
@@ -94,7 +136,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
       );
 
       set({ isLoading: false });
-      console.log("fetchHistoryItem",response)
+      
       if (response.data.item) {
         return response.data.item;
       } else {
@@ -122,6 +164,42 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
   },
 }));
 
+// Утилита для ручного управления тестовыми данными
+export const mockHistoryUtils = {
+  // Установить пустую историю
+  setEmptyHistory: () => {
+    useHistoryScannerStore.setState({
+      history: [],
+      currentPage: 1,
+      totalPages: 1,
+      hasNext: false,
+      hasPrev: false,
+      isLoading: false,
+      error: null
+    });
+  },
+
+  // Установить историю с данными (для тестирования)
+  setMockHistory: (mockData: HistoryItem[]) => {
+    useHistoryScannerStore.setState({
+      history: mockData,
+      currentPage: 1,
+      totalPages: Math.ceil(mockData.length / 10), // Пример расчета страниц
+      hasNext: false,
+      hasPrev: false,
+      isLoading: false,
+      error: null
+    });
+  },
+
+  // Переключить тестовый режим
+  setTestMode: (enabled: boolean) => {
+    if (typeof window !== 'undefined') {
+      (window as any).USE_HISTORY_MOCK_DATA = enabled;
+    }
+  }
+};
+
 export const historyUtils = {
   groupByDate: (history: HistoryItem[]) => {
     return history.map((dateGroup) => ({
@@ -129,4 +207,14 @@ export const historyUtils = {
       scans: dateGroup.qa,
     }));
   },
+
+  // Проверка на пустую историю
+  isEmpty: (history: HistoryItem[]): boolean => {
+    return history.length === 0 || history.every(group => group.qa.length === 0);
+  },
+
+  // Получить общее количество сканирований
+  getTotalScans: (history: HistoryItem[]): number => {
+    return history.reduce((total, group) => total + group.qa.length, 0);
+  }
 };
