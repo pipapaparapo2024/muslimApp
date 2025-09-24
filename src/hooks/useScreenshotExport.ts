@@ -234,7 +234,7 @@ export const useScreenshotExport = () => {
       // Генерируем HTML для скриншота
       const htmlTemplate = generateHTMLTemplate(options.element);
 
-      console.log("Generated HTML template:", htmlTemplate); // Для отладки
+      console.log("Generated HTML template:", htmlTemplate); 
 
       // Отправляем на сервер для генерации скриншота
       const response = await quranApi.post<StoryResponse>(
