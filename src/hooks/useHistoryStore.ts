@@ -64,11 +64,6 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      set({
-        history: [],
-        
-      })
-      return;
       const response = await quranApi.get<HistoryResponse>(`/api/v1/qa/text/history`, {
         params: { page },
         headers: {
