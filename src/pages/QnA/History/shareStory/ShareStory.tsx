@@ -21,29 +21,47 @@ export const ShareStory: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!id) return;
+      console.log("🔍 [ShareStory] useEffect triggered. ID:", id);
+      if (!id) {
+        console.warn("⚠️ [ShareStory] No ID provided");
+        return;
+      }
 
       try {
+        console.log("📥 [ShareStory] Fetching history item...");
         const item = await getHistoryItem(id);
+        console.log("✅ [ShareStory] History item loaded:", item);
         setCurrentItem(item);
 
         const checkReady = (): boolean => {
-          if (!screenshotRef.current) return false;
+          if (!screenshotRef.current) {
+            console.warn("⚠️ [checkReady] screenshotRef is null");
+            return false;
+          }
 
           const images = screenshotRef.current.querySelectorAll('img');
-          const allLoaded = Array.from(images).every(img =>
-            img.complete && img.naturalHeight > 0
-          );
+          console.log(`🖼️ [checkReady] Found ${images.length} images`);
+
+          const allLoaded = Array.from(images).every(img => {
+            const result = img.complete && img.naturalHeight > 0;
+            console.log(`🖼️ [checkReady] Image ${img.src} loaded: ${result} (complete: ${img.complete}, naturalHeight: ${img.naturalHeight})`);
+            return result;
+          });
 
           const hasSize = screenshotRef.current.offsetWidth > 0 && screenshotRef.current.offsetHeight > 0;
+          console.log(`📏 [checkReady] Element size: ${screenshotRef.current.offsetWidth}x${screenshotRef.current.offsetHeight}`);
+
           return allLoaded && hasSize;
         };
 
         if (checkReady()) {
+          console.log("✅ [ShareStory] Content is ready immediately");
           setIsReady(true);
         } else {
+          console.log("⏳ [ShareStory] Waiting for content to be ready...");
           const interval = setInterval(() => {
             if (checkReady()) {
+              console.log("✅ [ShareStory] Content became ready after delay");
               setIsReady(true);
               clearInterval(interval);
             }
@@ -51,11 +69,12 @@ export const ShareStory: React.FC = () => {
 
           setTimeout(() => {
             clearInterval(interval);
-            setIsReady(true); // fallback
+            console.warn("⚠️ [ShareStory] Timeout reached, forcing ready=true");
+            setIsReady(true);
           }, 3000);
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("❌ [ShareStory] Error loading data:", error);
         setIsReady(true);
       }
     };
@@ -65,26 +84,33 @@ export const ShareStory: React.FC = () => {
 
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) {
+      console.warn("⚠️ [handleShare] Missing data:", { currentItem, id, ref: screenshotRef.current });
       alert(t("pleaseWait"));
       return;
     }
 
+    console.log("📤 [handleShare] Starting export process...");
     try {
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
+      console.log("✅ [handleShare] Export completed. URL:", screenshotUrl);
+
       if (screenshotUrl) {
+        console.log("📲 [handleShare] Sharing to Telegram...");
         await shareToTelegramStory(screenshotUrl);
+        console.log("✅ [handleShare] Shared successfully");
       }
     } catch (error) {
-      console.error("Failed to create and share screenshot:", error);
+      console.error("❌ [handleShare] Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
 
   if (!isReady || !currentItem) {
+    console.log("⏳ [Render] Still loading or no item");
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
@@ -92,6 +118,7 @@ export const ShareStory: React.FC = () => {
     );
   }
 
+  console.log("✅ [Render] Rendering content with item:", currentItem);
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
