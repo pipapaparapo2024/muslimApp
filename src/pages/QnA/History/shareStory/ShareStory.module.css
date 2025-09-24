@@ -7,7 +7,7 @@
   margin: 0 auto;
   position: relative;
   display: flex;
-  min-height: 90vh;
+  min-height: 95vh;
   height: 100%;
   flex-direction: column;
   align-items: center;
@@ -45,7 +45,6 @@
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  bottom: -30px;
   bottom: 0;
   padding: var(--numbers-16);
   z-index: 3;
