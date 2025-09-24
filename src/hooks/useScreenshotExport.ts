@@ -16,34 +16,8 @@ interface ExportOptions {
   id: string | undefined;
 }
 
-// Улучшенная функция конвертации в base64
+// Функция для конвертации изображения в base64
 const imageToBase64 = (img: HTMLImageElement): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    console.log('🔄 Converting image to base64:', {
-      src: img.src.substring(0, 100),
-      complete: img.complete,
-      naturalWidth: img.naturalWidth,
-      naturalHeight: img.naturalHeight
-    });
-
-    // Если изображение не загружено, пытаемся загрузить
-    if (!img.complete || img.naturalHeight === 0) {
-      console.warn('⚠️ Image not ready, forcing reload');
-      const newImg = new Image();
-      newImg.crossOrigin = "anonymous";
-      newImg.onload = () => {
-        convertImage(newImg).then(resolve).catch(reject);
-      };
-      newImg.onerror = () => reject(new Error('Image failed to load'));
-      newImg.src = img.src + '?t=' + Date.now(); // Добавляем timestamp для избежания кэша
-      return;
-    }
-
-    convertImage(img).then(resolve).catch(reject);
-  });
-};
-
-const convertImage = (img: HTMLImageElement): Promise<string> => {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -57,227 +31,206 @@ const convertImage = (img: HTMLImageElement): Promise<string> => {
     canvas.height = img.naturalHeight;
 
     try {
-      // Рисуем белый фон для прозрачных изображений
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
-      
-      const dataURL = canvas.toDataURL('image/jpeg', 0.9); // Используем JPEG для меньшего размера
-      console.log('✅ Base64 conversion successful, length:', dataURL.length);
+      const dataURL = canvas.toDataURL('image/png');
       resolve(dataURL);
     } catch (error) {
-      console.error('❌ Base64 conversion failed:', error);
       reject(error);
     }
   });
 };
 
-// Улучшенная функция замены изображений
+// Функция для замены всех изображений на base64
 const replaceImagesWithBase64 = async (element: HTMLElement): Promise<{ restore: () => void }> => {
-  console.log('🖼️ Starting image processing');
+  console.log('🖼️ Converting images to base64');
   
   const images = Array.from(element.querySelectorAll('img'));
-  const originalData = new Map<HTMLImageElement, { src: string; style: string; class: string }>();
+  const originalSrcMap = new Map<HTMLImageElement, string>();
   
-  console.log(`📷 Found ${images.length} images`);
-
-  for (const [index, img] of images.entries()) {
-    console.log(`🔄 Processing image ${index}:`, {
-      src: img.src,
-      complete: img.complete,
-      naturalDimensions: `${img.naturalWidth}x${img.naturalHeight}`
-    });
-
-    try {
-      // Сохраняем оригинальные данные
-      originalData.set(img, {
-        src: img.src,
-        style: img.style.cssText,
-        class: img.className
-      });
-
-      const base64 = await imageToBase64(img);
-      
-      // Заменяем src и добавляем стили для надежности
-      img.src = base64;
-      img.style.cssText += '; display: block; max-width: 100%; height: auto;';
-      
-      console.log(`✅ Image ${index} processed successfully`);
-
-    } catch (error) {
-      console.warn(`❌ Failed to process image ${index}:`, error);
-      // Продолжаем с другими изображениями
+  const conversionPromises = images.map(async (img) => {
+    if (img.complete && img.naturalHeight !== 0) {
+      try {
+        const originalSrc = img.src;
+        originalSrcMap.set(img, originalSrc);
+        
+        const base64 = await imageToBase64(img);
+        img.src = base64;
+        console.log('✅ Image converted to base64');
+      } catch (error) {
+        console.warn('❌ Failed to convert image to base64:', error);
+      }
     }
-  }
+  });
+
+  await Promise.all(conversionPromises);
 
   return {
     restore() {
-      console.log('🔄 Restoring original images');
+      console.log('🔄 Restoring original image sources');
       images.forEach((img) => {
-        const original = originalData.get(img);
-        if (original) {
-          img.src = original.src;
-          img.style.cssText = original.style;
-          img.className = original.class;
+        const originalSrc = originalSrcMap.get(img);
+        if (originalSrc) {
+          img.src = originalSrc;
         }
       });
     }
   };
 };
 
-// Упрощенная функция предзагрузки
-const ensureImagesLoaded = async (element: HTMLElement): Promise<void> => {
+// Функция для предзагрузки изображений
+const preloadImages = async (element: HTMLElement): Promise<void> => {
   const images = Array.from(element.querySelectorAll('img'));
-  const loadPromises = images.map((img) => {
+  console.log('⏳ Preloading images:', images.length);
+
+  const loadPromises = images.map((img, index) => {
     return new Promise<void>((resolve) => {
-      if (img.complete && img.naturalHeight > 0) {
+      if (img.complete && img.naturalHeight !== 0) {
+        console.log(`✅ Image ${index} already loaded`);
         resolve();
         return;
       }
 
-      const onLoad = () => {
-        img.removeEventListener('load', onLoad);
-        img.removeEventListener('error', onError);
+      img.onload = () => {
+        console.log(`✅ Image ${index} loaded`);
+        resolve();
+      };
+      
+      img.onerror = () => {
+        console.warn(`❌ Image ${index} failed to load`);
         resolve();
       };
 
-      const onError = () => {
-        img.removeEventListener('load', onLoad);
-        img.removeEventListener('error', onError);
-        console.warn('⚠️ Image load error, continuing anyway');
+      // Таймаут на случай проблем с загрузкой
+      setTimeout(() => {
+        console.warn(`⏰ Image ${index} load timeout`);
         resolve();
-      };
-
-      img.addEventListener('load', onLoad);
-      img.addEventListener('error', onError);
+      }, 5000);
     });
   });
 
   await Promise.all(loadPromises);
-  console.log('✅ All images checked');
 };
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
   
   useEffect(() => {
     const initializeSdk = async () => {
       try {
+        console.log('🚀 Initializing Telegram SDK...');
         await init();
-        console.log("✅ Telegram SDK initialized");
+        setSdkInitialized(true);
+        console.log("✅ Telegram SDK initialized successfully");
       } catch (error) {
-        console.error("❌ Telegram SDK init failed:", error);
+        console.error("❌ Failed to initialize Telegram SDK:", error);
+        setSdkInitialized(false);
       }
     };
+
     initializeSdk();
   }, []);
 
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log('📸 Starting capture process');
+    console.log('📸 Starting screenshot capture process...');
     
-    // Проверяем что элемент существует и видим
-    if (!element || element.offsetWidth === 0 || element.offsetHeight === 0) {
-      throw new Error('Element is not visible or has zero dimensions');
-    }
-
-    await ensureImagesLoaded(element);
+    // Предзагружаем изображения
+    await preloadImages(element);
+    
+    // Конвертируем изображения в base64
     const base64Restore = await replaceImagesWithBase64(element);
     
+    // Создаем клон элемента для скриншота
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Применяем стили для корректного отображения
+    Object.assign(clone.style, {
+      position: "fixed",
+      left: "0px",
+      top: "0px",
+      zIndex: "99999",
+      width: "100%",
+      height: "auto",
+      opacity: "1",
+      visibility: "visible",
+      display: "block",
+      transform: "none",
+      background: "#ffffff"
+    });
+
+    // Добавляем клон в DOM
+    document.body.appendChild(clone);
+
     try {
-      // Создаем клон с улучшенными стилями
-      const clone = element.cloneNode(true) as HTMLElement;
-      Object.assign(clone.style, {
-        position: 'fixed',
-        left: '0',
-        top: '0',
-        width: '100%',
-        height: 'auto',
-        display: 'block',
-        visibility: 'visible',
-        opacity: '1',
-        background: '#ffffff',
-        zIndex: '99999',
-        margin: '0',
-        padding: '0'
-      });
+      // Даем время на рендеринг base64 изображений
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      document.body.appendChild(clone);
-
-      // Ждем рендеринга
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      console.log('🎯 Creating screenshot...');
+      console.log('🎯 Taking screenshot with base64 images...');
       
       const blob = await toBlob(clone, {
-        pixelRatio: 1, // Начинаем с 1 для отладки
+        pixelRatio: 2, // Увеличиваем качество для изображений
         backgroundColor: '#ffffff',
         cacheBust: true,
-        skipFonts: true,
-        quality: 0.8,
-        width: clone.scrollWidth,
-        height: clone.scrollHeight
+        skipFonts: true, // Отключаем внешние шрифты для надежности
+        skipAutoScale: false,
+        quality: 0.95, // Высокое качество
+        style: {
+          transform: 'none',
+          opacity: '1'
+        },
+        filter: (node: Node) => {
+          // Пропускаем только видимые элементы
+          if (node instanceof HTMLElement) {
+            const style = window.getComputedStyle(node);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+              return false;
+            }
+          }
+          return true;
+        }
       });
 
       if (!blob) {
-        throw new Error("Failed to create blob");
+        throw new Error("❌ Failed to create screenshot blob");
       }
 
-      console.log('✅ Screenshot created:', {
-        size: blob.size,
-        type: blob.type,
-        sizeKB: Math.round(blob.size / 1024)
-      });
-
+      console.log('✅ Screenshot created successfully with base64 images, size:', blob.size, 'type:', blob.type);
       return blob;
 
     } catch (error) {
-      console.error('❌ Capture failed:', error);
+      console.error('❌ Screenshot capture error:', error);
       
-      // Fallback: простой скриншот без обработки
-      console.log('🔄 Trying simple screenshot...');
-      const simpleBlob = await toBlob(element, {
+      // Fallback: пробуем без base64 конвертации
+      console.log('🔄 Trying fallback method without base64...');
+      const fallbackBlob = await toBlob(element, {
         pixelRatio: 1,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        skipFonts: true,
       });
       
-      if (!simpleBlob) {
-        throw new Error('All screenshot methods failed');
+      if (!fallbackBlob) {
+        throw error;
       }
       
-      return simpleBlob;
+      return fallbackBlob;
       
     } finally {
-      // Cleanup
-      const clones = document.querySelectorAll('[style*="zIndex: 99999"]');
-      clones.forEach(clone => {
-        if (clone.parentNode) {
-          clone.parentNode.removeChild(clone);
-        }
-      });
+      // Всегда убираем клон из DOM
+      if (document.body.contains(clone)) {
+        document.body.removeChild(clone);
+      }
+      // Восстанавливаем оригинальные src изображений
       base64Restore.restore();
     }
   };
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
-    console.log('📤 Starting upload process');
-    
     try {
-      // Проверяем blob
-      if (blob.size === 0) {
-        throw new Error('Blob is empty');
-      }
-
+      console.log('📤 Uploading screenshot to server...');
+      
       const formData = new FormData();
-      formData.append("file", blob, `story-${id}.png`);
+      formData.append("file", blob, `story-${id}-${Date.now()}.png`);
       formData.append("id", id);
-
-      console.log('📊 Upload data:', {
-        blobSize: blob.size,
-        formDataEntries: Array.from(formData.entries()).map(([key, value]) => ({
-          key,
-          value: value instanceof File ? value.name : value
-        }))
-      });
 
       const response = await quranApi.post<StoryResponse>(
         "/api/v1/qa/story",
@@ -287,56 +240,45 @@ export const useScreenshotExport = () => {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          timeout: 60000, // Увеличиваем таймаут
+          timeout: 30000,
         }
       );
-
+      
       console.log('📥 Server response:', response.data);
-
+      
       if (response.data.status && response.data.data.url) {
-        console.log('✅ Upload successful');
+        console.log('✅ Upload successful, URL:', response.data.data.url);
         return response.data.data.url;
       } else {
-        throw new Error(response.data.message || "Upload failed");
+        throw new Error(response.data.message || "❌ Failed to upload screenshot");
       }
-
     } catch (error: any) {
-      console.error('❌ Upload error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.error('❌ Upload error:', error);
       throw error;
     }
   };
 
-  const exportScreenshot = async (options: ExportOptions): Promise<string | undefined> => {
-    if (!options.element || !options.id) {
-      throw new Error("Missing required parameters");
-    }
-
-    setLoading(true);
+  const exportScreenshot = async (
+    options: ExportOptions
+  ): Promise<string | undefined> => {
+    console.group('🚀 Starting export process with base64 images');
     
+    setLoading(true);
     try {
-      console.group('🚀 Export Process');
-      
-      // Шаг 1: Создание скриншота
-      console.log('📸 Step 1: Capturing screenshot');
-      const blob = await captureScreenshot(options.element);
-      
-      if (blob.size === 0) {
-        throw new Error('Screenshot blob is empty');
+      if (!options.id || !options.element) {
+        throw new Error("❌ ID and element are required for export");
       }
 
-      // Шаг 2: Загрузка на сервер
-      console.log('📤 Step 2: Uploading to server');
-      const url = await uploadScreenshot(blob, options.id);
+      console.log('📸 Step 1: Capturing screenshot with base64...');
+      const screenshotBlob = await captureScreenshot(options.element);
+
+      console.log('📤 Step 2: Uploading to server...');
+      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
       
       console.log('✅ Export completed successfully');
-      return url;
-
+      return storyUrl;
     } catch (error) {
-      console.error('❌ Export failed:', error);
+      console.error('❌ Screenshot export error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -344,34 +286,83 @@ export const useScreenshotExport = () => {
     }
   };
 
+  // Функция для тестирования base64 конвертации
+  const testBase64Conversion = async (element: HTMLElement): Promise<string> => {
+    console.log('🧪 Testing base64 image conversion...');
+    
+    await preloadImages(element);
+    const base64Restore = await replaceImagesWithBase64(element);
+    
+    try {
+      // Создаем временный элемент для просмотра результата
+      const testContainer = document.createElement('div');
+      testContainer.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 10000;
+        border: 2px solid red;
+        max-width: 300px;
+        max-height: 300px;
+        overflow: auto;
+        background: white;
+        padding: 10px;
+      `;
+      
+      const clone = element.cloneNode(true) as HTMLElement;
+      testContainer.appendChild(clone);
+      document.body.appendChild(testContainer);
+      
+      // Показываем на 10 секунд
+      setTimeout(() => {
+        if (document.body.contains(testContainer)) {
+          document.body.removeChild(testContainer);
+        }
+      }, 10000);
+      
+      return 'Base64 conversion test completed';
+    } finally {
+      base64Restore.restore();
+    }
+  };
+
   return { 
     loading, 
-    exportScreenshot 
+    exportScreenshot,
+    testBase64Conversion,
+    sdkInitialized 
   };
 };
 
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
   if (!url) {
-    console.error('❌ No URL provided');
+    console.error('❌ No URL provided for sharing');
     return;
   }
 
-  console.log('📤 Sharing URL:', url);
+  console.group('📤 Sharing to Telegram Story');
+  console.log("URL:", url);
   
   try {
     if (typeof shareStory === "function") {
+      console.log("🔗 Using SDK shareStory...");
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      console.log('✅ Shared successfully');
+      console.log("✅ SDK shareStory completed");
     } else {
+      console.warn("⚠️ Using fallback method...");
       window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
     }
   } catch (error) {
-    console.error('❌ Share failed:', error);
+    console.error("❌ Share story failed:", error);
     window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
-  }
+  } finally {
+    console.groupEnd();
+  };
 };
