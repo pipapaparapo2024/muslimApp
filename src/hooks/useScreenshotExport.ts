@@ -181,7 +181,6 @@ export const shareToTelegramStory = async (url: string | undefined): Promise<voi
     try {
       console.log("Using WebApp.openLink()");
       
-      // Правильный формат для分享 в историю
       const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=Check this out!`;
       
       webApp.openLink(telegramShareUrl);

@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
-import { useGeoStore } from "../../hooks/useGeoStore";
+// import { useGeoStore } from "../../hooks/useGeoStore";
 import {
   Calendar,
   ChevronLeft,
   ChevronRight,
   Clock,
-  Earth,
+  // Earth,
   FileText,
   Languages,
   MessageCircle,
@@ -30,7 +30,7 @@ export const Settings: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
-  const { city, country} = useGeoStore();
+  // const { city, country} = useGeoStore();
   // Временная проверка
   useEffect(() => {
     console.log("Current language:", i18n.language);
@@ -48,7 +48,7 @@ export const Settings: React.FC = () => {
           <h2 className={styles.sectionTitle}>{t("appSettings")}</h2>
 
           {/* Region */}
-          <div
+          {/* <div
             className={styles.settingItem}
             onClick={() => navigate("/settings/region")}
           >
@@ -68,7 +68,7 @@ export const Settings: React.FC = () => {
                 <ChevronRight size={24} />
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Language */}
           <div
