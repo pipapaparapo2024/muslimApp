@@ -50,9 +50,9 @@ export const SurahList: React.FC = () => {
     return [...surahs].sort((a, b) => a.number - b.number);
   }, [surahs]);
 
-  useEffect(() => {
-    fetchVariants(); 
-  }, [fetchVariants]);
+  // useEffect(() => {
+  //   fetchVariants(); 
+  // }, [fetchVariants]);
 
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
