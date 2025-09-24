@@ -100,26 +100,25 @@ export const HistoryScanner: React.FC = () => {
                       {scan.products.join(", ")}
                     </div>
                   </div>
-                  <div className={styles.scanAnalysis}>
-                    <div className={styles.scanTitle}>
-                      {t("analysisResult")}
-                    </div>
-                    <div className={styles.scanDesk}>
-                      {scan.haramProducts?.map((item) => (
+                  {scan.haramProducts?.map((item) => (
+                    <div className={styles.scanAnalysis}>
+                      <div className={styles.scanTitle}>
+                        {t("analysisResult")}
+                      </div>
+                      <div className={styles.scanDesk}>
                         <>
-                          {" "}
                           {item.name}- {item.reason}
                           <br /> {item.source}
                         </>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className={styles.scanTitle}>{t("conclusion")}</div>
-                    <div className={styles.scanDesk}>
-                      {scan.description}
+                  ))}
+                  {scan.description && (
+                    <div>
+                      <div className={styles.scanTitle}>{t("conclusion")}</div>
+                      <div className={styles.scanDesk}>{scan.description}</div>
                     </div>
-                  </div>
+                  )}
                   <div className={styles.blockUnderInfo}>
                     <div
                       className={`${styles.accessBlock} ${getStatusClassName(

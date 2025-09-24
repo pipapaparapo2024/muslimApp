@@ -25,12 +25,10 @@ export const SurahList: React.FC = () => {
   const {
     surahs,
     fetchVariants,
-    fetchSurahs,
     setSelectedSurah,
     selectedVariant,
     loading,
     error,
-    setSelectedVariant,
   } = useSurahListStore();
   const { language } = useLanguage();
 
