@@ -35,9 +35,7 @@ export const PrayerTimes: React.FC = () => {
   });
 
   if (isLoading) {
-    return (
-        <LoadingSpinner />
-    );
+    return <LoadingSpinner />;
   }
 
   if (prayers.length === 0) {
@@ -45,13 +43,11 @@ export const PrayerTimes: React.FC = () => {
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
           <div className={styles.title}>{t("prayerTimes")}</div>
-          <div className={styles.actions}>
-            <Pen
-              size={16}
-              onClick={() => navigate("/settings/prayerTimes")}
-              className={styles.editIcon}
-            />
-          </div>
+          <Pen
+            size={16}
+            onClick={() => navigate("/settings/prayerTimes")}
+            className={styles.editIcon}
+          />
         </div>
         <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
         <div className={styles.noPrayers}>{t("noPrayersAvailable")}</div>
