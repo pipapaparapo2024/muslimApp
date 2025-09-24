@@ -118,7 +118,7 @@ export const HistoryScannerDetail: React.FC = () => {
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("ingredients")}</div>
               <div className={styles.scanDesk}>
-                currentItem.products.join(", ")
+                {currentItem.products.join(", ")}
               </div>
             </div>
           )}
