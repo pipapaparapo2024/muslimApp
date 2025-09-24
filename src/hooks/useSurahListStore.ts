@@ -85,8 +85,8 @@ const fetchSurahsByVariant = async (variantId: string): Promise<Surah[]> => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    console.log("variantId",variantId)
-    console.log("suralist",response)
+    console.log("variantId", variantId);
+    console.log("suralist", response);
     if (!response.data?.data?.suras) {
       throw new Error('Invalid API response structure: missing "data.suras"');
     }
@@ -150,10 +150,9 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       const variants = await fetchVariants();
       set({ variants, loading: false });
 
+      // Если варианты получены и ничего ещё не выбрано — выбираем первый
       if (variants.length > 0 && !get().selectedVariant) {
-        const selectedVariant = variants[0];
-        set({ selectedVariant });
-        get().fetchSurahs(selectedVariant.id);
+        get().setSelectedVariant(variants[0]);
       }
     } catch (error) {
       const message =
@@ -164,7 +163,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchSurahs: async (variantId: string) => {
     set({ loading: true, error: null });
-    console.log("variantId",variantId)
+    console.log("variantId", variantId);
     try {
       const surahs = await fetchSurahsByVariant(variantId);
       set({ surahs, loading: false });
@@ -177,7 +176,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchAyahs: async (surahId: string): Promise<void> => {
     set({ loading: true, error: null });
-    
+
     try {
       const ayahs = await fetchAyahsBySurah(surahId);
       set({ ayahs, loading: false });

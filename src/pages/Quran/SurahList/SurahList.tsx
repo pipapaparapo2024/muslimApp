@@ -30,6 +30,7 @@ export const SurahList: React.FC = () => {
     selectedVariant,
     loading,
     error,
+    setSelectedVariant,
   } = useSurahListStore();
   const { language } = useLanguage();
 
