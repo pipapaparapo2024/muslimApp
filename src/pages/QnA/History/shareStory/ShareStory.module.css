@@ -13,6 +13,7 @@
   align-items: center;
   padding-bottom: var(--numbers-80);
 }
+
 .contentWrapper {
   max-width: 390px;
   width: 100%;
@@ -39,13 +40,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  position: relative;
 }
+
 .blockMessages {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  bottom: 0px;
+  bottom: var(--numbers-48); /* Добавлено - соответствует padding-top изображения */
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -75,6 +79,7 @@
   align-self: flex-start;
   margin-right: auto;
 }
+
 .text {
   color: var(--desk-text);
 }
@@ -89,14 +94,16 @@
   max-height: calc(1.2em * 6);
   line-height: 1.2;
 }
+
 .nickName {
   color: var(--desk-text);
   font-weight: 400;
   font-size: var(--numbers-14);
 }
+
 .shareButton {
   position: absolute;
-  bottom: 30px;
+  bottom: 40px; /* Увеличено с 30px до 40px */
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
