@@ -62,29 +62,16 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
     const { page = 1 } = params;
 
     set({ loading: true, error: null });
-
-    // Для тестирования возвращаем пустой массив
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-      set({
-        history: [],
-        pagination: {
-          page: page,
-          hasNext: false,
-          hasPrev: false,
-          pageAmount: 0,
-        },
-        loading: false,
-      });
-      return;
-    }
-
     try {
-      const response = await quranApi.get<HistoryResponse>(`/api/v1/qa/text/history`, {
-        params: { page },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await quranApi.get<HistoryResponse>(
+        `/api/v1/qa/text/history`,
+        {
+          params: { page },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
       set({
         history: response.data.history || [],
         pagination: {
@@ -111,27 +98,24 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
   // Загрузка следующих страниц истории
   loadMoreHistory: async () => {
     const { pagination, isLoadingMore } = get();
-    
-    if (!pagination.hasNext || isLoadingMore) {
-      return;
-    }
 
-    // Для тестирования возвращаем пустой массив
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-      set({ isLoadingMore: false });
+    if (!pagination.hasNext || isLoadingMore) {
       return;
     }
 
     try {
       set({ isLoadingMore: true, error: null });
-      
+
       const nextPage = pagination.page + 1;
-      const response = await quranApi.get<HistoryResponse>(`/api/v1/qa/text/history`, {
-        params: { page: nextPage },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await quranApi.get<HistoryResponse>(
+        `/api/v1/qa/text/history`,
+        {
+          params: { page: nextPage },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       set((state) => ({
         history: [...state.history, ...(response.data.history || [])],
@@ -159,27 +143,24 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
   // Загрузка предыдущих страниц истории
   loadPrevHistory: async () => {
     const { pagination, isLoadingMore } = get();
-    
-    if (!pagination.hasPrev || isLoadingMore) {
-      return;
-    }
 
-    // Для тестирования возвращаем пустой массив
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-      set({ isLoadingMore: false });
+    if (!pagination.hasPrev || isLoadingMore) {
       return;
     }
 
     try {
       set({ isLoadingMore: true, error: null });
-      
+
       const prevPage = pagination.page - 1;
-      const response = await quranApi.get<HistoryResponse>(`/api/v1/qa/text/history`, {
-        params: { page: prevPage },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await quranApi.get<HistoryResponse>(
+        `/api/v1/qa/text/history`,
+        {
+          params: { page: prevPage },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       set({
         history: response.data.history || [],
@@ -207,12 +188,6 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
   // Получение конкретного элемента
   getHistoryItem: async (id: string): Promise<QaItem | null> => {
     set({ loading: true, error: null });
-
-    // Для тестирования возвращаем null
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-      set({ loading: false });
-      return null;
-    }
 
     try {
       const response = await quranApi.get(`/api/v1/qa/text/history/${id}`, {
