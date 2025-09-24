@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./ModalLanguage.module.css";
 import { Check } from "lucide-react";
 import en from "../../../assets/icons/united-king.svg";
@@ -20,7 +20,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   onLanguageChange,
 }) => {
   if (!isOpen) return null;
-
+  const { fetchVariants } = useSurahListStore();
   const languages = [
     { code: "en" as Language, name: t("english"), url: en },
     { code: "ar" as Language, name: t("arabic"), url: ar },
@@ -28,16 +28,22 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
 
   const handleSelect = (lang: Language) => {
     onLanguageChange?.(lang);
-    
+
     onClose?.();
   };
+
+  useEffect(() => {
+    fetchVariants();
+  }, [fetchVariants]);
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("languageModal")}</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <p className={styles.modalDescription}>{t("selectLanguages")}</p>
@@ -46,7 +52,9 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
           {languages.map((lang) => (
             <div
               key={lang.code}
-              className={`${styles.optionBlock} ${currentLanguage === lang.code ? styles.selected : ""}`}
+              className={`${styles.optionBlock} ${
+                currentLanguage === lang.code ? styles.selected : ""
+              }`}
               onClick={() => handleSelect(lang.code)}
               role="button"
               tabIndex={0}
