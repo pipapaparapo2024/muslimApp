@@ -44,7 +44,7 @@ export const PrayerTimes: React.FC = () => {
     return (
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
-          <span className={styles.title}>{t("prayerTimes")}</span>
+          <div className={styles.title}>{t("prayerTimes")}</div>
           <div className={styles.actions}>
             <Pen
               size={16}

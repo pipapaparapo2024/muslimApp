@@ -59,14 +59,11 @@ export const SurahList: React.FC = () => {
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
-      // Используем window.scrollY вместо scrollTop контейнера
       const scrollY = window.scrollY;
       setShowScrollToTop(scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    // Проверяем сразу при монтировании
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
