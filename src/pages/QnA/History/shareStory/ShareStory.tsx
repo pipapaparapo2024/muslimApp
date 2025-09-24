@@ -95,9 +95,6 @@ export const ShareStory: React.FC = () => {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
-        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-          {t("loading")}
-        </div>
       </PageWrapper>
     );
   }
