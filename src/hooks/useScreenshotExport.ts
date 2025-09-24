@@ -238,7 +238,7 @@ export const useScreenshotExport = () => {
 
       // Отправляем на сервер для генерации скриншота
       const response = await quranApi.post<StoryResponse>(
-        "/api/v1/screenshot/generate",
+        "/api/v1/screenshot/story",
         {
           html: htmlTemplate,
           id: options.id,
