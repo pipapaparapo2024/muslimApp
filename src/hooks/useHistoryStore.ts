@@ -64,18 +64,17 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
+      set({
+        history: [],
+        
+      })
+      return;
       const response = await quranApi.get<HistoryResponse>(`/api/v1/qa/text/history`, {
         params: { page },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-
-      console.log("History response:", response.data);
-      console.log("response.data.hasNext",response.data.hasNext)
-      console.log("response.data.hasPrev",response.data.hasPrev)
-      console.log("response.data.pageAmount",response.data.pageAmount)
-      
       set({
         history: response.data.history || [],
         pagination: {
