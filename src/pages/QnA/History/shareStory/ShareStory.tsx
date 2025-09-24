@@ -12,12 +12,12 @@ import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/use
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false); // Добавляем состояние загрузки изображений
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
 
-  // Используем хук для создания скриншотов
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -25,23 +25,23 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
-          });
-        };
-
         const item = await getHistoryItem(id);
-        await preloadImage(message);
-
         setCurrentItem(item);
-        setIsLoaded(true);
+        
+        // Правильная предзагрузка изображения
+        const img = new Image();
+        img.onload = () => {
+          console.log('✅ Background image loaded');
+          setImagesLoaded(true);
+          setIsLoaded(true);
+        };
+        img.onerror = () => {
+          console.warn('❌ Background image failed to load');
+          setImagesLoaded(true);
+          setIsLoaded(true);
+        };
+        img.src = message;
+        
       } catch (error) {
         console.error("Error loading data:", error);
         setIsLoaded(true);
@@ -52,25 +52,36 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) return;
+    if (!currentItem || !id || !screenshotRef.current || !imagesLoaded) {
+      alert('Please wait for images to load');
+      return;
+    }
 
     try {
-      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
-      console.log("screenshotUrl",screenshotUrl)
-      // Отправляем скриншот в Telegram
+      console.log("Screenshot URL:", screenshotUrl);
+      
       if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
+
+  if (!isLoaded || !imagesLoaded) {
+    return (
+      <PageWrapper showBackButton={true}>
+        <div>Loading images...</div>
+        <LoadingSpinner />
+      </PageWrapper>
+    );
+  }
 
   if (!isLoaded) {
     return (
