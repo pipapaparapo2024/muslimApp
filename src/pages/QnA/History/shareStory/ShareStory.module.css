@@ -45,7 +45,7 @@
   left: 50%;
   transform: translateX(-50%);
   top: auto;
-  bottom: -15px;
+  bottom: -30px;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
