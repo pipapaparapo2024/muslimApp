@@ -1,6 +1,6 @@
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./HistoryEmpty.module.css";
-import think from "../../../../assets/image/hm.svg";
+import think from "../../../../assets/image/hm.png";
 import React, { useEffect, useState } from "react";
 import { usePremiumStore } from "../../../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";
