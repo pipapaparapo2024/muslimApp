@@ -28,8 +28,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  position: relative;
 }
 
 .container img {
@@ -47,7 +45,7 @@
 .shareButton {
   position: absolute;
   border: none;
-  bottom: 40px; /* Изменено с 15px на 40px */
+  bottom: 15px;
   z-index: 3;
   top: auto;
   border-radius: var(--roundings-medium);
@@ -92,13 +90,10 @@
   position: absolute;
   z-index: 2;
   top: auto;
-  bottom: 0; /* Изменено с -100px на 0 */
+  bottom: -100px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
-  width: 100%;
-  padding: 0 var(--numbers-16); /* Добавлено для отступов по бокам */
-  box-sizing: border-box;
 }
 
 .blockInside {
