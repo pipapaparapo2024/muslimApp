@@ -53,8 +53,6 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      {sensorPermission}
-
       <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
