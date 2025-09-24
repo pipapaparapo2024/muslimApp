@@ -30,7 +30,6 @@ export const SurahList: React.FC = () => {
     selectedVariant,
     loading,
     error,
-    setSelectedVariant,
   } = useSurahListStore();
   const { language } = useLanguage();
 
@@ -43,7 +42,7 @@ export const SurahList: React.FC = () => {
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  
+
   const getScrollButtonPosition = () => {
     return language === "ar" ? "5%" : "85%";
   };
@@ -55,7 +54,6 @@ export const SurahList: React.FC = () => {
 
   useEffect(() => {
     fetchVariants();
-    // setSelectedVariant();
   }, [fetchVariants]);
 
   useEffect(() => {
@@ -297,7 +295,7 @@ export const SurahList: React.FC = () => {
         {/* Ошибка */}
         {error && <div className={styles.error}>Error: {error}</div>}
 
-        <div className={styles.blockChapter} >
+        <div className={styles.blockChapter}>
           {!loading && sortedSurahs.length === 0 ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (

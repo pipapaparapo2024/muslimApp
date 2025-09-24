@@ -164,7 +164,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
 
   fetchSurahs: async (variantId: string) => {
     set({ loading: true, error: null });
-
+    console.log("variantId",variantId)
     try {
       const surahs = await fetchSurahsByVariant(variantId);
       set({ surahs, loading: false });
