@@ -16,146 +16,6 @@ interface ExportOptions {
   id: string | undefined;
 }
 
-// Функция для предзагрузки шрифтов
-const preloadFonts = (): Promise<void[]> => {
-  const fonts = [
-    // Добавьте здесь все используемые шрифты
-    "Noto Sans",
-    // Другие шрифты, которые используются в вашем приложении
-  ];
-
-  return Promise.all(
-    fonts.map((font) => {
-      return document.fonts.load(`1em "${font}"`).then(() => void 0);
-    })
-  );
-};
-
-// Функция для очистки проблемных стилей
-function cleanProblematicStyles(element: HTMLElement): { restore: () => void } {
-  console.log('🎨 Cleaning problematic styles');
-  
-  const originalStyles = new Map();
-  const elementsToClean: HTMLElement[] = [];
-  
-  // Находим все элементы со внешними стилями
-  const allElements = element.querySelectorAll('*');
-  
-  allElements.forEach((el) => {
-    if (el instanceof HTMLElement) {
-      const style = window.getComputedStyle(el);
-      
-      // Проверяем наличие внешних font-face
-      if (style.fontFamily.includes('Noto Sans') || 
-          style.fontFamily.includes('Google Font')) {
-        
-        // Сохраняем оригинальные стили
-        originalStyles.set(el, {
-          fontFamily: el.style.fontFamily,
-          fontWeight: el.style.fontWeight,
-          fontStyle: el.style.fontStyle
-        });
-        
-        // Упрощаем шрифт для скриншота
-        el.style.fontFamily = 'Arial, sans-serif';
-        elementsToClean.push(el);
-      }
-    }
-  });
-
-  return {
-    restore() {
-      console.log('🔄 Restoring original styles');
-      elementsToClean.forEach((el) => {
-        const original = originalStyles.get(el);
-        if (original) {
-          el.style.fontFamily = original.fontFamily;
-          el.style.fontWeight = original.fontWeight;
-          el.style.fontStyle = original.fontStyle;
-        }
-      });
-    },
-  };
-}
-
-// Упрощенная функция для подготовки элемента
-function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
-  console.log('🎨 Preparing element for screenshot');
-  
-  const originalStyle = el.getAttribute("style") || "";
-  const originalPosition = el.style.position;
-  const originalLeft = el.style.left;
-  const originalTop = el.style.top;
-  const originalZIndex = el.style.zIndex;
-
-  // Клонируем элемент для скриншота
-  const clone = el.cloneNode(true) as HTMLElement;
-  
-  // Применяем стили для корректного отображения
-  Object.assign(clone.style, {
-    position: "fixed",
-    left: "0px",
-    top: "0px",
-    zIndex: "99999",
-    width: "100%",
-    height: "auto",
-    opacity: "1",
-    visibility: "visible",
-    display: "block",
-    transform: "none",
-    background: "#ffffff"
-  });
-
-  // Добавляем клон в DOM
-  document.body.appendChild(clone);
-
-  return {
-    restore() {
-      console.log('🔄 Removing cloned element');
-      if (document.body.contains(clone)) {
-        document.body.removeChild(clone);
-      }
-      // Восстанавливаем оригинальные стили
-      el.setAttribute("style", originalStyle);
-      el.style.position = originalPosition;
-      el.style.left = originalLeft;
-      el.style.top = originalTop;
-      el.style.zIndex = originalZIndex;
-    },
-  };
-}
-
-// Функция для ожидания загрузки изображений
-const waitForImages = (element: HTMLElement): Promise<void[]> => {
-  const images = Array.from(element.querySelectorAll('img'));
-  console.log('⏳ Waiting for images:', images.length);
-  
-  const promises = images.map((img, index) => {
-    if (img.complete && img.naturalHeight !== 0) {
-      console.log(`✅ Image ${index} already loaded`);
-      return Promise.resolve();
-    }
-    
-    return new Promise<void>((resolve) => {
-      img.onload = () => {
-        console.log(`✅ Image ${index} loaded`);
-        resolve();
-      };
-      img.onerror = () => {
-        console.warn(`❌ Image ${index} failed to load`);
-        resolve(); // Продолжаем даже если картинка не загрузилась
-      };
-      
-      setTimeout(() => {
-        console.warn(`⏰ Image ${index} load timeout`);
-        resolve();
-      }, 5000);
-    });
-  });
-  
-  return Promise.all(promises);
-};
-
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
@@ -176,74 +36,107 @@ export const useScreenshotExport = () => {
     initializeSdk();
   }, []);
 
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log('📸 Starting screenshot capture process...');
-    
-    // Предзагружаем шрифты
-    await preloadFonts();
-    
-    // Ждем загрузки изображений
-    await waitForImages(element);
-    
-    const preparation = prepareElementForScreenshot(element);
-    const styleCleanup = cleanProblematicStyles(element);
-
-    try {
-      console.log('🎯 Taking screenshot with html-to-image...');
-      
-      // Конфигурация с отключением загрузки внешних стилей
-      const blob = await toBlob(element, {
-        pixelRatio: 1,
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-        skipFonts: false, // Пробуем сначала с шрифтами
-        skipAutoScale: false,
-        preferredFontFormat: 'woff',
-        style: {
-          transform: 'none',
-          opacity: '1'
-        },
-        filter: (node: Node) => {
-          // Пропускаем скрытые элементы
-          if (node instanceof HTMLElement) {
-            const style = window.getComputedStyle(node);
-            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-              return false;
-            }
-          }
-          return true;
-        },
-        fontEmbedCSS: `
-          @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-        `
-      });
-
-      if (!blob) {
-        throw new Error("❌ Failed to create screenshot blob");
-      }
-
-      console.log('✅ Screenshot created successfully, size:', blob.size, 'type:', blob.type);
-      return blob;
-    } catch (error) {
-      console.error('❌ Screenshot capture error:', error);
-      
-      // Пробуем альтернативный метод с отключенными шрифтами
-      console.log('🔄 Trying alternative method without external fonts...');
-      return await captureWithFallback(element);
-    } finally {
-      preparation.restore();
-      styleCleanup.restore();
-    }
+  // Функция для предзагрузки шрифтов
+  const preloadFonts = (): Promise<void[]> => {
+    const fonts = ["Noto Sans"];
+    return Promise.all(
+      fonts.map((font) => {
+        return document.fonts.load(`1em "${font}"`).then(() => void 0);
+      })
+    );
   };
 
-  // Альтернативный метод с fallback шрифтами
-  const captureWithFallback = async (element: HTMLElement): Promise<Blob> => {
-    console.log('🔧 Using fallback capture method');
+  // Функция для очистки проблемных стилей
+  const cleanProblematicStyles = (element: HTMLElement): { restore: () => void } => {
+    console.log('🎨 Cleaning problematic styles');
     
-    // Создаем глубокий клон элемента
+    const originalStyles = new Map();
+    const elementsToClean: HTMLElement[] = [];
+    
+    const allElements = element.querySelectorAll('*');
+    
+    allElements.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        const style = window.getComputedStyle(el);
+        
+        if (style.fontFamily.includes('Noto Sans') || 
+            style.fontFamily.includes('Google Font')) {
+          
+          originalStyles.set(el, {
+            fontFamily: el.style.fontFamily,
+            fontWeight: el.style.fontWeight,
+            fontStyle: el.style.fontStyle
+          });
+          
+          el.style.fontFamily = 'Arial, sans-serif';
+          elementsToClean.push(el);
+        }
+      }
+    });
+
+    return {
+      restore() {
+        console.log('🔄 Restoring original styles');
+        elementsToClean.forEach((el) => {
+          const original = originalStyles.get(el);
+          if (original) {
+            el.style.fontFamily = original.fontFamily;
+            el.style.fontWeight = original.fontWeight;
+            el.style.fontStyle = original.fontStyle;
+          }
+        });
+      },
+    };
+  };
+
+  // Функция для ожидания загрузки изображений
+  const waitForImages = async (element: HTMLElement): Promise<void> => {
+    const images = Array.from(element.querySelectorAll('img'));
+    console.log('⏳ Waiting for images:', images.length);
+    
+    await Promise.all(images.map((img, index) => {
+      return new Promise<void>((resolve) => {
+        if (img.complete && img.naturalHeight !== 0) {
+          console.log(`✅ Image ${index} already loaded`);
+          return resolve();
+        }
+        
+        img.onload = () => {
+          console.log(`✅ Image ${index} loaded`);
+          resolve();
+        };
+        img.onerror = () => {
+          console.warn(`❌ Image ${index} failed to load`);
+          resolve();
+        };
+        
+        setTimeout(resolve, 3000);
+      });
+    }));
+  };
+
+  // Упрощенная функция для подготовки элемента
+  const prepareElementForScreenshot = (element: HTMLElement): HTMLElement => {
+    console.log('🎨 Preparing element for screenshot');
+    
+    // Создаем глубокий клон
     const clone = element.cloneNode(true) as HTMLElement;
     
-    // Заменяем проблемные шрифты на системные
+    // Применяем стили для корректного отображения
+    Object.assign(clone.style, {
+      position: 'fixed',
+      left: '0',
+      top: '0',
+      width: '100%',
+      height: 'auto',
+      background: '#ffffff',
+      zIndex: '99999',
+      opacity: '1',
+      visibility: 'visible',
+      display: 'block'
+    });
+
+    // Упрощаем шрифты для надежности
     const allElements = clone.querySelectorAll('*');
     allElements.forEach((el) => {
       if (el instanceof HTMLElement) {
@@ -251,37 +144,90 @@ export const useScreenshotExport = () => {
         if (style.fontFamily.includes('Noto Sans') || style.fontFamily.includes('Google')) {
           el.style.fontFamily = 'Arial, Helvetica, sans-serif';
         }
+        
+        // Убеждаемся, что все элементы видимы
+        el.style.opacity = '1';
+        el.style.visibility = 'visible';
+        el.style.display = 'block';
       }
     });
 
-    // Добавляем клон в DOM временно
-    clone.style.position = 'fixed';
-    clone.style.left = '-9999px';
-    clone.style.top = '0';
-    clone.style.display = 'block';
-    document.body.appendChild(clone);
+    return clone;
+  };
 
+  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    console.log('📸 Starting screenshot capture process...');
+    
+    // Предзагружаем шрифты
+    await preloadFonts();
+    
+    // Ждем загрузки изображений в оригинальном элементе
+    await waitForImages(element);
+    
+    // Очищаем проблемные стили
+    const styleCleanup = cleanProblematicStyles(element);
+    
+    // Подготавливаем клон для скриншота
+    const clone = prepareElementForScreenshot(element);
+    
+    // Добавляем клон в DOM
+    document.body.appendChild(clone);
+    
     try {
+      // Даем время на рендеринг
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('🎯 Taking screenshot with html-to-image...');
+      
       const blob = await toBlob(clone, {
-        pixelRatio: 1,
+        pixelRatio: 2,
         backgroundColor: '#ffffff',
         cacheBust: true,
-        skipFonts: true, // Полностью отключаем шрифты
-        style: {
-          transform: 'none',
-          opacity: '1'
+        skipFonts: true,
+        quality: 0.95,
+        filter: (node: Node) => {
+          if (node instanceof HTMLElement) {
+            const style = window.getComputedStyle(node);
+            if (style.display === 'none' || 
+                style.visibility === 'hidden' || 
+                parseFloat(style.opacity) === 0) {
+              return false;
+            }
+          }
+          return true;
         }
       });
 
       if (!blob) {
-        throw new Error("❌ Fallback capture failed");
+        throw new Error("❌ Failed to create screenshot blob");
       }
 
+      console.log('✅ Screenshot created successfully, size:', blob.size);
       return blob;
-    } finally {
-      if (document.body.contains(clone)) {
-        document.body.removeChild(clone);
+      
+    } catch (error) {
+      console.error('❌ Screenshot capture error:', error);
+      
+      // Fallback метод
+      console.log('🔄 Trying fallback method...');
+      const fallbackBlob = await toBlob(clone, {
+        pixelRatio: 1,
+        backgroundColor: '#ffffff',
+        skipFonts: true
+      });
+      
+      if (!fallbackBlob) {
+        throw new Error("❌ Fallback capture also failed");
       }
+      
+      return fallbackBlob;
+    } finally {
+      // Всегда убираем клон из DOM
+      if (clone.parentNode) {
+        clone.parentNode.removeChild(clone);
+      }
+      // Восстанавливаем стили
+      styleCleanup.restore();
     }
   };
 
@@ -290,7 +236,7 @@ export const useScreenshotExport = () => {
       console.log('📤 Uploading screenshot to server...');
       
       const formData = new FormData();
-      formData.append("file", blob, `story-${id}-${Date.now()}.png`);
+      formData.append("file", blob, `story-${id}.png`);
       formData.append("id", id);
 
       const response = await quranApi.post<StoryResponse>(
@@ -298,8 +244,7 @@ export const useScreenshotExport = () => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
           },
           timeout: 30000,
         }
@@ -308,10 +253,9 @@ export const useScreenshotExport = () => {
       console.log('📥 Server response:', response.data);
       
       if (response.data.status && response.data.data.url) {
-        console.log('✅ Upload successful, URL:', response.data.data.url);
         return response.data.data.url;
       } else {
-        throw new Error(response.data.message || "❌ Failed to upload screenshot");
+        throw new Error(response.data.message || "Upload failed");
       }
     } catch (error: any) {
       console.error('❌ Upload error:', error);
@@ -319,31 +263,18 @@ export const useScreenshotExport = () => {
     }
   };
 
-  const exportScreenshot = async (
-    options: ExportOptions
-  ): Promise<string | undefined> => {
-    console.group('🚀 Starting export process');
-    
+  const exportScreenshot = async (options: ExportOptions): Promise<string | undefined> => {
+    if (!options.id || !options.element) {
+      throw new Error("ID and element are required");
+    }
+
     setLoading(true);
     try {
-      if (!options.id || !options.element) {
-        throw new Error("❌ ID and element are required for export");
-      }
-
-      console.log('📸 Step 1: Capturing screenshot...');
       const screenshotBlob = await captureScreenshot(options.element);
-
-      console.log('📤 Step 2: Uploading to server...');
       const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
-      
-      console.log('✅ Export completed successfully');
       return storyUrl;
-    } catch (error) {
-      console.error('❌ Screenshot export error:', error);
-      throw error;
     } finally {
       setLoading(false);
-      console.groupEnd();
     }
   };
 
