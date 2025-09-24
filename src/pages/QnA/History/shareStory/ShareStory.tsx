@@ -1,17 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png";
+
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import {
-  useScreenshotExport,
-  shareToTelegramStory,
-} from "../../../../hooks/useScreenshotExport";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -64,7 +61,7 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl", screenshotUrl);
+      console.log("screenshotUrl",screenshotUrl)
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
@@ -94,19 +91,13 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        <img
-          src={background}
-          className={styles.backgroundImage}
-          alt="Background"
-          crossOrigin="anonymous"
-        />
+        
         {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
             className={styles.messageImage}
             alt="Message background"
-            crossOrigin="anonymous" // Добавить
           />
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
@@ -119,7 +110,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-
+        
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
