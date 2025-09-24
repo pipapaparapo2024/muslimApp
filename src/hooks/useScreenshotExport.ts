@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+// hooks/useScreenshotExport.ts
+import { useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
-import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   status: boolean;
@@ -16,403 +16,292 @@ interface ExportOptions {
   id: string | undefined;
 }
 
-// Функция для предзагрузки шрифтов
-const preloadFonts = (): Promise<void[]> => {
-  const fonts = [
-    "Noto Sans",
-  ];
-
-  return Promise.all(
-    fonts.map((font) => {
-      return document.fonts.load(`1em "${font}"`).then(() => void 0);
-    })
-  );
-};
-
-// Функция для очистки проблемных стилей
-function cleanProblematicStyles(element: HTMLElement): { restore: () => void } {
-  console.log('🎨 Cleaning problematic styles');
-  
-  const originalStyles = new Map();
-  const elementsToClean: HTMLElement[] = [];
-  
-  // Находим все элементы со внешними стилями
-  const allElements = element.querySelectorAll('*');
-  
-  allElements.forEach((el) => {
-    if (el instanceof HTMLElement) {
-      const style = window.getComputedStyle(el);
-      
-      // Проверяем наличие внешних font-face
-      if (style.fontFamily.includes('Noto Sans') || 
-          style.fontFamily.includes('Google Font')) {
-        
-        // Сохраняем оригинальные стили
-        originalStyles.set(el, {
-          fontFamily: el.style.fontFamily,
-          fontWeight: el.style.fontWeight,
-          fontStyle: el.style.fontStyle
-        });
-        
-        // Упрощаем шрифт для скриншота
-        el.style.fontFamily = 'Arial, sans-serif';
-        elementsToClean.push(el);
-      }
-    }
-  });
-
-  return {
-    restore() {
-      console.log('🔄 Restoring original styles');
-      elementsToClean.forEach((el) => {
-        const original = originalStyles.get(el);
-        if (original) {
-          el.style.fontFamily = original.fontFamily;
-          el.style.fontWeight = original.fontWeight;
-          el.style.fontStyle = original.fontStyle;
-        }
-      });
-    },
-  };
-}
-
-// Упрощенная функция для подготовки элемента
-function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
-  console.log('🎨 Preparing element for screenshot');
-  
-  const originalStyle = el.getAttribute("style") || "";
-  const originalPosition = el.style.position;
-  const originalLeft = el.style.left;
-  const originalTop = el.style.top;
-  const originalZIndex = el.style.zIndex;
-
-  // Клонируем элемент для скриншота
-  const clone = el.cloneNode(true) as HTMLElement;
-  
-  // Применяем стили для корректного отображения
-  Object.assign(clone.style, {
-    position: "fixed",
-    left: "0px",
-    top: "0px",
-    zIndex: "99999",
-    width: "100%",
-    height: "auto",
-    opacity: "1",
-    visibility: "visible",
-    display: "block",
-    transform: "none",
-    background: "#ffffff"
-  });
-
-  // Добавляем клон в DOM
-  document.body.appendChild(clone);
-
-  return {
-    restore() {
-      console.log('🔄 Removing cloned element');
-      if (document.body.contains(clone)) {
-        document.body.removeChild(clone);
-      }
-      // Восстанавливаем оригинальные стили
-      el.setAttribute("style", originalStyle);
-      el.style.position = originalPosition;
-      el.style.left = originalLeft;
-      el.style.top = originalTop;
-      el.style.zIndex = originalZIndex;
-    },
-  };
-}
-
-// Функция для ожидания загрузки изображений
-const waitForImages = (element: HTMLElement): Promise<void[]> => {
-  const images = Array.from(element.querySelectorAll('img'));
-  console.log('⏳ Waiting for images:', images.length);
-  
-  const promises = images.map((img, index) => {
-    if (img.complete && img.naturalHeight !== 0) {
-      console.log(`✅ Image ${index} already loaded`);
-      return Promise.resolve();
-    }
-    
-    return new Promise<void>((resolve) => {
-      img.onload = () => {
-        console.log(`✅ Image ${index} loaded`);
-        resolve();
-      };
-      img.onerror = () => {
-        console.warn(`❌ Image ${index} failed to load`);
-        resolve(); // Продолжаем даже если картинка не загрузилась
-      };
-      
-      setTimeout(() => {
-        console.warn(`⏰ Image ${index} load timeout`);
-        resolve();
-      }, 5000);
-    });
-  });
-  
-  return Promise.all(promises);
-};
-
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [sdkInitialized, setSdkInitialized] = useState<boolean>(false);
-  
-  useEffect(() => {
-    const initializeSdk = async () => {
-      try {
-        console.log('🚀 Initializing Telegram SDK...');
-        await init();
-        setSdkInitialized(true);
-        console.log("✅ Telegram SDK initialized successfully");
-      } catch (error) {
-        console.error("❌ Failed to initialize Telegram SDK:", error);
-        setSdkInitialized(false);
-      }
-    };
 
-    initializeSdk();
-  }, []);
-
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log('📸 Starting screenshot capture process...');
-    
-    // Предзагружаем шрифты
-    await preloadFonts();
-    
-    // Ждем загрузки изображений
-    await waitForImages(element);
-    
-    const preparation = prepareElementForScreenshot(element);
-    const styleCleanup = cleanProblematicStyles(element);
-
-    try {
-      console.log('🎯 Taking screenshot with html-to-image...');
-      
-      // Конфигурация с отключением загрузки внешних стилей
-      const blob = await toBlob(element, {
-        pixelRatio: 1,
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-        skipFonts: false, // Пробуем сначала с шрифтами
-        skipAutoScale: false,
-        preferredFontFormat: 'woff',
-        style: {
-          transform: 'none',
-          opacity: '1'
-        },
-        filter: (node: Node) => {
-          // Пропускаем скрытые элементы
-          if (node instanceof HTMLElement) {
-            const style = window.getComputedStyle(node);
-            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
-              return false;
-            }
-          }
-          return true;
-        },
-        fontEmbedCSS: `
-          @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-        `
-      });
-
-      if (!blob) {
-        throw new Error("❌ Failed to create screenshot blob");
-      }
-
-      console.log('✅ Screenshot created successfully, size:', blob.size, 'type:', blob.type);
-      return blob;
-    } catch (error) {
-      console.error('❌ Screenshot capture error:', error);
-      
-      // Пробуем альтернативный метод с отключенными шрифтами
-      console.log('🔄 Trying alternative method without external fonts...');
-      return await captureWithFallback(element);
-    } finally {
-      preparation.restore();
-      styleCleanup.restore();
-    }
-  };
-
-  // Альтернативный метод с fallback шрифтами
-  const captureWithFallback = async (element: HTMLElement): Promise<Blob> => {
-    console.log('🔧 Using fallback capture method');
-    
-    // Создаем глубокий клон элемента
+  const generateHTMLTemplate = (element: HTMLElement): string => {
+    // Создаем глубокий клон элемента с сохранением всех стилей
     const clone = element.cloneNode(true) as HTMLElement;
-    
-    // Заменяем проблемные шрифты на системные
-    const allElements = clone.querySelectorAll('*');
-    allElements.forEach((el) => {
-      if (el instanceof HTMLElement) {
-        const style = window.getComputedStyle(el);
-        if (style.fontFamily.includes('Noto Sans') || style.fontFamily.includes('Google')) {
-          el.style.fontFamily = 'Arial, Helvetica, sans-serif';
+
+    // Удаляем кнопку шаринга и другие элементы, которые не должны быть в скриншоте
+    const elementsToRemove = clone.querySelectorAll(
+      '[data-story-visible="hide"], .shareButton, .blockButton, button'
+    );
+    elementsToRemove.forEach((el) => el.remove());
+
+    // Получаем вычисленные стили для элемента и его детей
+    const styles = getElementStyles(element);
+
+    // Получаем HTML структуру
+    const htmlContent = clone.innerHTML;
+
+    // Создаем полный HTML документ с правильными стилями
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      }
-    });
-
-    // Добавляем клон в DOM временно
-    clone.style.position = 'fixed';
-    clone.style.left = '-9999px';
-    clone.style.top = '0';
-    clone.style.display = 'block';
-    document.body.appendChild(clone);
-
-    try {
-      const blob = await toBlob(clone, {
-        pixelRatio: 1,
-        backgroundColor: '#ffffff',
-        cacheBust: true,
-        skipFonts: true, // Полностью отключаем шрифты
-        style: {
-          transform: 'none',
-          opacity: '1'
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
-      });
-
-      if (!blob) {
-        throw new Error("❌ Fallback capture failed");
-      }
-
-      return blob;
-    } finally {
-      if (document.body.contains(clone)) {
-        document.body.removeChild(clone);
-      }
-    }
+        .screenshot-container {
+            width: 390px;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        /* Основные стили для контента */
+        .contentWrapper {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Стили для изображений */
+        .contentWrapper img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* Стили для блоков с контентом */
+        .blockScan {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            z-index: 2;
+        }
+        
+        .blockMessages {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            z-index: 2;
+        }
+        
+        .accessBlock, .blockInside, .blockMessageUser, .blockMessageBot {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .scanTitle, .nickName {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .scanDesk, .text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Убираем все ограничения текста */
+        .scanDesk, .text {
+            display: block !important;
+            -webkit-line-clamp: unset !important;
+            line-clamp: unset !important;
+            max-height: none !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+        }
+        
+        /* Статусные цвета */
+        .haram { color: #ef4444; }
+        .halal { color: #15803d; }
+        .mushbooh { color: #f59e0b; }
+        
+        ${styles}
+    </style>
+</head>
+<body>
+    <div class="screenshot-container">
+        ${htmlContent}
+    </div>
+</body>
+</html>`;
   };
 
-  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
-    try {
-      console.log('📤 Uploading screenshot to server...');
-      
-      const formData = new FormData();
-      formData.append("file", blob, `story-${id}-${Date.now()}.png`);
-      formData.append("id", id);
+  const getElementStyles = (element: HTMLElement): string => {
+    // Собираем важные стили из элемента
+    const computedStyle = window.getComputedStyle(element);
 
-      const response = await quranApi.post<StoryResponse>(
-        "/api/v1/qa/story",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          timeout: 30000,
+    // Получаем стили для фоновых изображений
+    const backgroundImage = computedStyle.backgroundImage;
+    let backgroundStyles = "";
+
+    if (backgroundImage && backgroundImage !== "none") {
+      backgroundStyles = `
+        .contentWrapper {
+            background-image: ${backgroundImage} !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
         }
-      );
-      
-      console.log('📥 Server response:', response.data);
-      
-      if (response.data.status && response.data.data.url) {
-        console.log('✅ Upload successful, URL:', response.data.data.url);
-        return response.data.data.url;
-      } else {
-        throw new Error(response.data.message || "❌ Failed to upload screenshot");
-      }
-    } catch (error: any) {
-      console.error('❌ Upload error:', error);
-      throw error;
+      `;
     }
+
+    // Собираем стили для всех дочерних элементов
+    const childrenStyles = Array.from(element.querySelectorAll("*"))
+      .map((child) => {
+        const childComputed = window.getComputedStyle(child as HTMLElement);
+        const classes = Array.from((child as HTMLElement).classList);
+        if (classes.length === 0) return "";
+
+        const classSelectors = classes.map((cls) => `.${cls}`).join("");
+        return `
+          ${classSelectors} {
+            ${getImportantStyles(childComputed)}
+          }
+        `;
+      })
+      .join("");
+
+    return backgroundStyles + childrenStyles;
+  };
+
+  const getImportantStyles = (computedStyle: CSSStyleDeclaration): string => {
+    // Собираем только самые важные стили
+    const importantProperties = [
+      "display",
+      "position",
+      "width",
+      "height",
+      "top",
+      "left",
+      "right",
+      "bottom",
+      "margin",
+      "padding",
+      "border",
+      "background",
+      "color",
+      "font-size",
+      "font-weight",
+      "text-align",
+      "z-index",
+      "opacity",
+      "visibility",
+      "flex-direction",
+      "justify-content",
+      "align-items",
+      "gap",
+    ];
+
+    return importantProperties
+      .map((prop) => {
+        const value = computedStyle.getPropertyValue(prop);
+        return value ? `${prop}: ${value} !important;` : "";
+      })
+      .filter(Boolean)
+      .join(" ");
   };
 
   const exportScreenshot = async (
     options: ExportOptions
   ): Promise<string | undefined> => {
-    console.group('🚀 Starting export process');
-    
     setLoading(true);
     try {
       if (!options.id || !options.element) {
-        throw new Error("❌ ID and element are required for export");
+        throw new Error("ID and element are required for export");
       }
 
-      console.log('📸 Step 1: Capturing screenshot...');
-      const screenshotBlob = await captureScreenshot(options.element);
+      // Генерируем HTML для скриншота
+      const htmlTemplate = generateHTMLTemplate(options.element);
 
-      console.log('📤 Step 2: Uploading to server...');
-      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
-      
-      console.log('✅ Export completed successfully');
-      return storyUrl;
+      console.log("Generated HTML template:", htmlTemplate); // Для отладки
+
+      // Отправляем на сервер для генерации скриншота
+      const response = await quranApi.post<StoryResponse>(
+        "/api/v1/screenshot/story",
+        {
+          html: htmlTemplate,
+          id: options.id,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          timeout: 60000,
+        }
+      );
+
+      if (response.data.status && response.data.data.url) {
+        return response.data.data.url;
+      } else {
+        throw new Error(
+          response.data.message || "Failed to generate screenshot"
+        );
+      }
     } catch (error) {
-      console.error('❌ Screenshot export error:', error);
+      console.error("Screenshot export error:", error);
       throw error;
     } finally {
       setLoading(false);
-      console.groupEnd();
     }
   };
 
-  // Функция для тестирования
-  const testScreenshot = async (element: HTMLElement): Promise<string> => {
-    console.log('🧪 Testing screenshot functionality...');
-    
-    const blob = await captureScreenshot(element);
-    const url = URL.createObjectURL(blob);
-    
-    // Показываем результат
-    const testImage = new Image();
-    testImage.src = url;
-    testImage.style.position = 'fixed';
-    testImage.style.top = '10px';
-    testImage.style.right = '10px';
-    testImage.style.zIndex = '10000';
-    testImage.style.border = '2px solid red';
-    testImage.style.maxWidth = '300px';
-    testImage.style.maxHeight = '300px';
-    testImage.alt = 'TEST SCREENSHOT';
-    
-    document.body.appendChild(testImage);
-    
-    setTimeout(() => {
-      if (document.body.contains(testImage)) {
-        document.body.removeChild(testImage);
-        URL.revokeObjectURL(url);
-      }
-    }, 15000);
-    
-    return url;
-  };
-
-  return { 
-    loading, 
-    exportScreenshot,
-    testScreenshot,
-    sdkInitialized 
-  };
+  return { loading, exportScreenshot };
 };
 
+// Функция шаринга остается без изменений
 export const shareToTelegramStory = async (
   url: string | undefined
 ): Promise<void> => {
-  if (!url) {
-    console.error('❌ No URL provided for sharing');
-    return;
-  }
+  if (!url) return;
 
-  console.group('📤 Sharing to Telegram Story');
-  console.log("URL:", url);
-  
   try {
+    await init();
+
     if (typeof shareStory === "function") {
-      console.log("🔗 Using SDK shareStory...");
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      console.log("✅ SDK shareStory completed");
     } else {
-      console.warn("⚠️ Using fallback method...");
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
+      const tg = (window as any).Telegram;
+      if (tg?.WebApp?.shareStory) {
+        await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+      } else {
+        throw new Error("shareStory function not available");
+      }
     }
   } catch (error) {
-    console.error("❌ Share story failed:", error);
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
-  } finally {
-    console.groupEnd();
-  };
+    console.error("Share story failed:", error);
+    // Fallback
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };
