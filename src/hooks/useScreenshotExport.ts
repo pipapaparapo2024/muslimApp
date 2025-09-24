@@ -1,7 +1,7 @@
-// hooks/useScreenshotExport.ts
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
+import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   status: boolean;
@@ -16,210 +16,130 @@ interface ExportOptions {
   id: string | undefined;
 }
 
+// Функция для подготовки элемента к скриншоту
+function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
+  const originalStyle = el.getAttribute("style") || "";
+  const wasHidden = getComputedStyle(el).display === "none";
+
+  if (!wasHidden) return { restore: () => {} };
+
+  Object.assign(el.style, {
+    display: "block",
+    position: "fixed",
+    left: "-99999px",
+    top: "0",
+    visibility: "visible",
+  });
+
+  return {
+    restore() {
+      el.setAttribute("style", originalStyle);
+    },
+  };
+}
+
+// Функция для ожидания загрузки шрифтов
+async function waitFonts(): Promise<void> {
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {}
+  }
+  // Небольшая задержка для перерисовки
+  await new Promise((r) => setTimeout(r, 0));
+}
+
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [, setSdkInitialized] = useState<boolean>(false);
+  // Инициализируем SDK при загрузке хука
+  useEffect(() => {
+    const initializeSdk = async () => {
+      try {
+        await init(); // Инициализируем SDK
+        setSdkInitialized(true);
+        console.log("Telegram SDK initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize Telegram SDK:", error);
+        setSdkInitialized(false);
+      }
+    };
 
-  const generateHTMLTemplate = (element: HTMLElement): string => {
-    // Создаем глубокий клон элемента с сохранением всех стилей
-    const clone = element.cloneNode(true) as HTMLElement;
+    initializeSdk();
+  }, []);
+  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    await waitFonts();
+    const preparation = prepareElementForScreenshot(element);
 
-    // Удаляем кнопку шаринга и другие элементы, которые не должны быть в скриншоте
-    const elementsToRemove = clone.querySelectorAll(
-      '[data-story-visible="hide"], .shareButton, .blockButton, button'
-    );
-    elementsToRemove.forEach((el) => el.remove());
-
-    // Получаем вычисленные стили для элемента и его детей
-    const styles = getElementStyles(element);
-
-    // Получаем HTML структуру
-    const htmlContent = clone.innerHTML;
-
-    // Создаем полный HTML документ с правильными стилями
-    return `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .screenshot-container {
-            width: 390px;
-            max-width: 100%;
-            position: relative;
-        }
-        
-        /* Основные стили для контента */
-        .contentWrapper {
-            width: 100%;
-            height: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-        
-        /* Стили для изображений */
-        .contentWrapper img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        /* Стили для блоков с контентом */
-        .blockScan {
-            position: relative;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 16px;
-            z-index: 2;
-        }
-        
-        .blockMessages {
-            position: relative;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 16px;
-            z-index: 2;
-        }
-        
-        .accessBlock, .blockInside, .blockMessageUser, .blockMessageBot {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            padding: 12px 16px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .scanTitle, .nickName {
-            font-weight: 600;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .scanDesk, .text {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.4;
-        }
-        
-        /* Убираем все ограничения текста */
-        .scanDesk, .text {
-            display: block !important;
-            -webkit-line-clamp: unset !important;
-            line-clamp: unset !important;
-            max-height: none !important;
-            overflow: visible !important;
-            text-overflow: unset !important;
-        }
-        
-        /* Статусные цвета */
-        .haram { color: #ef4444; }
-        .halal { color: #15803d; }
-        .mushbooh { color: #f59e0b; }
-        
-        ${styles}
-    </style>
-</head>
-<body>
-    <div class="screenshot-container">
-        ${htmlContent}
-    </div>
-</body>
-</html>`;
-  };
-
-  const getElementStyles = (element: HTMLElement): string => {
-    // Собираем важные стили из элемента
-    const computedStyle = window.getComputedStyle(element);
-
-    // Получаем стили для фоновых изображений
-    const backgroundImage = computedStyle.backgroundImage;
-    let backgroundStyles = "";
-
-    if (backgroundImage && backgroundImage !== "none") {
-      backgroundStyles = `
-        .contentWrapper {
-            background-image: ${backgroundImage} !important;
-            background-size: cover !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-        }
-      `;
-    }
-
-    // Собираем стили для всех дочерних элементов
-    const childrenStyles = Array.from(element.querySelectorAll("*"))
-      .map((child) => {
-        const childComputed = window.getComputedStyle(child as HTMLElement);
-        const classes = Array.from((child as HTMLElement).classList);
-        if (classes.length === 0) return "";
-
-        const classSelectors = classes.map((cls) => `.${cls}`).join("");
-        return `
-          ${classSelectors} {
-            ${getImportantStyles(childComputed)}
+    try {
+      const blob = await toBlob(element, {
+        pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          const tag = node.tagName?.toUpperCase?.() || "";
+          // Исключаем элементы, которые не должны попадать в скриншот
+          if (
+            node.getAttribute &&
+            node.getAttribute("data-story-visible") === "hide"
+          ) {
+            return false;
           }
-        `;
-      })
-      .join("");
+          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
+            return false; // Добавляем LINK чтобы исключить внешние CSS
+          }
+          // Исключаем элементы с внешними ссылками
+          if (
+            node.getAttribute &&
+            node.getAttribute("href")?.includes("fonts.googleapis.com")
+          ) {
+            return false;
+          }
+          return true;
+        },
+        skipFonts: true, // Пропускаем загрузку внешних шрифтов
+        fontEmbedCSS: "", // Отключаем встраивание шрифтов
+      });
 
-    return backgroundStyles + childrenStyles;
+      if (!blob) {
+        throw new Error("Failed to create screenshot blob");
+      }
+
+      return blob;
+    } finally {
+      preparation.restore();
+    }
   };
 
-  const getImportantStyles = (computedStyle: CSSStyleDeclaration): string => {
-    // Собираем только самые важные стили
-    const importantProperties = [
-      "display",
-      "position",
-      "width",
-      "height",
-      "top",
-      "left",
-      "right",
-      "bottom",
-      "margin",
-      "padding",
-      "border",
-      "background",
-      "color",
-      "font-size",
-      "font-weight",
-      "text-align",
-      "z-index",
-      "opacity",
-      "visibility",
-      "flex-direction",
-      "justify-content",
-      "align-items",
-      "gap",
-    ];
+  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", blob, `story-${Date.now()}.png`);
+      formData.append("id", id);
 
-    return importantProperties
-      .map((prop) => {
-        const value = computedStyle.getPropertyValue(prop);
-        return value ? `${prop}: ${value} !important;` : "";
-      })
-      .filter(Boolean)
-      .join(" ");
+      const response = await quranApi.post<StoryResponse>(
+        "/api/v1/qa/story",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          timeout: 30000, // Добавляем таймаут
+        }
+      );
+      if (response.data.status && response.data.data.url) {
+        return response.data.data.url;
+      } else {
+        throw new Error(response.data.message || "Failed to upload screenshot");
+      }
+    } catch (error: any) {
+      if (error.response?.status === 502) {
+        throw new Error(
+          "Server is temporarily unavailable. Please try again later."
+        );
+      }
+      throw error;
+    }
   };
 
   const exportScreenshot = async (
@@ -231,34 +151,12 @@ export const useScreenshotExport = () => {
         throw new Error("ID and element are required for export");
       }
 
-      // Генерируем HTML для скриншота
-      const htmlTemplate = generateHTMLTemplate(options.element);
+      // Делаем скриншот
+      const screenshotBlob = await captureScreenshot(options.element);
 
-      console.log("Generated HTML template:", htmlTemplate); // Для отладки
-
-      // Отправляем на сервер для генерации скриншота
-      const response = await quranApi.post<StoryResponse>(
-        "/api/v1/screenshot/story",
-        {
-          html: htmlTemplate,
-          id: options.id,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          timeout: 60000,
-        }
-      );
-
-      if (response.data.status && response.data.data.url) {
-        return response.data.data.url;
-      } else {
-        throw new Error(
-          response.data.message || "Failed to generate screenshot"
-        );
-      }
+      // Загружаем на сервер
+      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
+      return storyUrl;
     } catch (error) {
       console.error("Screenshot export error:", error);
       throw error;
@@ -270,38 +168,47 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-// Функция шаринга остается без изменений
 export const shareToTelegramStory = async (
   url: string | undefined
 ): Promise<void> => {
   if (!url) return;
 
+  const tg = (window as any).Telegram;
+
+  console.log("=== DEBUG SHARE STORY ===");
+  console.log("URL:", url);
+  console.log("Telegram WebApp:", tg?.WebApp);
+  console.log(
+    "shareStory function available:",
+    typeof shareStory === "function"
+  );
+  console.log("Platform:", tg?.WebApp?.platform);
+  console.log("Version:", tg?.WebApp?.version);
   try {
     await init();
-
+    console.log("Telegram SDK init attempted");
     if (typeof shareStory === "function") {
-      await shareStory(url, {
+      console.log("Calling shareStory with URL:", url);
+       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-    } else {
-      const tg = (window as any).Telegram;
       if (tg?.WebApp?.shareStory) {
-        await tg.WebApp.shareStory(url, {
+        return await tg.WebApp.shareStory(url, {
           widget: {
             url: "https://t.me/QiblaGuidebot",
             name: "@QiblaGuidebot",
           },
         });
-      } else {
-        throw new Error("shareStory function not available");
       }
+      console.log("shareStory completed successfully");
+    } else {
+      throw new Error("shareStory function not available");
     }
   } catch (error) {
-    console.error("Share story failed:", error);
-    // Fallback
+    console.error("Share story completely failed:", error);
     window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
   }
 };
