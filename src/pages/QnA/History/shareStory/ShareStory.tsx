@@ -1,3 +1,4 @@
+// src/pages/ShareStory/ShareStory.tsx
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
@@ -25,26 +26,22 @@ export const ShareStory: React.FC = () => {
       try {
         const item = await getHistoryItem(id);
         setCurrentItem(item);
-        
-        // Функция проверки готовности
+
         const checkReady = (): boolean => {
-          if (!screenshotRef.current) {
-            return false;
-          }
+          if (!screenshotRef.current) return false;
 
           const images = screenshotRef.current.querySelectorAll('img');
-          const allLoaded = Array.from(images).every(img => 
+          const allLoaded = Array.from(images).every(img =>
             img.complete && img.naturalHeight > 0
           );
-          
-          return allLoaded && screenshotRef.current.offsetWidth > 0;
+
+          const hasSize = screenshotRef.current.offsetWidth > 0 && screenshotRef.current.offsetHeight > 0;
+          return allLoaded && hasSize;
         };
 
-        // Проверяем готовность сразу
         if (checkReady()) {
           setIsReady(true);
         } else {
-          // Если не готово, проверяем периодически
           const interval = setInterval(() => {
             if (checkReady()) {
               setIsReady(true);
@@ -52,13 +49,11 @@ export const ShareStory: React.FC = () => {
             }
           }, 100);
 
-          // Таймаут на случай проблем
           setTimeout(() => {
             clearInterval(interval);
-            setIsReady(true); // Все равно продолжаем
+            setIsReady(true); // fallback
           }, 3000);
         }
-
       } catch (error) {
         console.error("Error loading data:", error);
         setIsReady(true);
@@ -70,7 +65,7 @@ export const ShareStory: React.FC = () => {
 
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) {
-      alert('Please wait for content to load');
+      alert(t("pleaseWait"));
       return;
     }
 
@@ -80,8 +75,6 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("Screenshot URL:", screenshotUrl);
-      
       if (screenshotUrl) {
         await shareToTelegramStory(screenshotUrl);
       }
@@ -102,8 +95,6 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        
-        {/* Элемент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
@@ -122,8 +113,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        {/* Кнопка share ВНЕ элемента для скриншота */}
+
         <div className={styles.blockButton}>
           <button
             type="button"
@@ -132,7 +122,6 @@ export const ShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
-            data-exclude-from-screenshot="true"
           >
             <Upload /> {loading ? t("loading") : t("share")}
           </button>
