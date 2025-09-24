@@ -14,43 +14,21 @@ interface StoryResponse {
 interface ExportOptions {
   element: HTMLElement | null;
   id: string | undefined;
-  includeBackground?: boolean; // Добавляем опцию для включения фона
 }
 
 // Функция для подготовки элемента к скриншоту
-function prepareElementForScreenshot(el: HTMLElement, includeBackground: boolean = false): { restore: () => void } {
+function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
   const originalStyle = el.getAttribute("style") || "";
   const wasHidden = getComputedStyle(el).display === "none";
 
-  if (!wasHidden && !includeBackground) return { restore: () => {} };
-
-  // Клонируем элемент чтобы добавить фон
-  if (includeBackground) {
-    const container = el.closest('.container') as HTMLElement;
-    if (container) {
-      const containerStyle = getComputedStyle(container);
-      const backgroundImage = containerStyle.backgroundImage;
-      
-      if (backgroundImage && backgroundImage !== 'none') {
-        Object.assign(el.style, {
-          backgroundImage: backgroundImage,
-          backgroundSize: containerStyle.backgroundSize,
-          backgroundPosition: containerStyle.backgroundPosition,
-          backgroundRepeat: containerStyle.backgroundRepeat,
-        });
-      }
-    }
-  }
+  if (!wasHidden) return { restore: () => {} };
 
   Object.assign(el.style, {
     display: "block",
     position: "fixed",
-    left: wasHidden ? "-99999px" : "0",
+    left: "-99999px",
     top: "0",
     visibility: "visible",
-    width: "100%",
-    height: "100%",
-    zIndex: "9999",
   });
 
   return {
@@ -68,40 +46,17 @@ async function waitFonts(): Promise<void> {
     } catch {}
   }
   // Небольшая задержка для перерисовки
-  await new Promise((r) => setTimeout(r, 100));
-}
-
-// Функция для предзагрузки фонового изображения
-async function preloadBackgroundImage(element: HTMLElement): Promise<void> {
-  const container = element.closest('.container') as HTMLElement;
-  if (!container) return;
-
-  const style = getComputedStyle(container);
-  const backgroundImage = style.backgroundImage;
-  
-  if (backgroundImage && backgroundImage !== 'none') {
-    // Извлекаем URL из background-image
-    const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
-    if (urlMatch && urlMatch[1]) {
-      const imageUrl = urlMatch[1];
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-      });
-    }
-  }
+  await new Promise((r) => setTimeout(r, 0));
 }
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [, setSdkInitialized] = useState<boolean>(false);
-
+  // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
       try {
-        await init();
+        await init(); // Инициализируем SDK
         setSdkInitialized(true);
         console.log("Telegram SDK initialized successfully");
       } catch (error) {
@@ -112,15 +67,9 @@ export const useScreenshotExport = () => {
 
     initializeSdk();
   }, []);
-
-  const captureScreenshot = async (element: HTMLElement, includeBackground: boolean = false): Promise<Blob> => {
+  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
     await waitFonts();
-    
-    if (includeBackground) {
-      await preloadBackgroundImage(element);
-    }
-    
-    const preparation = prepareElementForScreenshot(element, includeBackground);
+    const preparation = prepareElementForScreenshot(element);
 
     try {
       const blob = await toBlob(element, {
@@ -136,7 +85,7 @@ export const useScreenshotExport = () => {
             return false;
           }
           if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
-            return false;
+            return false; // Добавляем LINK чтобы исключить внешние CSS
           }
           // Исключаем элементы с внешними ссылками
           if (
@@ -147,9 +96,8 @@ export const useScreenshotExport = () => {
           }
           return true;
         },
-        skipFonts: true,
-        fontEmbedCSS: "",
-        backgroundColor: includeBackground ? 'transparent' : '#ffffff', // Прозрачный фон если включаем background
+        skipFonts: true, // Пропускаем загрузку внешних шрифтов
+        fontEmbedCSS: "", // Отключаем встраивание шрифтов
       });
 
       if (!blob) {
@@ -176,7 +124,7 @@ export const useScreenshotExport = () => {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          timeout: 30000,
+          timeout: 30000, // Добавляем таймаут
         }
       );
       if (response.data.status && response.data.data.url) {
@@ -203,8 +151,8 @@ export const useScreenshotExport = () => {
         throw new Error("ID and element are required for export");
       }
 
-      // Делаем скриншот с включением фона
-      const screenshotBlob = await captureScreenshot(options.element, true);
+      // Делаем скриншот
+      const screenshotBlob = await captureScreenshot(options.element);
 
       // Загружаем на сервер
       const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
@@ -236,27 +184,26 @@ export const shareToTelegramStory = async (
   );
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-  
   try {
     await init();
     console.log("Telegram SDK init attempted");
-    
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
-      await shareStory(url, {
+       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
+      if (tg?.WebApp?.shareStory) {
+        return await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+      }
       console.log("shareStory completed successfully");
-    } else if (tg?.WebApp?.shareStory) {
-      return await tg.WebApp.shareStory(url, {
-        widget: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
     } else {
       throw new Error("shareStory function not available");
     }
