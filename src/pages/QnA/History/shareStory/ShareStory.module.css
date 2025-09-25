@@ -58,7 +58,7 @@
 
 .blockButton {
   position: absolute;
-  bottom: var(--numbers-16); /* отступ от низа */
+  bottom: var(--numbers-40); /* отступ от низа */
   left: 0;
   right: 0;
   display: flex;
@@ -109,7 +109,6 @@
 }
 
 .shareButton {
-  /* Изменили position на relative для нормального потока */
   position: relative;
   z-index: 3;
   border: none;
