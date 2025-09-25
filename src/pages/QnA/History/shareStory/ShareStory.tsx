@@ -198,10 +198,11 @@ export const ShareStory: React.FC = () => {
       // Используем правильное название функции
       if (typeof shareStory === "function") {
         await shareStory(url, {
-          widget: {
+          widgetLink: {
             url: "https://t.me/QiblaGuidebot",
             name: "@QiblaGuidebot",
           },
+
         });
       } else {
         // Fallback для старых версий Telegram
