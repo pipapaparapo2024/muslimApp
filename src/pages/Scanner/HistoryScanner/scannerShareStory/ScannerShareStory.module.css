@@ -73,7 +73,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-12);
+  gap: var(--numbers-4);
   padding: var(--numbers-40) var(--numbers-20) var(--numbers-60);
   box-sizing: border-box;
   z-index: 2;
