@@ -31,8 +31,8 @@
   align-items: center;
   padding-top: var(--numbers-48);
   margin: 0;
+  flex: 1;
 }
-
 .hiddenBackgroundForScreenshot {
   position: absolute;
   top: 0;
@@ -57,12 +57,15 @@
 }
 
 .blockButton {
+  position: absolute;
+  bottom: var(--numbers-16); /* отступ от низа */
+  left: 0;
+  right: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  z-index: 2;
+  justify-content: center;
+  z-index: 3;
   width: 100%;
+  padding: 0;
 }
 .blockMessageUser {
   border-radius: var(--roundings-medium) var(--roundings-medium) 0
