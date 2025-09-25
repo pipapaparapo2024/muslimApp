@@ -23,7 +23,8 @@ export const Home: React.FC = () => {
     isInitializing,
     initializationError,
     showVpnWarning,
-    handleCloseVpnWarning, // Используем функцию закрытия
+    handleCloseVpnWarning,
+    handleOpenVpnWarning, 
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -55,6 +56,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
+      <button onClick={()=>handleOpenVpnWarning}>open VPN</button>
       <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
         {showVpnWarning && (

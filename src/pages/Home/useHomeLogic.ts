@@ -86,6 +86,10 @@ export const useHomeLogic = () => {
     setShowVpnWarning(false);
     localStorage.setItem(VPN_WARNING_SHOWN, "true");
   }, []);
+  const handleOpenVpnWarning = useCallback(() => {
+    setShowVpnWarning(true);
+    localStorage.setItem(VPN_WARNING_SHOWN, "false");
+  }, []);
 
   // Синхронизируем состояние с localStorage при изменении
   useEffect(() => {
@@ -186,6 +190,7 @@ export const useHomeLogic = () => {
     requestSensorPermission,
     resetSensorPermission,
     handleCompassClick,
+    handleOpenVpnWarning,
     handleMapClick,
   };
 };
