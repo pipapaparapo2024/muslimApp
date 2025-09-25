@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png"; 
+import background from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -138,21 +138,26 @@ export const ScannerShareStory: React.FC = () => {
               </div>
             )}
 
+            {/* Результаты анализа - ОДИН блок для всех продуктов */}
             {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
-              currentItem.haramProducts.map((product: any, index: number) => (
-                <div key={index} className={styles.blockInside}>
-                  {" "}
-                  {/* Добавил key */}
+              currentItem.haramProducts.length > 0 && (
+                <div className={styles.blockMessageBot}>
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                  <div className={styles.scanDesk}>
-                    <div className={styles.haranProduct}>
-                      {product.name} - {product.reason}
-                      {product.source}
-                    </div>
+                  <div className={styles.text}>
+                    {currentItem.haramProducts.map(
+                      (product: any, index: number) => (
+                        <div key={index} className={styles.productItem}>
+                          <strong>{product.name}</strong> - {product.reason}{" "}
+                          {product.source}
+                          {index < currentItem.haramProducts.length - 1 && (
+                            <br />
+                          )}
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
-              ))}
+              )}
 
             {currentItem.description && (
               <div className={styles.blockInside}>
