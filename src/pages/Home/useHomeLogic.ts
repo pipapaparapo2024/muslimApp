@@ -36,10 +36,8 @@ export const useHomeLogic = () => {
     useState(false);
   const [languageReady, setLanguageReady] = useState(false);
   
-  // Новое состояние для показа предупреждения о VPN
   const [showVpnWarning, setShowVpnWarning] = useState(false);
 
-  // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
     const saved = localStorage.getItem(SENSOR_PERMISSION_STATUS);
     return saved || "prompt";
@@ -48,7 +46,6 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
-        // Получаем и устанавливаем язык с бекенда
         const userLanguage = await fetchLanguageFromBackend();
 
         if (userLanguage) {
@@ -57,13 +54,11 @@ export const useHomeLogic = () => {
           localStorage.setItem("preferred-language", userLanguage);
         }
 
-        // Проверяем, показывалось ли уже предупреждение о VPN
         const vpnWarningShown = localStorage.getItem(VPN_WARNING_SHOWN);
         if (!vpnWarningShown) {
           setShowVpnWarning(true);
         }
 
-        // Помечаем, что язык готов
         setLanguageReady(true);
       } catch (error) {
         console.error("Language initialization error:", error);
@@ -86,9 +81,17 @@ export const useHomeLogic = () => {
     setShowVpnWarning(false);
     localStorage.setItem(VPN_WARNING_SHOWN, "true");
   }, []);
+
+  // Функция для открытия предупреждения о VPN
   const handleOpenVpnWarning = useCallback(() => {
     setShowVpnWarning(true);
-    localStorage.setItem(VPN_WARNING_SHOWN, "false");
+  }, []);
+
+  // Функция для сброса предупреждения о VPN (новая функция)
+  const handleResetVpnWarning = useCallback(() => {
+    localStorage.removeItem(VPN_WARNING_SHOWN);
+    setShowVpnWarning(true);
+    alert("VPN warning has been reset. It will show again on next page load.");
   }, []);
 
   // Синхронизируем состояние с localStorage при изменении
@@ -186,11 +189,12 @@ export const useHomeLogic = () => {
     initializationError,
     orientationListenerActive,
     showVpnWarning,
-    handleCloseVpnWarning, // Теперь используем эту функцию
+    handleCloseVpnWarning,
+    handleOpenVpnWarning,
+    handleResetVpnWarning, // Добавлена в возвращаемый объект
     requestSensorPermission,
     resetSensorPermission,
     handleCompassClick,
-    handleOpenVpnWarning,
     handleMapClick,
   };
 };
