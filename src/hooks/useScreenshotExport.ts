@@ -83,40 +83,78 @@ export const useScreenshotExport = () => {
 
     console.log(`📏 [captureScreenshot] Original element size: ${element.offsetWidth}x${element.offsetHeight}`);
 
-    await ensureImagesLoaded(element);
+    // 1. Создаём контейнер для рендера с теми же стилями
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    container.style.width = "375px";
+    container.style.backgroundColor = "#ffffff";
+    container.style.padding = "20px";
+    container.style.fontFamily = "'Roboto', Arial, sans-serif";
+    container.style.boxSizing = "border-box";
+    container.style.borderRadius = "12px";
+    container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
+    container.style.overflow = "hidden";
 
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.left = '0';
-    container.style.top = '0';
-    container.style.zIndex = '99999';
-    container.style.visibility = 'hidden';
-    container.style.padding = '20px';
-    container.style.backgroundColor = '#ffffff';
-    container.style.boxSizing = 'border-box';
-    container.style.width = '375px';
-    container.style.fontFamily = 'Arial, sans-serif';
-
+    // 2. Глубокое клонирование с сохранением стилей
     const clone = element.cloneNode(true) as HTMLElement;
+    
+    // 3. Убираем абсолютное позиционирование у фона (если есть)
+    const backgroundImg = clone.querySelector('img[alt="Background"]') as HTMLImageElement;
+    if (backgroundImg) {
+      backgroundImg.style.position = "relative";
+      backgroundImg.style.top = "auto";
+      backgroundImg.style.left = "auto";
+      backgroundImg.style.zIndex = "1";
+    }
+
+    // 4. Убедимся, что все изображения загружены
+    await new Promise<void>((resolve) => {
+      const images = clone.querySelectorAll("img");
+      let loadedCount = 0;
+      
+      if (images.length === 0) {
+        resolve();
+        return;
+      }
+
+      images.forEach((img) => {
+        if (img.complete) {
+          loadedCount++;
+        } else {
+          img.onload = () => {
+            loadedCount++;
+            if (loadedCount === images.length) resolve();
+          };
+          img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === images.length) resolve();
+          };
+        }
+      });
+
+      if (loadedCount === images.length) resolve();
+    });
+
     container.appendChild(clone);
     document.body.appendChild(container);
 
-    console.log("⏳ [captureScreenshot] Waiting 1500ms for rendering...");
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // 5. Ждём отрисовки
+    console.log("⏳ [captureScreenshot] Waiting 500ms for rendering...");
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     try {
       const width = 375;
       const height = Math.max(clone.scrollHeight, 600);
       console.log(`📐 [captureScreenshot] Final size: ${width}x${height}`);
 
-      const blob = await toBlob(container, {
+      const blob = await toBlob(clone, {
         pixelRatio: 2,
         backgroundColor: '#ffffff',
-        cacheBust: true,
+        quality: 0.95,
+        cacheBust: false,
         skipFonts: false,
-        quality: 0.9,
-        width,
-        height,
       });
 
       if (!blob) {
@@ -214,5 +252,5 @@ export const shareToTelegramStory = async (url: string): Promise<void> => {
     console.error("❌ [shareToTelegramStory] Failed:", error);
     console.log("🌐 [Fallback] Opening share URL after error");
     window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
-  }
+  };
 };
