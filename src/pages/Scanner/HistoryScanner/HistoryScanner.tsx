@@ -100,19 +100,22 @@ export const HistoryScanner: React.FC = () => {
                       {scan.products.join(", ")}
                     </div>
                   </div>
-                  {scan.haramProducts?.map((item) => (
+                  {scan.haramProducts && scan.haramProducts.length > 0 && (
                     <div className={styles.scanAnalysis}>
                       <div className={styles.scanTitle}>
                         {t("analysisResult")}
                       </div>
                       <div className={styles.scanDesk}>
-                        <>
-                          {item.name}- {item.reason}
-                          <br /> {item.source}
-                        </>
+                        {scan.haramProducts.map((item, index) => (
+                          <React.Fragment key={index}>
+                            <strong>{item.name}</strong> - {item.reason} (
+                            {item.source})
+                            {index < scan.haramProducts.length - 1 && <br />}
+                          </React.Fragment>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
                   {scan.description && (
                     <div>
                       <div className={styles.scanTitle}>{t("conclusion")}</div>
