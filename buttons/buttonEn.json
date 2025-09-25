@@ -1,0 +1,27 @@
+{
+  "home": {
+    "daysLeft": "",
+    "allowSensors": ""
+  },
+  "all": {
+    "premiumActive": "",
+    "buyPremium": "",
+    "buyRequests": "",
+    "history": "",
+    "share": "",
+    "newQuestion": ""
+  },
+  "qa": {
+    "copy": "",
+    "askQuestion": "",
+    "newQuestion": ""
+  },
+  "scanner": {
+    "scanPicture": "",
+    "newScan": ""
+  },
+  "friends": {
+    "inviteFriends": "",
+    "getReward": ""
+  }
+}

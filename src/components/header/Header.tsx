@@ -31,7 +31,6 @@ export const Header: React.FC = () => {
   // Обновляем дату при каждом рендере
   useEffect(() => {
     updateFormattedDate();
-    console.log("updateFormattedDate")
   }, []);
 
   const getButtonClassName = () => {
