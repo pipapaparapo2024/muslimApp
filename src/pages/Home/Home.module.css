@@ -33,24 +33,9 @@
   padding: var(--numbers-24);
   max-width: 300px;
   width: 90%;
-  text-align: center;
-  position: relative;
   margin: 0 var(--numbers-16);
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
   z-index: 11; 
-}
-
-.vpnWarningClose {
-  position: absolute;
-  top: var(--numbers-12);
-  right: var(--numbers-12);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--desk-text);
-  padding: var(--numbers-4);
-  border-radius: var(--roundings-small);
-  transition: background-color 0.2s;
 }
 
 .vpnWarningClose:hover {
