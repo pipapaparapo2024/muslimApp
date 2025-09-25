@@ -133,7 +133,6 @@ export const ScannerShareStory: React.FC = () => {
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
                   {currentItem.products.join(", ")}{" "}
-                  {/* Исправлено: добавил {} */}
                 </div>
               </div>
             )}
@@ -141,7 +140,7 @@ export const ScannerShareStory: React.FC = () => {
             {/* Результаты анализа - ОДИН блок для всех продуктов */}
             {currentItem.haramProducts &&
               currentItem.haramProducts.length > 0 && (
-                <div className={styles.blockMessageBot}>
+                <div className={styles.blockInside}>
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.text}>
                     {currentItem.haramProducts.map(
