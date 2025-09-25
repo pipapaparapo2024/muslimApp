@@ -28,6 +28,7 @@
   width: 90%; 
   text-align: center;
   position: relative;
+  z-index: 100;
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
   margin: var(--numbers-16); /* Отступы по краям */
 }
