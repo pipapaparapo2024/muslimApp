@@ -7,6 +7,7 @@ import i18n from "../../api/i18n";
 import { applyLanguageStyles } from "../../hooks/useLanguages";
 
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+const VPN_WARNING_SHOWN = "vpnWarningShown";
 
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
@@ -27,13 +28,16 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true); // Начинаем с true
+  const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
     null
   );
   const [orientationListenerActive, setOrientationListenerActive] =
     useState(false);
-  const [languageReady, setLanguageReady] = useState(false); // Новое состояние для языка
+  const [languageReady, setLanguageReady] = useState(false);
+  
+  // Новое состояние для показа предупреждения о VPN
+  const [showVpnWarning, setShowVpnWarning] = useState(false);
 
   // Инициализируем состояние из localStorage
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -53,6 +57,12 @@ export const useHomeLogic = () => {
           localStorage.setItem("preferred-language", userLanguage);
         }
 
+        // Проверяем, показывалось ли уже предупреждение о VPN
+        const vpnWarningShown = localStorage.getItem(VPN_WARNING_SHOWN);
+        if (!vpnWarningShown) {
+          setShowVpnWarning(true);
+        }
+
         // Помечаем, что язык готов
         setLanguageReady(true);
       } catch (error) {
@@ -62,13 +72,19 @@ export const useHomeLogic = () => {
             ? error.message
             : "Language initialization error"
         );
-        setLanguageReady(true); // Все равно продолжаем, даже с ошибкой
+        setLanguageReady(true);
       } finally {
         setIsInitializing(false);
       }
     };
 
     initializeLanguage();
+  }, []);
+
+  // Функция для скрытия предупреждения о VPN
+  const handleCloseVpnWarning = useCallback(() => {
+    setShowVpnWarning(false);
+    localStorage.setItem(VPN_WARNING_SHOWN, "true");
   }, []);
 
   // Синхронизируем состояние с localStorage при изменении
@@ -162,9 +178,11 @@ export const useHomeLogic = () => {
     sensorPermission,
     isRequestingPermission,
     isInitializing,
-    languageReady, // Экспортируем состояние готовности языка
+    languageReady,
     initializationError,
     orientationListenerActive,
+    showVpnWarning,
+    handleCloseVpnWarning, // Теперь используем эту функцию
     requestSensorPermission,
     resetSensorPermission,
     handleCompassClick,

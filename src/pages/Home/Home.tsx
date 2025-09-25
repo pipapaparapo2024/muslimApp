@@ -10,18 +10,20 @@ import { Header } from "../../components/header/Header";
 import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { TriangleAlert } from "lucide-react";
+import { TriangleAlert, X } from "lucide-react";
 
 export const Home: React.FC = () => {
   const {
     sensorPermission,
     requestSensorPermission,
-    resetSensorPermission, // Добавляем функцию сброса
+    resetSensorPermission,
     handleCompassClick,
     handleMapClick,
     isRequestingPermission,
     isInitializing,
     initializationError,
+    showVpnWarning,
+    handleCloseVpnWarning, // Используем функцию закрытия
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -54,6 +56,36 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       <div className={styles.homeRoot}>
+        {/* Модальное окно с предупреждением о VPN */}
+        {showVpnWarning && (
+          <div className={styles.vpnWarningOverlay}>
+            <div className={styles.vpnWarningModal}>
+              <button 
+                className={styles.vpnWarningClose}
+                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+                aria-label={t("close")}
+              >
+                <X size={20} />
+              </button>
+              <div className={styles.vpnWarningIcon}>
+                <TriangleAlert size={40} color="var(--warning-color)" />
+              </div>
+              <h3 className={styles.vpnWarningTitle}>
+                {t("vpnWarningTitle")}
+              </h3>
+              <p className={styles.vpnWarningText}>
+                {t("vpnWarningText")}
+              </p>
+              <button 
+                className={styles.vpnWarningButton}
+                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+              >
+                {t("understand")}
+              </button>
+            </div>
+          </div>
+        )}
+
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
@@ -64,7 +96,7 @@ export const Home: React.FC = () => {
 
         {!isLoading && !error && (
           <>
-            <div className={styles.prayerTimesQiblaContainer}>
+            <div className={`${styles.prayerTimesQiblaContainer} ${showVpnWarning ? styles.blurred : ''}`}>
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
@@ -102,7 +134,7 @@ export const Home: React.FC = () => {
                   <div onClick={handleMapClick} className={styles.mapContainer}>
                     <QiblaMap
                       onMapClick={handleMapClick}
-                      orientationListenerActive={sensorPermission === "granted"} // Передаем состояние
+                      orientationListenerActive={sensorPermission === "granted"}
                     />
                   </div>
 
