@@ -131,7 +131,7 @@ export const HistoryScannerDetail: React.FC = () => {
                   {currentItem.haramProducts.map(
                     (product: any, index: number) => (
                       <div key={index} className={styles.productItem}>
-                        <div>{product.name}</div> - {product.reason}{" "}
+                        <strong>{product.name}</strong> - {product.reason}{" "}
                         {product.source}
                         {index < currentItem.haramProducts.length - 1 && <br />}
                       </div>
