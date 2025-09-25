@@ -56,7 +56,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={()=>handleOpenVpnWarning}>open VPN</button>
+      <button onClick={()=>handleOpenVpnWarning()}>open VPN</button>
       <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
         {showVpnWarning && (
