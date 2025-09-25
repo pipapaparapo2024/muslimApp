@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/shareStory.png";
+import message from "../../../../assets/image/share.png";
 import backgroundImg from "../../../../assets/image/background.png";
 
 import { PageWrapper } from "../../../../shared/PageWrapper";
