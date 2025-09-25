@@ -101,6 +101,7 @@
 
 /* Стили для предупреждения о VPN */
 .vpnWarningOverlay {
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
