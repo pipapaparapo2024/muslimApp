@@ -30,7 +30,7 @@
 .vpnWarningModal {
   background: var(--bg-surface);
   border-radius: var(--roundings-small);
-  padding: var(--numbers-24);
+  padding: var(--numbers-16);
   max-width: 300px;
   width: 90%;
   margin: 0 var(--numbers-16);
@@ -38,11 +38,9 @@
   z-index: 11; 
 }
 
-.vpnWarningClose:hover {
-  background-color: var(--hover-color);
-}
 .vpnWarningClose{
   text-align: right;
+  margin: var(--numbers-12) 0;
 }
 
 .vpnWarningText {
