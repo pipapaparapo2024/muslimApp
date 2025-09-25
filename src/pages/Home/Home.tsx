@@ -28,7 +28,7 @@ export const Home: React.FC = () => {
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
-  
+
   if (isInitializing) {
     return (
       <PageWrapper>
@@ -36,7 +36,7 @@ export const Home: React.FC = () => {
       </PageWrapper>
     );
   }
-  
+
   if (initializationError) {
     return (
       <PageWrapper>
@@ -67,19 +67,17 @@ export const Home: React.FC = () => {
         {!isLoading && !error && (
           <>
             <div className={styles.prayerTimesQiblaContainer}>
-              {/* Модальное окно с предупреждением о VPN - ТЕПЕРЬ ВНУТРИ КОНТЕЙНЕРА */}
               {showVpnWarning && (
                 <div className={styles.vpnWarningOverlay}>
                   <div className={styles.vpnWarningModal}>
-                    <button
-                      className={styles.vpnWarningClose}
-                      onClick={handleCloseVpnWarning}
-                      aria-label={t("close")}
-                    >
-                      <X size={20} />
-                    </button>
+                    <X onClick={handleCloseVpnWarning} size={20} />
                     <div className={styles.vpnWarningText}>
-                      <TriangleAlert size={40} color="var(--warning-color)" />
+                      <TriangleAlert
+                        strokeWidth={1.5}
+                        size={18}
+                        color="white"
+                        fill="#F59E0B"
+                      />
                       {t("vpnWarning")}
                     </div>
                   </div>
@@ -87,7 +85,11 @@ export const Home: React.FC = () => {
               )}
 
               {/* Контент блока с возможным размытием */}
-              <div className={`${styles.prayerTimesQiblaContent} ${showVpnWarning ? styles.blurred : ""}`}>
+              <div
+                className={`${styles.prayerTimesQiblaContent} ${
+                  showVpnWarning ? styles.blurred : ""
+                }`}
+              >
                 <PrayerTimes />
 
                 <div className={styles.qiblaBlock}>
@@ -122,10 +124,15 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div className={styles.qiblaBlockRow}>
-                    <div onClick={handleMapClick} className={styles.mapContainer}>
+                    <div
+                      onClick={handleMapClick}
+                      className={styles.mapContainer}
+                    >
                       <QiblaMap
                         onMapClick={handleMapClick}
-                        orientationListenerActive={sensorPermission === "granted"}
+                        orientationListenerActive={
+                          sensorPermission === "granted"
+                        }
                       />
                     </div>
 
