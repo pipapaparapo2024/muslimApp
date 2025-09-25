@@ -5,7 +5,6 @@
   align-items: center;
   min-height: 90vh;
   height: 100%;
-  overflow: hidden;
   margin: 0 auto;
   padding-bottom: var(--numbers-80);
 }
@@ -20,7 +19,10 @@
   object-fit: cover;
   z-index: 0; /* под всем контентом */
 }
-
+.backgroundImage {
+  border: 5px solid red !important; /* чтобы увидеть границы */
+  background: lime !important; /* fallback, если изображение не грузится */
+}
 /* Обёртка контента — поверх фона */
 .contentWrapper {
   position: relative;
