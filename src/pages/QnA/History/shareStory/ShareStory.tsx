@@ -8,7 +8,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
@@ -38,17 +41,23 @@ export const ShareStory: React.FC = () => {
             return false;
           }
 
-          const images = screenshotRef.current.querySelectorAll('img');
+          const images = screenshotRef.current.querySelectorAll("img");
           console.log(`🖼️ [checkReady] Found ${images.length} images`);
 
-          const allLoaded = Array.from(images).every(img => {
+          const allLoaded = Array.from(images).every((img) => {
             const result = img.complete && img.naturalHeight > 0;
-            console.log(`🖼️ [checkReady] Image ${img.src} loaded: ${result} (complete: ${img.complete}, naturalHeight: ${img.naturalHeight})`);
+            console.log(
+              `🖼️ [checkReady] Image ${img.src} loaded: ${result} (complete: ${img.complete}, naturalHeight: ${img.naturalHeight})`
+            );
             return result;
           });
 
-          const hasSize = screenshotRef.current.offsetWidth > 0 && screenshotRef.current.offsetHeight > 0;
-          console.log(`📏 [checkReady] Element size: ${screenshotRef.current.offsetWidth}x${screenshotRef.current.offsetHeight}`);
+          const hasSize =
+            screenshotRef.current.offsetWidth > 0 &&
+            screenshotRef.current.offsetHeight > 0;
+          console.log(
+            `📏 [checkReady] Element size: ${screenshotRef.current.offsetWidth}x${screenshotRef.current.offsetHeight}`
+          );
 
           return allLoaded && hasSize;
         };
@@ -83,7 +92,11 @@ export const ShareStory: React.FC = () => {
 
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) {
-      console.warn("⚠️ [handleShare] Missing data:", { currentItem, id, ref: screenshotRef.current });
+      console.warn("⚠️ [handleShare] Missing data:", {
+        currentItem,
+        id,
+        ref: screenshotRef.current,
+      });
       alert(t("pleaseWait"));
       return;
     }
@@ -103,7 +116,10 @@ export const ShareStory: React.FC = () => {
         console.log("✅ [handleShare] Shared successfully");
       }
     } catch (error) {
-      console.error("❌ [handleShare] Failed to create and share screenshot:", error);
+      console.error(
+        "❌ [handleShare] Failed to create and share screenshot:",
+        error
+      );
       alert(t("exportFailed"));
     }
   };
@@ -123,11 +139,19 @@ export const ShareStory: React.FC = () => {
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
-            src={"../../../../assets/image/shareStory.png"}
+            src={require("../../../../assets/image/background.png")}
+            alt=""
+            className={styles.backgroundImage}
+          />
+
+          {/* Основное изображение сообщения */}
+          <img
+            src={require("../../../../assets/image/shareStory.png")}
             className={styles.messageImage}
             alt="Message background"
             crossOrigin="anonymous"
           />
+
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
               <div className={styles.nickName}>{t("you")}</div>
