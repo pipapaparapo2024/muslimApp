@@ -175,19 +175,3 @@
   pointer-events: none;
   user-select: none;
 }
-
-/* Адаптивность */
-@media (max-width: 480px) {
-  .vpnWarningModal {
-    margin: var(--numbers-16);
-    padding: var(--numbers-20);
-  }
-
-  .vpnWarningTitle {
-    font-size: var(--numbers-18);
-  }
-
-  .vpnWarningText {
-    font-size: var(--numbers-14);
-  }
-}
