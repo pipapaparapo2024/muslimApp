@@ -1,5 +1,7 @@
+// src/pages/ShareStory/ShareStory.tsx
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
+
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -135,46 +137,29 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Элемент для скриншота с упрощенной структурой */}
-        <div 
-          ref={screenshotRef} 
-          className={styles.contentWrapper}
-          style={{
-            width: "375px",
-            backgroundColor: "#fff",
-            padding: "20px",
-            borderRadius: "12px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-            margin: "0 auto",
-            fontFamily: "'Roboto', Arial, sans-serif",
-            overflow: "hidden",
-            backgroundImage: `url(${require("../../../../assets/image/background.png")})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          <div style={{ textAlign: "center", position: "relative", zIndex: 2 }}>
-            <img
-              src={require("../../../../assets/image/shareStory.png")}
-              alt="Message"
-              style={{
-                width: "80px",
-                height: "80px",
-                borderRadius: "50%",
-                marginBottom: "16px",
-              }}
-              onLoad={() => console.log("✅ Основное изображение загружено")}
-            />
-            
-            <div className={styles.blockMessages}>
-              <div className={styles.blockMessageUser}>
-                <div className={styles.nickName}>{t("you")}</div>
-                <div className={styles.text}>{currentItem.question}</div>
-              </div>
-              <div className={styles.blockMessageBot}>
-                <div className={styles.nickName}>@QiblaGuidebot</div>
-                <div className={styles.text}>{currentItem.answer}</div>
-              </div>
+        <div ref={screenshotRef} className={styles.contentWrapper}>
+          <img
+            src={require("../../../../assets/image/background.png")}
+            alt=""
+            className={styles.backgroundImage}
+          />
+
+          {/* Основное изображение сообщения */}
+          <img
+            src={require("../../../../assets/image/shareStory.png")}
+            className={styles.messageImage}
+            alt="Message background"
+            crossOrigin="anonymous"
+          />
+
+          <div className={styles.blockMessages}>
+            <div className={styles.blockMessageUser}>
+              <div className={styles.nickName}>{t("you")}</div>
+              <div className={styles.text}>{currentItem.question}</div>
+            </div>
+            <div className={styles.blockMessageBot}>
+              <div className={styles.nickName}>@QiblaGuidebot</div>
+              <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
         </div>
