@@ -8,10 +8,7 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import {
-  useScreenshotExport,
-  shareToTelegramStory,
-} from "../../../../hooks/useScreenshotExport";
+import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -20,6 +17,7 @@ export const ShareStory: React.FC = () => {
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
 
+  // Используем хук для создания скриншотов
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -27,7 +25,21 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
+        const preloadImage = (src: string): Promise<void> => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => resolve();
+            img.onerror = () => {
+              console.warn(`Failed to load image: ${src}`);
+              resolve();
+            };
+          });
+        };
+
         const item = await getHistoryItem(id);
+        await preloadImage(message);
+
         setCurrentItem(item);
         setIsLoaded(true);
       } catch (error) {
@@ -40,30 +52,22 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) {
-      console.error("Missing required data for sharing");
-      return;
-    }
+    if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      console.log("🔄 Starting screenshot creation...");
-      
-      const screenshotUrl = await exportScreenshot(screenshotRef.current);
-      
-      if (!screenshotUrl) {
-        throw new Error("Failed to create screenshot");
+      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
+      const screenshotUrl = await exportScreenshot({
+        element: screenshotRef.current,
+        id: id,
+      });
+
+      console.log("screenshotUrl",screenshotUrl)
+      // Отправляем скриншот в Telegram
+      if (screenshotUrl) {
+        shareToTelegramStory(screenshotUrl);
       }
-
-      console.log("✅ Screenshot created, sharing...");
-      await shareToTelegramStory(screenshotUrl);
-      
-      // Очищаем URL после использования
-      setTimeout(() => {
-        URL.revokeObjectURL(screenshotUrl);
-      }, 1000);
-
     } catch (error) {
-      console.error("❌ Failed to create and share screenshot:", error);
+      console.error("Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
@@ -87,6 +91,7 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
+        
         {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
@@ -105,7 +110,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-
+        
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
