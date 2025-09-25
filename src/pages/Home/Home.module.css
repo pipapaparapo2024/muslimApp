@@ -44,6 +44,7 @@
 }
 
 .vpnWarningText {
+  text-align: center;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-12);
