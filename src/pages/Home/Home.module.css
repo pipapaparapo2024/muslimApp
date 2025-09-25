@@ -48,9 +48,6 @@
 .vpnWarningText {
   font-size: var(--numbers-16);
   color: var(--desk-text);
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-4);
 }
 
 /* Эффект размытия ТОЛЬКО для контента, модалка остается четкой */
