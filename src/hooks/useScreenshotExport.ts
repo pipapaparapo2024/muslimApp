@@ -2,14 +2,23 @@ import { useState } from "react";
 import { toBlob } from "html-to-image";
 import { init, shareStory } from "@telegram-apps/sdk";
 
-export const shareToTelegramStory = async (
-  url: string | undefined
-): Promise<void> => {
-  if (!url) return;
+// Инициализация выполняется один раз
+let isTelegramInitialized = false;
+
+export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
+  if (!url) {
+    console.error("No URL provided for sharing");
+    return;
+  }
 
   try {
-    await init();
+    // Инициализируем только один раз
+    if (!isTelegramInitialized) {
+      await init();
+      isTelegramInitialized = true;
+    }
 
+    // Проверяем доступность функции
     if (typeof shareStory === "function") {
       await shareStory(url, {
         widgetLink: {
@@ -17,10 +26,12 @@ export const shareToTelegramStory = async (
           name: "@QiblaGuidebot",
         },
       });
+      console.log("✅ Story shared successfully");
     } else {
-      const tg = (window as any).Telegram;
-      if (tg?.WebApp?.shareStory) {
-        await tg.WebApp.shareStory(url, {
+      // Fallback для старого API
+      const tg = (window as any).Telegram?.WebApp;
+      if (tg?.shareStory) {
+        await tg.shareStory(url, {
           widget: {
             url: "https://t.me/QiblaGuidebot",
             name: "@QiblaGuidebot",
@@ -31,20 +42,20 @@ export const shareToTelegramStory = async (
       }
     }
   } catch (error) {
-    console.error("Share story failed:", error);
-    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+    console.error("❌ Share story failed:", error);
+    // Fallback: открываем в новом окне
+    window.open(url, "_blank");
   }
 };
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  const exportScreenshot = async (
-    element: HTMLElement
-  ): Promise<string | undefined> => {
+  const exportScreenshot = async (element: HTMLElement): Promise<string | undefined> => {
     setLoading(true);
 
     try {
+      // Создаем контейнер для клонирования
       const container = document.createElement("div");
       container.style.position = "fixed";
       container.style.left = "-9999px";
@@ -52,90 +63,55 @@ export const useScreenshotExport = () => {
       container.style.width = "390px";
       container.style.backgroundColor = "#ffffff";
       container.style.overflow = "hidden";
-      container.style.position = "relative";
+      container.style.zIndex = "10000";
 
+      // Клонируем элемент со всеми дочерними элементами
       const clone = element.cloneNode(true) as HTMLElement;
+      
+      // Сохраняем основные стили
+      clone.style.width = "390px";
+      clone.style.height = "auto";
+      clone.style.backgroundColor = "#ffffff";
+      clone.style.overflow = "hidden";
 
-      // Удаляем кнопки шаринга
-      clone
-        .querySelectorAll(
-          '.shareButton, .blockButton, button, [data-story-visible="hide"]'
-        )
-        .forEach((btn) => btn.remove());
-
-      // Обрабатываем фоновое изображение
-      const bgImg = clone.querySelector(
-        'img[alt="Background"]'
-      ) as HTMLImageElement | null;
-      if (bgImg) {
-        bgImg.style.position = "absolute";
-        bgImg.style.top = "0";
-        bgImg.style.left = "0";
-        bgImg.style.width = "100%";
-        bgImg.style.height = "100%";
-        bgImg.style.objectFit = "cover";
-        bgImg.style.zIndex = "0";
-      }
-
-      // Поднимаем контент
-      const contentWrapper = clone.querySelector("[data-screenshot-content]");
-      if (contentWrapper) {
-        (contentWrapper as HTMLElement).style.position = "relative";
-        (contentWrapper as HTMLElement).style.zIndex = "1";
-      }
-
-      // Удаляем внешние стили и шрифты
-      clone
-        .querySelectorAll('link[rel="stylesheet"], style')
-        .forEach((el) => el.remove());
-
-      // Ждём загрузки изображений
-      const images = clone.querySelectorAll("img");
-      await new Promise<void>((resolve) => {
-        let loaded = 0;
-        const total = images.length;
-
-        if (total === 0) {
-          resolve();
-          return;
-        }
-
-        const check = () => {
-          loaded++;
-          if (loaded === total) resolve();
-        };
-
-        images.forEach((img) => {
-          if (img.complete) {
-            check();
-          } else {
-            img.onload = check;
-            img.onerror = check;
-          }
-        });
-      });
+      // Удаляем кнопки и элементы, которые не должны быть на скриншоте
+      const elementsToRemove = clone.querySelectorAll(
+        '.shareButton, .blockButton, button, [data-story-visible="hide"]'
+      );
+      elementsToRemove.forEach(el => el.remove());
 
       container.appendChild(clone);
       document.body.appendChild(container);
 
-      await new Promise((r) => setTimeout(r, 300));
+      // Даем время для рендеринга
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Ключевое изменение: skipFonts: true
+      // Создаем скриншот с упрощенными настройками
       const blob = await toBlob(clone, {
-        pixelRatio: 2,
+        pixelRatio: 1, // Уменьшаем для производительности
         backgroundColor: "#ffffff",
-        quality: 0.95,
+        quality: 0.8,
         cacheBust: false,
-        skipFonts: true, // ← ОТКЛЮЧАЕМ ШРИФТЫ
+        skipFonts: true,
+        skipAutoScale: false,
+        style: {
+          transform: "none",
+          opacity: "1"
+        }
       });
 
+      // Очищаем
       document.body.removeChild(container);
 
-      if (!blob) throw new Error("Blob is null");
+      if (!blob) {
+        throw new Error("Failed to create screenshot blob");
+      }
 
-      return URL.createObjectURL(blob);
+      const screenshotUrl = URL.createObjectURL(blob);
+      return screenshotUrl;
+
     } catch (error: any) {
-      console.error("❌ Ошибка при создании скриншота:", error);
+      console.error("❌ Screenshot creation error:", error);
       throw error;
     } finally {
       setLoading(false);

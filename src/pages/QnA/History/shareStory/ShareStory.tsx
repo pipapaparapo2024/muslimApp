@@ -20,7 +20,6 @@ export const ShareStory: React.FC = () => {
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
 
-  // Используем хук для создания скриншотов
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -28,21 +27,7 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
-          });
-        };
-
         const item = await getHistoryItem(id);
-        await preloadImage(message);
-
         setCurrentItem(item);
         setIsLoaded(true);
       } catch (error) {
@@ -55,18 +40,30 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) return;
+    if (!currentItem || !id || !screenshotRef.current) {
+      console.error("Missing required data for sharing");
+      return;
+    }
 
     try {
-      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
-      const screenshotUrl = await exportScreenshot(screenshotRef.current!);
-      console.log("🚀 Screenshot URL:", screenshotUrl);
-      // Отправляем скриншот в Telegram
-      if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
+      console.log("🔄 Starting screenshot creation...");
+      
+      const screenshotUrl = await exportScreenshot(screenshotRef.current);
+      
+      if (!screenshotUrl) {
+        throw new Error("Failed to create screenshot");
       }
+
+      console.log("✅ Screenshot created, sharing...");
+      await shareToTelegramStory(screenshotUrl);
+      
+      // Очищаем URL после использования
+      setTimeout(() => {
+        URL.revokeObjectURL(screenshotUrl);
+      }, 1000);
+
     } catch (error) {
-      console.error("Failed to create and share screenshot:", error);
+      console.error("❌ Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
