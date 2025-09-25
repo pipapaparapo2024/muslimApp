@@ -67,10 +67,7 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      const screenshotUrl = await exportScreenshot({
-        element: screenshotRef.current,
-        id: id,
-      });
+const screenshotUrl = await exportScreenshot(screenshotRef.current!);
 
       if (screenshotUrl) {
         await shareToTelegramStory(screenshotUrl);

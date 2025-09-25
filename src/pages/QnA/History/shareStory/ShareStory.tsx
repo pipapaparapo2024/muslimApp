@@ -56,10 +56,7 @@ export const ShareStory: React.FC = () => {
 
     try {
       // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
-      const screenshotUrl = await exportScreenshot({
-        element: screenshotRef.current,
-        id: id,
-      });
+const screenshotUrl = await exportScreenshot(screenshotRef.current!);
 
       console.log("screenshotUrl",screenshotUrl)
       // Отправляем скриншот в Telegram
