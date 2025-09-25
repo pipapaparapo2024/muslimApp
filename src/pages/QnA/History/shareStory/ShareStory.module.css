@@ -58,8 +58,6 @@
 
 .blockButton {
   display: flex;
-  position: absolute;
-  bottom: 0;
   flex-direction: column;
   align-items: center;
   position: relative;
@@ -108,9 +106,9 @@
 }
 
 .shareButton {
-  position: absolute;
+  /* Изменили position на relative для нормального потока */
+  position: relative;
   z-index: 3;
-  bottom: -50px;
   border: none;
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
