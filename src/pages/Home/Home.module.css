@@ -99,24 +99,22 @@
 
 .vpnWarningOverlay {
   position: absolute;
-  /* top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0; */
+  top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  border-radius: var(--roundings-medium); 
+  border-radius: var(--roundings-medium);
 }
 
 .vpnWarningModal {
   background: var(--bg-surface);
+  background: green;
   border-radius: var(--roundings-large);
   padding: var(--numbers-24);
-  max-width: 400px; 
-  width: 90%; 
-  max-height: 80vh; 
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
   text-align: center;
   position: relative;
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
