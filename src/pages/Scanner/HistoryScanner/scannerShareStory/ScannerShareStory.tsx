@@ -146,7 +146,7 @@ export const ScannerShareStory: React.FC = () => {
                     {currentItem.haramProducts.map(
                       (product: any, index: number) => (
                         <div key={index} className={styles.productItem}>
-                          <strong>{product.name}</strong> - {product.reason}{" "}
+                          {product.name} - {product.reason}{" "}
                           {product.source}
                           {index < currentItem.haramProducts.length - 1 && (
                             <br />
