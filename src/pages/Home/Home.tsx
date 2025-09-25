@@ -59,29 +59,6 @@ export const Home: React.FC = () => {
       <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
       <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
-        {showVpnWarning && (
-          <div className={styles.vpnWarningOverlay}>
-            <div className={styles.vpnWarningModal}>
-              <button
-                className={styles.vpnWarningClose}
-                onClick={handleCloseVpnWarning} 
-                aria-label={t("close")}
-              >
-                <X size={20} />
-              </button>
-              <div className={styles.vpnWarningText}>
-                <TriangleAlert size={40} color="var(--warning-color)" />
-                {t("vpnWarning")}
-              </div>
-              <button
-                className={styles.vpnWarningButton}
-                onClick={handleCloseVpnWarning}
-              >
-                {t("understand")}
-              </button>
-            </div>
-          </div>
-        )}
 
         {isLoading && (
           <div className={styles.loadingContainer}>
@@ -98,6 +75,23 @@ export const Home: React.FC = () => {
                 showVpnWarning ? styles.blurred : ""
               }`}
             >
+              {showVpnWarning && (
+                <div className={styles.vpnWarningOverlay}>
+                  <div className={styles.vpnWarningModal}>
+                    <button
+                      className={styles.vpnWarningClose}
+                      onClick={handleCloseVpnWarning}
+                      aria-label={t("close")}
+                    >
+                      <X size={20} />
+                    </button>
+                    <div className={styles.vpnWarningText}>
+                      <TriangleAlert size={40} color="var(--warning-color)" />
+                      {t("vpnWarning")}
+                    </div>
+                  </div>
+                </div>
+              )}
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
