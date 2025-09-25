@@ -46,7 +46,7 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-12);
+  gap: var(--numbers-8);
   font-size: var(--numbers-16);
   color: var(--desk-text);
 }
