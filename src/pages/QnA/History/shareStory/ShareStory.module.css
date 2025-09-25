@@ -64,21 +64,6 @@
   z-index: 2;
   width: 100%;
 }
-
-.blockMessages {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: var(--numbers-16);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: var(--numbers-8);
-  width: 100%;
-  max-width: 390px;
-  box-sizing: border-box;
-}
-
 .blockMessageUser {
   border-radius: var(--roundings-medium) var(--roundings-medium) 0
     var(--roundings-medium);
@@ -188,6 +173,7 @@
   bottom: var(--numbers-16); /* или 0, если нужно вплотную */
   padding: var(--numbers-16);
   z-index: 3;
+  bottom: -15px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-8);

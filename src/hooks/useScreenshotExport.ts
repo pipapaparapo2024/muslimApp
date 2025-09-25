@@ -101,7 +101,7 @@ export const useScreenshotExport = () => {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          timeout: 30000,
+          timeout: 60000,
         }
       );
 
