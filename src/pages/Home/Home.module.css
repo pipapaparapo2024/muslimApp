@@ -40,10 +40,13 @@
 
 .vpnWarningClose{
   text-align: right;
-  margin: var(--numbers-12) 0;
+  margin: var(--numbers-8) 0;
 }
 
 .vpnWarningText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-12);
   font-size: var(--numbers-16);
   color: var(--desk-text);
 }
