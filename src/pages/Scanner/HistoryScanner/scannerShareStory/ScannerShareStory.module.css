@@ -148,9 +148,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: calc(1.5em * 3);
-  line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  font-weight: var(--font-400);
+  color: var(--desk-text);
+  font-size: var(--numbers-14);
+  line-height: 1.4;
 }
 
 .scanTitle {
@@ -158,14 +161,6 @@
   font-size: var(--numbers-16);
   color: var(--text);
   margin-bottom: var(--numbers-8);
-}
-
-.scanDesk {
-  font-weight: var(--font-400);
-  margin: var(--numbers-4) 0;
-  color: var(--desk-text);
-  font-size: var(--numbers-14);
-  line-height: 1.4;
 }
 
 .haram {
