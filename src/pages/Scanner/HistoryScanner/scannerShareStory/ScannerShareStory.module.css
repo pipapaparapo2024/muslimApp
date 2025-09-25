@@ -120,11 +120,8 @@
   transform: translate(-50%, -50%); /* Точное центрирование */
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-12); /* Увеличим отступ между блоками */
+  gap: var(--numbers-4); /* Увеличим отступ между блоками */
   width: 100%;
-  max-width: 340px; /* Уменьшим максимальную ширину для отступов */
-  padding: 0 var(--numbers-16);
-  box-sizing: border-box;
 }
 
 .blockInside {
