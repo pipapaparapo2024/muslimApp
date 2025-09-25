@@ -50,7 +50,9 @@
   font-size: var(--numbers-16);
   color: var(--desk-text);
 }
-
+.TriangleAlert{
+  text-align: center;
+}
 /* Эффект размытия ТОЛЬКО для контента, модалка остается четкой */
 .blurred {
   filter: blur(2px);

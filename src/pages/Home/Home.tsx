@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
                       <X onClick={handleCloseVpnWarning} size={20} />
                     </div>
                     <div className={styles.vpnWarningText}>
-                      <div>
+                      <div className={styles.TriangleAlert}>
                         <TriangleAlert
                           strokeWidth={1.5}
                           size={50}
