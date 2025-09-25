@@ -8,7 +8,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -56,9 +59,8 @@ export const ShareStory: React.FC = () => {
 
     try {
       // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
-const screenshotUrl = await exportScreenshot(screenshotRef.current!);
-
-      console.log("screenshotUrl",screenshotUrl)
+      const screenshotUrl = await exportScreenshot(screenshotRef.current!);
+      console.log("🚀 Screenshot URL:", screenshotUrl);
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
@@ -88,7 +90,6 @@ const screenshotUrl = await exportScreenshot(screenshotRef.current!);
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        
         {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
@@ -107,7 +108,7 @@ const screenshotUrl = await exportScreenshot(screenshotRef.current!);
             </div>
           </div>
         </div>
-        
+
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
