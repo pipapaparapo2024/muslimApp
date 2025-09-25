@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-// import message from "../../../../assets/image/shareStory.png";
-import background from '../../../../assets/image/background.svg'
+import message from "../../../../assets/image/shareStory.png";
+
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -17,6 +17,7 @@ export const ShareStory: React.FC = () => {
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
 
+  // Используем хук для создания скриншотов
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
@@ -24,26 +25,20 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
-        // Функция предзагрузки изображений
         const preloadImage = (src: string): Promise<void> => {
           return new Promise((resolve) => {
             const img = new Image();
             img.src = src;
-            img.onload = () => {
-              console.log('Image preloaded:', src);
-              resolve();
-            };
+            img.onload = () => resolve();
             img.onerror = () => {
-              console.warn(`Failed to preload image: ${src}`);
+              console.warn(`Failed to load image: ${src}`);
               resolve();
             };
           });
         };
 
         const item = await getHistoryItem(id);
-        
-        // Предзагружаем основное изображение
-        await preloadImage(background);
+        await preloadImage(message);
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -57,27 +52,19 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) {
-      console.error('Missing required data:', { currentItem, id, screenshotRef: screenshotRef.current });
-      return;
-    }
+    if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      console.log('Starting share process...');
-      
-      // Создаем скриншот элемента
+      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
-      console.log("Screenshot URL received:", screenshotUrl);
-      
+      console.log("screenshotUrl",screenshotUrl)
       // Отправляем скриншот в Telegram
       if (screenshotUrl) {
-        await shareToTelegramStory(screenshotUrl);
-      } else {
-        throw new Error('No screenshot URL received');
+        shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
@@ -105,18 +92,14 @@ export const ShareStory: React.FC = () => {
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
         
-        {/* Оберточный div для скриншота */}
-        <div 
-          ref={screenshotRef} 
-          className={styles.contentWrapper}
-          style={{ 
-            backgroundImage: `url(${background})`, // используем backgroundImage вместо img
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'top center'
-          }}
-        >
-          <div className={styles.blockMessages}> 
+        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
+        <div ref={screenshotRef} className={styles.contentWrapper}>
+          <img
+            src={message}
+            className={styles.messageImage}
+            alt="Message background"
+          />
+          <div className={styles.blockMessages}>я
             <div className={styles.blockMessageUser}>
               <div className={styles.nickName}>{t("you")}</div>
               <div className={styles.text}>{currentItem.question}</div>

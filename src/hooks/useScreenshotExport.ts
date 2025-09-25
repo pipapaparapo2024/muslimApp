@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
-import { toSvg } from "html-to-image";
+import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   status: boolean;
@@ -14,209 +14,203 @@ interface StoryResponse {
 interface ExportOptions {
   element: HTMLElement | null;
   id: string | undefined;
+  includeBackground?: boolean; // Добавляем опцию для включения фона
 }
 
-// === Вспомогательные утилиты ===
+// Функция для подготовки элемента к скриншоту
+function prepareElementForScreenshot(el: HTMLElement, includeBackground: boolean = false): { restore: () => void } {
+  const originalStyle = el.getAttribute("style") || "";
+  const wasHidden = getComputedStyle(el).display === "none";
 
-function visibleBlockWrap(el: HTMLElement): { unwrap: () => void } {
-  const hadDisplayNone = getComputedStyle(el).display === 'none';
-  if (!hadDisplayNone) return { unwrap() {} };
-  
-  const prevStyle = el.getAttribute('style') || '';
-  el.setAttribute('data-prev-style', prevStyle);
-  
-  Object.assign(el.style, {
-    display: 'block',
-    position: 'fixed',
-    left: '-99999px',
-    top: '0',
-    visibility: 'visible',
-    zIndex: '9999',
-    width: '390px',
-    height: 'auto',
-    overflow: 'visible'
-  });
-  
-  return {
-    unwrap() {
-      if (prevStyle) {
-        el.setAttribute('style', prevStyle);
-      } else {
-        el.removeAttribute('style');
+  if (!wasHidden && !includeBackground) return { restore: () => {} };
+
+  // Клонируем элемент чтобы добавить фон
+  if (includeBackground) {
+    const container = el.closest('.container') as HTMLElement;
+    if (container) {
+      const containerStyle = getComputedStyle(container);
+      const backgroundImage = containerStyle.backgroundImage;
+      
+      if (backgroundImage && backgroundImage !== 'none') {
+        Object.assign(el.style, {
+          backgroundImage: backgroundImage,
+          backgroundSize: containerStyle.backgroundSize,
+          backgroundPosition: containerStyle.backgroundPosition,
+          backgroundRepeat: containerStyle.backgroundRepeat,
+        });
       }
-      el.removeAttribute('data-prev-style');
+    }
+  }
+
+  Object.assign(el.style, {
+    display: "block",
+    position: "fixed",
+    left: wasHidden ? "-99999px" : "0",
+    top: "0",
+    visibility: "visible",
+    width: "100%",
+    height: "100%",
+    zIndex: "9999",
+  });
+
+  return {
+    restore() {
+      el.setAttribute("style", originalStyle);
     },
   };
 }
 
+// Функция для ожидания загрузки шрифтов
 async function waitFonts(): Promise<void> {
-  if (document.fonts?.ready) {
+  if (document.fonts && document.fonts.ready) {
     try {
       await document.fonts.ready;
     } catch {}
   }
-  await new Promise(r => setTimeout(r, 100));
+  // Небольшая задержка для перерисовки
+  await new Promise((r) => setTimeout(r, 100));
 }
 
-async function preloadAndEmbedImages(element: HTMLElement): Promise<void> {
-  const images = element.querySelectorAll('img');
-  const promises = Array.from(images).map(async (img) => {
-    if (img.complete && img.naturalHeight > 0) return;
-    
-    return new Promise<void>((resolve) => {
-      const onLoad = () => {
-        console.log('Image loaded:', img.src);
-        resolve();
-      };
-      
-      const onError = () => {
-        console.warn('Failed to load image:', img.src);
-        resolve();
-      };
-      
-      img.addEventListener('load', onLoad, { once: true });
-      img.addEventListener('error', onError, { once: true });
-      
-      if (img.complete) {
-        if (img.naturalHeight > 0) onLoad();
-        else onError();
-      }
-      
-      setTimeout(() => {
-        resolve();
-      }, 5000);
-    });
-  });
-  
-  await Promise.all(promises);
-}
+// Функция для предзагрузки фонового изображения
+async function preloadBackgroundImage(element: HTMLElement): Promise<void> {
+  const container = element.closest('.container') as HTMLElement;
+  if (!container) return;
 
-// Функция для преобразования data URL в Blob
-function dataURLToBlob(dataURL: string): Blob {
-  const arr = dataURL.split(',');
-  const mimeMatch = arr[0].match(/:(.*?);/);
-  const mime = mimeMatch ? mimeMatch[1] : 'image/svg+xml';
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
+  const style = getComputedStyle(container);
+  const backgroundImage = style.backgroundImage;
   
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
+  if (backgroundImage && backgroundImage !== 'none') {
+    // Извлекаем URL из background-image
+    const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+    if (urlMatch && urlMatch[1]) {
+      const imageUrl = urlMatch[1];
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+      });
+    }
   }
-  
-  return new Blob([u8arr], { type: mime });
 }
-
-// === Хук экспорта ===
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [, setSdkInitialized] = useState<boolean>(false);
 
   useEffect(() => {
-    init();
+    const initializeSdk = async () => {
+      try {
+        await init();
+        setSdkInitialized(true);
+        console.log("Telegram SDK initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize Telegram SDK:", error);
+        setSdkInitialized(false);
+      }
+    };
+
+    initializeSdk();
   }, []);
 
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log('Starting screenshot capture...');
+  const captureScreenshot = async (element: HTMLElement, includeBackground: boolean = false): Promise<Blob> => {
+    await waitFonts();
     
-    // Клонируем элемент чтобы не нарушать оригинальный DOM
-    const clone = element.cloneNode(true) as HTMLElement;
-    clone.style.visibility = 'hidden';
-    document.body.appendChild(clone);
+    if (includeBackground) {
+      await preloadBackgroundImage(element);
+    }
     
-    try {
-      await waitFonts();
-      await preloadAndEmbedImages(clone);
-      
-      const wrap = visibleBlockWrap(clone);
-      
-      try {
-        console.log('Converting to SVG...');
-        const dataURL = await toSvg(clone, {
-          width: 390,
-          height: 570,
-          pixelRatio: 2,
-          cacheBust: true,
-          backgroundColor: '#ffffff',
-          filter: (node: any) => {
-            if (node.classList?.contains?.('shareButton')) return false;
-            if (node.getAttribute?.('data-story-visible') === 'hide') return false;
-            
-            const tag = node.tagName?.toUpperCase?.() || '';
-            if (['IFRAME', 'VIDEO', 'CANVAS', 'SCRIPT', 'STYLE'].includes(tag)) return false;
-            
-            if (tag === 'IMG') {
-              const img = node as HTMLImageElement;
-              if (!img.complete || img.naturalHeight === 0) {
-                console.warn('Excluding unloaded image:', img.src);
-                return false;
-              }
-              return true;
-            }
-            
-            return true;
-          },
-          skipFonts: false,
-          includeQueryParams: true,
-        });
+    const preparation = prepareElementForScreenshot(element, includeBackground);
 
-        if (!dataURL) throw new Error('Failed to render element to SVG');
-        
-        // Преобразуем data URL в Blob
-        const blob = dataURLToBlob(dataURL);
-        console.log('SVG created successfully, size:', blob.size);
-        return blob;
-      } finally {
-        wrap.unwrap();
+    try {
+      const blob = await toBlob(element, {
+        pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          const tag = node.tagName?.toUpperCase?.() || "";
+          // Исключаем элементы, которые не должны попадать в скриншот
+          if (
+            node.getAttribute &&
+            node.getAttribute("data-story-visible") === "hide"
+          ) {
+            return false;
+          }
+          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
+            return false;
+          }
+          // Исключаем элементы с внешними ссылками
+          if (
+            node.getAttribute &&
+            node.getAttribute("href")?.includes("fonts.googleapis.com")
+          ) {
+            return false;
+          }
+          return true;
+        },
+        skipFonts: true,
+        fontEmbedCSS: "",
+        backgroundColor: includeBackground ? 'transparent' : '#ffffff', // Прозрачный фон если включаем background
+      });
+
+      if (!blob) {
+        throw new Error("Failed to create screenshot blob");
       }
+
+      return blob;
     } finally {
-      if (clone.parentNode) {
-        clone.parentNode.removeChild(clone);
-      }
+      preparation.restore();
     }
   };
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
-    console.log('Uploading screenshot...');
-    
-    const formData = new FormData();
-    formData.append('file', blob, `story-${id}-${Date.now()}.svg`);
-    formData.append('id', id);
+    try {
+      const formData = new FormData();
+      formData.append("file", blob, `story-${Date.now()}.png`);
+      formData.append("id", id);
 
-    const response = await quranApi.post<StoryResponse>(
-      '/api/v1/qa/story',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-        },
-        timeout: 30000,
+      const response = await quranApi.post<StoryResponse>(
+        "/api/v1/qa/story",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+          timeout: 30000,
+        }
+      );
+      if (response.data.status && response.data.data.url) {
+        return response.data.data.url;
+      } else {
+        throw new Error(response.data.message || "Failed to upload screenshot");
       }
-    );
-
-    if (response.data.status && response.data.data.url) {
-      console.log('Upload successful, URL:', response.data.data.url);
-      return response.data.data.url;
+    } catch (error: any) {
+      if (error.response?.status === 502) {
+        throw new Error(
+          "Server is temporarily unavailable. Please try again later."
+        );
+      }
+      throw error;
     }
-    throw new Error(response.data.message || 'Upload failed');
   };
 
   const exportScreenshot = async (
     options: ExportOptions
   ): Promise<string | undefined> => {
-    if (!options.id || !options.element) {
-      throw new Error('ID and element are required');
-    }
-    
     setLoading(true);
     try {
-      console.log('Exporting screenshot for ID:', options.id);
-      const blob = await captureScreenshot(options.element);
-      const url = await uploadScreenshot(blob, options.id);
-      return url;
+      if (!options.id || !options.element) {
+        throw new Error("ID and element are required for export");
+      }
+
+      // Делаем скриншот с включением фона
+      const screenshotBlob = await captureScreenshot(options.element, true);
+
+      // Загружаем на сервер
+      const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
+      return storyUrl;
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Screenshot export error:", error);
       throw error;
     } finally {
       setLoading(false);
@@ -226,23 +220,48 @@ export const useScreenshotExport = () => {
   return { loading, exportScreenshot };
 };
 
-// === Функция шаринга сторис ===
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
+  if (!url) return;
 
-export const shareToTelegramStory = async (url: string): Promise<void> => {
-  if (!url) throw new Error('URL is required');
+  const tg = (window as any).Telegram;
 
+  console.log("=== DEBUG SHARE STORY ===");
+  console.log("URL:", url);
+  console.log("Telegram WebApp:", tg?.WebApp);
+  console.log(
+    "shareStory function available:",
+    typeof shareStory === "function"
+  );
+  console.log("Platform:", tg?.WebApp?.platform);
+  console.log("Version:", tg?.WebApp?.version);
+  
   try {
-    console.log('Sharing to Telegram story:', url);
-    await shareStory(url, {
-      widgetLink: {
-        url: 'https://t.me/QiblaGuidebot',
-        name: '@QiblaGuidebot',
-      },
-    });
-    console.log('Story shared successfully!');
+    await init();
+    console.log("Telegram SDK init attempted");
+    
+    if (typeof shareStory === "function") {
+      console.log("Calling shareStory with URL:", url);
+      await shareStory(url, {
+        widgetLink: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+      console.log("shareStory completed successfully");
+    } else if (tg?.WebApp?.shareStory) {
+      return await tg.WebApp.shareStory(url, {
+        widget: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
+    } else {
+      throw new Error("shareStory function not available");
+    }
   } catch (error) {
-    console.error('Failed to share story:', error);
-    const telegramUrl = `tg://share?url=${encodeURIComponent(url)}`;
-    window.open(telegramUrl, '_blank');
-  };
+    console.error("Share story completely failed:", error);
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };
