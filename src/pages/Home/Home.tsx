@@ -70,14 +70,18 @@ export const Home: React.FC = () => {
               {showVpnWarning && (
                 <div className={styles.vpnWarningOverlay}>
                   <div className={styles.vpnWarningModal}>
-                   <div className={styles.vpnWarningClose}> <X onClick={handleCloseVpnWarning} size={20} /></div>
+                    <div className={styles.vpnWarningClose}>
+                      <X onClick={handleCloseVpnWarning} size={20} />
+                    </div>
                     <div className={styles.vpnWarningText}>
-                      <TriangleAlert
-                        strokeWidth={1.5}
-                        size={50}
-                        color="white"
-                        fill="#F59E0B"
-                      />
+                      <div>
+                        <TriangleAlert
+                          strokeWidth={1.5}
+                          size={50}
+                          color="white"
+                          fill="#F59E0B"
+                        />
+                      </div>
                       {t("vpnWarning")}
                     </div>
                   </div>
