@@ -290,7 +290,7 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {!loading && sortedSurahs.length === 0 && !load ? (
+          {!load ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
             sortedSurahs.map((surah) => {
