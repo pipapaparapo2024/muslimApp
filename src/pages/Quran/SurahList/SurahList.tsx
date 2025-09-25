@@ -31,7 +31,7 @@ export const SurahList: React.FC = () => {
     error,
   } = useSurahListStore();
   const { language } = useLanguage();
-  const [load,setLoad]=useState(false)
+  const [load, setLoad] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<number[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(-1);
@@ -50,7 +50,6 @@ export const SurahList: React.FC = () => {
   const sortedSurahs = React.useMemo(() => {
     return [...surahs].sort((a, b) => a.number - b.number);
   }, [surahs]);
-
 
   useEffect(() => {
     const loadData = async () => {
@@ -299,9 +298,7 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {!load ? (
-            <div className={styles.noResults}>{t("noChaptersFound")}</div>
-          ) : (
+          {load &&
             sortedSurahs.map((surah) => {
               const isSearchResult = isSurahInSearchResults(surah.number);
               const isCurrentResult =
@@ -374,8 +371,7 @@ export const SurahList: React.FC = () => {
                   </div>
                 </div>
               );
-            })
-          )}
+            })}
         </div>
         {showScrollToTop && (
           <button
