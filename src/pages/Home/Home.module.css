@@ -97,7 +97,6 @@
   transition: background 0.2s;
 }
 
-/* Стили для предупреждения о VPN */
 .vpnWarningOverlay {
   position: absolute;
   top: 0;
@@ -108,23 +107,20 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.5); /* Добавляем затемнение */
-  border-radius: var(--roundings-medium); /* Совпадает с родительским borderRadius */
+  border-radius: var(--roundings-medium); 
 }
 
 .vpnWarningModal {
   background: var(--bg-surface);
   border-radius: var(--roundings-large);
   padding: var(--numbers-24);
-  max-width: 400px; /* Максимальная ширина */
-  width: 90%; /* Адаптивная ширина */
-  max-height: 80vh; /* Максимальная высота */
+  max-width: 400px; 
+  width: 90%; 
+  max-height: 80vh; 
   text-align: center;
   position: relative;
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
-  margin: var(--numbers-16); /* Отступы от краев */
-  
-  /* Для центрирования контента внутри модалки */
+  margin: var(--numbers-16);
   display: flex;
   flex-direction: column;
   justify-content: center;
