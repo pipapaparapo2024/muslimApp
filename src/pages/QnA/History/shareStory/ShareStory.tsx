@@ -1,6 +1,8 @@
+// pages/QnA/History/shareStory/ShareStory.tsx
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/shareStory.png";
+import messageImg from "../../../../assets/image/shareStory.png";
+import backgroundImg from "../../../../assets/image/background.png";
 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
@@ -8,37 +10,30 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import { shareToTelegramStory, captureElementAsBlobUrl } from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
-
-  // Используем хук для создания скриншотов
-  const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
     const loadData = async () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
+        const preload = (src: string) =>
+          new Promise<void>((resolve) => {
             const img = new Image();
             img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
+            img.onload = img.onerror = () => resolve();
           });
-        };
 
         const item = await getHistoryItem(id);
-        await preloadImage(message);
+        await Promise.all([preload(messageImg), preload(backgroundImg)]);
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -52,23 +47,24 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleShare = async () => {
-    if (!currentItem || !id || !screenshotRef.current) return;
+    if (!screenshotRef.current || !currentItem) {
+      alert(t("exportFailed"));
+      return;
+    }
 
+    setIsCapturing(true);
     try {
-      // Создаем скриншот элемента (без кнопки share, так как она находится вне screenshotRef)
-      const screenshotUrl = await exportScreenshot({
-        element: screenshotRef.current,
-        id: id,
+      const url = await captureElementAsBlobUrl(screenshotRef.current, {
+        width: 390,
+        backgroundColor: "transparent",
       });
 
-      console.log("screenshotUrl",screenshotUrl)
-      // Отправляем скриншот в Telegram
-      if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
-      }
-    } catch (error) {
-      console.error("Failed to create and share screenshot:", error);
-      alert(t("exportFailed"));
+      await shareToTelegramStory(url);
+    } catch (error: any) {
+      console.error("Ошибка при создании скриншота:", error);
+      alert(`${t("exportFailed")}${error.message ? `: ${error.message}` : ""}`);
+    } finally {
+      setIsCapturing(false);
     }
   };
 
@@ -91,11 +87,21 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        
-        {/* Оберточный div для скриншота - кнопка share находится ВНЕ этого элемента */}
-        <div ref={screenshotRef} className={styles.contentWrapper}>
+        {/* Фоновое изображение — будет включено в скриншот */}
+        <img
+          src={backgroundImg}
+          alt="Background"
+          className={styles.backgroundImage}
+        />
+
+        {/* Элемент для скриншота */}
+        <div
+          ref={screenshotRef}
+          className={styles.contentWrapper}
+          data-screenshot-content // ← маркер для поднятия z-index
+        >
           <img
-            src={message}
+            src={messageImg}
             className={styles.messageImage}
             alt="Message background"
           />
@@ -110,18 +116,18 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-        
-        {/* Кнопка share находится ВНЕ элемента для скриншота */}
+
+        {/* Кнопка ВНЕ скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
             onClick={handleShare}
-            disabled={loading}
+            disabled={isCapturing}
             className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
+              isCapturing ? styles.shareButtonDisabled : ""
             }`}
           >
-            <Upload /> {loading ? t("loading") : t("share")}
+            <Upload /> {isCapturing ? t("loading") : t("share")}
           </button>
         </div>
       </div>
