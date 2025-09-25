@@ -124,11 +124,11 @@ export const HistoryScannerDetail: React.FC = () => {
           )}
           {currentItem.haramProducts &&
             currentItem.haramProducts.length > 0 &&
-            currentItem.haramProducts.map((product, index) => (
-              <div className={styles.blockInside}>
+            currentItem.haramProducts.map((product: any, index: number) => (
+              <div key={index} className={styles.blockMessageBot}>
                 <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                <div className={styles.scanDesk}>
-                  <div key={index}>
+                <div className={styles.text}>
+                  <div className={styles.haramProduct}>
                     {product.name} - {product.reason}
                     {product.source}
                   </div>

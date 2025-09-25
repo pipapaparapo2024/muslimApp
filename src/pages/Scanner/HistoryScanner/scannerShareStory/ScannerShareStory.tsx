@@ -58,15 +58,10 @@ export const ScannerShareStory: React.FC = () => {
     loadData();
   }, [id, fetchHistoryItem]);
 
-  useEffect(() => {
-    console.log("backgroundImg URL:", backgroundImg);
-  }, []);
-
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Найдём элемент кнопки и скроем его перед экспортом
       const buttonContainer = screenshotRef.current.querySelector(
         `.${styles.blockButton}`
       );
@@ -79,9 +74,6 @@ export const ScannerShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl", screenshotUrl);
-
-      // Восстанавливаем видимость кнопки
       if (buttonContainer) {
         buttonContainer.classList.remove(styles.hideForScreenshot);
       }
@@ -118,7 +110,7 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Видимый фон — для пользователя */}
+        {/* Видимый фон */}
         <img
           src={backgroundImg}
           alt="Background"
@@ -127,7 +119,7 @@ export const ScannerShareStory: React.FC = () => {
 
         {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Скрытый фон — только для скриншота */}
+          {/* Скрытый фон для скриншота */}
           <img
             src={backgroundImg}
             alt=""
@@ -141,9 +133,9 @@ export const ScannerShareStory: React.FC = () => {
               alt="Message background"
             />
             
-            {/* Контент поверх изображения */}
+            {/* Контент поверх изображения - ВЫРОВНЯН ПО ПРАВОЙ СТОРОНЕ */}
             <div className={styles.blockMessages}>
-              {/* Блок статуса продукта */}
+              {/* Блок статуса продукта - тоже выровнен по правой стороне */}
               <div className={styles.blockMessageStatus}>
                 <div
                   className={`${styles.accessBlock} ${getStatusClassName(
@@ -176,10 +168,7 @@ export const ScannerShareStory: React.FC = () => {
                   <div key={index} className={styles.blockMessageBot}>
                     <div className={styles.scanTitle}>{t("analysisResult")}</div>
                     <div className={styles.text}>
-                      <div className={styles.haramProduct}>
-                        {product.name} - {product.reason}
-                        {product.source}
-                      </div>
+                      {product.name} - {product.reason} {product.source}
                     </div>
                   </div>
                 ))}
@@ -194,7 +183,7 @@ export const ScannerShareStory: React.FC = () => {
             </div>
           </div>
 
-          {/* Кнопка теперь внутри contentWrapper, но с классом для скрытия при скриншоте */}
+          {/* Кнопка */}
           <div
             className={`${styles.blockButton} ${
               loading ? styles.hideForScreenshot : ""
