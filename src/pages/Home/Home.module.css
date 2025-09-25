@@ -41,6 +41,9 @@
 .vpnWarningClose:hover {
   background-color: var(--hover-color);
 }
+.vpnWarningClose{
+  
+}
 
 .vpnWarningText {
   font-size: var(--numbers-16);

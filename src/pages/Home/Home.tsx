@@ -70,7 +70,7 @@ export const Home: React.FC = () => {
               {showVpnWarning && (
                 <div className={styles.vpnWarningOverlay}>
                   <div className={styles.vpnWarningModal}>
-                    <X onClick={handleCloseVpnWarning} size={20} />
+                   <div className={styles.vpnWarningClose}> <X onClick={handleCloseVpnWarning} size={20} /></div>
                     <div className={styles.vpnWarningText}>
                       <TriangleAlert
                         strokeWidth={1.5}
