@@ -110,7 +110,7 @@
 .shareButton {
   position: absolute;
   z-index: 3;
-  bottom: 0;
+  bottom: -50px;
   border: none;
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
