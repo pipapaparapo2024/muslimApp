@@ -100,21 +100,34 @@
 /* Стили для предупреждения о VPN */
 .vpnWarningOverlay {
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5); /* Добавляем затемнение */
+  border-radius: var(--roundings-medium); /* Совпадает с родительским borderRadius */
 }
 
 .vpnWarningModal {
   background: var(--bg-surface);
-  border-radius: var(--roundings-small);
-  margin: var(--numbers-24);
-  max-width: 500px;
-  width: 100%;
+  border-radius: var(--roundings-large);
+  padding: var(--numbers-24);
+  max-width: 400px; /* Максимальная ширина */
+  width: 90%; /* Адаптивная ширина */
+  max-height: 80vh; /* Максимальная высота */
   text-align: center;
   position: relative;
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
+  margin: var(--numbers-16); /* Отступы от краев */
+  
+  /* Для центрирования контента внутри модалки */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .vpnWarningClose {
