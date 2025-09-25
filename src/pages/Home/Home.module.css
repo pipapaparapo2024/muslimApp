@@ -1,115 +1,10 @@
 .prayerTimesQiblaContainer {
-  position: relative; 
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
   background-color: var(--bg-surface);
 }
 
-/* Стили для предупреждения о VPN */
-.vpnWarningOverlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.5); /* Добавляем затемнение фона */
-  border-radius: var(--roundings-medium); /* Совпадает с родительским borderRadius */
-}
-
-.vpnWarningModal {
-  background: var(--bg-surface);
-  border-radius: var(--roundings-small);
-  padding: var(--numbers-24);
-  max-width: 400px;
-  width: 90%; 
-  text-align: center;
-  position: relative;
-  z-index: 100;
-  box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
-  margin: var(--numbers-16); /* Отступы по краям */
-}
-
-.vpnWarningClose {
-  position: absolute;
-  top: var(--numbers-12);
-  right: var(--numbers-12);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--desk-text);
-  padding: var(--numbers-4);
-  border-radius: var(--roundings-small);
-  transition: background-color 0.2s;
-}
-
-.vpnWarningClose:hover {
-  background-color: var(--hover-color);
-}
-
-.vpnWarningIcon {
-  margin-bottom: var(--numbers-16);
-}
-
-.vpnWarningTitle {
-  font-size: var(--numbers-20);
-  font-weight: var(--font-600);
-  margin-bottom: var(--numbers-12);
-  color: var(--text);
-}
-
-.vpnWarningText {
-  font-size: var(--numbers-16);
-  line-height: 1.5;
-  color: var(--desk-text);
-  margin-bottom: var(--numbers-24);
-}
-
-.vpnWarningButton {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--roundings-medium);
-  padding: var(--numbers-12) var(--numbers-24);
-  font-size: var(--numbers-16);
-  font-weight: var(--font-600);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  width: 100%;
-}
-
-.vpnWarningButton:hover {
-  background-color: var(--primary-dark);
-}
-
-/* Эффект размытия для контента под модалкой */
-.blurred {
-  filter: blur(2px);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Адаптивность */
-@media (max-width: 480px) {
-  .vpnWarningModal {
-    margin: var(--numbers-16);
-    padding: var(--numbers-20);
-    width: 85%; /* Увеличиваем ширину на мобильных */
-  }
-
-  .vpnWarningTitle {
-    font-size: var(--numbers-18);
-  }
-
-  .vpnWarningText {
-    font-size: var(--numbers-14);
-  }
-}
-
-/* Остальные стили остаются без изменений */
 .titleFaceKaaba {
   align-items: center;
   font-weight: var(--font-600);
@@ -187,16 +82,121 @@
   border-radius: var(--roundings-medium);
 }
 
+
+
 .permissionButton {
   position: relative;
   z-index: 1001;
   border: none;
   border-radius: var(--roundings-medium);
-  padding: var(--numbers-2) var(--numbers-8);
+  padding: var(--numbers-2) var(--numbers-8); 
   color: white;
   background-color: var(--compass-circle-small);
   font-weight: var(--font-500);
   font-size: var(--numbers-16);
   cursor: pointer;
   transition: background 0.2s;
+}
+
+
+/* Стили для предупреждения о VPN */
+.vpnWarningOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: var(--numbers-16);
+}
+
+.vpnWarningModal {
+  background: var(--bg-surface);
+  border-radius: var(--roundings-large);
+  padding: var(--numbers-24);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
+}
+
+.vpnWarningClose {
+  position: absolute;
+  top: var(--numbers-12);
+  right: var(--numbers-12);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--desk-text);
+  padding: var(--numbers-4);
+  border-radius: var(--roundings-small);
+  transition: background-color 0.2s;
+}
+
+.vpnWarningClose:hover {
+  background-color: var(--hover-color);
+}
+
+.vpnWarningIcon {
+  margin-bottom: var(--numbers-16);
+}
+
+.vpnWarningTitle {
+  font-size: var(--numbers-20);
+  font-weight: var(--font-600);
+  margin-bottom: var(--numbers-12);
+  color: var(--text);
+}
+
+.vpnWarningText {
+  font-size: var(--numbers-16);
+  line-height: 1.5;
+  color: var(--desk-text);
+  margin-bottom: var(--numbers-24);
+}
+
+.vpnWarningButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-24);
+  font-size: var(--numbers-16);
+  font-weight: var(--font-600);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.vpnWarningButton:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Эффект размытия для контента под модалкой */
+.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .vpnWarningModal {
+    margin: var(--numbers-16);
+    padding: var(--numbers-20);
+  }
+  
+  .vpnWarningTitle {
+    font-size: var(--numbers-18);
+  }
+  
+  .vpnWarningText {
+    font-size: var(--numbers-14);
+  }
 }
