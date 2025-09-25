@@ -170,12 +170,13 @@ export const ScannerShareStory: React.FC = () => {
                   <div className={styles.scanDesk}>
                     {currentItem.haramProducts.map(
                       (product: any, index: number) => (
-                        <div key={index} className={styles.productItem}>
-                          {product.name} - {product.reason} {product.source}
+                        <React.Fragment key={index}>
+                          <strong>{product.name}</strong> - {product.reason} (
+                          {product.source})
                           {index < currentItem.haramProducts.length - 1 && (
                             <br />
                           )}
-                        </div>
+                        </React.Fragment>
                       )
                     )}
                   </div>
@@ -192,7 +193,11 @@ export const ScannerShareStory: React.FC = () => {
         </div>
 
         {/* Кнопка теперь внутри container, но с классом для скрытия при скриншоте */}
-        <div className={`${styles.blockButton} ${loading ? styles.hideForScreenshot : ""}`}>
+        <div
+          className={`${styles.blockButton} ${
+            loading ? styles.hideForScreenshot : ""
+          }`}
+        >
           <button
             type="button"
             onClick={handleShare}
