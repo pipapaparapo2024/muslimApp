@@ -1,193 +1,83 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import backgroundImg from "../../../../assets/image/background.png"; // Импортируем фоновое изображение
+import background from "../../../../assets/image/background.png"; 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { toBlob } from "html-to-image";
-import { getStatusClassName, getStatusIcon, getStatusTranslationKey } from "../../productStatus";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
+import {
+  getStatusClassName,
+  getStatusIcon,
+  getStatusTranslationKey,
+} from "../../productStatus";
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string | undefined }>();
   const { fetchHistoryItem } = useHistoryScannerStore();
+  const [currentItem, setCurrentItem] = useState<any>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
-  const [isCapturing, setIsCapturing] = useState(false);
+  const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
-    const loadData = async () => {
+    const preloadImages = (): Promise<void[]> => {
+      const imagePromises = [message, background].map((src) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => resolve();
+          img.onerror = () => {
+            console.warn(`Failed to load image: ${src}`);
+            resolve();
+          };
+        });
+      });
+
+      return Promise.all(imagePromises);
+    };
+
+    const loadItem = async () => {
       if (!id) return;
 
-      try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
-          });
-        };
-
-        const item = await fetchHistoryItem(id);
-        // Предзагружаем оба изображения
-        await Promise.all([
-          preloadImage(message),
-          preloadImage(backgroundImg)
-        ]);
-
+      const item = await fetchHistoryItem(id);
+      if (item) {
         setCurrentItem(item);
+      }
+
+      try {
+        await preloadImages();
         setIsLoaded(true);
-      } catch (error) {
-        console.error("Error loading data:", error);
+      } catch (err) {
+        console.error("Error during image preloading:", err);
         setIsLoaded(true);
       }
     };
 
-    loadData();
+    loadItem();
   }, [id, fetchHistoryItem]);
 
-  const handleCapture = async () => {
-    if (!screenshotRef.current || !currentItem) {
-      console.error("❌ screenshotRef.current или currentItem is null");
-      alert("Элемент для скриншота не найден");
-      return;
-    }
-
-    setIsCapturing(true);
+  const handleShare = async () => {
+    if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      console.log("📸 [handleCapture] Начинаем захват...");
-
-      const originalElement = screenshotRef.current;
-
-      // 1. Создаём контейнер для рендера с теми же стилями
-      const container = document.createElement("div");
-      container.style.position = "fixed";
-      container.style.left = "-9999px";
-      container.style.top = "0";
-      container.style.width = "390px"; // Ширина как в стилях
-      container.style.backgroundColor = "#ffffff";
-      container.style.fontFamily = "'Roboto', Arial, sans-serif";
-      container.style.boxSizing = "border-box";
-      container.style.borderRadius = "12px";
-      container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
-      container.style.overflow = "hidden";
-
-      // 2. Глубокое клонирование с сохранением стилей
-      const clone = originalElement.cloneNode(true) as HTMLElement;
-      
-      // 3. Убираем абсолютное позиционирование у элементов
-      const backgroundImg = clone.querySelector('img[alt="Background"]') as HTMLImageElement;
-      if (backgroundImg) {
-        backgroundImg.style.position = "relative";
-        backgroundImg.style.top = "auto";
-        backgroundImg.style.left = "auto";
-        backgroundImg.style.zIndex = "1";
-      }
-
-      const messageImg = clone.querySelector('img[alt="Message background"]') as HTMLImageElement;
-      if (messageImg) {
-        messageImg.style.position = "relative";
-        messageImg.style.zIndex = "2";
-      }
-
-      // 4. Удаляем кнопку share из клона (если она там есть)
-      const shareButton = clone.querySelector('[data-exclude-from-screenshot="true"]');
-      if (shareButton) {
-        shareButton.remove();
-      }
-
-      // 5. Убедимся, что все изображения загружены
-      await new Promise<void>((resolve) => {
-        const images = clone.querySelectorAll("img");
-        let loadedCount = 0;
-        
-        if (images.length === 0) {
-          resolve();
-          return;
-        }
-
-        images.forEach((img) => {
-          if (img.complete) {
-            loadedCount++;
-          } else {
-            img.onload = () => {
-              loadedCount++;
-              if (loadedCount === images.length) resolve();
-            };
-            img.onerror = () => {
-              loadedCount++;
-              if (loadedCount === images.length) resolve();
-            };
-          }
-        });
-
-        if (loadedCount === images.length) resolve();
+      const screenshotUrl = await exportScreenshot({
+        element: screenshotRef.current,
+        id: id,
       });
 
-      container.appendChild(clone);
-      document.body.appendChild(container);
-
-      // 6. Ждём отрисовки
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 7. Создаём скриншот
-      const blob = await toBlob(clone, {
-        pixelRatio: 2,
-        backgroundColor: "#ffffff",
-        quality: 0.95,
-        cacheBust: false,
-        skipFonts: false,
-      });
-
-      document.body.removeChild(container);
-
-      if (!blob) {
-        throw new Error("Blob is null");
-      }
-
-      const url = URL.createObjectURL(blob);
-      
-      // 8. Отправляем в Telegram
-      await shareToTelegramStory(url);
-      
-    } catch (error: any) {
-      console.error("❌ Ошибка при создании скриншота:", error);
-      alert(`Ошибка: ${error.message}`);
-    } finally {
-      setIsCapturing(false);
-    }
-  };
-
-  const shareToTelegramStory = async (url: string): Promise<void> => {
-    if (!url) return;
-
-    try {
-      // Ваша существующая логика для шаринга в Telegram
-      const tg = (window as any).Telegram;
-      if (tg?.WebApp?.shareStory) {
-        await tg.WebApp.shareStory(url, {
-          widget: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot",
-          },
-        });
-      } else {
-        // Fallback - открываем в новом окне
-        window.open(url, "_blank");
+      if (screenshotUrl) {
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
-      console.error("Share story failed:", error);
-      // Fallback
-      window.open(url, "_blank");
+      console.error("Failed to export and share screenshot:", error);
+      alert(t("exportFailed"));
     }
   };
 
@@ -208,19 +98,14 @@ export const ScannerShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/scanner/historyScanner">
+    <PageWrapper
+      showBackButton={true}
+      styleHave={false}
+      navigateTo="/scanner/historyScanner"
+    >
       <div className={styles.container}>
-        
-        {/* Оберточный div для скриншота - теперь используем img вместо background-image */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Фоновое изображение как img */}
-          <img
-            src={backgroundImg}
-            alt="Background"
-            className={styles.backgroundImage}
-          />
-          
-          {/* Основное изображение сообщения */}
+          {/* Основное изображение */}
           <img
             src={message}
             alt="Message background"
@@ -247,7 +132,8 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}
+                  {currentItem.products.join(", ")}{" "}
+                  {/* Исправлено: добавил {} */}
                 </div>
               </div>
             )}
@@ -256,6 +142,8 @@ export const ScannerShareStory: React.FC = () => {
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product: any, index: number) => (
                 <div key={index} className={styles.blockInside}>
+                  {" "}
+                  {/* Добавил key */}
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
@@ -275,19 +163,19 @@ export const ScannerShareStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка share находится ВНЕ элемента для скриншота */}
+        {/* Кнопка share ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
-            onClick={handleCapture}
-            disabled={isCapturing}
+            onClick={handleShare}
+            disabled={loading}
             className={`${styles.shareButton} ${
-              isCapturing ? styles.shareButtonDisabled : ""
+              loading ? styles.shareButtonDisabled : ""
             }`}
-            data-exclude-from-screenshot="true"
+            data-story-visible="hide"
           >
             <Upload size={18} />
-            {isCapturing ? t("loading") : t("share")}
+            {loading ? t("loading") : t("share")}
           </button>
         </div>
       </div>
