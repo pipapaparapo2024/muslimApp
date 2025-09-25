@@ -58,6 +58,8 @@
 
 .blockButton {
   display: flex;
+  position: absolute;
+  bottom: 0;
   flex-direction: column;
   align-items: center;
   position: relative;
