@@ -99,7 +99,7 @@ export const ShareStory: React.FC = () => {
             className={styles.messageImage}
             alt="Message background"
           />
-          <div className={styles.blockMessages}>я
+          <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
               <div className={styles.nickName}>{t("you")}</div>
               <div className={styles.text}>{currentItem.question}</div>
