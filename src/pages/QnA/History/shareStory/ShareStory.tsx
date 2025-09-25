@@ -9,7 +9,10 @@ import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
-import { useScreenshotExport, shareToTelegramStory } from "../../../../hooks/useScreenshotExport";
+import {
+  useScreenshotExport,
+  shareToTelegramStory,
+} from "../../../../hooks/useScreenshotExport";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -50,7 +53,9 @@ export const ShareStory: React.FC = () => {
 
     loadData();
   }, [id, getHistoryItem]);
-
+  useEffect(() => {
+    console.log("backgroundImg URL:", backgroundImg);
+  }, []);
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
@@ -87,48 +92,48 @@ export const ShareStory: React.FC = () => {
   }
 
   return (
-    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
-      <div className={styles.container}>
-        {/* Фон через <img> */}
-        <img
-          src={backgroundImg}
-          alt="Background"
-          className={styles.backgroundImage}
-        />
+    // <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
+    <div className={styles.container}>
+      {/* Фон через <img> */}
+      <img
+        src={backgroundImg}
+        alt="Background"
+        className={styles.backgroundImage}
+      />
 
-        {/* Контент для скриншота */}
-        <div ref={screenshotRef} className={styles.contentWrapper}>
-          <img
-            src={message}
-            className={styles.messageImage}
-            alt="Message background"
-          />
-          <div className={styles.blockMessages}>
-            <div className={styles.blockMessageUser}>
-              <div className={styles.nickName}>{t("you")}</div>
-              <div className={styles.text}>{currentItem.question}</div>
-            </div>
-            <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@QiblaGuidebot</div>
-              <div className={styles.text}>{currentItem.answer}</div>
-            </div>
+      {/* Контент для скриншота */}
+      <div ref={screenshotRef} className={styles.contentWrapper}>
+        <img
+          src={message}
+          className={styles.messageImage}
+          alt="Message background"
+        />
+        <div className={styles.blockMessages}>
+          <div className={styles.blockMessageUser}>
+            <div className={styles.nickName}>{t("you")}</div>
+            <div className={styles.text}>{currentItem.question}</div>
+          </div>
+          <div className={styles.blockMessageBot}>
+            <div className={styles.nickName}>@QiblaGuidebot</div>
+            <div className={styles.text}>{currentItem.answer}</div>
           </div>
         </div>
-
-        {/* Кнопка вне скриншота */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
-            }`}
-          >
-            <Upload /> {loading ? t("loading") : t("share")}
-          </button>
-        </div>
       </div>
-    </PageWrapper>
+
+      {/* Кнопка вне скриншота */}
+      <div className={styles.blockButton}>
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={loading}
+          className={`${styles.shareButton} ${
+            loading ? styles.shareButtonDisabled : ""
+          }`}
+        >
+          <Upload /> {loading ? t("loading") : t("share")}
+        </button>
+      </div>
+    </div>
+    // </PageWrapper>
   );
 };
