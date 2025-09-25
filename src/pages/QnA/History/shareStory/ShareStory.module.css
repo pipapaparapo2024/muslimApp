@@ -1,36 +1,57 @@
 .container {
-  background-image: url("../../../../assets/image/background.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  overflow: hidden;
-  margin: 0 auto;
   position: relative;
-  display: flex;
-  min-height: 90vh;
-  height: 100%;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: var(--numbers-80);
-}
-.contentWrapper {
-  max-width: 390px;
   width: 100%;
-  height: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
-.container img {
+/* Видимый фон */
+.visibleBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Обёртка для скриншота */
+.contentWrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 390px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--numbers-48);
+  margin: 0;
+}
+
+.hiddenBackgroundForScreenshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.container img.messageImage {
   max-height: 570px;
   max-width: 100%;
   height: auto;
   width: auto;
   margin: 0 auto;
   object-fit: contain;
-  padding-top: var(--numbers-48);
   position: relative;
   z-index: 1;
 }
@@ -39,13 +60,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
 }
+
 .blockMessages {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: auto;
-  bottom: -30px;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -75,6 +98,7 @@
   align-self: flex-start;
   margin-right: auto;
 }
+
 .text {
   color: var(--desk-text);
 }
@@ -89,14 +113,16 @@
   max-height: calc(1.2em * 6);
   line-height: 1.2;
 }
+
 .nickName {
   color: var(--desk-text);
   font-weight: 400;
   font-size: var(--numbers-14);
 }
+
 .shareButton {
-  position: absolute;
-  bottom: 30px;
+  /* Изменили position на relative для нормального потока */
+  position: relative;
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
@@ -108,7 +134,7 @@
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
-  margin: var(--numbers-16) auto;
+  margin: 0 auto;
   width: 90%;
   color: white;
   padding: var(--numbers-16);
@@ -125,14 +151,47 @@
   transform: translateY(0);
 }
 
-.shareButtonDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
+.shareButtonDisabled,
 .shareButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
+}
+/* Скрываем кнопку при экспорте */
+.hideForScreenshot {
+  display: none !important;
+}
+
+/* Остальной CSS остаётся без изменений... */
+.messageContainer {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  justify-content: center;
+}
+
+.messageContainer img.messageImage {
+  max-height: 570px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* Теперь blockMessages позиционируется относительно messageContainer */
+.blockMessages {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--numbers-16); /* или 0, если нужно вплотную */
+  padding: var(--numbers-16);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
+  width: 100%;
+  max-width: 390px;
+  box-sizing: border-box;
 }
