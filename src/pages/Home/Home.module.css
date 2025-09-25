@@ -102,6 +102,7 @@
   position: absolute;
   /* top: 50%;
   left: 50%; */
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -112,7 +113,7 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-large);
   padding: var(--numbers-24);
-  max-width: 400px;
+  max-width: 350px;
   width: 100%;
   text-align: center;
   position: relative;
