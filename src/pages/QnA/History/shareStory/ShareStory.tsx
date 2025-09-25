@@ -124,19 +124,21 @@ export const ShareStory: React.FC = () => {
             className={styles.hiddenBackgroundForScreenshot}
           />
 
-          <img
-            src={message}
-            className={styles.messageImage}
-            alt="Message background"
-          />
-          <div className={styles.blockMessages}>
-            <div className={styles.blockMessageUser}>
-              <div className={styles.nickName}>{t("you")}</div>
-              <div className={styles.text}>{currentItem.question}</div>
-            </div>
-            <div className={styles.blockMessageBot}>
-              <div className={styles.nickName}>@QiblaGuidebot</div>
-              <div className={styles.text}>{currentItem.answer}</div>
+          <div className={styles.messageContainer}>
+            <img
+              src={message}
+              className={styles.messageImage}
+              alt="Message background"
+            />
+            <div className={styles.blockMessages}>
+              <div className={styles.blockMessageUser}>
+                <div className={styles.nickName}>{t("you")}</div>
+                <div className={styles.text}>{currentItem.question}</div>
+              </div>
+              <div className={styles.blockMessageBot}>
+                <div className={styles.nickName}>@QiblaGuidebot</div>
+                <div className={styles.text}>{currentItem.answer}</div>
+              </div>
             </div>
           </div>
 
