@@ -54,8 +54,8 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>{showVpnWarning}
-      <div className={styles.homeRoot}>
+      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
+      {showVpnWarning}
         {isLoading && (
           <div className={styles.loadingContainer}>
             <LoadingSpinner />
@@ -165,7 +165,6 @@ export const Home: React.FC = () => {
             <MenuBlocks />
           </>
         )}
-      </div>
     </PageWrapper>
   );
 };
