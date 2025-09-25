@@ -411,7 +411,9 @@ const resources = {
 
       //Home
       resetPermission: "إعادة تعيين الإذن",
-
+      vpnWarning:
+        "Be careful when entering with VPN turned on, as this may affect the location of the Kaaba and the timing of prayers",
+      vpnWarning: "",
       locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا", //Ayahs
       allowSensors: "السماح لأجهزة الاستشعار",
       requsting: "جارٍ الطلب...",

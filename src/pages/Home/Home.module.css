@@ -106,7 +106,6 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: var(--numbers-16);
 }
 
 .vpnWarningModal {
