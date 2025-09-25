@@ -51,11 +51,20 @@ export const SurahList: React.FC = () => {
     return [...surahs].sort((a, b) => a.number - b.number);
   }, [surahs]);
 
-  useEffect(() => {
-    fetchVariants(); 
-    setLoad(true)
-  }, [fetchVariants]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await fetchVariants();
+        setLoad(true); // устанавливаем после завершения загрузки
+      } catch (error) {
+        console.error("Failed to load surahs:", error);
+        setLoad(true); // все равно устанавливаем true даже при ошибке
+      }
+    };
+
+    loadData();
+  }, [fetchVariants]);
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
@@ -290,7 +299,7 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {!loading ? (
+          {!load ? (
             <div className={styles.noResults}>{t("noChaptersFound")}</div>
           ) : (
             sortedSurahs.map((surah) => {
