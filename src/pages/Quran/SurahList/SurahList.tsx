@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
+import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
@@ -298,7 +299,11 @@ export const SurahList: React.FC = () => {
         {error && <div className={styles.error}>Error: {error}</div>}
 
         <div className={styles.blockChapter}>
-          {load &&
+          {!load ? (
+            <PageWrapper>
+              <LoadingSpinner />
+            </PageWrapper>
+          ) : (
             sortedSurahs.map((surah) => {
               const isSearchResult = isSurahInSearchResults(surah.number);
               const isCurrentResult =
@@ -371,7 +376,8 @@ export const SurahList: React.FC = () => {
                   </div>
                 </div>
               );
-            })}
+            })
+          )}
         </div>
         {showScrollToTop && (
           <button
