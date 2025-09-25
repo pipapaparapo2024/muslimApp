@@ -28,15 +28,16 @@
 }
 
 .vpnWarningModal {
-  background: green;
+  background: var(--bg-surface);
   border-radius: var(--roundings-small);
   padding: var(--numbers-24);
   max-width: 300px;
   width: 90%;
   text-align: center;
   position: relative;
+  margin: 0 var(--numbers-16);
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
-  z-index: 11; /* Еще выше */
+  z-index: 11; 
 }
 
 .vpnWarningClose {
