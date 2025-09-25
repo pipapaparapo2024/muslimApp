@@ -111,15 +111,18 @@
   pointer-events: none;
 }
 
+/* Исправленное позиционирование блока с текстом */
 .blockScan {
   position: absolute;
   z-index: 2;
-  bottom: -100px;
+  top: 50%; /* Центрируем по вертикали */
+  left: 50%; /* Центрируем по горизонтали */
+  transform: translate(-50%, -50%); /* Точное центрирование */
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-4);
+  gap: var(--numbers-12); /* Увеличим отступ между блоками */
   width: 100%;
-  max-width: 390px;
+  max-width: 340px; /* Уменьшим максимальную ширину для отступов */
   padding: 0 var(--numbers-16);
   box-sizing: border-box;
 }
@@ -127,17 +130,18 @@
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
-  padding: var(--numbers-8) var(--numbers-16);
+  padding: var(--numbers-12) var(--numbers-16); /* Увеличим паддинги */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Добавим тень для лучшего визуального разделения */
 }
 
 .blockInside .scanDesk {
   display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
+  line-clamp: 3; /* Увеличим количество строк */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
+  max-height: calc(1.5em * 3);
   line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -147,13 +151,15 @@
   font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
+  margin-bottom: var(--numbers-8); /* Отступ снизу для заголовка */
 }
 
 .scanDesk {
   font-weight: var(--font-400);
-  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  margin: var(--numbers-4) 0;
   color: var(--desk-text);
   font-size: var(--numbers-14);
+  line-height: 1.4;
 }
 
 .haram {
@@ -173,20 +179,42 @@
   justify-content: space-between;
   align-items: center;
   font-weight: var(--font-500);
-  font-size: var(--numbers-20);
+  font-size: var(--numbers-18); /* Немного уменьшим размер шрифта */
   gap: var(--numbers-4);
   padding: var(--numbers-12) var(--numbers-16);
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .QiblaGuidebot {
-  font-size: var(--numbers-14);
+  font-size: var(--numbers-12); /* Уменьшим размер шрифта */
   color: var(--desk-text);
+  opacity: 0.8;
 }
 
 .statusProduct {
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
+}
+
+/* Стили для разделительной линии как в макете */
+.blockScan::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--desk-text), transparent);
+  opacity: 0.3;
+}
+
+/* Для разделителей между блоками контента */
+.blockInside:not(:first-child) {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: var(--numbers-8);
+  padding-top: var(--numbers-16);
 }
