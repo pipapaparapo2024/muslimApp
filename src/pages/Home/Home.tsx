@@ -54,7 +54,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
+      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>{showVpnWarning}
       <div className={styles.homeRoot}>
         {isLoading && (
           <div className={styles.loadingContainer}>
