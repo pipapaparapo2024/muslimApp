@@ -72,8 +72,6 @@
   gap: var(--numbers-4); 
   width: 100%;
   max-width: 390px;
-  margin-top: var(--numbers-20); 
-  margin-bottom: var(--numbers-20);
 }
 
 /* Кнопка поделиться */
