@@ -10,6 +10,7 @@ import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
 import { t } from "i18next";
 import { toBlob } from "html-to-image";
+import { init, shareStory } from "@telegram-apps/sdk";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -37,10 +38,7 @@ export const ShareStory: React.FC = () => {
         };
 
         const item = await getHistoryItem(id);
-        await Promise.all([
-          preloadImage(message),
-          preloadImage(backgroundImg)
-        ]);
+        await Promise.all([preloadImage(message), preloadImage(backgroundImg)]);
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -82,20 +80,23 @@ export const ShareStory: React.FC = () => {
 
       // 2. Глубокое клонирование
       const clone = originalElement.cloneNode(true) as HTMLElement;
-      
+
       // 3. Удаляем все внешние стили и шрифты из клона
       const links = clone.querySelectorAll('link[rel="stylesheet"]');
-      links.forEach(link => link.remove());
-      
-      const stylesheets = clone.querySelectorAll('style');
-      stylesheets.forEach(style => {
-        if (style.innerHTML.includes('@import') || style.innerHTML.includes('googleapis')) {
+      links.forEach((link) => link.remove());
+
+      const stylesheets = clone.querySelectorAll("style");
+      stylesheets.forEach((style) => {
+        if (
+          style.innerHTML.includes("@import") ||
+          style.innerHTML.includes("googleapis")
+        ) {
           style.remove();
         }
       });
 
       // 4. Убираем абсолютное позиционирование и применяем inline стили
-      const images = clone.querySelectorAll('img');
+      const images = clone.querySelectorAll("img");
       images.forEach((img, index) => {
         img.style.position = "relative";
         img.style.top = "auto";
@@ -106,8 +107,8 @@ export const ShareStory: React.FC = () => {
       });
 
       // 5. Применяем inline стили для текстовых элементов
-      const textElements = clone.querySelectorAll('.nickName, .text');
-      textElements.forEach(el => {
+      const textElements = clone.querySelectorAll(".nickName, .text");
+      textElements.forEach((el) => {
         const element = el as HTMLElement;
         element.style.fontFamily = "Arial, sans-serif";
         element.style.color = "#2c3e50";
@@ -116,8 +117,10 @@ export const ShareStory: React.FC = () => {
       });
 
       // 6. Стили для блоков сообщений
-      const messageBlocks = clone.querySelectorAll('.blockMessageUser, .blockMessageBot');
-      messageBlocks.forEach(block => {
+      const messageBlocks = clone.querySelectorAll(
+        ".blockMessageUser, .blockMessageBot"
+      );
+      messageBlocks.forEach((block) => {
         const element = block as HTMLElement;
         element.style.background = "rgba(255, 255, 255, 0.95)";
         element.style.borderRadius = "12px";
@@ -130,7 +133,7 @@ export const ShareStory: React.FC = () => {
       await new Promise<void>((resolve) => {
         const images = clone.querySelectorAll("img");
         let loadedCount = 0;
-        
+
         if (images.length === 0) {
           resolve();
           return;
@@ -174,8 +177,10 @@ export const ShareStory: React.FC = () => {
           // Фильтруем ненужные элементы
           if (node instanceof Element) {
             // Удаляем кнопки и скрытые элементы
-            if (node.tagName === 'BUTTON' || 
-                node.getAttribute('data-exclude-from-screenshot') === 'true') {
+            if (
+              node.tagName === "BUTTON" ||
+              node.getAttribute("data-exclude-from-screenshot") === "true"
+            ) {
               return false;
             }
           }
@@ -183,9 +188,9 @@ export const ShareStory: React.FC = () => {
         },
         style: {
           // Принудительно применяем безопасные стили
-          fontFamily: 'Arial, sans-serif !important',
-          transform: 'none !important'
-        }
+          fontFamily: "Arial, sans-serif !important",
+          transform: "none !important",
+        },
       });
 
       document.body.removeChild(container);
@@ -195,10 +200,9 @@ export const ShareStory: React.FC = () => {
       }
 
       const url = URL.createObjectURL(blob);
-      
+
       // 10. Отправляем в Telegram
       await shareToTelegramStory(url);
-      
     } catch (error: any) {
       console.error("❌ Ошибка при создании скриншота:", error);
       alert(`Ошибка: ${t("exportFailed")}`);
@@ -207,25 +211,38 @@ export const ShareStory: React.FC = () => {
     }
   };
 
-  const shareToTelegramStory = async (url: string): Promise<void> => {
+  const shareToTelegramStory = async (
+    url: string | undefined
+  ): Promise<void> => {
     if (!url) return;
-    console.log("url",url)
+
     try {
-      const tg = (window as any).Telegram;
-      if (tg?.WebApp?.shareStory) {
-        await tg.WebApp.shareStory(url, {
-          widget: {
+      await init();
+
+      if (typeof ShareStory === "function") {
+        await shareStory(url, {
+          widgetLink: {
             url: "https://t.me/QiblaGuidebot",
             name: "@QiblaGuidebot",
           },
         });
       } else {
-        // Fallback - открываем в новом окне
-        window.open(url, "_blank");
+        const tg = (window as any).Telegram;
+        if (tg?.WebApp?.shareStory) {
+          await tg.WebApp.shareStory(url, {
+            widget: {
+              url: "https://t.me/QiblaGuidebot",
+              name: "@QiblaGuidebot",
+            },
+          });
+        } else {
+          throw new Error("shareStory function not available");
+        }
       }
     } catch (error) {
       console.error("Share story failed:", error);
-      window.open(url, "_blank");
+      // Fallback
+      window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
     }
   };
 
@@ -249,18 +266,18 @@ export const ShareStory: React.FC = () => {
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
         {/* Оберточный div для скриншота с inline стилями для безопасности */}
-        <div 
-          ref={screenshotRef} 
+        <div
+          ref={screenshotRef}
           className={styles.contentWrapper}
           style={{
-            fontFamily: 'Arial, sans-serif',
-            maxWidth: '390px',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            position: 'relative'
+            fontFamily: "Arial, sans-serif",
+            maxWidth: "390px",
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            position: "relative",
           }}
         >
           {/* Фоновое изображение */}
@@ -269,115 +286,115 @@ export const ShareStory: React.FC = () => {
             alt="Background"
             className={styles.backgroundImage}
             style={{
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              zIndex: '1'
+              position: "absolute",
+              top: "0",
+              left: "0",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              zIndex: "1",
             }}
           />
-          
+
           {/* Основное изображение сообщения */}
           <img
             src={message}
             className={styles.messageImage}
             alt="Message background"
             style={{
-              maxHeight: '570px',
-              maxWidth: '100%',
-              height: 'auto',
-              width: 'auto',
-              margin: '0 auto',
-              objectFit: 'contain',
-              paddingTop: '48px',
-              position: 'relative',
-              zIndex: '2'
+              maxHeight: "570px",
+              maxWidth: "100%",
+              height: "auto",
+              width: "auto",
+              margin: "0 auto",
+              objectFit: "contain",
+              paddingTop: "48px",
+              position: "relative",
+              zIndex: "2",
             }}
           />
-          
+
           {/* Блоки с сообщениями */}
-          <div 
+          <div
             className={styles.blockMessages}
             style={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              bottom: '20px',
-              padding: '16px',
-              zIndex: '3',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              width: '100%',
-              maxWidth: '390px',
-              boxSizing: 'border-box'
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              bottom: "20px",
+              padding: "16px",
+              zIndex: "3",
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              width: "100%",
+              maxWidth: "390px",
+              boxSizing: "border-box",
             }}
           >
-            <div 
+            <div
               className={styles.blockMessageUser}
               style={{
-                borderRadius: '12px 12px 0 12px',
-                maxWidth: '280px',
-                background: 'rgba(255, 255, 255, 0.95)',
-                padding: '8px 16px',
-                alignSelf: 'flex-end',
-                marginLeft: 'auto',
-                backdropFilter: 'blur(10px)'
+                borderRadius: "12px 12px 0 12px",
+                maxWidth: "280px",
+                background: "rgba(255, 255, 255, 0.95)",
+                padding: "8px 16px",
+                alignSelf: "flex-end",
+                marginLeft: "auto",
+                backdropFilter: "blur(10px)",
               }}
             >
-              <div 
+              <div
                 className={styles.nickName}
                 style={{
-                  color: '#2c3e50',
-                  fontWeight: '400',
-                  fontSize: '14px',
-                  fontFamily: 'Arial, sans-serif'
+                  color: "#2c3e50",
+                  fontWeight: "400",
+                  fontSize: "14px",
+                  fontFamily: "Arial, sans-serif",
                 }}
               >
                 {t("you")}
               </div>
-              <div 
+              <div
                 className={styles.text}
                 style={{
-                  color: '#2c3e50',
-                  lineHeight: '1.5',
-                  fontFamily: 'Arial, sans-serif'
+                  color: "#2c3e50",
+                  lineHeight: "1.5",
+                  fontFamily: "Arial, sans-serif",
                 }}
               >
                 {currentItem.question}
               </div>
             </div>
-            <div 
+            <div
               className={styles.blockMessageBot}
               style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                maxWidth: '280px',
-                borderRadius: '12px 12px 12px 0',
-                padding: '8px 16px',
-                alignSelf: 'flex-start',
-                marginRight: 'auto',
-                backdropFilter: 'blur(10px)'
+                background: "rgba(255, 255, 255, 0.95)",
+                maxWidth: "280px",
+                borderRadius: "12px 12px 12px 0",
+                padding: "8px 16px",
+                alignSelf: "flex-start",
+                marginRight: "auto",
+                backdropFilter: "blur(10px)",
               }}
             >
-              <div 
+              <div
                 className={styles.nickName}
                 style={{
-                  color: '#2c3e50',
-                  fontWeight: '400',
-                  fontSize: '14px',
-                  fontFamily: 'Arial, sans-serif'
+                  color: "#2c3e50",
+                  fontWeight: "400",
+                  fontSize: "14px",
+                  fontFamily: "Arial, sans-serif",
                 }}
               >
                 @QiblaGuidebot
               </div>
-              <div 
+              <div
                 className={styles.text}
                 style={{
-                  color: '#2c3e50',
-                  lineHeight: '1.5',
-                  fontFamily: 'Arial, sans-serif'
+                  color: "#2c3e50",
+                  lineHeight: "1.5",
+                  fontFamily: "Arial, sans-serif",
                 }}
               >
                 {currentItem.answer}
@@ -385,7 +402,7 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
