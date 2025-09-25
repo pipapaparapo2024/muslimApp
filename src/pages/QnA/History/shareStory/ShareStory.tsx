@@ -94,20 +94,22 @@ export const ShareStory: React.FC = () => {
   return (
     // <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
     <div className={styles.container}>
-      {/* Фон через <img> */}
+      {/* Видимый фон — для пользователя */}
+      <img
+        src={backgroundImg}
+        alt="Background"
+        className={styles.visibleBackground}
+      />
 
-        <img
-          src={backgroundImg}
-          alt="Background"
-          className={styles.backgroundImage}
-        />
       {/* Контент для скриншота */}
       <div ref={screenshotRef} className={styles.contentWrapper}>
+        {/* Скрытый фон — только для скриншота */}
         <img
           src={backgroundImg}
-          alt="Background"
-          className={styles.backgroundImage}
+          alt=""
+          className={styles.hiddenBackgroundForScreenshot}
         />
+
         <img
           src={message}
           className={styles.messageImage}
@@ -125,7 +127,7 @@ export const ShareStory: React.FC = () => {
         </div>
       </div>
 
-      {/* Кнопка вне скриншота */}
+      {/* Кнопка */}
       <div className={styles.blockButton}>
         <button
           type="button"

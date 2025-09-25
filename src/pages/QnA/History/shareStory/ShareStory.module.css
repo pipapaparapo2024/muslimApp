@@ -143,3 +143,64 @@
   cursor: not-allowed;
   transform: none !important;
 }
+
+
+/* Видимый фон — поверх всего, но под контентом */
+.visibleBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh; /* лучше dvh для Telegram */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  padding-bottom: var(--numbers-80);
+  overflow: hidden;
+}
+
+/* Обёртка для скриншота */
+.contentWrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 390px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--numbers-48);
+}
+
+/* Скрытый фон — внутри скриншота, но невидим на экране */
+.hiddenBackgroundForScreenshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0; /* ← делает невидимым, но html2canvas всё равно его рендерит */
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Остальной контент поверх */
+.container img.messageImage {
+  max-height: 570px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
