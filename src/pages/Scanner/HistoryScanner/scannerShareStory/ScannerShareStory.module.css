@@ -197,3 +197,21 @@
   align-items: center;
   gap: var(--numbers-8);
 }
+
+/* Остальной CSS остаётся без изменений... */
+.messageContainer {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  justify-content: center;
+}
+
+.messageContainer img.messageImage {
+  max-height: 570px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}

@@ -129,57 +129,62 @@ export const ScannerShareStory: React.FC = () => {
             alt=""
             className={styles.hiddenBackgroundForScreenshot}
           />
+          <div className={styles.messageContainer}>
+            <img
+              src={message}
+              alt="Message background"
+              className={styles.foregroundImage}
+              crossOrigin="anonymous"
+            />
 
-          <img
-            src={message}
-            alt="Message background"
-            className={styles.foregroundImage}
-            crossOrigin="anonymous"
-          />
-
-          <div className={styles.blockScan}>
-            <div
-              className={`${styles.accessBlock} ${getStatusClassName(
-                currentItem.engType,
-                styles
-              )}`}
-            >
-              <div className={styles.statusProduct}>
-                {getStatusIcon(currentItem.engType)}
-                {t(getStatusTranslationKey(currentItem.engType))}
-              </div>
-              <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
-            </div>
-
-            {currentItem.products && currentItem.products.length > 0 && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("ingredients")}</div>
-                <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}
+            <div className={styles.blockScan}>
+              <div
+                className={`${styles.accessBlock} ${getStatusClassName(
+                  currentItem.engType,
+                  styles
+                )}`}
+              >
+                <div className={styles.statusProduct}>
+                  {getStatusIcon(currentItem.engType)}
+                  {t(getStatusTranslationKey(currentItem.engType))}
                 </div>
+                <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
               </div>
-            )}
 
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
-              currentItem.haramProducts.map((product: any, index: number) => (
-                <div key={index} className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+              {currentItem.products && currentItem.products.length > 0 && (
+                <div className={styles.blockInside}>
+                  <div className={styles.scanTitle}>{t("ingredients")}</div>
                   <div className={styles.scanDesk}>
-                    <div className={styles.haranProduct}>
-                      {product.name} - {product.reason}
-                      {product.source}
-                    </div>
+                    {currentItem.products.join(", ")}
                   </div>
                 </div>
-              ))}
+              )}
 
-            {currentItem.description && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("conclusion")}</div>
-                <div className={styles.scanDesk}>{currentItem.description}</div>
-              </div>
-            )}
+              {currentItem.haramProducts &&
+                currentItem.haramProducts.length > 0 &&
+                currentItem.haramProducts.map((product: any, index: number) => (
+                  <div key={index} className={styles.blockInside}>
+                    <div className={styles.scanTitle}>
+                      {t("analysisResult")}
+                    </div>
+                    <div className={styles.scanDesk}>
+                      <div className={styles.haranProduct}>
+                        {product.name} - {product.reason}
+                        {product.source}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+              {currentItem.description && (
+                <div className={styles.blockInside}>
+                  <div className={styles.scanTitle}>{t("conclusion")}</div>
+                  <div className={styles.scanDesk}>
+                    {currentItem.description}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Кнопка ВНУТРИ screenshotRef */}

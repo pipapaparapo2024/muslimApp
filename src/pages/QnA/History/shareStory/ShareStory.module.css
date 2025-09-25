@@ -168,7 +168,6 @@
   display: block;
 }
 
-/* Теперь blockMessages позиционируется относительно messageContainer */
 .blockMessages {
   position: absolute;
   left: 50%;
