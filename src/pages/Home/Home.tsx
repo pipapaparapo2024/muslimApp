@@ -28,6 +28,7 @@ export const Home: React.FC = () => {
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
+  
   if (isInitializing) {
     return (
       <PageWrapper>
@@ -35,6 +36,7 @@ export const Home: React.FC = () => {
       </PageWrapper>
     );
   }
+  
   if (initializationError) {
     return (
       <PageWrapper>
@@ -54,7 +56,24 @@ export const Home: React.FC = () => {
       <Header />
       <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
       <div className={styles.homeRoot}>
-        {/* Модальное окно с предупреждением о VPN */}
+        {/* Модальное окно с предупреждением о VPN - ВЫНЕСЕНО НАРУЖУ */}
+        {showVpnWarning && (
+          <div className={styles.vpnWarningOverlay}>
+            <div className={styles.vpnWarningModal}>
+              <button
+                className={styles.vpnWarningClose}
+                onClick={handleCloseVpnWarning}
+                aria-label={t("close")}
+              >
+                <X size={20} />
+              </button>
+              <div className={styles.vpnWarningText}>
+                <TriangleAlert size={40} color="var(--warning-color)" />
+                {t("vpnWarning")}
+              </div>
+            </div>
+          </div>
+        )}
 
         {isLoading && (
           <div className={styles.loadingContainer}>
@@ -71,23 +90,6 @@ export const Home: React.FC = () => {
                 showVpnWarning ? styles.blurred : ""
               }`}
             >
-              {showVpnWarning && (
-                <div className={styles.vpnWarningOverlay}>
-                  <div className={styles.vpnWarningModal}>
-                    <button
-                      className={styles.vpnWarningClose}
-                      onClick={handleCloseVpnWarning}
-                      aria-label={t("close")}
-                    >
-                      <X size={20} />
-                    </button>
-                    <div className={styles.vpnWarningText}>
-                      <TriangleAlert size={40} color="var(--warning-color)" />
-                      {t("vpnWarning")}
-                    </div>
-                  </div>
-                </div>
-              )}
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
