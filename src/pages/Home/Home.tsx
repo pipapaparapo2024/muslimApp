@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
     initializationError,
     showVpnWarning,
     handleCloseVpnWarning,
-    handleOpenVpnWarning,
+    handleOpenVpnWarning, 
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -56,32 +56,36 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
+      <button onClick={()=>handleOpenVpnWarning()}>open VPN</button>
       <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
         {showVpnWarning && (
-          // <div className={styles.vpnWarningOverlay}>
-          <div className={styles.vpnWarningModal}>
-            <button
-              className={styles.vpnWarningClose}
-              onClick={handleCloseVpnWarning} // Используем функцию закрытия
-              aria-label={t("close")}
-            >
-              <X size={20} />
-            </button>
-            <div className={styles.vpnWarningIcon}>
-              <TriangleAlert size={40} color="var(--warning-color)" />
+          <div className={styles.vpnWarningOverlay}>
+            <div className={styles.vpnWarningModal}>
+              <button 
+                className={styles.vpnWarningClose}
+                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+                aria-label={t("close")}
+              >
+                <X size={20} />
+              </button>
+              <div className={styles.vpnWarningIcon}>
+                <TriangleAlert size={40} color="var(--warning-color)" />
+              </div>
+              <h3 className={styles.vpnWarningTitle}>
+                {t("vpnWarningTitle")}
+              </h3>
+              <p className={styles.vpnWarningText}>
+                {t("vpnWarningText")}
+              </p>
+              <button 
+                className={styles.vpnWarningButton}
+                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+              >
+                {t("understand")}
+              </button>
             </div>
-            <h3 className={styles.vpnWarningTitle}>{t("vpnWarningTitle")}</h3>
-            <p className={styles.vpnWarningText}>{t("vpnWarningText")}</p>
-            <button
-              className={styles.vpnWarningButton}
-              onClick={handleCloseVpnWarning} // Используем функцию закрытия
-            >
-              {t("understand")}
-            </button>
           </div>
-          // </div>
         )}
 
         {isLoading && (
@@ -94,11 +98,7 @@ export const Home: React.FC = () => {
 
         {!isLoading && !error && (
           <>
-            <div
-              className={`${styles.prayerTimesQiblaContainer} ${
-                showVpnWarning ? styles.blurred : ""
-              }`}
-            >
+            <div className={`${styles.prayerTimesQiblaContainer} ${showVpnWarning ? styles.blurred : ''}`}>
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
