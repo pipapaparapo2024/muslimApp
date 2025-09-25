@@ -1,7 +1,6 @@
 // src/pages/ShareStory/ShareStory.tsx
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/shareStory.png";
 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
@@ -124,7 +123,7 @@ export const ShareStory: React.FC = () => {
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
-            src={message}
+            src={"../../../../assets/image/shareStory.png"}
             className={styles.messageImage}
             alt="Message background"
             crossOrigin="anonymous"
