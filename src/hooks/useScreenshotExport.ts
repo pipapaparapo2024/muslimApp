@@ -1,8 +1,7 @@
-// src/hooks/useScreenshotExport.ts
-import { useEffect, useState } from "react";
+// hooks/useScreenshotExport.ts
+import { useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
-import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   status: boolean;
@@ -13,244 +12,296 @@ interface StoryResponse {
 }
 
 interface ExportOptions {
-  element: HTMLElement;
-  id: string;
+  element: HTMLElement | null;
+  id: string | undefined;
 }
-
-// const ensureImagesLoaded = async (element: HTMLElement): Promise<void> => {
-//   const images = Array.from(element.querySelectorAll('img'));
-//   console.log(`🖼️ [ensureImagesLoaded] Found ${images.length} images`);
-
-//   const promises = images.map((img, index) => {
-//     return new Promise<void>((resolve) => {
-//       if (img.complete && img.naturalHeight > 0) {
-//         console.log(`✅ [Image ${index}] Already loaded: ${img.src}`);
-//         resolve();
-//         return;
-//       }
-
-//       const onLoad = () => {
-//         console.log(`✅ [Image ${index}] Loaded successfully: ${img.src}`);
-//         img.removeEventListener('load', onLoad);
-//         img.removeEventListener('error', onError);
-//         resolve();
-//       };
-
-//       const onError = () => {
-//         console.warn(`❌ [Image ${index}] Failed to load: ${img.src}`);
-//         img.removeEventListener('load', onLoad);
-//         img.removeEventListener('error', onError);
-//         resolve(); // continue anyway
-//       };
-
-//       img.addEventListener('load', onLoad);
-//       img.addEventListener('error', onError);
-
-//       if (!img.src.startsWith('data:') && !img.src.startsWith('blob:')) {
-//         const newSrc = img.src + '?t=' + Date.now();
-//         console.log(`🔄 [Image ${index}] Reloading to bypass cache:`, newSrc);
-//         img.src = newSrc;
-//       }
-//     });
-//   });
-
-//   await Promise.all(promises);
-//   console.log("✅ [ensureImagesLoaded] All images processed");
-// };
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const initializeSdk = async () => {
-      try {
-        console.log("🔌 [Telegram SDK] Initializing...");
-        await init();
-        console.log("✅ [Telegram SDK] Initialized");
-      } catch (error) {
-        console.error("❌ [Telegram SDK] Init failed:", error);
-      }
-    };
-    initializeSdk();
-  }, []);
-
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    console.log("📸 [captureScreenshot] Starting...");
-    if (!element || element.offsetWidth === 0 || element.offsetHeight === 0) {
-      console.error("❌ [captureScreenshot] Invalid element dimensions");
-      throw new Error('Element is not visible or has zero dimensions');
-    }
-
-    console.log(`📏 [captureScreenshot] Original element size: ${element.offsetWidth}x${element.offsetHeight}`);
-
-    // 1. Создаём контейнер для рендера с теми же стилями
-    const container = document.createElement("div");
-    container.style.position = "fixed";
-    container.style.left = "-9999px";
-    container.style.top = "0";
-    container.style.width = "375px";
-    container.style.backgroundColor = "#ffffff";
-    container.style.padding = "20px";
-    container.style.fontFamily = "'Roboto', Arial, sans-serif";
-    container.style.boxSizing = "border-box";
-    container.style.borderRadius = "12px";
-    container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
-    container.style.overflow = "hidden";
-
-    // 2. Глубокое клонирование с сохранением стилей
+  const generateHTMLTemplate = (element: HTMLElement): string => {
+    // Создаем глубокий клон элемента с сохранением всех стилей
     const clone = element.cloneNode(true) as HTMLElement;
-    
-    // 3. Убираем абсолютное позиционирование у фона (если есть)
-    const backgroundImg = clone.querySelector('img[alt="Background"]') as HTMLImageElement;
-    if (backgroundImg) {
-      backgroundImg.style.position = "relative";
-      backgroundImg.style.top = "auto";
-      backgroundImg.style.left = "auto";
-      backgroundImg.style.zIndex = "1";
-    }
 
-    // 4. Убедимся, что все изображения загружены
-    await new Promise<void>((resolve) => {
-      const images = clone.querySelectorAll("img");
-      let loadedCount = 0;
-      
-      if (images.length === 0) {
-        resolve();
-        return;
-      }
+    // Удаляем кнопку шаринга и другие элементы, которые не должны быть в скриншоте
+    const elementsToRemove = clone.querySelectorAll(
+      '[data-story-visible="hide"], .shareButton, .blockButton, button'
+    );
+    elementsToRemove.forEach((el) => el.remove());
 
-      images.forEach((img) => {
-        if (img.complete) {
-          loadedCount++;
-        } else {
-          img.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) resolve();
-          };
-          img.onerror = () => {
-            loadedCount++;
-            if (loadedCount === images.length) resolve();
-          };
+    // Получаем вычисленные стили для элемента и его детей
+    const styles = getElementStyles(element);
+
+    // Получаем HTML структуру
+    const htmlContent = clone.innerHTML;
+
+    // Создаем полный HTML документ с правильными стилями
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
-
-      if (loadedCount === images.length) resolve();
-    });
-
-    container.appendChild(clone);
-    document.body.appendChild(container);
-
-    // 5. Ждём отрисовки
-    console.log("⏳ [captureScreenshot] Waiting 500ms for rendering...");
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    try {
-      const width = 375;
-      const height = Math.max(clone.scrollHeight, 600);
-      console.log(`📐 [captureScreenshot] Final size: ${width}x${height}`);
-
-      const blob = await toBlob(clone, {
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        quality: 0.95,
-        cacheBust: false,
-        skipFonts: false,
-      });
-
-      if (!blob) {
-        throw new Error("Blob is null");
-      }
-
-      console.log(`✅ [captureScreenshot] Blob created. Size: ${blob.size} bytes, Type: ${blob.type}`);
-      return blob;
-    } catch (error) {
-      console.error("❌ [captureScreenshot] Failed:", error);
-      throw error;
-    } finally {
-      if (container.parentNode) {
-        container.parentNode.removeChild(container);
-        console.log("🧹 [captureScreenshot] Cleanup done");
-      }
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .screenshot-container {
+            width: 390px;
+            max-width: 100%;
+            position: relative;
+        }
+        
+        /* Основные стили для контента */
+        .contentWrapper {
+            width: 100%;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        /* Стили для изображений */
+        .contentWrapper img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* Стили для блоков с контентом */
+        .blockScan {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            z-index: 2;
+        }
+        
+        .blockMessages {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            z-index: 2;
+        }
+        
+        .accessBlock, .blockInside, .blockMessageUser, .blockMessageBot {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 12px 16px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .scanTitle, .nickName {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .scanDesk, .text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Убираем все ограничения текста */
+        .scanDesk, .text {
+            display: block !important;
+            -webkit-line-clamp: unset !important;
+            line-clamp: unset !important;
+            max-height: none !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+        }
+        
+        /* Статусные цвета */
+        .haram { color: #ef4444; }
+        .halal { color: #15803d; }
+        .mushbooh { color: #f59e0b; }
+        
+        ${styles}
+    </style>
+</head>
+<body>
+    <div class="screenshot-container">
+        ${htmlContent}
+    </div>
+</body>
+</html>`;
   };
 
-  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
-    console.log("📤 [uploadScreenshot] Preparing upload...");
-    const formData = new FormData();
-    formData.append("file", blob, `story-${id}.jpg`);
-    formData.append("id", id);
+  const getElementStyles = (element: HTMLElement): string => {
+    // Собираем важные стили из элемента
+    const computedStyle = window.getComputedStyle(element);
 
-    console.log("📊 [uploadScreenshot] FormData ready. Blob size:", blob.size);
+    // Получаем стили для фоновых изображений
+    const backgroundImage = computedStyle.backgroundImage;
+    let backgroundStyles = "";
 
+    if (backgroundImage && backgroundImage !== "none") {
+      backgroundStyles = `
+        .contentWrapper {
+            background-image: ${backgroundImage} !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+      `;
+    }
+
+    // Собираем стили для всех дочерних элементов
+    const childrenStyles = Array.from(element.querySelectorAll("*"))
+      .map((child) => {
+        const childComputed = window.getComputedStyle(child as HTMLElement);
+        const classes = Array.from((child as HTMLElement).classList);
+        if (classes.length === 0) return "";
+
+        const classSelectors = classes.map((cls) => `.${cls}`).join("");
+        return `
+          ${classSelectors} {
+            ${getImportantStyles(childComputed)}
+          }
+        `;
+      })
+      .join("");
+
+    return backgroundStyles + childrenStyles;
+  };
+
+  const getImportantStyles = (computedStyle: CSSStyleDeclaration): string => {
+    // Собираем только самые важные стили
+    const importantProperties = [
+      "display",
+      "position",
+      "width",
+      "height",
+      "top",
+      "left",
+      "right",
+      "bottom",
+      "margin",
+      "padding",
+      "border",
+      "background",
+      "color",
+      "font-size",
+      "font-weight",
+      "text-align",
+      "z-index",
+      "opacity",
+      "visibility",
+      "flex-direction",
+      "justify-content",
+      "align-items",
+      "gap",
+    ];
+
+    return importantProperties
+      .map((prop) => {
+        const value = computedStyle.getPropertyValue(prop);
+        return value ? `${prop}: ${value} !important;` : "";
+      })
+      .filter(Boolean)
+      .join(" ");
+  };
+
+  const exportScreenshot = async (
+    options: ExportOptions
+  ): Promise<string | undefined> => {
+    setLoading(true);
     try {
+      if (!options.id || !options.element) {
+        throw new Error("ID and element are required for export");
+      }
+
+      // Генерируем HTML для скриншота
+      const htmlTemplate = generateHTMLTemplate(options.element);
+
+      console.log("Generated HTML template:", htmlTemplate); // Для отладки
+
+      // Отправляем на сервер для генерации скриншота
       const response = await quranApi.post<StoryResponse>(
-        "/api/v1/qa/story",
-        formData,
+        "/api/v1/screenshot/story",
+        {
+          html: htmlTemplate,
+          id: options.id,
+        },
         {
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           timeout: 60000,
         }
       );
 
-      console.log("📥 [uploadScreenshot] Server response:", response.data);
-
       if (response.data.status && response.data.data.url) {
-        console.log("✅ [uploadScreenshot] Upload successful. URL:", response.data.data.url);
         return response.data.data.url;
       } else {
-        throw new Error(response.data.message || "Upload failed");
+        throw new Error(
+          response.data.message || "Failed to generate screenshot"
+        );
       }
-    } catch (error: any) {
-      console.error("❌ [uploadScreenshot] Error:", {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw error;
-    }
-  };
-
-  const exportScreenshot = async (options: ExportOptions): Promise<string> => {
-    console.group("🚀 [exportScreenshot] START");
-    setLoading(true);
-    try {
-      const blob = await captureScreenshot(options.element);
-      const url = await uploadScreenshot(blob, options.id);
-      console.log("✅ [exportScreenshot] Final URL:", url);
-      return url;
     } catch (error) {
-      console.error("❌ [exportScreenshot] FAILED:", error);
+      console.error("Screenshot export error:", error);
       throw error;
     } finally {
       setLoading(false);
-      console.groupEnd();
     }
   };
 
   return { loading, exportScreenshot };
 };
 
-export const shareToTelegramStory = async (url: string): Promise<void> => {
-  console.log("📲 [shareToTelegramStory] URL to share:", url);
+// Функция шаринга остается без изменений
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
+  if (!url) return;
+
   try {
+    await init();
+
     if (typeof shareStory === "function") {
-      console.log("🤖 [Telegram SDK] Using native shareStory");
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      console.log("✅ [Telegram SDK] Shared via native method");
     } else {
-      console.log("🌐 [Fallback] Opening share URL in new tab");
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
+      const tg = (window as any).Telegram;
+      if (tg?.WebApp?.shareStory) {
+        await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+      } else {
+        throw new Error("shareStory function not available");
+      }
     }
   } catch (error) {
-    console.error("❌ [shareToTelegramStory] Failed:", error);
-    console.log("🌐 [Fallback] Opening share URL after error");
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, "_blank");
-  };
+    console.error("Share story failed:", error);
+    // Fallback
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+  }
 };
