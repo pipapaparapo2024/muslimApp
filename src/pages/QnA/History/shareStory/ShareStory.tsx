@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import backgroundImg from "../../../../assets/image/background.png"; // ← импортируем фон
+import backgroundImg from "../../../../assets/image/background.png"; // фон как изображение
 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
@@ -88,16 +88,15 @@ export const ShareStory: React.FC = () => {
 
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
-      {/* Контейнер с фоном через инлайновый стиль */}
-      <div
-        className={styles.container}
-        style={{
-          backgroundImage: `url(${backgroundImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
+      <div className={styles.container}>
+        {/* Фон через <img> */}
+        <img
+          src={backgroundImg}
+          alt="Background"
+          className={styles.backgroundImage}
+        />
+
+        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
             src={message}
@@ -116,6 +115,7 @@ export const ShareStory: React.FC = () => {
           </div>
         </div>
 
+        {/* Кнопка вне скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
