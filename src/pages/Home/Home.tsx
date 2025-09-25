@@ -74,7 +74,7 @@ export const Home: React.FC = () => {
                     <div className={styles.vpnWarningText}>
                       <TriangleAlert
                         strokeWidth={1.5}
-                        size={200}
+                        size={20}
                         color="white"
                         fill="#F59E0B"
                       />
