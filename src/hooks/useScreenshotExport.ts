@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
-import { toBlob } from "html-to-image";
 
 interface StoryResponse {
   status: boolean;
@@ -14,84 +13,6 @@ interface StoryResponse {
 interface ExportOptions {
   element: HTMLElement | null;
   id: string | undefined;
-  includeBackground?: boolean; // Добавляем опцию для включения фона
-}
-
-// Функция для подготовки элемента к скриншоту
-function prepareElementForScreenshot(el: HTMLElement, includeBackground: boolean = false): { restore: () => void } {
-  const originalStyle = el.getAttribute("style") || "";
-  const wasHidden = getComputedStyle(el).display === "none";
-
-  if (!wasHidden && !includeBackground) return { restore: () => {} };
-
-  // Клонируем элемент чтобы добавить фон
-  if (includeBackground) {
-    const container = el.closest('.container') as HTMLElement;
-    if (container) {
-      const containerStyle = getComputedStyle(container);
-      const backgroundImage = containerStyle.backgroundImage;
-      
-      if (backgroundImage && backgroundImage !== 'none') {
-        Object.assign(el.style, {
-          backgroundImage: backgroundImage,
-          backgroundSize: containerStyle.backgroundSize,
-          backgroundPosition: containerStyle.backgroundPosition,
-          backgroundRepeat: containerStyle.backgroundRepeat,
-        });
-      }
-    }
-  }
-
-  Object.assign(el.style, {
-    display: "block",
-    position: "fixed",
-    left: wasHidden ? "-99999px" : "0",
-    top: "0",
-    visibility: "visible",
-    width: "100%",
-    height: "100%",
-    zIndex: "9999",
-  });
-
-  return {
-    restore() {
-      el.setAttribute("style", originalStyle);
-    },
-  };
-}
-
-// Функция для ожидания загрузки шрифтов
-async function waitFonts(): Promise<void> {
-  if (document.fonts && document.fonts.ready) {
-    try {
-      await document.fonts.ready;
-    } catch {}
-  }
-  // Небольшая задержка для перерисовки
-  await new Promise((r) => setTimeout(r, 100));
-}
-
-// Функция для предзагрузки фонового изображения
-async function preloadBackgroundImage(element: HTMLElement): Promise<void> {
-  const container = element.closest('.container') as HTMLElement;
-  if (!container) return;
-
-  const style = getComputedStyle(container);
-  const backgroundImage = style.backgroundImage;
-  
-  if (backgroundImage && backgroundImage !== 'none') {
-    // Извлекаем URL из background-image
-    const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
-    if (urlMatch && urlMatch[1]) {
-      const imageUrl = urlMatch[1];
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-      });
-    }
-  }
 }
 
 export const useScreenshotExport = () => {
@@ -113,53 +34,57 @@ export const useScreenshotExport = () => {
     initializeSdk();
   }, []);
 
-  const captureScreenshot = async (element: HTMLElement, includeBackground: boolean = false): Promise<Blob> => {
-    await waitFonts();
-    
-    if (includeBackground) {
-      await preloadBackgroundImage(element);
-    }
-    
-    const preparation = prepareElementForScreenshot(element, includeBackground);
+  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    // Динамически импортируем html2canvas для уменьшения размера бандла
+    const html2canvas = (await import("html2canvas")).default;
 
-    try {
-      const blob = await toBlob(element, {
-        pixelRatio: Math.min(3, (window.devicePixelRatio || 1) * 2),
-        cacheBust: true,
-        filter: (node: HTMLElement) => {
-          const tag = node.tagName?.toUpperCase?.() || "";
-          // Исключаем элементы, которые не должны попадать в скриншот
-          if (
-            node.getAttribute &&
-            node.getAttribute("data-story-visible") === "hide"
-          ) {
-            return false;
+    // Ждем загрузки всех изображений
+    await preloadAllImages(element);
+
+    // Даем время для полного рендеринга
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const canvas = await html2canvas(element, {
+      background: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      width: element.scrollWidth,
+      height: element.scrollHeight,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight,
+      onclone: (_clonedDoc: Document, element: HTMLElement) => {
+        const clonedElement = element;
+        clonedElement.style.display = "block";
+        clonedElement.style.visibility = "visible";
+        clonedElement.style.opacity = "1";
+
+        const images = clonedElement.querySelectorAll("img");
+        images.forEach((img) => {
+          const imageElement = img as HTMLImageElement;
+          imageElement.style.display = "block";
+          imageElement.style.visibility = "visible";
+          imageElement.style.opacity = "1";
+        });
+      },
+    } as any); // ← вот так обходим ошибку
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Failed to create blob from canvas"));
           }
-          if (["IFRAME", "VIDEO", "CANVAS", "LINK"].includes(tag)) {
-            return false;
-          }
-          // Исключаем элементы с внешними ссылками
-          if (
-            node.getAttribute &&
-            node.getAttribute("href")?.includes("fonts.googleapis.com")
-          ) {
-            return false;
-          }
-          return true;
         },
-        skipFonts: true,
-        fontEmbedCSS: "",
-        backgroundColor: includeBackground ? 'transparent' : '#ffffff', // Прозрачный фон если включаем background
-      });
-
-      if (!blob) {
-        throw new Error("Failed to create screenshot blob");
-      }
-
-      return blob;
-    } finally {
-      preparation.restore();
-    }
+        "image/png",
+        0.9
+      ); // Качество 90%
+    });
   };
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
@@ -179,6 +104,7 @@ export const useScreenshotExport = () => {
           timeout: 30000,
         }
       );
+
       if (response.data.status && response.data.data.url) {
         return response.data.data.url;
       } else {
@@ -203,11 +129,14 @@ export const useScreenshotExport = () => {
         throw new Error("ID and element are required for export");
       }
 
-      // Делаем скриншот с включением фона
-      const screenshotBlob = await captureScreenshot(options.element, true);
+      console.log("Starting screenshot capture...");
+      const screenshotBlob = await captureScreenshot(options.element);
+      console.log("Screenshot captured, size:", screenshotBlob.size);
 
-      // Загружаем на сервер
+      console.log("Uploading screenshot...");
       const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
+      console.log("Screenshot uploaded, URL:", storyUrl);
+
       return storyUrl;
     } catch (error) {
       console.error("Screenshot export error:", error);
@@ -219,6 +148,67 @@ export const useScreenshotExport = () => {
 
   return { loading, exportScreenshot };
 };
+
+// Функция для предзагрузки всех изображений
+async function preloadAllImages(element: HTMLElement): Promise<void> {
+  const images = element.querySelectorAll("img");
+  const promises: Promise<void>[] = [];
+
+  images.forEach((img) => {
+    const image = img as HTMLImageElement;
+
+    // Если изображение уже загружено, пропускаем
+    if (image.complete && image.naturalHeight !== 0) {
+      return;
+    }
+
+    const promise = new Promise<void>((resolve) => {
+      image.onload = () => resolve();
+      image.onerror = () => {
+        console.warn(`Failed to load image: ${image.src}`);
+        resolve();
+      };
+
+      // Если src не установлен, сразу резолвим
+      if (!image.src || image.src === "") {
+        resolve();
+      }
+    });
+
+    promises.push(promise);
+  });
+
+  // Также предзагружаем фоновые изображения
+  const walker = document.createTreeWalker(
+    element,
+    NodeFilter.SHOW_ELEMENT,
+    null
+  );
+
+  let node;
+  while ((node = walker.nextNode())) {
+    const el = node as HTMLElement;
+    const style = getComputedStyle(el);
+    const backgroundImage = style.backgroundImage;
+
+    if (backgroundImage && backgroundImage !== "none") {
+      const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+      if (urlMatch && urlMatch[1]) {
+        const imageUrl = urlMatch[1];
+        const promise = new Promise<void>((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.src = imageUrl;
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+        promises.push(promise);
+      }
+    }
+  }
+
+  await Promise.all(promises);
+}
 
 export const shareToTelegramStory = async (
   url: string | undefined
@@ -236,11 +226,11 @@ export const shareToTelegramStory = async (
   );
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-  
+
   try {
     await init();
     console.log("Telegram SDK init attempted");
-    
+
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
       await shareStory(url, {
