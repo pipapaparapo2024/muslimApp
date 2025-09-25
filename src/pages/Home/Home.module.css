@@ -152,7 +152,6 @@
 
 .permissionButton {
   position: relative;
-  z-index: 1001;
   border: none;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-2) var(--numbers-8);
