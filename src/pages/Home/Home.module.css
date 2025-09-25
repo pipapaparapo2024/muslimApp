@@ -15,6 +15,7 @@
 
 /* Модалка теперь позиционируется относительно prayerTimesQiblaContainer */
 .vpnWarningOverlay {
+  border-radius: var(--roundings-small);
   position: absolute; /* Абсолютное позиционирование внутри контейнера */
   top: 0;
   left: 0;
