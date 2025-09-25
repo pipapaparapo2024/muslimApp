@@ -1,5 +1,4 @@
 .prayerTimesQiblaContainer {
-  position: relative;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
@@ -100,7 +99,6 @@
 /* Стили для предупреждения о VPN */
 .vpnWarningOverlay {
   display: flex;
-  position: absolute;
   justify-content: center;
   justify-content: center;
   align-items: center;
