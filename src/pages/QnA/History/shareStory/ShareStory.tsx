@@ -60,12 +60,26 @@ export const ShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
+      // Найдём элемент кнопки и скроем его перед экспортом
+      const buttonContainer = screenshotRef.current.querySelector(
+        `.${styles.blockButton}`
+      );
+      if (buttonContainer) {
+        buttonContainer.classList.add(styles.hideForScreenshot);
+      }
+
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
       console.log("screenshotUrl", screenshotUrl);
+
+      // Восстанавливаем видимость кнопки
+      if (buttonContainer) {
+        buttonContainer.classList.remove(styles.hideForScreenshot);
+      }
+
       if (screenshotUrl) {
         shareToTelegramStory(screenshotUrl);
       }
@@ -125,20 +139,24 @@ export const ShareStory: React.FC = () => {
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
-        </div>
 
-        {/* Кнопка */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
+          {/* Кнопка теперь внутри contentWrapper, но с классом для скрытия при скриншоте */}
+          <div
+            className={`${styles.blockButton} ${
+              loading ? styles.hideForScreenshot : ""
             }`}
           >
-            <Upload /> {loading ? t("loading") : t("share")}
-          </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={loading}
+              className={`${styles.shareButton} ${
+                loading ? styles.shareButtonDisabled : ""
+              }`}
+            >
+              <Upload /> {loading ? t("loading") : t("share")}
+            </button>
+          </div>
         </div>
       </div>
     </PageWrapper>

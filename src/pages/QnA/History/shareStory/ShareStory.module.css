@@ -161,3 +161,9 @@
   cursor: not-allowed;
   transform: none !important;
 }
+/* Скрываем кнопку при экспорте */
+.hideForScreenshot {
+  display: none !important;
+}
+
+/* Остальной CSS остаётся без изменений... */
