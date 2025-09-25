@@ -86,7 +86,7 @@
 
 /* Эффект размытия для контента под модалкой */
 .blurred {
-  filter: blur(20px);
+  filter: blur(2px);
   pointer-events: none;
   user-select: none;
 }
