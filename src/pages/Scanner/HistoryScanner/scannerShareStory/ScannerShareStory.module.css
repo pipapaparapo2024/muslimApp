@@ -64,15 +64,13 @@
 
 /* Контент поверх изображения */
 .blockScan {
-  position: absolute;
-  z-index: 2;
-  bottom: 0;
+  bottom: -40px;
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-4); /* Увеличил отступ */
+  gap: var(--numbers-4); 
   width: 100%;
   max-width: 390px;
-  margin-top: var(--numbers-20); /* Отступ от изображения */
+  margin-top: var(--numbers-20); 
   margin-bottom: var(--numbers-20);
 }
 
