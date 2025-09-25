@@ -71,7 +71,6 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: -100px;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
