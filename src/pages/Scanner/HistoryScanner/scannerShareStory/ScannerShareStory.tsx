@@ -105,9 +105,9 @@ export const ScannerShareStory: React.FC = () => {
     >
       <div className={styles.container}>
         <img
-          src={backgroundImg}
-          alt=""
-          className={styles.hiddenBackgroundForScreenshot}
+          src={background}
+          alt="Background"
+          className={styles.visibleBackground}
         />
         <div ref={screenshotRef} className={styles.contentWrapper}>
           {/* Основное изображение */}
@@ -117,7 +117,11 @@ export const ScannerShareStory: React.FC = () => {
             className={styles.foregroundImage}
             crossOrigin="anonymous"
           />
-
+          <img
+            src={background}
+            alt=""
+            className={styles.hiddenBackgroundForScreenshot}
+          />
           {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
             <div
