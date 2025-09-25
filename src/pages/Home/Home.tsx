@@ -24,7 +24,7 @@ export const Home: React.FC = () => {
     initializationError,
     showVpnWarning,
     handleCloseVpnWarning,
-    handleOpenVpnWarning, 
+    handleOpenVpnWarning,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -56,28 +56,26 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={()=>handleOpenVpnWarning()}>open VPN</button>
+      <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
       <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
         {showVpnWarning && (
           <div className={styles.vpnWarningOverlay}>
             <div className={styles.vpnWarningModal}>
-              <button 
+              <button
                 className={styles.vpnWarningClose}
-                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+                onClick={handleCloseVpnWarning} 
                 aria-label={t("close")}
               >
                 <X size={20} />
               </button>
-              <div className={styles.vpnWarningIcon}>
-                <TriangleAlert size={40} color="var(--warning-color)" />
-              </div>
               <div className={styles.vpnWarningText}>
+                <TriangleAlert size={40} color="var(--warning-color)" />
                 {t("vpnWarning")}
               </div>
-              <button 
+              <button
                 className={styles.vpnWarningButton}
-                onClick={handleCloseVpnWarning} // Используем функцию закрытия
+                onClick={handleCloseVpnWarning}
               >
                 {t("understand")}
               </button>
@@ -95,7 +93,11 @@ export const Home: React.FC = () => {
 
         {!isLoading && !error && (
           <>
-            <div className={`${styles.prayerTimesQiblaContainer} ${showVpnWarning ? styles.blurred : ''}`}>
+            <div
+              className={`${styles.prayerTimesQiblaContainer} ${
+                showVpnWarning ? styles.blurred : ""
+              }`}
+            >
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>

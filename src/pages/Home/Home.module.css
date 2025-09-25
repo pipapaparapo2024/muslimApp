@@ -108,8 +108,8 @@
 
 .vpnWarningModal {
   background: var(--bg-surface);
-  border-radius: var(--roundings-large);
-  padding: var(--numbers-24);
+  border-radius: var(--roundings-small);
+  margin: var(--numbers-24);
   max-width: 500px;
   width: 100%;
   text-align: center;
