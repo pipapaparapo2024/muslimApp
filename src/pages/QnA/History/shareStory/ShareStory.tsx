@@ -92,55 +92,55 @@ export const ShareStory: React.FC = () => {
   }
 
   return (
-    // <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
-    <div className={styles.container}>
-      {/* Видимый фон — для пользователя */}
-      <img
-        src={backgroundImg}
-        alt="Background"
-        className={styles.visibleBackground}
-      />
-
-      {/* Контент для скриншота */}
-      <div ref={screenshotRef} className={styles.contentWrapper}>
-        {/* Скрытый фон — только для скриншота */}
+    <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
+      <div className={styles.container}>
+        {/* Видимый фон — для пользователя */}
         <img
           src={backgroundImg}
-          alt=""
-          className={styles.hiddenBackgroundForScreenshot}
+          alt="Background"
+          className={styles.visibleBackground}
         />
 
-        <img
-          src={message}
-          className={styles.messageImage}
-          alt="Message background"
-        />
-        <div className={styles.blockMessages}>
-          <div className={styles.blockMessageUser}>
-            <div className={styles.nickName}>{t("you")}</div>
-            <div className={styles.text}>{currentItem.question}</div>
-          </div>
-          <div className={styles.blockMessageBot}>
-            <div className={styles.nickName}>@QiblaGuidebot</div>
-            <div className={styles.text}>{currentItem.answer}</div>
+        {/* Контент для скриншота */}
+        <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Скрытый фон — только для скриншота */}
+          <img
+            src={backgroundImg}
+            alt=""
+            className={styles.hiddenBackgroundForScreenshot}
+          />
+
+          <img
+            src={message}
+            className={styles.messageImage}
+            alt="Message background"
+          />
+          <div className={styles.blockMessages}>
+            <div className={styles.blockMessageUser}>
+              <div className={styles.nickName}>{t("you")}</div>
+              <div className={styles.text}>{currentItem.question}</div>
+            </div>
+            <div className={styles.blockMessageBot}>
+              <div className={styles.nickName}>@QiblaGuidebot</div>
+              <div className={styles.text}>{currentItem.answer}</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Кнопка */}
-      <div className={styles.blockButton}>
-        <button
-          type="button"
-          onClick={handleShare}
-          disabled={loading}
-          className={`${styles.shareButton} ${
-            loading ? styles.shareButtonDisabled : ""
-          }`}
-        >
-          <Upload /> {loading ? t("loading") : t("share")}
-        </button>
+        {/* Кнопка */}
+        <div className={styles.blockButton}>
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={loading}
+            className={`${styles.shareButton} ${
+              loading ? styles.shareButtonDisabled : ""
+            }`}
+          >
+            <Upload /> {loading ? t("loading") : t("share")}
+          </button>
+        </div>
       </div>
-    </div>
-    // </PageWrapper>
+    </PageWrapper>
   );
 };

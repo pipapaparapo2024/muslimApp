@@ -1,16 +1,17 @@
 .container {
   position: relative;
   width: 100%;
-  min-height: 100vh; /* ← критически важно: 100vh, а не 90vh */
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 0 auto;
-  padding-bottom: var(--numbers-80);
   overflow: hidden;
+  /* Убрали padding-bottom */
 }
 
-.backgroundImage {
+/* Видимый фон */
+.visibleBackground {
   position: absolute;
   top: 0;
   left: 0;
@@ -19,18 +20,33 @@
   object-fit: cover;
   z-index: 0;
 }
-/* Обёртка контента — поверх фона */
+
+/* Обёртка для скриншота */
 .contentWrapper {
   position: relative;
-  z-index: 1; /* выше фона */
+  z-index: 1;
   max-width: 390px;
   width: 100%;
-  /* height: 100%; */
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: var(--numbers-48);
+  /* Убедитесь, что нет лишних отступов */
+  margin: 0;
+  flex: 1; /* Занимает доступное пространство */
+}
 
+/* Скрытый фон для скриншота */
+.hiddenBackgroundForScreenshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .container img.messageImage {
@@ -49,14 +65,18 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  z-index: 2; /* кнопка поверх всего */
+  z-index: 2;
+  width: 100%;
+  /* Фиксируем кнопку внизу без лишних отступов */
+  margin-top: auto;
+  padding: var(--numbers-16) 0;
 }
 
 .blockMessages {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: -15px;
+  bottom: 0; /* Изменили с -15px на 0 */
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -107,8 +127,8 @@
 }
 
 .shareButton {
-  position: absolute;
-  bottom: 30px;
+  /* Изменили position на relative для нормального потока */
+  position: relative;
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
@@ -120,7 +140,7 @@
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
-  margin: var(--numbers-16) auto;
+  margin: 0 auto;
   width: 90%;
   color: white;
   padding: var(--numbers-16);
@@ -142,65 +162,4 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
-}
-
-
-/* Видимый фон — поверх всего, но под контентом */
-.visibleBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-.container {
-  position: relative;
-  width: 100%;
-  min-height: 100dvh; /* лучше dvh для Telegram */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  padding-bottom: var(--numbers-80);
-  overflow: hidden;
-}
-
-/* Обёртка для скриншота */
-.contentWrapper {
-  position: relative;
-  z-index: 1;
-  max-width: 390px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: var(--numbers-48);
-}
-
-/* Скрытый фон — внутри скриншота, но невидим на экране */
-.hiddenBackgroundForScreenshot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0; /* ← делает невидимым, но html2canvas всё равно его рендерит */
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Остальной контент поверх */
-.container img.messageImage {
-  max-height: 570px;
-  max-width: 100%;
-  height: auto;
-  width: auto;
-  margin: 0 auto;
-  object-fit: contain;
-  position: relative;
-  z-index: 1;
 }
