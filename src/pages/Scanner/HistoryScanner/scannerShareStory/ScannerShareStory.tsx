@@ -132,7 +132,7 @@ export const ScannerShareStory: React.FC = () => {
               className={styles.messageImage}
               alt="Message background"
             />
-            
+
             {/* Контент поверх изображения - ВЫРОВНЯН ПО ПРАВОЙ СТОРОНЕ */}
             <div className={styles.blockMessages}>
               {/* Блок статуса продукта - тоже выровнен по правой стороне */}
@@ -162,16 +162,28 @@ export const ScannerShareStory: React.FC = () => {
               )}
 
               {/* Результаты анализа */}
+              {/* Результаты анализа - ОДИН блок для всех продуктов */}
               {currentItem.haramProducts &&
-                currentItem.haramProducts.length > 0 &&
-                currentItem.haramProducts.map((product: any, index: number) => (
-                  <div key={index} className={styles.blockMessageBot}>
-                    <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                currentItem.haramProducts.length > 0 && (
+                  <div className={styles.blockMessageBot}>
+                    <div className={styles.scanTitle}>
+                      {t("analysisResult")}
+                    </div>
                     <div className={styles.text}>
-                      {product.name} - {product.reason} {product.source}
+                      {currentItem.haramProducts.map(
+                        (product: any, index: number) => (
+                          <div key={index} className={styles.productItem}>
+                            <strong>{product.name}</strong> - {product.reason}{" "}
+                            {product.source}
+                            {index < currentItem.haramProducts.length - 1 && (
+                              <br />
+                            )}
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
-                ))}
+                )}
 
               {/* Заключение */}
               {currentItem.description && (
