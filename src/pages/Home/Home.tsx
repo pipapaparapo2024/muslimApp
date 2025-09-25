@@ -72,12 +72,9 @@ export const Home: React.FC = () => {
               <div className={styles.vpnWarningIcon}>
                 <TriangleAlert size={40} color="var(--warning-color)" />
               </div>
-              <h3 className={styles.vpnWarningTitle}>
-                {t("vpnWarningTitle")}
-              </h3>
-              <p className={styles.vpnWarningText}>
-                {t("vpnWarningText")}
-              </p>
+              <div className={styles.vpnWarningText}>
+                {t("vpnWarning")}
+              </div>
               <button 
                 className={styles.vpnWarningButton}
                 onClick={handleCloseVpnWarning} // Используем функцию закрытия

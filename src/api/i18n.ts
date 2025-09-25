@@ -145,6 +145,8 @@ const resources = {
       ayahs: "Ayahs",
 
       //Home
+      vpnWarning:
+        "Be careful when entering with VPN turned on, as this may affect the location of the Kaaba and the timing of prayers",
       allowSensors: "Allow Sensors",
       resetPermission: "Reset Permission",
       requsting: "Requesting...",
@@ -411,9 +413,9 @@ const resources = {
 
       //Home
       resetPermission: "إعادة تعيين الإذن",
+
       vpnWarning:
-        "Be careful when entering with VPN turned on, as this may affect the location of the Kaaba and the timing of prayers",
-      vpnWarning: "",
+        "كن حذرًا عند الدخول مع تشغيل VPN، لأن ذلك قد يؤثر على موقع الكعبة وتوقيت الصلاة",
       locationMay: "قد يكون الموقع غير دقيق. يرجى النظر في هذا", //Ayahs
       allowSensors: "السماح لأجهزة الاستشعار",
       requsting: "جارٍ الطلب...",
