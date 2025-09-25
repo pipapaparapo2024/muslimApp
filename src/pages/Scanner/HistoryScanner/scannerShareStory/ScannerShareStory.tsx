@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import backgroundImg from "../../../../assets/image/background.png"; // переименовал для консистентности
+import backgroundImg from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -67,7 +67,6 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Найдём элемент кнопки и скроем его перед экспортом
       const buttonContainer = document.querySelector(`.${styles.blockButton}`);
       if (buttonContainer) {
         buttonContainer.classList.add(styles.hideForScreenshot);
@@ -78,7 +77,6 @@ export const ScannerShareStory: React.FC = () => {
         id: id,
       });
 
-      // Восстанавливаем видимость кнопки
       if (buttonContainer) {
         buttonContainer.classList.remove(styles.hideForScreenshot);
       }
@@ -131,68 +129,71 @@ export const ScannerShareStory: React.FC = () => {
             className={styles.hiddenBackgroundForScreenshot}
           />
 
-          {/* Основное изображение */}
-          <img
-            src={message}
-            alt="Message background"
-            className={styles.foregroundImage}
-            crossOrigin="anonymous"
-          />
+          {/* Контейнер для изображения и контента */}
+          <div className={styles.imageContainer}>
+            {/* Основное изображение */}
+            <img
+              src={message}
+              alt="Message background"
+              className={styles.foregroundImage}
+              crossOrigin="anonymous"
+            />
 
-          {/* Контент поверх изображений */}
-          <div className={styles.blockScan}>
-            <div
-              className={`${styles.accessBlock} ${getStatusClassName(
-                currentItem.engType,
-                styles
-              )}`}
-            >
-              <div className={styles.statusProduct}>
-                {getStatusIcon(currentItem.engType)}
-                {t(getStatusTranslationKey(currentItem.engType))}
-              </div>
-              <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
-            </div>
-
-            {currentItem.products && currentItem.products.length > 0 && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("ingredients")}</div>
-                <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}
+            {/* Контент поверх изображения */}
+            <div className={styles.blockScan}>
+              <div
+                className={`${styles.accessBlock} ${getStatusClassName(
+                  currentItem.engType,
+                  styles
+                )}`}
+              >
+                <div className={styles.statusProduct}>
+                  {getStatusIcon(currentItem.engType)}
+                  {t(getStatusTranslationKey(currentItem.engType))}
                 </div>
+                <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
               </div>
-            )}
 
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 && (
+              {currentItem.products && currentItem.products.length > 0 && (
                 <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                  <div className={styles.scanTitle}>{t("ingredients")}</div>
                   <div className={styles.scanDesk}>
-                    {currentItem.haramProducts.map(
-                      (product: any, index: number) => (
-                        <React.Fragment key={index}>
-                          <strong>{product.name}</strong> - {product.reason} (
-                          {product.source})
-                          {index < currentItem.haramProducts.length - 1 && (
-                            <br />
-                          )}
-                        </React.Fragment>
-                      )
-                    )}
+                    {currentItem.products.join(", ")}
                   </div>
                 </div>
               )}
 
-            {currentItem.description && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("conclusion")}</div>
-                <div className={styles.scanDesk}>{currentItem.description}</div>
-              </div>
-            )}
+              {currentItem.haramProducts &&
+                currentItem.haramProducts.length > 0 && (
+                  <div className={styles.blockInside}>
+                    <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                    <div className={styles.scanDesk}>
+                      {currentItem.haramProducts.map(
+                        (product: any, index: number) => (
+                          <React.Fragment key={index}>
+                            <strong>{product.name}</strong> - {product.reason} (
+                            {product.source})
+                            {index < currentItem.haramProducts.length - 1 && (
+                              <br />
+                            )}
+                          </React.Fragment>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {currentItem.description && (
+                <div className={styles.blockInside}>
+                  <div className={styles.scanTitle}>{t("conclusion")}</div>
+                  <div className={styles.scanDesk}>{currentItem.description}</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Кнопка теперь внутри container, но с классом для скрытия при скриншоте */}
+        {/* Кнопка share */}
         <div
           className={`${styles.blockButton} ${
             loading ? styles.hideForScreenshot : ""
