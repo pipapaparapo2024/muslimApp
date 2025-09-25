@@ -83,14 +83,12 @@
   border-radius: var(--roundings-medium);
 }
 
-
-
 .permissionButton {
   position: relative;
   z-index: 1001;
   border: none;
   border-radius: var(--roundings-medium);
-  padding: var(--numbers-2) var(--numbers-8); 
+  padding: var(--numbers-2) var(--numbers-8);
   color: white;
   background-color: var(--compass-circle-small);
   font-weight: var(--font-500);
@@ -99,11 +97,11 @@
   transition: background 0.2s;
 }
 
-
 /* Стили для предупреждения о VPN */
 .vpnWarningOverlay {
   position: absolute;
-
+  top: 50%;
+  left: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -187,11 +185,11 @@
     margin: var(--numbers-16);
     padding: var(--numbers-20);
   }
-  
+
   .vpnWarningTitle {
     font-size: var(--numbers-18);
   }
-  
+
   .vpnWarningText {
     font-size: var(--numbers-14);
   }
