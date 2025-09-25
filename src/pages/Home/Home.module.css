@@ -1,13 +1,14 @@
 .prayerTimesQiblaContainer {
-  position: relative; /* Важно для позиционирования дочерних элементов */
+  position: relative;
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
   background-color: var(--bg-surface);
 }
 
+/* Модалка теперь позиционируется относительно всего окна */
 .vpnWarningOverlay {
-  position: absolute;
+  position: fixed; /* Изменено на fixed */
   top: 0;
   left: 0;
   right: 0;
@@ -17,11 +18,10 @@
   align-items: center;
   z-index: 1000;
   background-color: rgba(0, 0, 0, 0.5); /* Затемнение фона */
-  border-radius: var(--roundings-medium); /* Совпадает с родителем */
 }
 
 .vpnWarningModal {
-  background: green; /* Для наглядности */
+  background: green;
   border-radius: var(--roundings-small);
   padding: var(--numbers-24);
   max-width: 300px;
@@ -45,7 +45,7 @@
   max-width: 300px;
   width: 90%;
   text-align: center;
-  position: absolute;
+  position: fixed; /* Изменено на fixed */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
