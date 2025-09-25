@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png";
+import backgroundImg from "../../../../assets/image/background.png"; // переименовал для консистентности
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -28,7 +28,7 @@ export const ScannerShareStory: React.FC = () => {
 
   useEffect(() => {
     const preloadImages = (): Promise<void[]> => {
-      const imagePromises = [message, background].map((src) => {
+      const imagePromises = [message, backgroundImg].map((src) => {
         return new Promise<void>((resolve) => {
           const img = new Image();
           img.src = src;
@@ -67,10 +67,21 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
+      // Найдём элемент кнопки и скроем его перед экспортом
+      const buttonContainer = document.querySelector(`.${styles.blockButton}`);
+      if (buttonContainer) {
+        buttonContainer.classList.add(styles.hideForScreenshot);
+      }
+
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
+
+      // Восстанавливаем видимость кнопки
+      if (buttonContainer) {
+        buttonContainer.classList.remove(styles.hideForScreenshot);
+      }
 
       if (screenshotUrl) {
         await shareToTelegramStory(screenshotUrl);
@@ -104,7 +115,22 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Видимый фон — для пользователя */}
+        <img
+          src={backgroundImg}
+          alt="Background"
+          className={styles.visibleBackground}
+        />
+
+        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Скрытый фон — только для скриншота */}
+          <img
+            src={backgroundImg}
+            alt=""
+            className={styles.hiddenBackgroundForScreenshot}
+          />
+
           {/* Основное изображение */}
           <img
             src={message}
@@ -132,12 +158,11 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}{" "}
+                  {currentItem.products.join(", ")}
                 </div>
               </div>
             )}
 
-            {/* Результаты анализа - ОДИН блок для всех продуктов */}
             {currentItem.haramProducts &&
               currentItem.haramProducts.length > 0 && (
                 <div className={styles.blockInside}>
@@ -146,8 +171,7 @@ export const ScannerShareStory: React.FC = () => {
                     {currentItem.haramProducts.map(
                       (product: any, index: number) => (
                         <div key={index} className={styles.productItem}>
-                          {product.name} - {product.reason}{" "}
-                          {product.source}
+                          {product.name} - {product.reason} {product.source}
                           {index < currentItem.haramProducts.length - 1 && (
                             <br />
                           )}
@@ -167,8 +191,8 @@ export const ScannerShareStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка share ВНЕ элемента для скриншота */}
-        <div className={styles.blockButton}>
+        {/* Кнопка теперь внутри container, но с классом для скрытия при скриншоте */}
+        <div className={`${styles.blockButton} ${loading ? styles.hideForScreenshot : ""}`}>
           <button
             type="button"
             onClick={handleShare}
@@ -176,7 +200,6 @@ export const ScannerShareStory: React.FC = () => {
             className={`${styles.shareButton} ${
               loading ? styles.shareButtonDisabled : ""
             }`}
-            data-story-visible="hide"
           >
             <Upload size={18} />
             {loading ? t("loading") : t("share")}
