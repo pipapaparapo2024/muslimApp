@@ -1,60 +1,146 @@
 .container {
-  overflow: hidden;
-  margin: 0 auto;
   position: relative;
+  width: 100%;
+  min-height: 100dvh;
   display: flex;
-  min-height: 92vh;
-  height: 100%;
   flex-direction: column;
   align-items: center;
-  padding-bottom: var(--numbers-64);
+  margin: 0 auto;
+  overflow: hidden;
 }
 
-.contentWrapper {
-  max-width: 390px;
+/* Видимый фон */
+.visibleBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Обёртка для скриншота */
+.contentWrapper {
   position: relative;
-}
-
-.blockButton {
+  z-index: 1;
+  max-width: 390px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: var(--numbers-48);
+  margin: 0;
+  flex: 1;
 }
 
-.container img {
-  max-height: 550px;
+.hiddenBackgroundForScreenshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.messageContainer {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  justify-content: center;
+}
+
+.messageContainer img.messageImage {
+  max-height: 570px;
   max-width: 100%;
   height: auto;
   width: auto;
-  margin: 0 auto;
   object-fit: contain;
-  padding-top: var(--numbers-32);
-  position: relative;
-  z-index: 1;
+  display: block;
+}
+
+.blockMessages {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--numbers-32);
+  padding: var(--numbers-16);
+  z-index: 3;
+  bottom: -15px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-8);
+  width: 100%;
+  max-width: 390px;
+  box-sizing: border-box;
+}
+
+.blockMessageStatus {
+  width: 100%;
+}
+
+.blockMessageBot {
+  background: var(--bg-surface);
+  max-width: 280px;
+  border-radius: var(--roundings-medium) var(--roundings-medium)
+    var(--roundings-medium) 0;
+  padding: var(--numbers-8) var(--numbers-16);
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.text {
+  color: var(--desk-text);
+}
+
+.blockMessageBot .text {
+  display: -webkit-box;
+  line-clamp: 6;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.2em * 6);
+  line-height: 1.2;
+}
+
+.scanTitle {
+  font-weight: var(--font-600);
+  font-size: var(--numbers-16);
+  color: var(--text);
+}
+
+.blockButton {
+  position: absolute;
+  bottom: var(--numbers-40);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 3;
+  width: 100%;
+  padding: 0;
 }
 
 .shareButton {
-  position: absolute;
-  border: none;
-  bottom: 15px;
+  position: relative;
   z-index: 3;
-  top: auto;
+  border: none;
+  font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
-  margin: var(--numbers-16) auto;
-  width: 94%;
-  font-size: var(--numbers-16);
   display: flex;
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
+  margin: 0 auto;
+  width: 90%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
@@ -70,58 +156,43 @@
   transform: translateY(0);
 }
 
-.shareButtonDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
+.shareButtonDisabled,
 .shareButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
 }
 
-.blockScan {
-  position: absolute;
-  z-index: 2;
-  top: auto;
-  bottom: -100px;
+/* Скрываем кнопку при экспорте */
+.hideForScreenshot {
+  visibility: hidden !important;
+  height: 64px;
+  pointer-events: none;
+}
+
+/* Стили для статуса продукта */
+.accessBlock {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: var(--font-500);
+  font-size: var(--numbers-20);
   gap: var(--numbers-4);
-}
-
-.blockInside {
-  border-radius: var(--roundings-medium);
+  padding: var(--numbers-12) var(--numbers-16);
   background: var(--bg-surface);
-  padding: var(--numbers-8) var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  width: 100%;
 }
 
-.blockInside .scanDesk {
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
-  line-height: 1.5;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.scanTitle {
-  font-weight: var(--font-600);
-  font-size: var(--numbers-16);
-  color: var(--text);
-}
-
-.scanDesk {
-  font-weight: var(--font-400);
-  margin: var(--numbers-4) 0 var(--numbers-8) 0;
-  color: var(--desk-text);
+.QiblaGuidebot {
   font-size: var(--numbers-14);
+  color: var(--desk-text);
+}
+
+.statusProduct {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-8);
 }
 
 .haram {
@@ -136,48 +207,6 @@
   color: var(--color-stroke-semantic-warning);
 }
 
-.accessBlock {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: var(--font-500);
-  font-size: var(--numbers-20);
-  gap: var(--numbers-4);
-  padding: var(--numbers-12) var(--numbers-16);
-  background: var(--bg-surface);
-  border-radius: var(--roundings-medium);
-}
-
-.QiblaGuidebot {
-  font-size: var(--numbers-14);
-  color: var(--desk-text);
-}
-
-.statusProduct {
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-8);
-}
-
-/* Видимый фон */
-.visibleBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-.hiddenBackgroundForScreenshot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
+.haramProduct {
+  color: #ef4444;
 }

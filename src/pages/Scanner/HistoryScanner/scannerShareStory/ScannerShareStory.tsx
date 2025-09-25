@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png";
+import backgroundImg from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -20,63 +20,77 @@ import {
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { id } = useParams<{ id: string | undefined }>();
-  const { fetchHistoryItem } = useHistoryScannerStore();
   const [currentItem, setCurrentItem] = useState<any>(null);
+  const { id } = useParams<{ id: string }>();
+  const { fetchHistoryItem } = useHistoryScannerStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
+
   const { loading, exportScreenshot } = useScreenshotExport();
 
   useEffect(() => {
-    const preloadImages = (): Promise<void[]> => {
-      const imagePromises = [message, background].map((src) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.src = src;
-          img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn(`Failed to load image: ${src}`);
-            resolve();
-          };
-        });
-      });
-
-      return Promise.all(imagePromises);
-    };
-
-    const loadItem = async () => {
+    const loadData = async () => {
       if (!id) return;
 
-      const item = await fetchHistoryItem(id);
-      if (item) {
-        setCurrentItem(item);
-      }
-
       try {
-        await preloadImages();
+        const preloadImage = (src: string): Promise<void> => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.src = src;
+            img.onload = () => resolve();
+            img.onerror = () => {
+              console.warn(`Failed to load image: ${src}`);
+              resolve();
+            };
+          });
+        };
+
+        const item = await fetchHistoryItem(id);
+        await preloadImage(message);
+
+        setCurrentItem(item);
         setIsLoaded(true);
-      } catch (err) {
-        console.error("Error during image preloading:", err);
+      } catch (error) {
+        console.error("Error loading data:", error);
         setIsLoaded(true);
       }
     };
 
-    loadItem();
+    loadData();
   }, [id, fetchHistoryItem]);
+
+  useEffect(() => {
+    console.log("backgroundImg URL:", backgroundImg);
+  }, []);
 
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
+      // Найдём элемент кнопки и скроем его перед экспортом
+      const buttonContainer = screenshotRef.current.querySelector(
+        `.${styles.blockButton}`
+      );
+      if (buttonContainer) {
+        buttonContainer.classList.add(styles.hideForScreenshot);
+      }
+
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
 
+      console.log("screenshotUrl", screenshotUrl);
+
+      // Восстанавливаем видимость кнопки
+      if (buttonContainer) {
+        buttonContainer.classList.remove(styles.hideForScreenshot);
+      }
+
       if (screenshotUrl) {
-        await shareToTelegramStory(screenshotUrl);
+        shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
-      console.error("Failed to export and share screenshot:", error);
+      console.error("Failed to create and share screenshot:", error);
       alert(t("exportFailed"));
     }
   };
@@ -104,87 +118,99 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Видимый фон — для пользователя */}
         <img
-          src={background}
+          src={backgroundImg}
           alt="Background"
           className={styles.visibleBackground}
         />
+
+        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Основное изображение */}
+          {/* Скрытый фон — только для скриншота */}
           <img
-            src={message}
-            alt="Message background"
-            className={styles.foregroundImage}
-            crossOrigin="anonymous"
-          />
-          <img
-            src={background}
+            src={backgroundImg}
             alt=""
             className={styles.hiddenBackgroundForScreenshot}
           />
-          {/* Контент поверх изображений */}
-          <div className={styles.blockScan}>
-            <div
-              className={`${styles.accessBlock} ${getStatusClassName(
-                currentItem.engType,
-                styles
-              )}`}
-            >
-              <div className={styles.statusProduct}>
-                {getStatusIcon(currentItem.engType)}
-                {t(getStatusTranslationKey(currentItem.engType))}
-              </div>
-              <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
-            </div>
 
-            {currentItem.products && currentItem.products.length > 0 && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("ingredients")}</div>
-                <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}{" "}
-                  {/* Исправлено: добавил {} */}
+          <div className={styles.messageContainer}>
+            <img
+              src={message}
+              className={styles.messageImage}
+              alt="Message background"
+            />
+            
+            {/* Контент поверх изображения */}
+            <div className={styles.blockMessages}>
+              {/* Блок статуса продукта */}
+              <div className={styles.blockMessageStatus}>
+                <div
+                  className={`${styles.accessBlock} ${getStatusClassName(
+                    currentItem.engType,
+                    styles
+                  )}`}
+                >
+                  <div className={styles.statusProduct}>
+                    {getStatusIcon(currentItem.engType)}
+                    {t(getStatusTranslationKey(currentItem.engType))}
+                  </div>
+                  <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
                 </div>
               </div>
-            )}
 
-            {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 && (
-                <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                  <div className={styles.scanDesk}>
-                    {currentItem.haramProducts
-                      .map(
-                        (product: any) =>
-                          `${product.name} - ${product.reason}${product.source}`
-                      )
-                      .join(", ")}
+              {/* Ингредиенты */}
+              {currentItem.products && currentItem.products.length > 0 && (
+                <div className={styles.blockMessageBot}>
+                  <div className={styles.scanTitle}>{t("ingredients")}</div>
+                  <div className={styles.text}>
+                    {currentItem.products.join(", ")}
                   </div>
                 </div>
               )}
 
-            {currentItem.description && (
-              <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("conclusion")}</div>
-                <div className={styles.scanDesk}>{currentItem.description}</div>
-              </div>
-            )}
-          </div>
-        </div>
+              {/* Результаты анализа */}
+              {currentItem.haramProducts &&
+                currentItem.haramProducts.length > 0 &&
+                currentItem.haramProducts.map((product: any, index: number) => (
+                  <div key={index} className={styles.blockMessageBot}>
+                    <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                    <div className={styles.text}>
+                      <div className={styles.haramProduct}>
+                        {product.name} - {product.reason}
+                        {product.source}
+                      </div>
+                    </div>
+                  </div>
+                ))}
 
-        {/* Кнопка share ВНЕ элемента для скриншота */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
+              {/* Заключение */}
+              {currentItem.description && (
+                <div className={styles.blockMessageBot}>
+                  <div className={styles.scanTitle}>{t("conclusion")}</div>
+                  <div className={styles.text}>{currentItem.description}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Кнопка теперь внутри contentWrapper, но с классом для скрытия при скриншоте */}
+          <div
+            className={`${styles.blockButton} ${
+              loading ? styles.hideForScreenshot : ""
             }`}
-            data-story-visible="hide"
           >
-            <Upload size={18} />
-            {loading ? t("loading") : t("share")}
-          </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={loading}
+              className={`${styles.shareButton} ${
+                loading ? styles.shareButtonDisabled : ""
+              }`}
+            >
+              <Upload /> {loading ? t("loading") : t("share")}
+            </button>
+          </div>
         </div>
       </div>
     </PageWrapper>
