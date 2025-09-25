@@ -28,8 +28,6 @@ export const Home: React.FC = () => {
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
-
-  // Показываем лоадер во время инициализации
   if (isInitializing) {
     return (
       <PageWrapper>
@@ -37,8 +35,6 @@ export const Home: React.FC = () => {
       </PageWrapper>
     );
   }
-
-  // Показываем ошибку инициализации
   if (initializationError) {
     return (
       <PageWrapper>
