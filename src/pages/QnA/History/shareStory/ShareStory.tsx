@@ -15,6 +15,7 @@ import { init, shareStory } from "@telegram-apps/sdk";
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { id } = useParams<{ id: string }>();
   const { getHistoryItem } = useHistoryStore();
   const screenshotRef = useRef<HTMLDivElement>(null);
@@ -22,28 +23,52 @@ export const ShareStory: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!id) return;
+      if (!id) {
+        setLoadError("ID not provided");
+        setIsLoaded(true);
+        return;
+      }
 
       try {
+        console.log("🔄 Loading data for ID:", id);
+
+        // Предзагрузка изображений
         const preloadImage = (src: string): Promise<void> => {
           return new Promise((resolve) => {
             const img = new Image();
             img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
+            img.onload = () => {
+              console.log(`✅ Image loaded: ${src}`);
               resolve();
+            };
+            img.onerror = () => {
+              console.warn(`❌ Failed to load image: ${src}`);
+              resolve(); // Продолжаем даже если изображение не загрузилось
             };
           });
         };
 
-        const item = await getHistoryItem(id);
-        await Promise.all([preloadImage(message), preloadImage(backgroundImg)]);
+        // Загружаем данные и изображения параллельно
+        const [item] = await Promise.all([
+          getHistoryItem(id),
+          preloadImage(message),
+          preloadImage(backgroundImg)
+        ]);
+
+        console.log("📦 Loaded item:", item);
+
+        if (!item) {
+          setLoadError("Item not found");
+          setIsLoaded(true);
+          return;
+        }
 
         setCurrentItem(item);
         setIsLoaded(true);
+        
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("❌ Error loading data:", error);
+        setLoadError(error instanceof Error ? error.message : "Unknown error");
         setIsLoaded(true);
       }
     };
@@ -52,9 +77,15 @@ export const ShareStory: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleCapture = async () => {
-    if (!screenshotRef.current || !currentItem) {
-      console.error("❌ screenshotRef.current или currentItem is null");
+    if (!screenshotRef.current) {
+      console.error("❌ screenshotRef.current is null");
       alert("Элемент для скриншота не найден");
+      return;
+    }
+
+    if (!currentItem) {
+      console.error("❌ currentItem is null");
+      alert("Данные не загружены");
       return;
     }
 
@@ -65,168 +96,115 @@ export const ShareStory: React.FC = () => {
 
       const originalElement = screenshotRef.current;
 
-      // 1. Создаём контейнер для рендера
+      // Создаём контейнер для рендера
       const container = document.createElement("div");
-      container.style.position = "fixed";
-      container.style.left = "-9999px";
-      container.style.top = "0";
-      container.style.width = "390px";
-      container.style.backgroundColor = "#ffffff";
-      container.style.fontFamily = "Arial, sans-serif"; // Используем безопасный шрифт
-      container.style.boxSizing = "border-box";
-      container.style.borderRadius = "12px";
-      container.style.boxShadow = "0 2px 10px rgba(0,0,0,0.1)";
-      container.style.overflow = "hidden";
+      Object.assign(container.style, {
+        position: "fixed",
+        left: "-9999px",
+        top: "0",
+        width: "390px",
+        backgroundColor: "#ffffff",
+        fontFamily: "Arial, sans-serif",
+        boxSizing: "border-box",
+        borderRadius: "12px",
+        boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        overflow: "hidden",
+      });
 
-      // 2. Глубокое клонирование
+      // Глубокое клонирование
       const clone = originalElement.cloneNode(true) as HTMLElement;
 
-      // 3. Удаляем все внешние стили и шрифты из клона
-      const links = clone.querySelectorAll('link[rel="stylesheet"]');
-      links.forEach((link) => link.remove());
-
-      const stylesheets = clone.querySelectorAll("style");
-      stylesheets.forEach((style) => {
-        if (
-          style.innerHTML.includes("@import") ||
-          style.innerHTML.includes("googleapis")
-        ) {
-          style.remove();
-        }
-      });
-
-      // 4. Убираем абсолютное позиционирование и применяем inline стили
-      const images = clone.querySelectorAll("img");
-      images.forEach((img, index) => {
-        img.style.position = "relative";
-        img.style.top = "auto";
-        img.style.left = "auto";
-        img.style.zIndex = (index + 1).toString();
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-      });
-
-      // 5. Применяем inline стили для текстовых элементов
-      const textElements = clone.querySelectorAll(".nickName, .text");
-      textElements.forEach((el) => {
-        const element = el as HTMLElement;
-        element.style.fontFamily = "Arial, sans-serif";
-        element.style.color = "#2c3e50";
-        element.style.margin = "0";
-        element.style.padding = "0";
-      });
-
-      // 6. Стили для блоков сообщений
-      const messageBlocks = clone.querySelectorAll(
-        ".blockMessageUser, .blockMessageBot"
+      // Удаляем ненужные элементы из клона
+      const elementsToRemove = clone.querySelectorAll(
+        '[data-exclude-from-screenshot="true"], button, .blockButton'
       );
-      messageBlocks.forEach((block) => {
-        const element = block as HTMLElement;
-        element.style.background = "rgba(255, 255, 255, 0.95)";
-        element.style.borderRadius = "12px";
-        element.style.padding = "12px 16px";
-        element.style.margin = "8px 0";
-        element.style.backdropFilter = "blur(10px)";
-      });
+      elementsToRemove.forEach(el => el.remove());
 
-      // 7. Убедимся, что все изображения загружены
+      // Удаляем внешние стили
+      const links = clone.querySelectorAll('link[rel="stylesheet"]');
+      links.forEach(link => link.remove());
+
+      // Упрощенные inline стили для основных элементов
+      const applySimpleStyles = (element: HTMLElement) => {
+        element.style.fontFamily = "Arial, sans-serif";
+        element.style.boxSizing = "border-box";
+      };
+
+      applySimpleStyles(clone);
+      clone.querySelectorAll('*').forEach(el => applySimpleStyles(el as HTMLElement));
+
+      // Ожидаем загрузки изображений
       await new Promise<void>((resolve) => {
         const images = clone.querySelectorAll("img");
-        let loadedCount = 0;
-
         if (images.length === 0) {
           resolve();
           return;
         }
 
-        images.forEach((img) => {
+        let loadedCount = 0;
+        const checkLoaded = () => {
+          loadedCount++;
+          if (loadedCount === images.length) resolve();
+        };
+
+        images.forEach(img => {
           if (img.complete && img.naturalHeight > 0) {
-            loadedCount++;
+            checkLoaded();
           } else {
-            img.onload = () => {
-              loadedCount++;
-              if (loadedCount === images.length) resolve();
-            };
-            img.onerror = () => {
-              loadedCount++;
-              if (loadedCount === images.length) resolve();
-            };
+            img.onload = checkLoaded;
+            img.onerror = checkLoaded;
           }
         });
-
-        if (loadedCount === images.length) resolve();
       });
 
       container.appendChild(clone);
       document.body.appendChild(container);
 
-      // 8. Ждём отрисовки
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Ждём отрисовки
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // 9. Создаём скриншот с отключенными внешними ресурсами
+      // Создаём скриншот
       const blob = await toBlob(clone, {
         pixelRatio: 2,
         backgroundColor: "#ffffff",
-        quality: 1.0,
+        quality: 0.95,
+        skipFonts: true,
         cacheBust: true,
-        skipFonts: true, // Отключаем загрузку шрифтов
-        skipAutoScale: false,
-        imagePlaceholder: undefined,
-        includeQueryParams: false,
-        filter: (node) => {
-          // Фильтруем ненужные элементы
-          if (node instanceof Element) {
-            // Удаляем кнопки и скрытые элементы
-            if (
-              node.tagName === "BUTTON" ||
-              node.getAttribute("data-exclude-from-screenshot") === "true"
-            ) {
-              return false;
-            }
-          }
-          return true;
-        },
-        style: {
-          // Принудительно применяем безопасные стили
-          fontFamily: "Arial, sans-serif !important",
-          transform: "none !important",
-        },
       });
 
       document.body.removeChild(container);
 
       if (!blob) {
-        throw new Error("Blob is null");
+        throw new Error("Не удалось создать изображение");
       }
 
       const url = URL.createObjectURL(blob);
-
-      // 10. Отправляем в Telegram
       await shareToTelegramStory(url);
+
     } catch (error: any) {
       console.error("❌ Ошибка при создании скриншота:", error);
-      alert(`Ошибка: ${t("exportFailed")}`);
+      alert(`Ошибка: ${error.message || t("exportFailed")}`);
     } finally {
       setIsCapturing(false);
     }
   };
 
-  const shareToTelegramStory = async (
-    url: string | undefined
-  ): Promise<void> => {
+  const shareToTelegramStory = async (url: string): Promise<void> => {
     if (!url) return;
 
     try {
       await init();
 
-      if (typeof ShareStory === "function") {
+      // Используем правильное название функции
+      if (typeof shareStory === "function") {
         await shareStory(url, {
-          widgetLink: {
+          widget: {
             url: "https://t.me/QiblaGuidebot",
             name: "@QiblaGuidebot",
           },
         });
       } else {
+        // Fallback для старых версий Telegram
         const tg = (window as any).Telegram;
         if (tg?.WebApp?.shareStory) {
           await tg.WebApp.shareStory(url, {
@@ -236,24 +214,43 @@ export const ShareStory: React.FC = () => {
             },
           });
         } else {
-          throw new Error("shareStory function not available");
+          // Final fallback - открываем изображение
+          window.open(url, "_blank");
         }
       }
     } catch (error) {
       console.error("Share story failed:", error);
-      // Fallback
-      window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+      window.open(url, "_blank");
     }
   };
 
+  // Показываем загрузку только если данные еще загружаются и нет ошибки
   if (!isLoaded) {
     return (
       <PageWrapper showBackButton={true}>
         <LoadingSpinner />
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          {t("loading")}
+        </div>
       </PageWrapper>
     );
   }
 
+  // Показываем ошибку если есть
+  if (loadError) {
+    return (
+      <PageWrapper showBackButton={true}>
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div>{t("requestNotFound")}</div>
+          <div style={{ color: '#666', fontSize: '14px', marginTop: '10px' }}>
+            {loadError}
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  // Проверяем что currentItem существует
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
@@ -265,7 +262,6 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Оберточный div для скриншота с inline стилями для безопасности */}
         <div
           ref={screenshotRef}
           className={styles.contentWrapper}
@@ -273,18 +269,12 @@ export const ShareStory: React.FC = () => {
             fontFamily: "Arial, sans-serif",
             maxWidth: "390px",
             width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
             position: "relative",
           }}
         >
-          {/* Фоновое изображение */}
           <img
             src={backgroundImg}
             alt="Background"
-            className={styles.backgroundImage}
             style={{
               position: "absolute",
               top: "0",
@@ -296,10 +286,8 @@ export const ShareStory: React.FC = () => {
             }}
           />
 
-          {/* Основное изображение сообщения */}
           <img
             src={message}
-            className={styles.messageImage}
             alt="Message background"
             style={{
               maxHeight: "570px",
@@ -314,9 +302,7 @@ export const ShareStory: React.FC = () => {
             }}
           />
 
-          {/* Блоки с сообщениями */}
           <div
-            className={styles.blockMessages}
             style={{
               position: "absolute",
               left: "50%",
@@ -324,97 +310,74 @@ export const ShareStory: React.FC = () => {
               bottom: "20px",
               padding: "16px",
               zIndex: "3",
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
               width: "100%",
               maxWidth: "390px",
               boxSizing: "border-box",
             }}
           >
             <div
-              className={styles.blockMessageUser}
               style={{
                 borderRadius: "12px 12px 0 12px",
                 maxWidth: "280px",
                 background: "rgba(255, 255, 255, 0.95)",
-                padding: "8px 16px",
-                alignSelf: "flex-end",
+                padding: "12px 16px",
                 marginLeft: "auto",
+                marginBottom: "8px",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div
-                className={styles.nickName}
-                style={{
-                  color: "#2c3e50",
-                  fontWeight: "400",
-                  fontSize: "14px",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
+              <div style={{ color: "#2c3e50", fontSize: "14px", marginBottom: "4px" }}>
                 {t("you")}
               </div>
-              <div
-                className={styles.text}
-                style={{
-                  color: "#2c3e50",
-                  lineHeight: "1.5",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
-                {currentItem.question}
+              <div style={{ color: "#2c3e50", lineHeight: "1.4" }}>
+                {currentItem.question || "No question available"}
               </div>
             </div>
+
             <div
-              className={styles.blockMessageBot}
               style={{
                 background: "rgba(255, 255, 255, 0.95)",
                 maxWidth: "280px",
                 borderRadius: "12px 12px 12px 0",
-                padding: "8px 16px",
-                alignSelf: "flex-start",
+                padding: "12px 16px",
                 marginRight: "auto",
                 backdropFilter: "blur(10px)",
               }}
             >
-              <div
-                className={styles.nickName}
-                style={{
-                  color: "#2c3e50",
-                  fontWeight: "400",
-                  fontSize: "14px",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
+              <div style={{ color: "#2c3e50", fontSize: "14px", marginBottom: "4px" }}>
                 @QiblaGuidebot
               </div>
-              <div
-                className={styles.text}
-                style={{
-                  color: "#2c3e50",
-                  lineHeight: "1.5",
-                  fontFamily: "Arial, sans-serif",
-                }}
-              >
-                {currentItem.answer}
+              <div style={{ color: "#2c3e50", lineHeight: "1.4" }}>
+                {currentItem.answer || "No answer available"}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Кнопка share находится ВНЕ элемента для скриншота */}
         <div className={styles.blockButton}>
           <button
             type="button"
             onClick={handleCapture}
             disabled={isCapturing}
-            className={`${styles.shareButton} ${
-              isCapturing ? styles.shareButtonDisabled : ""
-            }`}
+            style={{
+              padding: "16px",
+              fontSize: "16px",
+              background: isCapturing ? "#ccc" : "green",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: isCapturing ? "not-allowed" : "pointer",
+              width: "90%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              margin: "16px auto",
+            }}
             data-exclude-from-screenshot="true"
           >
-            <Upload /> {isCapturing ? t("loading") : t("share")}
+            <Upload size={18} />
+            {isCapturing ? t("loading") : t("share")}
           </button>
         </div>
       </div>
