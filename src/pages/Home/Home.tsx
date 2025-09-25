@@ -57,32 +57,7 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
-      {/* Модальное окно с предупреждением о VPN
-      {showVpnWarning && (
-        <div className={styles.vpnWarningOverlay}>
-          <div className={styles.vpnWarningModal}>
-            <button
-              className={styles.vpnWarningClose}
-              onClick={handleCloseVpnWarning}
-              aria-label={t("close")}
-            >
-              <X size={20} />
-            </button>
-            <div className={styles.vpnWarningIcon}>
-              <TriangleAlert size={40} color="var(--warning-color)" />
-            </div>
-            <h3 className={styles.vpnWarningTitle}>{t("vpnWarningTitle")}</h3>
-            <p className={styles.vpnWarningText}>{t("vpnWarningText")}</p>
-            <button
-              className={styles.vpnWarningButton}
-              onClick={handleCloseVpnWarning}
-            >
-              {t("understand")}
-            </button>
-          </div>
-        </div>
-      )} */}
-
+      
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
@@ -91,103 +66,100 @@ export const Home: React.FC = () => {
 
       {error && <div className={styles.errorContainer}>{error}</div>}
 
-      {!isLoading &&
-        !error &&
-        (showVpnWarning ? (
-          <div className={styles.vpnWarningOverlay}>
-            <div className={styles.vpnWarningModal}>
-              <button
-                className={styles.vpnWarningClose}
-                onClick={handleCloseVpnWarning}
-                aria-label={t("close")}
-              >
-                <X size={20} />
-              </button>
-              <div className={styles.vpnWarningIcon}>
-                <TriangleAlert size={40} color="var(--warning-color)" />
+      {!isLoading && !error && (
+        <>
+          <div className={`${styles.prayerTimesQiblaContainer} ${showVpnWarning ? styles.blurred : ""}`}>
+            {/* Модальное окно с предупреждением о VPN */}
+            {showVpnWarning && (
+              <div className={styles.vpnWarningOverlay}>
+                <div className={styles.vpnWarningModal}>
+                  <button
+                    className={styles.vpnWarningClose}
+                    onClick={handleCloseVpnWarning}
+                    aria-label={t("close")}
+                  >
+                    <X size={20} />
+                  </button>
+                  <div className={styles.vpnWarningIcon}>
+                    <TriangleAlert size={40} color="var(--warning-color)" />
+                  </div>
+                  <h3 className={styles.vpnWarningTitle}>{t("vpnWarningTitle")}</h3>
+                  <p className={styles.vpnWarningText}>{t("vpnWarningText")}</p>
+                  <button
+                    className={styles.vpnWarningButton}
+                    onClick={handleCloseVpnWarning}
+                  >
+                    {t("understand")}
+                  </button>
+                </div>
               </div>
-              <h3 className={styles.vpnWarningTitle}>{t("vpnWarningTitle")}</h3>
-              <p className={styles.vpnWarningText}>{t("vpnWarningText")}</p>
-              <button
-                className={styles.vpnWarningButton}
-                onClick={handleCloseVpnWarning}
-              >
-                {t("understand")}
-              </button>
+            )}
+
+            <PrayerTimes />
+
+            <div className={styles.qiblaBlock}>
+              <div className={styles.titleFaceKaaba}>
+                {t("faceTheKaaba")}{" "}
+                {sensorPermission === "prompt" ? (
+                  <div
+                    className={`${styles.permissionButton} ${
+                      sensorPermission === "prompt" &&
+                      styles.permissionButtonPusle
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      requestSensorPermission && requestSensorPermission();
+                    }}
+                  >
+                    {isRequestingPermission
+                      ? t("requesting...")
+                      : t("allowSensors")}
+                  </div>
+                ) : (
+                  <button
+                    className={styles.permissionButton}
+                    onClick={resetSensorPermission}
+                  >
+                    {t("resetPermission")}
+                  </button>
+                )}
+              </div>
+              <div className={styles.diskFaceKaaba}>
+                {t("useMapForSalah")}
+              </div>
+
+              <div className={styles.qiblaBlockRow}>
+                <div onClick={handleMapClick} className={styles.mapContainer}>
+                  <QiblaMap
+                    onMapClick={handleMapClick}
+                    orientationListenerActive={sensorPermission === "granted"}
+                  />
+                </div>
+
+                <div
+                  onClick={() => handleCompassClick(sensorPermission)}
+                  className={styles.compassContainer}
+                >
+                  <QiblaCompass
+                    permissionGranted={sensorPermission === "granted"}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className={styles.locationMay}>
+              <TriangleAlert
+                strokeWidth={1.5}
+                size={18}
+                color="white"
+                fill="#F59E0B"
+              />
+              {t("locationMay")}{" "}
             </div>
           </div>
-        ) : (
-          <>
-            <div
-              className={`${styles.prayerTimesQiblaContainer} ${
-                showVpnWarning ? styles.blurred : ""
-              }`}
-            >
-              <PrayerTimes />
 
-              <div className={styles.qiblaBlock}>
-                <div className={styles.titleFaceKaaba}>
-                  {t("faceTheKaaba")}{" "}
-                  {sensorPermission === "prompt" ? (
-                    <div
-                      className={`${styles.permissionButton} ${
-                        sensorPermission === "prompt" &&
-                        styles.permissionButtonPusle
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        requestSensorPermission && requestSensorPermission();
-                      }}
-                    >
-                      {isRequestingPermission
-                        ? t("requesting...")
-                        : t("allowSensors")}
-                    </div>
-                  ) : (
-                    <button
-                      className={styles.permissionButton}
-                      onClick={resetSensorPermission}
-                    >
-                      {t("resetPermission")}
-                    </button>
-                  )}
-                </div>
-                <div className={styles.diskFaceKaaba}>
-                  {t("useMapForSalah")}
-                </div>
-
-                <div className={styles.qiblaBlockRow}>
-                  <div onClick={handleMapClick} className={styles.mapContainer}>
-                    <QiblaMap
-                      onMapClick={handleMapClick}
-                      orientationListenerActive={sensorPermission === "granted"}
-                    />
-                  </div>
-
-                  <div
-                    onClick={() => handleCompassClick(sensorPermission)}
-                    className={styles.compassContainer}
-                  >
-                    <QiblaCompass
-                      permissionGranted={sensorPermission === "granted"}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className={styles.locationMay}>
-                <TriangleAlert
-                  strokeWidth={1.5}
-                  size={18}
-                  color="white"
-                  fill="#F59E0B"
-                />
-                {t("locationMay")}{" "}
-              </div>
-            </div>
-
-            <MenuBlocks />
-          </>
-        ))}
+          <MenuBlocks />
+        </>
+      )}
     </PageWrapper>
   );
 };
