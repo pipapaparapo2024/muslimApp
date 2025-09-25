@@ -1,14 +1,21 @@
 .prayerTimesQiblaContainer {
-  position: relative;
+  position: relative; /* Важно для позиционирования модалки */
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
   background-color: var(--bg-surface);
+  min-height: 400px; /* Минимальная высота для центрирования */
 }
 
-/* Модалка теперь позиционируется относительно всего окна */
+/* Контент блока, который будет размываться */
+.prayerTimesQiblaContent {
+  position: relative;
+  z-index: 1;
+}
+
+/* Модалка теперь позиционируется относительно prayerTimesQiblaContainer */
 .vpnWarningOverlay {
-  position: fixed; /* Изменено на fixed */
+  position: absolute; /* Абсолютное позиционирование внутри контейнера */
   top: 0;
   left: 0;
   right: 0;
@@ -16,8 +23,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.5); /* Затемнение фона */
+  z-index: 10; /* Выше чем контент */
+  background-color: rgba(0, 0, 0, 0.3); /* Легкое затемнение фона */
 }
 
 .vpnWarningModal {
@@ -25,32 +32,11 @@
   border-radius: var(--roundings-small);
   padding: var(--numbers-24);
   max-width: 300px;
-  width: 90%; /* Адаптивная ширина */
+  width: 90%;
   text-align: center;
   position: relative;
   box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
-  
-  /* Центрирование с помощью flex */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Альтернативный вариант центрирования с transform */
-.vpnWarningModalCentered {
-  background: green;
-  border-radius: var(--roundings-small);
-  padding: var(--numbers-24);
-  max-width: 300px;
-  width: 90%;
-  text-align: center;
-  position: fixed; /* Изменено на fixed */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 var(--numbers-8) var(--numbers-32) rgba(0, 0, 0, 0.3);
-  z-index: 1001;
+  z-index: 11; /* Еще выше */
 }
 
 .vpnWarningClose {
@@ -64,7 +50,6 @@
   padding: var(--numbers-4);
   border-radius: var(--roundings-small);
   transition: background-color 0.2s;
-  z-index: 1002;
 }
 
 .vpnWarningClose:hover {
@@ -81,20 +66,11 @@
   gap: var(--numbers-12);
 }
 
-/* Эффект размытия для контента под модалкой */
+/* Эффект размытия ТОЛЬКО для контента, модалка остается четкой */
 .blurred {
   filter: blur(2px);
   pointer-events: none;
   user-select: none;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 480px) {
-  .vpnWarningModal {
-    max-width: 280px;
-    width: 85%;
-    padding: var(--numbers-20);
-  }
 }
 
 /* Остальные стили остаются без изменений */
