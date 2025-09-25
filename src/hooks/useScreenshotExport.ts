@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { quranApi } from "../api/api";
-import { init, shareStory } from "@telegram-apps/sdk";
+import { init, shareStory as tgShareStory } from "@telegram-apps/sdk";
 import { toBlob } from "html-to-image";
 
 interface StoryResponse {
@@ -16,28 +16,37 @@ interface ExportOptions {
   id: string | undefined;
 }
 
-// Функция для подготовки элемента к скриншоту
+interface StoryOpts {
+  width?: number;
+  height?: number;
+  pixelRatio?: number;
+  background?: string;
+  caption?: string;
+  link?: { url: string; name?: string };
+}
+
+// Улучшенная функция для подготовки элемента к скриншоту
 function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
-  const originalStyle = el.getAttribute("style") || "";
-  const wasHidden = getComputedStyle(el).display === "none";
-
-  if (!wasHidden) return { restore: () => {} };
-
-  Object.assign(el.style, {
-    display: "block",
-    position: "fixed",
-    left: "0",
-    top: "0",
-    width: "100%",
-    height: "100%",
-    visibility: "visible",
-    zIndex: "9999",
-    background: "white",
+  const hadDisplayNone = getComputedStyle(el).display === 'none';
+  if (!hadDisplayNone) return { restore: () => {} };
+  
+  const prev = el.getAttribute('data-prev-style') || '';
+  const currentStyle = el.getAttribute('style') || '';
+  el.setAttribute('data-prev-style', currentStyle);
+  
+  Object.assign(el.style, { 
+    display: 'block', 
+    position: 'fixed', 
+    left: '-99999px', 
+    top: '0',
+    visibility: 'visible',
+    zIndex: '9999'
   });
 
   return {
     restore() {
-      el.setAttribute("style", originalStyle);
+      el.setAttribute("style", prev);
+      el.removeAttribute('data-prev-style');
     },
   };
 }
@@ -49,41 +58,85 @@ async function waitFonts(): Promise<void> {
       await document.fonts.ready;
     } catch {}
   }
-  // Небольшая задержка для перерисовки
   await new Promise((r) => setTimeout(r, 0));
 }
 
-// Функция для предзагрузки изображений
+// Улучшенная функция для предзагрузки изображений
 async function preloadImages(element: HTMLElement): Promise<void> {
-  const images = element.querySelectorAll("img");
-  const promises = Array.from(images).map((img) => {
+  const images = element.querySelectorAll('img');
+  const promises = Array.from(images).map(img => {
     if (img.complete) return Promise.resolve();
-
+    
     return new Promise<void>((resolve) => {
-      img.onload = () => resolve();
-      img.onerror = () => {
-        console.warn("Failed to load image:", img.src);
-        resolve(); // Продолжаем даже если картинка не загрузилась
+      const onLoad = () => {
+        img.removeEventListener('load', onLoad);
+        img.removeEventListener('error', onError);
+        resolve();
       };
-      // Если изображение уже загружается, ждем
-      if (!img.complete) {
-        setTimeout(() => resolve(), 1000); // Таймаут на случай проблем
-      }
+      
+      const onError = () => {
+        img.removeEventListener('load', onLoad);
+        img.removeEventListener('error', onError);
+        console.warn('Failed to load image:', img.src);
+        resolve();
+      };
+      
+      img.addEventListener('load', onLoad);
+      img.addEventListener('error', onError);
+      
+      // Таймаут на случай проблем
+      setTimeout(() => {
+        img.removeEventListener('load', onLoad);
+        img.removeEventListener('error', onError);
+        resolve();
+      }, 2000);
     });
   });
 
   await Promise.all(promises);
 }
 
+// Функция загрузки на сервер (из вашего кода)
+async function uploadScreenshot(blob: Blob, id: string): Promise<string> {
+  try {
+    const formData = new FormData();
+    formData.append("file", blob, `story-${Date.now()}.png`);
+    formData.append("id", id);
+
+    const response = await quranApi.post<StoryResponse>(
+      "/api/v1/qa/story",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("accessToken") || ''}`,
+        },
+        timeout: 30000,
+      }
+    );
+    
+    if (response.data.status && response.data.data.url) {
+      return response.data.data.url;
+    } else {
+      throw new Error(response.data.message || "Failed to upload screenshot");
+    }
+  } catch (error: any) {
+    if (error.response?.status === 502) {
+      throw new Error("Server is temporarily unavailable. Please try again later.");
+    }
+    throw error;
+  }
+}
+
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [, setSdkInitialized] = useState<boolean>(false);
-
+  
   // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
       try {
-        await init(); // Инициализируем SDK
+        await init();
         setSdkInitialized(true);
         console.log("Telegram SDK initialized successfully");
       } catch (error) {
@@ -95,75 +148,48 @@ export const useScreenshotExport = () => {
     initializeSdk();
   }, []);
 
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    // 1. Создаем контейнер для клона (как в первой программе)
-    const container = document.createElement("div");
-    container.style.position = "fixed";
-    container.style.left = "-9999px";
-    container.style.top = "0";
-    container.style.width = "390px"; // или нужная вам ширина
-    container.style.backgroundColor = "#ffffff";
-    container.style.overflow = "hidden";
-    container.style.zIndex = "10000";
+  // Улучшенная функция создания скриншота
+  const captureScreenshot = async (
+    element: HTMLElement, 
+    options: Partial<StoryOpts> = {}
+  ): Promise<Blob> => {
+    await waitFonts();
+    await preloadImages(element);
 
-    // 2. Клонируем элемент
-    const clone = element.cloneNode(true) as HTMLElement;
-
-    // 3. Настраиваем стили клона
-    clone.style.width = "100%";
-    clone.style.height = "auto";
-    clone.style.backgroundColor = "#ffffff";
-    clone.style.overflow = "hidden";
-
-    // 4. Удаляем ненужные элементы (кнопки и т.д.)
-    const elementsToRemove = clone.querySelectorAll(
-      '.shareButton, .blockButton, button, [data-story-visible="hide"]'
-    );
-    elementsToRemove.forEach((el) => el.remove());
-
-    // 5. Добавляем в DOM
-    container.appendChild(clone);
-    document.body.appendChild(container);
-
-    // 6. Ждем загрузки изображений (как в первой программе)
-    await new Promise<void>((resolve) => {
-      const images = clone.querySelectorAll("img");
-      let loadedCount = 0;
-
-      if (images.length === 0) {
-        resolve();
-        return;
-      }
-
-      images.forEach((img) => {
-        if (img.complete) {
-          loadedCount++;
-        } else {
-          img.onload = () => {
-            loadedCount++;
-            if (loadedCount === images.length) resolve();
-          };
-          img.onerror = () => {
-            loadedCount++;
-            if (loadedCount === images.length) resolve();
-          };
-        }
-      });
-
-      if (loadedCount === images.length) resolve();
-    });
-
-    // 7. Ждем отрисовки
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    const preparation = prepareElementForScreenshot(element);
 
     try {
-      // 8. Снимаем скриншот с КЛОНА
-      const blob = await toBlob(clone, {
-        pixelRatio: 2,
-        backgroundColor: "#ffffff",
-        quality: 0.95,
-        cacheBust: false,
+      const blob = await toBlob(element, {
+        width: options.width || element.clientWidth,
+        height: options.height || element.clientHeight,
+        pixelRatio: options.pixelRatio || Math.min(3, (window.devicePixelRatio || 1) * 2),
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          // Исключаем кнопку шаринга
+          if (node.classList?.contains?.('shareButton')) {
+            return false;
+          }
+          
+          const tag = node.tagName?.toUpperCase?.() || '';
+          
+          // Исключаем элементы с data-story-visible="hide"
+          if (
+            node.getAttribute &&
+            node.getAttribute("data-story-visible") === "hide"
+          ) {
+            return false;
+          }
+          
+          // Исключаем медиа-теги
+          if (["IFRAME", "VIDEO", "CANVAS"].includes(tag)) {
+            return false;
+          }
+          
+          return true;
+        },
         skipFonts: false,
+        backgroundColor: options.background || '#ffffff',
+        quality: 0.95,
       });
 
       if (!blob) {
@@ -171,46 +197,17 @@ export const useScreenshotExport = () => {
       }
 
       return blob;
+    } catch (e: any) {
+      const msg = e?.message || (e?.type ? `Render failed: ${e.type}` : 'Render failed');
+      throw new Error(msg);
     } finally {
-      // 9. Очищаем
-      document.body.removeChild(container);
+      preparation.restore();
     }
   };
 
-  const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
-    try {
-      const formData = new FormData();
-      formData.append("file", blob, `story-${Date.now()}.png`);
-      formData.append("id", id);
-
-      const response = await quranApi.post<StoryResponse>(
-        "/api/v1/qa/story",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-          timeout: 30000, // Добавляем таймаут
-        }
-      );
-      if (response.data.status && response.data.data.url) {
-        return response.data.data.url;
-      } else {
-        throw new Error(response.data.message || "Failed to upload screenshot");
-      }
-    } catch (error: any) {
-      if (error.response?.status === 502) {
-        throw new Error(
-          "Server is temporarily unavailable. Please try again later."
-        );
-      }
-      throw error;
-    }
-  };
-
+  // Основная функция экспорта
   const exportScreenshot = async (
-    options: ExportOptions
+    options: ExportOptions & Partial<StoryOpts>
   ): Promise<string | undefined> => {
     setLoading(true);
     try {
@@ -218,8 +215,13 @@ export const useScreenshotExport = () => {
         throw new Error("ID and element are required for export");
       }
 
-      // Делаем скриншот
-      const screenshotBlob = await captureScreenshot(options.element);
+      // Делаем скриншот с дополнительными опциями
+      const screenshotBlob = await captureScreenshot(options.element, {
+        width: options.width,
+        height: options.height,
+        pixelRatio: options.pixelRatio,
+        background: options.background
+      });
 
       // Загружаем на сервер
       const storyUrl = await uploadScreenshot(screenshotBlob, options.id);
@@ -232,11 +234,49 @@ export const useScreenshotExport = () => {
     }
   };
 
-  return { loading, exportScreenshot };
+  // Новая функция для прямого шаринга (как в примере)
+  const shareStoryDirectly = async (
+    element: HTMLElement,
+    storyOptions: StoryOpts & { id: string }
+  ): Promise<void> => {
+    setLoading(true);
+    try {
+      if (!storyOptions.id || !element) {
+        throw new Error("ID and element are required");
+      }
+
+      // Создаем скриншот
+      const screenshotBlob = await captureScreenshot(element, storyOptions);
+      
+      // Загружаем на сервер
+      const storyUrl = await uploadScreenshot(screenshotBlob, storyOptions.id);
+      
+      // Шарим в Telegram
+      await shareToTelegramStory(storyUrl, {
+        caption: storyOptions.caption,
+        link: storyOptions.link
+      });
+      
+    } catch (error) {
+      console.error("Direct share error:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { 
+    loading, 
+    exportScreenshot, 
+    shareStoryDirectly,
+    captureScreenshot // Экспортируем для гибкости
+  };
 };
 
+// Улучшенная функция шаринга
 export const shareToTelegramStory = async (
-  url: string | undefined
+  url: string | undefined,
+  options: { caption?: string; link?: { url: string; name?: string } } = {}
 ): Promise<void> => {
   if (!url) return;
 
@@ -245,27 +285,32 @@ export const shareToTelegramStory = async (
   console.log("=== DEBUG SHARE STORY ===");
   console.log("URL:", url);
   console.log("Telegram WebApp:", tg?.WebApp);
-  console.log(
-    "shareStory function available:",
-    typeof shareStory === "function"
-  );
+  console.log("shareStory function available:", typeof tgShareStory === "function");
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-
+  
   try {
     await init();
     console.log("Telegram SDK init attempted");
+    
+    const params: any = {};
+    if (options.caption) params.text = options.caption;
+    if (options.link) {
+      params.widget_link = { 
+        url: options.link.url, 
+        name: options.link.name || 'Open' 
+      };
+    }
 
-    if (typeof shareStory === "function") {
+    if (typeof tgShareStory === "function") {
       console.log("Calling shareStory with URL:", url);
-      await shareStory(url, {
+      await tgShareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
+        ...params
       });
-
-      console.log("shareStory completed successfully");
     } else if (tg?.WebApp?.shareStory) {
       console.log("Using Telegram WebApp shareStory");
       await tg.WebApp.shareStory(url, {
@@ -273,13 +318,30 @@ export const shareToTelegramStory = async (
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
+        ...params
       });
+    } else if (tg?.WebApp?.shareToStory) {
+      // Альтернативное название метода
+      console.log("Using Telegram WebApp shareToStory");
+      await tg.WebApp.shareToStory(url, params);
     } else {
       throw new Error("shareStory function not available");
     }
+    
+    console.log("shareStory completed successfully");
   } catch (error) {
     console.error("Share story completely failed:", error);
     // Fallback: открываем ссылку в новом окне
-    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+    const fallbackUrl = `tg://share?url=${encodeURIComponent(url)}`;
+    window.open(fallbackUrl, "_blank");
   }
 };
+
+// Функция приглашения друга (из примера)
+export function inviteFriend(
+  referralCode: string, 
+  text: string = "Check out this amazing app!"
+): void {
+  const url = `https://t.me/share/url?url=https://t.me/QiblaGuidebot?startapp=${referralCode}&text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+}
