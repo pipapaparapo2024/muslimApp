@@ -142,7 +142,7 @@ export const ScannerShareStory: React.FC = () => {
               currentItem.haramProducts.length > 0 && (
                 <div className={styles.blockInside}>
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
-                  <div className={styles.text}>
+                  <div className={styles.scanDesk}>
                     {currentItem.haramProducts.map(
                       (product: any, index: number) => (
                         <div key={index} className={styles.productItem}>
