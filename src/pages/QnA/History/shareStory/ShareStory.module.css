@@ -172,7 +172,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: var(--numbers-32); /* или 0, если нужно вплотную */
+  bottom: var(--numbers-32); 
   padding: var(--numbers-16);
   z-index: 3;
   bottom: -15px;

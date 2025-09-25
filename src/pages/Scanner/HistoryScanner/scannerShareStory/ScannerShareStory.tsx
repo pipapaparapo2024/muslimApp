@@ -161,20 +161,21 @@ export const ScannerShareStory: React.FC = () => {
               )}
 
               {currentItem.haramProducts &&
-                currentItem.haramProducts.length > 0 &&
-                currentItem.haramProducts.map((product: any, index: number) => (
-                  <div key={index} className={styles.blockInside}>
+                currentItem.haramProducts.length > 0 && (
+                  <div className={styles.blockInside}>
                     <div className={styles.scanTitle}>
                       {t("analysisResult")}
                     </div>
                     <div className={styles.scanDesk}>
-                      <div className={styles.haranProduct}>
-                        {product.name} - {product.reason}
-                        {product.source}
-                      </div>
+                      {currentItem.haramProducts
+                        .map(
+                          (product: any) =>
+                            `${product.name} - ${product.reason}${product.source}`
+                        )
+                        .join(", ")}
                     </div>
                   </div>
-                ))}
+                )}
 
               {currentItem.description && (
                 <div className={styles.blockInside}>
