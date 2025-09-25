@@ -1,165 +1,4 @@
-.container {
-  overflow: hidden;
-  margin: 0 auto;
-  position: relative;
-  display: flex;
-  min-height: 96vh;
-  height: 100%;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: var(--numbers-32);
-}
-
-.contentWrapper {
-  max-width: 390px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.blockButton {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.container img {
-  max-height: 550px;
-  max-width: 100%;
-  height: auto;
-  width: auto;
-  margin: 0 auto;
-  object-fit: contain;
-  padding-top: var(--numbers-32);
-  position: relative;
-  z-index: 1;
-}
-
-.shareButton {
-  position: absolute;
-  border: none;
-  bottom: 15px;
-  z-index: 3;
-  top: auto;
-  border-radius: var(--roundings-medium);
-  font-weight: var(--font-600);
-  background: green;
-  transition: all 0.3s ease;
-  margin: var(--numbers-16) auto;
-  width: 94%;
-  font-size: var(--numbers-16);
-  display: flex;
-  justify-content: center;
-  gap: var(--numbers-6);
-  align-items: center;
-  color: white;
-  padding: var(--numbers-16);
-  cursor: pointer;
-  box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
-}
-
-.shareButton:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.shareButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.shareButtonDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.shareButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.blockScan {
-  position: absolute;
-  z-index: 2;
-  top: auto;
-  bottom: -100px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--numbers-4);
-}
-
-.blockInside {
-  border-radius: var(--roundings-medium);
-  background: var(--bg-surface);
-  padding: var(--numbers-8) var(--numbers-16);
-}
-
-.blockInside .scanDesk {
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: calc(1.5em * 2);
-  line-height: 1.5;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.scanTitle {
-  font-weight: var(--font-600);
-  font-size: var(--numbers-16);
-  color: var(--text);
-}
-
-.scanDesk {
-  font-weight: var(--font-400);
-  margin: var(--numbers-4) 0 var(--numbers-8) 0;
-  color: var(--desk-text);
-  font-size: var(--numbers-14);
-}
-
-.haram {
-  color: #ef4444;
-}
-
-.halal {
-  color: #15803d;
-}
-
-.mushbooh {
-  color: var(--color-stroke-semantic-warning);
-}
-
-.accessBlock {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: var(--font-500);
-  font-size: var(--numbers-20);
-  gap: var(--numbers-4);
-  padding: var(--numbers-12) var(--numbers-16);
-  background: var(--bg-surface);
-  border-radius: var(--roundings-medium);
-}
-
-.QiblaGuidebot {
-  font-size: var(--numbers-14);
-  color: var(--desk-text);
-}
-
-.statusProduct {
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-8);
-}
-
-
+/* Общий контейнер */
 .container {
   position: relative;
   width: 100%;
@@ -169,8 +8,10 @@
   align-items: center;
   margin: 0 auto;
   overflow: hidden;
+  padding-bottom: var(--numbers-32);
 }
 
+/* Фон для отображения */
 .visibleBackground {
   position: absolute;
   top: 0;
@@ -181,11 +22,13 @@
   z-index: 0;
 }
 
+/* Обёртка контента для скриншота */
 .contentWrapper {
   position: relative;
   z-index: 1;
   max-width: 390px;
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -194,6 +37,7 @@
   flex: 1;
 }
 
+/* Скрытый фон только для скриншота */
 .hiddenBackgroundForScreenshot {
   position: absolute;
   top: 0;
@@ -206,6 +50,8 @@
   z-index: -1;
 }
 
+/* Изображение сообщения */
+.container img,
 .foregroundImage {
   max-height: 550px;
   max-width: 100%;
@@ -214,14 +60,17 @@
   margin: 0 auto;
   object-fit: contain;
   display: block;
+  position: relative;
+  z-index: 1;
 }
 
+/* Контент поверх изображения */
 .blockScan {
   position: absolute;
   z-index: 2;
   left: 50%;
   transform: translateX(-50%);
-  bottom: var(--numbers-32); /* или -15px, как у тебя */
+  bottom: var(--numbers-32);
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
@@ -231,7 +80,7 @@
   box-sizing: border-box;
 }
 
-/* Кнопка — прилипшая к низу contentWrapper */
+/* Кнопка поделиться */
 .blockButton {
   position: absolute;
   bottom: var(--numbers-40);
@@ -279,11 +128,78 @@
   transform: none !important;
 }
 
-/* Скрываем кнопку при экспорте, но сохраняем пространство */
+/* Скрытие кнопки при экспорте с сохранением места */
 .hideForScreenshot {
   visibility: hidden !important;
   height: 64px;
   pointer-events: none;
 }
 
-/* Остальные стили (blockInside, scanTitle и т.д.) оставь как есть */
+/* Стили блоков анализа */
+.blockInside {
+  border-radius: var(--roundings-medium);
+  background: var(--bg-surface);
+  padding: var(--numbers-8) var(--numbers-16);
+}
+
+.blockInside .scanDesk {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(1.5em * 2);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.scanTitle {
+  font-weight: var(--font-600);
+  font-size: var(--numbers-16);
+  color: var(--text);
+}
+
+.scanDesk {
+  font-weight: var(--font-400);
+  margin: var(--numbers-4) 0 var(--numbers-8) 0;
+  color: var(--desk-text);
+  font-size: var(--numbers-14);
+}
+
+/* Статусы */
+.haram {
+  color: #ef4444;
+}
+
+.halal {
+  color: #15803d;
+}
+
+.mushbooh {
+  color: var(--color-stroke-semantic-warning);
+}
+
+.accessBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: var(--font-500);
+  font-size: var(--numbers-20);
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+}
+
+.QiblaGuidebot {
+  font-size: var(--numbers-14);
+  color: var(--desk-text);
+}
+
+.statusProduct {
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-8);
+}
