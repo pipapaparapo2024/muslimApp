@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png"; 
+import background from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -104,6 +104,11 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        <img
+          src={backgroundImg}
+          alt=""
+          className={styles.hiddenBackgroundForScreenshot}
+        />
         <div ref={screenshotRef} className={styles.contentWrapper}>
           {/* Основное изображение */}
           <img
@@ -139,20 +144,19 @@ export const ScannerShareStory: React.FC = () => {
             )}
 
             {currentItem.haramProducts &&
-              currentItem.haramProducts.length > 0 &&
-              currentItem.haramProducts.map((product: any, index: number) => (
-                <div key={index} className={styles.blockInside}>
-                  {" "}
-                  {/* Добавил key */}
+              currentItem.haramProducts.length > 0 && (
+                <div className={styles.blockInside}>
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
-                    <div className={styles.haranProduct}>
-                      {product.name} - {product.reason}
-                      {product.source}
-                    </div>
+                    {currentItem.haramProducts
+                      .map(
+                        (product: any) =>
+                          `${product.name} - ${product.reason}${product.source}`
+                      )
+                      .join(", ")}
                   </div>
                 </div>
-              ))}
+              )}
 
             {currentItem.description && (
               <div className={styles.blockInside}>
