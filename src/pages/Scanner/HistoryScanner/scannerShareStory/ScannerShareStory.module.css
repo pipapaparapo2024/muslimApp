@@ -72,7 +72,6 @@
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 0 var(--numbers-16);
   flex-direction: column;
   gap: var(--numbers-4);
   box-sizing: border-box;
