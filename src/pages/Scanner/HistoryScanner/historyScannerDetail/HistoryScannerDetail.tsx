@@ -140,6 +140,7 @@ export const HistoryScannerDetail: React.FC = () => {
                 </div>
               </div>
             )}
+            
           {currentItem.description && (
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("conclusion")}</div>
