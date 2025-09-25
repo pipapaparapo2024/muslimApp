@@ -41,7 +41,7 @@ export const ShareStory: React.FC = () => {
         };
 
         const item = await getHistoryItem(id);
-        await preloadImage(backgroundImg);
+        await preloadImage(message);
 
         setCurrentItem(item);
         setIsLoaded(true);
@@ -95,16 +95,16 @@ export const ShareStory: React.FC = () => {
     // <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
     <div className={styles.container}>
       {/* Фон через <img> */}
-      <img
-        src={backgroundImg}
-        alt="Background"
-        className={styles.backgroundImage}
-      />
 
       {/* Контент для скриншота */}
       <div ref={screenshotRef} className={styles.contentWrapper}>
         <img
           src={backgroundImg}
+          alt="Background"
+          className={styles.backgroundImage}
+        />
+        <img
+          src={message}
           className={styles.messageImage}
           alt="Message background"
         />
