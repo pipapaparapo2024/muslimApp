@@ -1,103 +1,64 @@
-/* Общий контейнер */
 .container {
+  background-image: url("../../../../assets/image/background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  margin: 0 auto;
   position: relative;
-  width: 100%;
-  min-height: 100dvh;
   display: flex;
+  min-height: 92vh;
+  height: 100%;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
-  overflow: hidden;
-  padding-bottom: var(--numbers-32);
+  padding-bottom: var(--numbers-64);
 }
-
-.visibleBackground {
-  position: fixed; 
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
 
 .contentWrapper {
-  position: relative;
-  z-index: 1;
   max-width: 390px;
   width: 100%;
-  min-height: 100dvh; /* Добавлено */
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* Центрируем содержимое */
-  padding: var(--numbers-48) var(--numbers-16) var(--numbers-80); /* Добавлен отступ снизу для кнопки */
-  margin: 0 auto;
-}
-
-/* Скрытый фон только для скриншота */
-.hiddenBackgroundForScreenshot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Изображение сообщения */
-.foregroundImage {
-  max-height: 550px;
-  max-width: 100%;
-  width: 100%;
-  height: auto;
-  margin: 0 auto;
-  object-fit: contain;
-  display: block;
   position: relative;
-  z-index: 1;
 }
 
-/* Контент поверх изображения */
-.blockScan {
-  position: absolute;
-  z-index: 2;
-  bottom: -40px;
+.blockButton {
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-4); 
-  width: 100%;
-  max-width: 390px;
+  align-items: center;
 }
 
-/* Кнопка поделиться */
-.blockButton {
-  position: relative; /* Изменено с absolute */
-  width: 100%;
-  max-width: 390px;
-  display: flex;
-  justify-content: center;
-  z-index: 3;
-  padding: var(--numbers-16) 0;
-  margin-top: auto; /* Прижимаем к низу */
+.container img {
+  max-height: 550px;
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  padding-top: var(--numbers-32);
+  position: relative;
+  z-index: 1;
 }
 
 .shareButton {
+  position: absolute;
   border: none;
-  font-size: var(--numbers-16);
+  bottom: 15px;
+  z-index: 3;
+  top: auto;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
+  margin: var(--numbers-16) auto;
+  width: 94%;
+  font-size: var(--numbers-16);
   display: flex;
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
-  width: 100%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
@@ -113,27 +74,34 @@
   transform: translateY(0);
 }
 
-.shareButtonDisabled,
+.shareButtonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 .shareButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
 }
 
-/* Скрытие кнопки при экспорте с сохранением места */
-.hideForScreenshot {
-  visibility: hidden !important;
-  height: 64px;
-  pointer-events: none;
+.blockScan {
+  position: absolute;
+  z-index: 2;
+  top: auto;
+  bottom: -100px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
 }
 
-/* Стили блоков анализа */
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
-  padding: var(--numbers-12) var(--numbers-16); /* Увеличил отступы */
-  margin-bottom: var(--numbers-8);
+  padding: var(--numbers-8) var(--numbers-16);
 }
+
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 2;
@@ -160,7 +128,6 @@
   font-size: var(--numbers-14);
 }
 
-/* Статусы */
 .haram {
   color: #ef4444;
 }
@@ -194,22 +161,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-}
-
-/* Остальной CSS остаётся без изменений... */
-.messageContainer {
-  position: relative;
-  width: 100%;
-  max-width: 390px;
-  display: flex;
-  justify-content: center;
-}
-
-.messageContainer img.messageImage {
-  max-height: 570px;
-  max-width: 100%;
-  height: auto;
-  width: auto;
-  object-fit: contain;
-  display: block;
 }

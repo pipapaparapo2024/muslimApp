@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png";
+import background from "../../../../assets/image/background.png"; 
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -39,15 +39,18 @@ export const ScannerShareStory: React.FC = () => {
           };
         });
       });
+
       return Promise.all(imagePromises);
     };
 
     const loadItem = async () => {
       if (!id) return;
+
       const item = await fetchHistoryItem(id);
       if (item) {
         setCurrentItem(item);
       }
+
       try {
         await preloadImages();
         setIsLoaded(true);
@@ -64,23 +67,10 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
-      // Скрываем кнопку перед экспортом
-      const buttonContainer = screenshotRef.current.querySelector(
-        `.${styles.blockButton}`
-      );
-      if (buttonContainer) {
-        buttonContainer.classList.add(styles.hideForScreenshot);
-      }
-
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
-
-      // Восстанавливаем кнопку
-      if (buttonContainer) {
-        buttonContainer.classList.remove(styles.hideForScreenshot);
-      }
 
       if (screenshotUrl) {
         await shareToTelegramStory(screenshotUrl);
@@ -114,98 +104,79 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Видимый фон (если нужен) */}
-        <img
-          src={background}
-          alt="Background"
-          className={styles.visibleBackground}
-        />
-
-        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Скрытый фон для скриншота */}
+          {/* Основное изображение */}
           <img
-            src={background}
-            alt=""
-            className={styles.hiddenBackgroundForScreenshot}
+            src={message}
+            alt="Message background"
+            className={styles.foregroundImage}
+            crossOrigin="anonymous"
           />
-          <div className={styles.messageContainer}>
-            <img
-              src={message}
-              alt="Message background"
-              className={styles.foregroundImage}
-              crossOrigin="anonymous"
-            />
 
-            <div className={styles.blockScan}>
-              <div
-                className={`${styles.accessBlock} ${getStatusClassName(
-                  currentItem.engType,
-                  styles
-                )}`}
-              >
-                <div className={styles.statusProduct}>
-                  {getStatusIcon(currentItem.engType)}
-                  {t(getStatusTranslationKey(currentItem.engType))}
-                </div>
-                <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
-              </div>
-
-              {currentItem.products && currentItem.products.length > 0 && (
-                <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("ingredients")}</div>
-                  <div className={styles.scanDesk}>
-                    {currentItem.products.join(", ")}
-                  </div>
-                </div>
-              )}
-
-              {currentItem.haramProducts &&
-                currentItem.haramProducts.length > 0 && (
-                  <div className={styles.blockInside}>
-                    <div className={styles.scanTitle}>
-                      {t("analysisResult")}
-                    </div>
-                    <div className={styles.scanDesk}>
-                      {currentItem.haramProducts
-                        .map(
-                          (product: any) =>
-                            `${product.name} - ${product.reason}${product.source}`
-                        )
-                        .join(", ")}
-                    </div>
-                  </div>
-                )}
-
-              {currentItem.description && (
-                <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("conclusion")}</div>
-                  <div className={styles.scanDesk}>
-                    {currentItem.description}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Кнопка ВНУТРИ screenshotRef */}
-          <div
-            className={`${styles.blockButton} ${
-              loading ? styles.hideForScreenshot : ""
-            }`}
-          >
-            <button
-              type="button"
-              onClick={handleShare}
-              disabled={loading}
-              className={`${styles.shareButton} ${
-                loading ? styles.shareButtonDisabled : ""
-              }`}
+          {/* Контент поверх изображений */}
+          <div className={styles.blockScan}>
+            <div
+              className={`${styles.accessBlock} ${getStatusClassName(
+                currentItem.engType,
+                styles
+              )}`}
             >
-              <Upload size={18} />
-              {loading ? t("loading") : t("share")}
-            </button>
+              <div className={styles.statusProduct}>
+                {getStatusIcon(currentItem.engType)}
+                {t(getStatusTranslationKey(currentItem.engType))}
+              </div>
+              <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
+            </div>
+
+            {currentItem.products && currentItem.products.length > 0 && (
+              <div className={styles.blockInside}>
+                <div className={styles.scanTitle}>{t("ingredients")}</div>
+                <div className={styles.scanDesk}>
+                  {currentItem.products.join(", ")}{" "}
+                  {/* Исправлено: добавил {} */}
+                </div>
+              </div>
+            )}
+
+            {currentItem.haramProducts &&
+              currentItem.haramProducts.length > 0 &&
+              currentItem.haramProducts.map((product: any, index: number) => (
+                <div key={index} className={styles.blockInside}>
+                  {" "}
+                  {/* Добавил key */}
+                  <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                  <div className={styles.scanDesk}>
+                    <div className={styles.haranProduct}>
+                      {product.name} - {product.reason}
+                      {product.source}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            {currentItem.description && (
+              <div className={styles.blockInside}>
+                <div className={styles.scanTitle}>{t("conclusion")}</div>
+                <div className={styles.scanDesk}>{currentItem.description}</div>
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Кнопка share ВНЕ элемента для скриншота */}
+        <div className={styles.blockButton}>
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={loading}
+            className={`${styles.shareButton} ${
+              loading ? styles.shareButtonDisabled : ""
+            }`}
+            data-story-visible="hide"
+          >
+            <Upload size={18} />
+            {loading ? t("loading") : t("share")}
+          </button>
         </div>
       </div>
     </PageWrapper>
