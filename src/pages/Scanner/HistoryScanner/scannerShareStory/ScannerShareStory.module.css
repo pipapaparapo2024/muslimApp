@@ -64,6 +64,8 @@
 
 /* Контент поверх изображения */
 .blockScan {
+  position: absolute;
+  z-index: 2;
   bottom: -40px;
   display: flex;
   flex-direction: column;
