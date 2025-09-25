@@ -71,6 +71,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  bottom: 0;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
@@ -82,8 +83,7 @@
 }
 
 .blockMessageUser {
-  border-radius: var(--roundings-medium) var(--roundings-medium) 0
-    var(--roundings-medium);
+  border-radius: var(--roundings-medium) var(--roundings-medium) 0 var(--roundings-medium);
   max-width: 280px;
   background: var(--bg-surface);
   padding: var(--numbers-8) var(--numbers-16);
@@ -94,8 +94,7 @@
 .blockMessageBot {
   background: var(--bg-surface);
   max-width: 280px;
-  border-radius: var(--roundings-medium) var(--roundings-medium)
-    var(--roundings-medium) 0;
+  border-radius: var(--roundings-medium) var(--roundings-medium) var(--roundings-medium) 0;
   padding: var(--numbers-8) var(--numbers-16);
   align-self: flex-start;
   margin-right: auto;
@@ -165,35 +164,3 @@
 }
 
 /* Остальной CSS остаётся без изменений... */
-.messageContainer {
-  position: relative;
-  width: 100%;
-  max-width: 390px;
-  display: flex;
-  justify-content: center;
-}
-
-.messageContainer img.messageImage {
-  max-height: 570px;
-  max-width: 100%;
-  height: auto;
-  width: auto;
-  object-fit: contain;
-  display: block;
-}
-
-/* Теперь blockMessages позиционируется относительно messageContainer */
-.blockMessages {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: var(--numbers-16); /* или 0, если нужно вплотную */
-  padding: var(--numbers-16);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: var(--numbers-8);
-  width: 100%;
-  max-width: 390px;
-  box-sizing: border-box;
-}
