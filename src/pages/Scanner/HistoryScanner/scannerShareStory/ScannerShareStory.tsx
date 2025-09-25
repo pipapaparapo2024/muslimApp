@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
 import message from "../../../../assets/image/shareStory.png";
-import background from "../../../../assets/image/background.png"; 
+import background from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
@@ -39,18 +39,15 @@ export const ScannerShareStory: React.FC = () => {
           };
         });
       });
-
       return Promise.all(imagePromises);
     };
 
     const loadItem = async () => {
       if (!id) return;
-
       const item = await fetchHistoryItem(id);
       if (item) {
         setCurrentItem(item);
       }
-
       try {
         await preloadImages();
         setIsLoaded(true);
@@ -67,10 +64,23 @@ export const ScannerShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     try {
+      // Скрываем кнопку перед экспортом
+      const buttonContainer = screenshotRef.current.querySelector(
+        `.${styles.blockButton}`
+      );
+      if (buttonContainer) {
+        buttonContainer.classList.add(styles.hideForScreenshot);
+      }
+
       const screenshotUrl = await exportScreenshot({
         element: screenshotRef.current,
         id: id,
       });
+
+      // Восстанавливаем кнопку
+      if (buttonContainer) {
+        buttonContainer.classList.remove(styles.hideForScreenshot);
+      }
 
       if (screenshotUrl) {
         await shareToTelegramStory(screenshotUrl);
@@ -104,8 +114,22 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Видимый фон (если нужен) */}
+        <img
+          src={background}
+          alt="Background"
+          className={styles.visibleBackground}
+        />
+
+        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Основное изображение */}
+          {/* Скрытый фон для скриншота */}
+          <img
+            src={background}
+            alt=""
+            className={styles.hiddenBackgroundForScreenshot}
+          />
+
           <img
             src={message}
             alt="Message background"
@@ -113,7 +137,6 @@ export const ScannerShareStory: React.FC = () => {
             crossOrigin="anonymous"
           />
 
-          {/* Контент поверх изображений */}
           <div className={styles.blockScan}>
             <div
               className={`${styles.accessBlock} ${getStatusClassName(
@@ -132,8 +155,7 @@ export const ScannerShareStory: React.FC = () => {
               <div className={styles.blockInside}>
                 <div className={styles.scanTitle}>{t("ingredients")}</div>
                 <div className={styles.scanDesk}>
-                  {currentItem.products.join(", ")}{" "}
-                  {/* Исправлено: добавил {} */}
+                  {currentItem.products.join(", ")}
                 </div>
               </div>
             )}
@@ -142,8 +164,6 @@ export const ScannerShareStory: React.FC = () => {
               currentItem.haramProducts.length > 0 &&
               currentItem.haramProducts.map((product: any, index: number) => (
                 <div key={index} className={styles.blockInside}>
-                  {" "}
-                  {/* Добавил key */}
                   <div className={styles.scanTitle}>{t("analysisResult")}</div>
                   <div className={styles.scanDesk}>
                     <div className={styles.haranProduct}>
@@ -161,22 +181,25 @@ export const ScannerShareStory: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
 
-        {/* Кнопка share ВНЕ элемента для скриншота */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
+          {/* Кнопка ВНУТРИ screenshotRef */}
+          <div
+            className={`${styles.blockButton} ${
+              loading ? styles.hideForScreenshot : ""
             }`}
-            data-story-visible="hide"
           >
-            <Upload size={18} />
-            {loading ? t("loading") : t("share")}
-          </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={loading}
+              className={`${styles.shareButton} ${
+                loading ? styles.shareButtonDisabled : ""
+              }`}
+            >
+              <Upload size={18} />
+              {loading ? t("loading") : t("share")}
+            </button>
+          </div>
         </div>
       </div>
     </PageWrapper>
