@@ -91,7 +91,7 @@ export const ShareStory: React.FC = () => {
     );
   }
 
-  return (
+ return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
         {/* Видимый фон — для пользователя */}
@@ -101,7 +101,7 @@ export const ShareStory: React.FC = () => {
           className={styles.visibleBackground}
         />
 
-        {/* Контент для скриншота */}
+        {/* Контент для скриншота - теперь включает кнопку */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
           {/* Скрытый фон — только для скриншота */}
           <img
@@ -115,6 +115,7 @@ export const ShareStory: React.FC = () => {
             className={styles.messageImage}
             alt="Message background"
           />
+          
           <div className={styles.blockMessages}>
             <div className={styles.blockMessageUser}>
               <div className={styles.nickName}>{t("you")}</div>
@@ -125,20 +126,20 @@ export const ShareStory: React.FC = () => {
               <div className={styles.text}>{currentItem.answer}</div>
             </div>
           </div>
-        </div>
 
-        {/* Кнопка */}
-        <div className={styles.blockButton}>
-          <button
-            type="button"
-            onClick={handleShare}
-            disabled={loading}
-            className={`${styles.shareButton} ${
-              loading ? styles.shareButtonDisabled : ""
-            }`}
-          >
-            <Upload /> {loading ? t("loading") : t("share")}
-          </button>
+          {/* Кнопка теперь ВНУТРИ contentWrapper но будет скрыта при скриншоте */}
+          <div className={styles.blockButton} id="shareButton">
+            <button
+              type="button"
+              onClick={handleShare}
+              disabled={loading}
+              className={`${styles.shareButton} ${
+                loading ? styles.shareButtonDisabled : ""
+              }`}
+            >
+              <Upload /> {loading ? t("loading") : t("share")}
+            </button>
+          </div>
         </div>
       </div>
     </PageWrapper>

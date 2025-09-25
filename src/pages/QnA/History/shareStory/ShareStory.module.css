@@ -20,18 +20,19 @@
   z-index: 0;
 }
 
-/* Обёртка для скриншота */
+/* Обёртка для скриншота - теперь включает кнопку */
 .contentWrapper {
   position: relative;
   z-index: 1;
   max-width: 390px;
   width: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: var(--numbers-48);
+  justify-content: space-between; /* Равномерное распределение */
+  padding: var(--numbers-48) 0 var(--numbers-16) 0;
   margin: 0;
-  flex: 1; /* Занимает доступное пространство */
 }
 
 /* Скрытый фон для скриншота */
@@ -58,6 +59,7 @@
   z-index: 1;
 }
 
+/* Кнопка теперь внутри contentWrapper */
 .blockButton {
   display: flex;
   flex-direction: column;
@@ -65,24 +67,20 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  /* Фиксируем кнопку внизу без лишних отступов */
-  margin-top: auto;
   padding: var(--numbers-16) 0;
 }
 
 .blockMessages {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0; /* Изменили с -15px на 0 */
+  position: relative; /* Изменили с absolute на relative */
+  width: 100%;
   padding: var(--numbers-16);
   z-index: 3;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-8);
-  width: 100%;
   max-width: 390px;
   box-sizing: border-box;
+  flex: 1; /* Занимает доступное пространство */
 }
 
 .blockMessageUser {
@@ -125,7 +123,6 @@
 }
 
 .shareButton {
-  /* Изменили position на relative для нормального потока */
   position: relative;
   z-index: 3;
   border: none;
@@ -160,4 +157,9 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
+}
+
+/* Класс для скрытия кнопки при скриншоте */
+.hideForScreenshot {
+  display: none !important;
 }
