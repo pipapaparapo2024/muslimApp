@@ -32,7 +32,7 @@ function prepareElementForScreenshot(el: HTMLElement): { restore: () => void } {
     height: "100%",
     visibility: "visible",
     zIndex: "9999",
-    background: "white"
+    background: "white",
   });
 
   return {
@@ -55,14 +55,14 @@ async function waitFonts(): Promise<void> {
 
 // Функция для предзагрузки изображений
 async function preloadImages(element: HTMLElement): Promise<void> {
-  const images = element.querySelectorAll('img');
-  const promises = Array.from(images).map(img => {
+  const images = element.querySelectorAll("img");
+  const promises = Array.from(images).map((img) => {
     if (img.complete) return Promise.resolve();
-    
-    return new Promise<void>((resolve, ) => {
+
+    return new Promise<void>((resolve) => {
       img.onload = () => resolve();
       img.onerror = () => {
-        console.warn('Failed to load image:', img.src);
+        console.warn("Failed to load image:", img.src);
         resolve(); // Продолжаем даже если картинка не загрузилась
       };
       // Если изображение уже загружается, ждем
@@ -78,7 +78,7 @@ async function preloadImages(element: HTMLElement): Promise<void> {
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [, setSdkInitialized] = useState<boolean>(false);
-  
+
   // Инициализируем SDK при загрузке хука
   useEffect(() => {
     const initializeSdk = async () => {
@@ -96,41 +96,74 @@ export const useScreenshotExport = () => {
   }, []);
 
   const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    // Ждем загрузки шрифтов и изображений
-    await waitFonts();
-    await preloadImages(element);
+    // 1. Создаем контейнер для клона (как в первой программе)
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.left = "-9999px";
+    container.style.top = "0";
+    container.style.width = "390px"; // или нужная вам ширина
+    container.style.backgroundColor = "#ffffff";
+    container.style.overflow = "hidden";
+    container.style.zIndex = "10000";
 
-    const preparation = prepareElementForScreenshot(element);
+    // 2. Клонируем элемент
+    const clone = element.cloneNode(true) as HTMLElement;
+
+    // 3. Настраиваем стили клона
+    clone.style.width = "100%";
+    clone.style.height = "auto";
+    clone.style.backgroundColor = "#ffffff";
+    clone.style.overflow = "hidden";
+
+    // 4. Удаляем ненужные элементы (кнопки и т.д.)
+    const elementsToRemove = clone.querySelectorAll(
+      '.shareButton, .blockButton, button, [data-story-visible="hide"]'
+    );
+    elementsToRemove.forEach((el) => el.remove());
+
+    // 5. Добавляем в DOM
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    // 6. Ждем загрузки изображений (как в первой программе)
+    await new Promise<void>((resolve) => {
+      const images = clone.querySelectorAll("img");
+      let loadedCount = 0;
+
+      if (images.length === 0) {
+        resolve();
+        return;
+      }
+
+      images.forEach((img) => {
+        if (img.complete) {
+          loadedCount++;
+        } else {
+          img.onload = () => {
+            loadedCount++;
+            if (loadedCount === images.length) resolve();
+          };
+          img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === images.length) resolve();
+          };
+        }
+      });
+
+      if (loadedCount === images.length) resolve();
+    });
+
+    // 7. Ждем отрисовки
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
-      const blob = await toBlob(element, {
-        pixelRatio: Math.min(2, window.devicePixelRatio || 1),
-        cacheBust: true,
-        filter: (node: HTMLElement) => {
-          // Исключаем только кнопку шаринга
-          if (node.classList?.contains?.('shareButton')) {
-            return false;
-          }
-          
-          const tag = node.tagName?.toUpperCase?.() || "";
-          // Исключаем элементы, которые не должны попадать в скриншот
-          if (
-            node.getAttribute &&
-            node.getAttribute("data-story-visible") === "hide"
-          ) {
-            return false;
-          }
-          
-          // Разрешаем IMG и другие важные теги
-          if (["IFRAME", "VIDEO", "CANVAS"].includes(tag)) {
-            return false;
-          }
-          
-          return true;
-        },
-        skipFonts: false, // Разрешаем шрифты
-        backgroundColor: '#ffffff', // Белый фон для гарантии
-        quality: 0.95, // Высокое качество
+      // 8. Снимаем скриншот с КЛОНА
+      const blob = await toBlob(clone, {
+        pixelRatio: 2,
+        backgroundColor: "#ffffff",
+        quality: 0.95,
+        cacheBust: false,
+        skipFonts: false,
       });
 
       if (!blob) {
@@ -139,7 +172,8 @@ export const useScreenshotExport = () => {
 
       return blob;
     } finally {
-      preparation.restore();
+      // 9. Очищаем
+      document.body.removeChild(container);
     }
   };
 
@@ -217,11 +251,11 @@ export const shareToTelegramStory = async (
   );
   console.log("Platform:", tg?.WebApp?.platform);
   console.log("Version:", tg?.WebApp?.version);
-  
+
   try {
     await init();
     console.log("Telegram SDK init attempted");
-    
+
     if (typeof shareStory === "function") {
       console.log("Calling shareStory with URL:", url);
       await shareStory(url, {
@@ -230,7 +264,7 @@ export const shareToTelegramStory = async (
           name: "@QiblaGuidebot",
         },
       });
-      
+
       console.log("shareStory completed successfully");
     } else if (tg?.WebApp?.shareStory) {
       console.log("Using Telegram WebApp shareStory");
