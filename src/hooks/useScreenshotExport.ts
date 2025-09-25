@@ -1,11 +1,7 @@
-// hooks/useScreenshotExport.ts
 import { useState } from "react";
 import { toBlob } from "html-to-image";
 import { init, shareStory } from "@telegram-apps/sdk";
 
-// ==========================
-// ФУНКЦИЯ ШАРИНГА (без изменений)
-// ==========================
 export const shareToTelegramStory = async (
   url: string | undefined
 ): Promise<void> => {
@@ -40,9 +36,6 @@ export const shareToTelegramStory = async (
   }
 };
 
-// ==========================
-// КЛИЕНТСКИЙ ЭКСПОРТ СКРИНШОТА (логика из TestScreenshot)
-// ==========================
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -52,7 +45,6 @@ export const useScreenshotExport = () => {
     setLoading(true);
 
     try {
-      // === 1. Создаём offscreen-контейнер ===
       const container = document.createElement("div");
       container.style.position = "fixed";
       container.style.left = "-9999px";
@@ -62,17 +54,19 @@ export const useScreenshotExport = () => {
       container.style.overflow = "hidden";
       container.style.position = "relative";
 
-      // === 2. Клонируем элемент ===
       const clone = element.cloneNode(true) as HTMLElement;
 
-      // === 3. Удаляем кнопки шаринга из клонированной версии ===
-      const shareButtons = clone.querySelectorAll(
-        '.shareButton, .blockButton, button, [data-story-visible="hide"]'
-      );
-      shareButtons.forEach((btn) => btn.remove());
+      // Удаляем кнопки шаринга
+      clone
+        .querySelectorAll(
+          '.shareButton, .blockButton, button, [data-story-visible="hide"]'
+        )
+        .forEach((btn) => btn.remove());
 
-      // === 4. Обрабатываем фоновое изображение (если оно есть как <img alt="Background">) ===
-      const bgImg = clone.querySelector('img[alt="Background"]') as HTMLImageElement | null;
+      // Обрабатываем фоновое изображение
+      const bgImg = clone.querySelector(
+        'img[alt="Background"]'
+      ) as HTMLImageElement | null;
       if (bgImg) {
         bgImg.style.position = "absolute";
         bgImg.style.top = "0";
@@ -83,14 +77,19 @@ export const useScreenshotExport = () => {
         bgImg.style.zIndex = "0";
       }
 
-      // === 5. Поднимаем контент поверх фона ===
-      const contentWrapper = clone.querySelector('[data-screenshot-content]');
+      // Поднимаем контент
+      const contentWrapper = clone.querySelector("[data-screenshot-content]");
       if (contentWrapper) {
         (contentWrapper as HTMLElement).style.position = "relative";
         (contentWrapper as HTMLElement).style.zIndex = "1";
       }
 
-      // === 6. Ждём загрузки всех изображений ===
+      // Удаляем внешние стили и шрифты
+      clone
+        .querySelectorAll('link[rel="stylesheet"], style')
+        .forEach((el) => el.remove());
+
+      // Ждём загрузки изображений
       const images = clone.querySelectorAll("img");
       await new Promise<void>((resolve) => {
         let loaded = 0;
@@ -116,20 +115,18 @@ export const useScreenshotExport = () => {
         });
       });
 
-      // === 7. Добавляем в DOM для рендеринга ===
       container.appendChild(clone);
       document.body.appendChild(container);
 
-      // === 8. Пауза для отрисовки ===
       await new Promise((r) => setTimeout(r, 300));
 
-      // === 9. Делаем скриншот ===
+      // Ключевое изменение: skipFonts: true
       const blob = await toBlob(clone, {
         pixelRatio: 2,
         backgroundColor: "#ffffff",
         quality: 0.95,
         cacheBust: false,
-        skipFonts: false,
+        skipFonts: true, // ← ОТКЛЮЧАЕМ ШРИФТЫ
       });
 
       document.body.removeChild(container);
