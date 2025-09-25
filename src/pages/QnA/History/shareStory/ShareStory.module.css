@@ -13,46 +13,38 @@
   align-items: center;
   padding-bottom: var(--numbers-80);
 }
+
 .contentWrapper {
-  max-width: 390px;
-  width: 100%;
-  height: 100%;
+  width: 390px; /* фиксированная ширина */
+  height: 570px; /* фиксированная высота */
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  margin: 0 auto;
 }
 
-.container img {
-  max-height: 570px;
-  max-width: 100%;
-  height: auto;
-  width: auto;
-  margin: 0 auto;
-  object-fit: contain;
-  padding-top: var(--numbers-48);
-  position: relative;
-  z-index: 1;
-}
+/* Убрали стили для img, так как теперь используем background-image */
 
 .blockButton {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: var(--numbers-20);
 }
+
 .blockMessages {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: auto;
-  bottom: -15px;
-  padding: var(--numbers-16);
+  bottom: 20px; /* регулируйте по необходимости */
+  padding: 0 var(--numbers-16);
   z-index: 3;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-8);
   width: 100%;
-  max-width: 390px;
+  max-width: 358px; /* 390px - padding */
   box-sizing: border-box;
 }
 
@@ -75,8 +67,11 @@
   align-self: flex-start;
   margin-right: auto;
 }
+
 .text {
   color: var(--desk-text);
+  font-size: var(--numbers-14);
+  line-height: 1.4;
 }
 
 .blockMessageBot .text {
@@ -86,17 +81,20 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.2em * 6);
-  line-height: 1.2;
+  max-height: calc(1.4em * 6);
+  line-height: 1.4;
 }
+
 .nickName {
   color: var(--desk-text);
   font-weight: 400;
-  font-size: var(--numbers-14);
+  font-size: var(--numbers-12);
+  margin-bottom: var(--numbers-4);
 }
+
 .shareButton {
-  position: absolute;
-  bottom: 30px;
+  position: relative;
+  bottom: auto;
   z-index: 3;
   border: none;
   font-size: var(--numbers-16);
@@ -110,6 +108,7 @@
   align-items: center;
   margin: var(--numbers-16) auto;
   width: 90%;
+  max-width: 390px;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
