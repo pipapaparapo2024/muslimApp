@@ -72,12 +72,8 @@ export const Home: React.FC = () => {
               <div className={styles.vpnWarningIcon}>
                 <TriangleAlert size={40} color="var(--warning-color)" />
               </div>
-              <h3 className={styles.vpnWarningTitle}>
-                {t("vpnWarningTitle")}
-              </h3>
-              <p className={styles.vpnWarningText}>
-                {t("vpnWarningText")}
-              </p>
+              <h3 className={styles.vpnWarningTitle}>{t("vpnWarningTitle")}</h3>
+              <p className={styles.vpnWarningText}>{t("vpnWarningText")}</p>
               <button
                 className={styles.vpnWarningButton}
                 onClick={handleCloseVpnWarning}
@@ -98,7 +94,11 @@ export const Home: React.FC = () => {
 
         {!isLoading && !error && (
           <>
-            <div className={`${styles.prayerTimesQiblaContainer} ${showVpnWarning ? styles.blurred : ""}`}>
+            <div
+              className={`${styles.prayerTimesQiblaContainer} ${
+                showVpnWarning ? styles.blurred : ""
+              }`}
+            >
               <PrayerTimes />
 
               <div className={styles.qiblaBlock}>
