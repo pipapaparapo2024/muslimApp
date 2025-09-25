@@ -57,7 +57,6 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       <button onClick={() => handleOpenVpnWarning()}>open VPN</button>
-      <div className={styles.homeRoot}>
         {/* Модальное окно с предупреждением о VPN */}
         {showVpnWarning && (
           <div className={styles.vpnWarningOverlay}>
@@ -164,7 +163,6 @@ export const Home: React.FC = () => {
             <MenuBlocks />
           </>
         )}
-      </div>
     </PageWrapper>
   );
 };
