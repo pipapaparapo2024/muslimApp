@@ -1,64 +1,91 @@
 .container {
-  overflow: hidden;
-  margin: 0 auto;
   position: relative;
+  width: 100%;
+  min-height: 100dvh;
   display: flex;
-  min-height: 92vh;
-  height: 100%;
   flex-direction: column;
   align-items: center;
-  padding-bottom: var(--numbers-64);
+  margin: 0 auto;
+  overflow: hidden;
 }
 
-.contentWrapper {
-  max-width: 390px;
+/* Видимый фон */
+.visibleBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Обёртка для скриншота */
+.contentWrapper {
   position: relative;
-}
-
-.blockButton {
+  z-index: 1;
+  max-width: 390px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: var(--numbers-32);
+  margin: 0;
+  flex: 1;
 }
 
-.container img {
+/* Скрытый фон для скриншота */
+.hiddenBackgroundForScreenshot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.foregroundImage {
   max-height: 550px;
   max-width: 100%;
   height: auto;
   width: auto;
-  margin: 0 auto;
   object-fit: contain;
-  padding-top: var(--numbers-32);
   position: relative;
   z-index: 1;
 }
 
-.shareButton {
+.blockButton {
   position: absolute;
-  border: none;
-  bottom: 15px;
+  bottom: var(--numbers-40);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
   z-index: 3;
-  top: auto;
+  width: 100%;
+  padding: 0;
+}
+
+.shareButton {
+  border: none;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
-  margin: var(--numbers-16) auto;
-  width: 94%;
-  font-size: var(--numbers-16);
   display: flex;
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
+  margin: 0 auto;
+  width: 90%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
+  font-size: var(--numbers-16);
 }
 
 .shareButton:hover:not(:disabled) {
@@ -70,26 +97,31 @@
   transform: translateY(0);
 }
 
-.shareButtonDisabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
+.shareButtonDisabled,
 .shareButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
 }
 
+/* Скрываем кнопку при экспорте */
+.hideForScreenshot {
+  visibility: hidden !important;
+  height: 64px;
+  pointer-events: none;
+}
+
 .blockScan {
   position: absolute;
   z-index: 2;
-  top: auto;
   bottom: -100px;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
+  width: 100%;
+  max-width: 390px;
+  padding: 0 var(--numbers-16);
+  box-sizing: border-box;
 }
 
 .blockInside {
@@ -157,15 +189,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-}
-
-/* Видимый фон */
-.visibleBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
 }
