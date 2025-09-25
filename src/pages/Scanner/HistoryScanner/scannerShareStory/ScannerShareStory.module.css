@@ -1,23 +1,12 @@
 .container {
+  margin: 0 auto;
   position: relative;
-  width: 100%;
-  min-height: 100dvh;
   display: flex;
+  min-height: 92vh;
+  height: 100%;
   flex-direction: column;
   align-items: center;
-  margin: 0 auto;
-  overflow: hidden;
-}
-
-/* Видимый фон */
-.visibleBackground {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
+  padding-bottom: var(--numbers-64);
 }
 
 /* Обёртка для скриншота */
@@ -29,63 +18,50 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: var(--numbers-32);
+  padding-top: var(--numbers-48);
   margin: 0;
   flex: 1;
 }
 
-/* Скрытый фон для скриншота */
-.hiddenBackgroundForScreenshot {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
+.blockButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.foregroundImage {
+.container img {
   max-height: 550px;
   max-width: 100%;
   height: auto;
   width: auto;
+  margin: 0 auto;
   object-fit: contain;
+  padding-top: var(--numbers-32);
   position: relative;
   z-index: 1;
 }
 
-.blockButton {
-  position: absolute;
-  bottom: var(--numbers-40);
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 3;
-  width: 100%;
-  padding: 0;
-}
-
 .shareButton {
+  position: absolute;
   border: none;
+  bottom: 15px;
+  z-index: 3;
+  top: auto;
   border-radius: var(--roundings-medium);
   font-weight: var(--font-600);
   background: green;
   transition: all 0.3s ease;
+  margin: var(--numbers-16) auto;
+  width: 94%;
+  font-size: var(--numbers-16);
   display: flex;
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
-  margin: 0 auto;
-  width: 90%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
   box-shadow: 0 var(--numbers-2) var(--numbers-4) rgba(0, 0, 0, 0.1);
-  font-size: var(--numbers-16);
 }
 
 .shareButton:hover:not(:disabled) {
@@ -97,48 +73,42 @@
   transform: translateY(0);
 }
 
-.shareButtonDisabled,
+.shareButtonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 .shareButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
 }
 
-/* Скрываем кнопку при экспорте */
-.hideForScreenshot {
-  visibility: hidden !important;
-  height: 64px;
-  pointer-events: none;
-}
-
-/* Исправленное позиционирование блока с текстом */
 .blockScan {
   position: absolute;
   z-index: 2;
-  top: 50%; /* Центрируем по вертикали */
-  left: 50%; /* Центрируем по горизонтали */
-  transform: translate(-50%, -50%); /* Точное центрирование */
+  top: auto;
+  bottom: -100px;
   display: flex;
   flex-direction: column;
-  gap: var(--numbers-4); /* Увеличим отступ между блоками */
-  width: 100%;
+  gap: var(--numbers-4);
 }
 
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
-  padding: var(--numbers-12) var(--numbers-16); /* Увеличим паддинги */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Добавим тень для лучшего визуального разделения */
+  padding: var(--numbers-8) var(--numbers-16);
 }
 
 .blockInside .scanDesk {
   display: -webkit-box;
-  line-clamp: 3; /* Увеличим количество строк */
-  -webkit-line-clamp: 3;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: calc(1.5em * 3);
+  max-height: calc(1.5em * 2);
   line-height: 1.5;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -148,15 +118,13 @@
   font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
-  margin-bottom: var(--numbers-8); /* Отступ снизу для заголовка */
 }
 
 .scanDesk {
   font-weight: var(--font-400);
-  margin: var(--numbers-4) 0;
+  margin: var(--numbers-4) 0 var(--numbers-8) 0;
   color: var(--desk-text);
   font-size: var(--numbers-14);
-  line-height: 1.4;
 }
 
 .haram {
@@ -176,18 +144,16 @@
   justify-content: space-between;
   align-items: center;
   font-weight: var(--font-500);
-  font-size: var(--numbers-18); /* Немного уменьшим размер шрифта */
+  font-size: var(--numbers-20);
   gap: var(--numbers-4);
   padding: var(--numbers-12) var(--numbers-16);
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .QiblaGuidebot {
-  font-size: var(--numbers-12); /* Уменьшим размер шрифта */
+  font-size: var(--numbers-14);
   color: var(--desk-text);
-  opacity: 0.8;
 }
 
 .statusProduct {
@@ -196,22 +162,13 @@
   gap: var(--numbers-8);
 }
 
-/* Стили для разделительной линии как в макете */
-.blockScan::before {
-  content: "";
+/* Видимый фон */
+.visibleBackground {
   position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--desk-text), transparent);
-  opacity: 0.3;
-}
-
-/* Для разделителей между блоками контента */
-.blockInside:not(:first-child) {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  margin-top: var(--numbers-8);
-  padding-top: var(--numbers-16);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
