@@ -144,9 +144,10 @@
 }
 /* Скрываем кнопку при экспорте */
 .hideForScreenshot {
-  display: none !important;
+  visibility: hidden !important;
+  height: 64px; 
+  pointer-events: none; 
 }
-
 /* Остальной CSS остаётся без изменений... */
 .messageContainer {
   position: relative;
@@ -170,7 +171,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: var(--numbers-16); /* или 0, если нужно вплотную */
+  bottom: var(--numbers-32); /* или 0, если нужно вплотную */
   padding: var(--numbers-16);
   z-index: 3;
   bottom: -15px;
