@@ -42,7 +42,7 @@
   background-color: var(--hover-color);
 }
 .vpnWarningClose{
-  
+  text-align: right;
 }
 
 .vpnWarningText {
