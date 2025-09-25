@@ -17,46 +17,46 @@ interface ExportOptions {
   id: string;
 }
 
-const ensureImagesLoaded = async (element: HTMLElement): Promise<void> => {
-  const images = Array.from(element.querySelectorAll('img'));
-  console.log(`🖼️ [ensureImagesLoaded] Found ${images.length} images`);
+// const ensureImagesLoaded = async (element: HTMLElement): Promise<void> => {
+//   const images = Array.from(element.querySelectorAll('img'));
+//   console.log(`🖼️ [ensureImagesLoaded] Found ${images.length} images`);
 
-  const promises = images.map((img, index) => {
-    return new Promise<void>((resolve) => {
-      if (img.complete && img.naturalHeight > 0) {
-        console.log(`✅ [Image ${index}] Already loaded: ${img.src}`);
-        resolve();
-        return;
-      }
+//   const promises = images.map((img, index) => {
+//     return new Promise<void>((resolve) => {
+//       if (img.complete && img.naturalHeight > 0) {
+//         console.log(`✅ [Image ${index}] Already loaded: ${img.src}`);
+//         resolve();
+//         return;
+//       }
 
-      const onLoad = () => {
-        console.log(`✅ [Image ${index}] Loaded successfully: ${img.src}`);
-        img.removeEventListener('load', onLoad);
-        img.removeEventListener('error', onError);
-        resolve();
-      };
+//       const onLoad = () => {
+//         console.log(`✅ [Image ${index}] Loaded successfully: ${img.src}`);
+//         img.removeEventListener('load', onLoad);
+//         img.removeEventListener('error', onError);
+//         resolve();
+//       };
 
-      const onError = () => {
-        console.warn(`❌ [Image ${index}] Failed to load: ${img.src}`);
-        img.removeEventListener('load', onLoad);
-        img.removeEventListener('error', onError);
-        resolve(); // continue anyway
-      };
+//       const onError = () => {
+//         console.warn(`❌ [Image ${index}] Failed to load: ${img.src}`);
+//         img.removeEventListener('load', onLoad);
+//         img.removeEventListener('error', onError);
+//         resolve(); // continue anyway
+//       };
 
-      img.addEventListener('load', onLoad);
-      img.addEventListener('error', onError);
+//       img.addEventListener('load', onLoad);
+//       img.addEventListener('error', onError);
 
-      if (!img.src.startsWith('data:') && !img.src.startsWith('blob:')) {
-        const newSrc = img.src + '?t=' + Date.now();
-        console.log(`🔄 [Image ${index}] Reloading to bypass cache:`, newSrc);
-        img.src = newSrc;
-      }
-    });
-  });
+//       if (!img.src.startsWith('data:') && !img.src.startsWith('blob:')) {
+//         const newSrc = img.src + '?t=' + Date.now();
+//         console.log(`🔄 [Image ${index}] Reloading to bypass cache:`, newSrc);
+//         img.src = newSrc;
+//       }
+//     });
+//   });
 
-  await Promise.all(promises);
-  console.log("✅ [ensureImagesLoaded] All images processed");
-};
+//   await Promise.all(promises);
+//   console.log("✅ [ensureImagesLoaded] All images processed");
+// };
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
