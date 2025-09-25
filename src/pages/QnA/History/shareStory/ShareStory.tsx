@@ -96,6 +96,11 @@ export const ShareStory: React.FC = () => {
     <div className={styles.container}>
       {/* Фон через <img> */}
 
+        <img
+          src={backgroundImg}
+          alt="Background"
+          className={styles.backgroundImage}
+        />
       {/* Контент для скриншота */}
       <div ref={screenshotRef} className={styles.contentWrapper}>
         <img
