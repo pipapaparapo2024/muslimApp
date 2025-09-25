@@ -2,52 +2,54 @@ import { useState } from "react";
 import { toBlob } from "html-to-image";
 import { init, shareStory } from "@telegram-apps/sdk";
 
-// Инициализация выполняется один раз
-let isTelegramInitialized = false;
+export const shareToTelegramStory = async (
+  url: string | undefined
+): Promise<void> => {
+  if (!url) return;
 
-export const shareToTelegramStory = async (url: string | undefined): Promise<void> => {
-  if (!url) {
-    console.error("No URL provided for sharing");
-    return;
-  }
+  const tg = (window as any).Telegram;
 
+  console.log("=== DEBUG SHARE STORY ===");
+  console.log("URL:", url);
+  console.log("Telegram WebApp:", tg?.WebApp);
+  console.log(
+    "shareStory function available:",
+    typeof shareStory === "function"
+  );
+  console.log("Platform:", tg?.WebApp?.platform);
+  console.log("Version:", tg?.WebApp?.version);
+  
   try {
-    // Инициализируем только один раз
-    if (!isTelegramInitialized) {
-      await init();
-      isTelegramInitialized = true;
-    }
-
-    // Проверяем доступность функции
+    await init();
+    console.log("Telegram SDK init attempted");
+    
     if (typeof shareStory === "function") {
+      console.log("Calling shareStory with URL:", url);
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      console.log("✅ Story shared successfully");
+      
+      console.log("shareStory completed successfully");
+    } else if (tg?.WebApp?.shareStory) {
+      console.log("Using Telegram WebApp shareStory");
+      await tg.WebApp.shareStory(url, {
+        widget: {
+          url: "https://t.me/QiblaGuidebot",
+          name: "@QiblaGuidebot",
+        },
+      });
     } else {
-      // Fallback для старого API
-      const tg = (window as any).Telegram?.WebApp;
-      if (tg?.shareStory) {
-        await tg.shareStory(url, {
-          widget: {
-            url: "https://t.me/QiblaGuidebot",
-            name: "@QiblaGuidebot",
-          },
-        });
-      } else {
-        throw new Error("shareStory function not available");
-      }
+      throw new Error("shareStory function not available");
     }
   } catch (error) {
-    console.error("❌ Share story failed:", error);
-    // Fallback: открываем в новом окне
-    window.open(url, "_blank");
+    console.error("Share story completely failed:", error);
+    // Fallback: открываем ссылку в новом окне
+    window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
   }
 };
-
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -88,16 +90,12 @@ export const useScreenshotExport = () => {
 
       // Создаем скриншот с упрощенными настройками
       const blob = await toBlob(clone, {
-        pixelRatio: 1, // Уменьшаем для производительности
+        pixelRatio: 1,
         backgroundColor: "#ffffff",
         quality: 0.8,
         cacheBust: false,
         skipFonts: true,
         skipAutoScale: false,
-        style: {
-          transform: "none",
-          opacity: "1"
-        }
       });
 
       // Очищаем
