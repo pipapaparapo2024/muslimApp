@@ -209,7 +209,7 @@ export const ShareStory: React.FC = () => {
 
   const shareToTelegramStory = async (url: string): Promise<void> => {
     if (!url) return;
-
+    console.log("url",url)
     try {
       const tg = (window as any).Telegram;
       if (tg?.WebApp?.shareStory) {
