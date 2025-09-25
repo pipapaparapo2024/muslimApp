@@ -108,9 +108,9 @@
 }
 
 .shareButton {
-  /* Изменили position на relative для нормального потока */
-  position: relative;
+  position: absolute;
   z-index: 3;
+  bottom: 0;
   border: none;
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
