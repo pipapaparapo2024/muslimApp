@@ -139,13 +139,13 @@ export const ShareStory: React.FC = () => {
       <div className={styles.container}>
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
-            src={require("../../../../assets/image/background.png")}
+            src={("../../../../assets/image/background.png")}
             alt=""
             className={styles.backgroundImage}
           />
 
           <img
-            src={require("../../../../assets/image/shareStory.png")}
+            src={("../../../../assets/image/shareStory.png")}
             className={styles.messageImage}
             alt="Message background"
             crossOrigin="anonymous"
