@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
+import { trackButtonClick } from "../../api/global";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
@@ -19,10 +20,25 @@ export const Scanner: React.FC = () => {
     fetchUserData();
   }, [fetchUserData]);
 
+  const showAskButton =
+    hasPremium || (requestsLeft != null && requestsLeft > 0);
+
   const handleScanClick = () => {
     if (showAskButton) {
-      navigate("/scanner/camera"); // Переход на отдельную страницу камеры
+      // 📊 Аналитика: пользователь переходит к сканированию
+      trackButtonClick("scan_button_click", {
+        action: "open_camera",
+        has_premium: hasPremium,
+        requests_left: requestsLeft,
+      });
+      navigate("/scanner/camera");
     } else {
+      // 📊 Аналитика: попытка сканировать без запросов → открытие модалки
+      trackButtonClick("scan_button_click", {
+        action: "open_buy_requests_modal",
+        has_premium: hasPremium,
+        requests_left: requestsLeft,
+      });
       setShowModal(true);
     }
   };
@@ -34,9 +50,6 @@ export const Scanner: React.FC = () => {
     return t("buyRequests");
   };
 
-  const showAskButton =
-    hasPremium || (requestsLeft != null && requestsLeft > 0);
-
   return (
     <PageWrapper showBackButton navigateTo="/home">
       <div className={styles.container}>
@@ -46,7 +59,7 @@ export const Scanner: React.FC = () => {
 
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <img src={analyze} />
+            <img src={analyze} alt={t("scanIllustration")} />
           </div>
 
           <div className={styles.halalCheck}>

@@ -7,13 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
-// import { useGeoStore } from "../../hooks/useGeoStore";
 import {
   Calendar,
   ChevronLeft,
   ChevronRight,
   Clock,
-  // Earth,
   FileText,
   Languages,
   MessageCircle,
@@ -21,6 +19,7 @@ import {
   Sun,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { trackButtonClick } from "../../api/global";
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -30,8 +29,7 @@ export const Settings: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
-  // const { city, country} = useGeoStore();
-  // Временная проверка
+
   useEffect(() => {
     console.log("Current language:", i18n.language);
     console.log(
@@ -40,6 +38,23 @@ export const Settings: React.FC = () => {
     );
     console.log("HTML classes:", document.documentElement.className);
   }, [i18n.language]);
+
+  // Обработчики с аналитикой
+  const openLanguageModal = () => {
+    trackButtonClick("open_language_modal", { current_language: language });
+    setIsLanguageModalOpen(true);
+  };
+
+  const openThemeModal = () => {
+    trackButtonClick("open_theme_modal", { current_theme: rawTheme });
+    setIsThemeModalOpen(true);
+  };
+
+  const navigateTo = (path: string, eventName: string, additionalData = {}) => {
+    trackButtonClick(eventName, additionalData);
+    navigate(path);
+  };
+
   return (
     <PageWrapper showBackButton>
       <div className={styles.settingsContainer}>
@@ -47,34 +62,8 @@ export const Settings: React.FC = () => {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("appSettings")}</h2>
 
-          {/* Region */}
-          {/* <div
-            className={styles.settingItem}
-            onClick={() => navigate("/settings/region")}
-          >
-            <div className={styles.settingItemLeft}>
-              <div className={styles.iconWrapper}>
-                <Earth strokeWidth={1.5} color="var(--color-icon-secondary)" />
-              </div>
-              <div className={styles.title}>{t("region")}</div>
-            </div>
-            <div className={styles.settingItemRight}>
-              <div className={styles.description}>
-                {country}, {city}
-              </div>
-              {language === "ar" ? (
-                <ChevronLeft size={24} />
-              ) : (
-                <ChevronRight size={24} />
-              )}
-            </div>
-          </div> */}
-
           {/* Language */}
-          <div
-            className={styles.settingItem}
-            onClick={() => setIsLanguageModalOpen(true)}
-          >
+          <div className={styles.settingItem} onClick={openLanguageModal}>
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Languages
@@ -97,7 +86,9 @@ export const Settings: React.FC = () => {
           {/* Date & Time */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/settings/dateTime")}
+            onClick={() =>
+              navigateTo("/settings/dateTime", "open_date_time_settings")
+            }
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -120,7 +111,11 @@ export const Settings: React.FC = () => {
           {/* Prayer Times */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/settings/prayerTimes")}
+            onClick={() =>
+              navigateTo("/settings/prayerTimes", "open_prayer_times_settings", {
+                prayers_count: prayers.length,
+              })
+            }
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -141,10 +136,7 @@ export const Settings: React.FC = () => {
           </div>
 
           {/* Theme */}
-          <div
-            className={styles.settingItem}
-            onClick={() => setIsThemeModalOpen(true)}
-          >
+          <div className={styles.settingItem} onClick={openThemeModal}>
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Sun strokeWidth={1.5} color="var(--color-icon-secondary)" />
@@ -169,7 +161,9 @@ export const Settings: React.FC = () => {
           {/* Privacy Policy */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/privacy-policy")}
+            onClick={() =>
+              navigateTo("/privacy-policy", "open_privacy_policy")
+            }
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -189,7 +183,9 @@ export const Settings: React.FC = () => {
           {/* Terms Of Use */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/terms-of-use")}
+            onClick={() =>
+              navigateTo("/terms-of-use", "open_terms_of_use")
+            }
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -212,7 +208,7 @@ export const Settings: React.FC = () => {
           {/* Contact Us */}
           <div
             className={styles.settingItem}
-            onClick={() => navigate("/contact-us")}
+            onClick={() => navigateTo("/contact-us", "open_contact_us")}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -233,11 +229,18 @@ export const Settings: React.FC = () => {
           </div>
         </div>
       </div>
+
       <ModalLanguage
         isOpen={isLanguageModalOpen}
         currentLanguage={language}
         onClose={() => setIsLanguageModalOpen(false)}
-        onLanguageChange={changeLanguage} 
+        onLanguageChange={(newLang) => {
+          trackButtonClick("change_language", { 
+            from: language, 
+            to: newLang 
+          });
+          changeLanguage(newLang);
+        }}
       />
 
       <ModalTheme
@@ -245,6 +248,10 @@ export const Settings: React.FC = () => {
         currentTheme={rawTheme}
         onClose={() => setIsThemeModalOpen(false)}
         onThemeChange={(theme) => {
+          trackButtonClick("change_theme", { 
+            from: rawTheme, 
+            to: theme 
+          });
           changeTheme(theme);
         }}
       />

@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { useTranslation } from "react-i18next";
 import { useFriendsStore } from "../../../hooks/useFriendsStore";
+import { trackButtonClick } from "../../../api/global"
 
 // Импорты иконок
 import Quaran from "../../../assets/icons/quaran1.svg";
@@ -18,9 +19,11 @@ export const MenuBlocks: React.FC = () => {
   const { language } = useLanguage();
   const { t } = useTranslation();
   const { friends, fetchFriends } = useFriendsStore();
+  
   useEffect(() => {
     fetchFriends();
   }, []);
+
   const menuItems = [
     {
       id: "quran",
@@ -59,7 +62,14 @@ export const MenuBlocks: React.FC = () => {
     },
   ];
 
-  const handleNavigation = (path: string) => {
+  const handleNavigation = (itemId: string, path: string) => {
+    // 📊 Аналитика: Клик по пункту меню
+    trackButtonClick('menu_item_click', {
+      menu_item: itemId,
+      destination_path: path,
+      friends_count: itemId === 'friends' ? friends.length : undefined
+    });
+    
     navigate(path);
   };
 
@@ -69,7 +79,7 @@ export const MenuBlocks: React.FC = () => {
         <div
           key={item.id}
           className={styles.menuItem}
-          onClick={() => handleNavigation(item.path)}
+          onClick={() => handleNavigation(item.id, item.path)}
         >
           <div className={styles.contentWrapper}>
             <img

@@ -6,6 +6,8 @@ import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
 import { useLanguage } from "../../../../hooks/useLanguages";
 import { t } from "i18next";
+import { trackButtonClick } from "../../../../api/global";
+
 // Получаем текущую дату
 const today = new Date();
 const day = String(today.getDate()).padStart(2, "0");
@@ -29,7 +31,6 @@ const DATE_FORMATS = [
 export const DataTime: React.FC = () => {
   const { ipData } = useGeoStore();
   const { language } = useLanguage();
-  // Zustand store
   const {
     is24Hour,
     isAutoTime,
@@ -39,7 +40,24 @@ export const DataTime: React.FC = () => {
     setSelectedDateFormat,
   } = useDataTimeStore();
 
+  const handle24HourToggle = (checked: boolean) => {
+    // 📊 Аналитика: переключение 24-часового формата
+    trackButtonClick("toggle_24_hour_format", { enabled: checked });
+    set24Hour(checked);
+  };
+
+  const handleAutoTimeToggle = (checked: boolean) => {
+    // 📊 Аналитика: переключение автоматического времени
+    trackButtonClick("toggle_auto_time", { enabled: checked });
+    setAutoTime(checked);
+  };
+
   const handleSelect = (formatKey: string) => {
+    // 📊 Аналитика: выбор формата даты
+    trackButtonClick("select_date_format", {
+      format: formatKey,
+      example: DATE_FORMATS.find(f => f.key === formatKey)?.value || "",
+    });
     setSelectedDateFormat(formatKey);
   };
 
@@ -55,7 +73,7 @@ export const DataTime: React.FC = () => {
             <input
               type="checkbox"
               checked={is24Hour}
-              onChange={(e) => set24Hour(e.target.checked)}
+              onChange={(e) => handle24HourToggle(e.target.checked)}
               className={styles.toggleInput}
             />
             <span className={styles.toggleSlider}></span>
@@ -67,7 +85,7 @@ export const DataTime: React.FC = () => {
             <input
               type="checkbox"
               checked={isAutoTime}
-              onChange={(e) => setAutoTime(e.target.checked)}
+              onChange={(e) => handleAutoTimeToggle(e.target.checked)}
               className={styles.toggleInput}
             />
             <span className={styles.toggleSlider}></span>

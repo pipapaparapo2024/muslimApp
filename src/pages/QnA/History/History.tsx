@@ -7,6 +7,7 @@ import { Share2, ChevronDown, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import { trackButtonClick } from "../../../api/global";
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -35,21 +36,15 @@ export const History: React.FC = () => {
     loadHistory();
   }, [fetchHistory]);
 
-  // Функция для форматирования даты из ISO формата
   const formatDate = (dateString: string): string => {
     try {
       const date = new Date(dateString);
-
-      if (isNaN(date.getTime())) {
-        return dateString;
-      }
-
+      if (isNaN(date.getTime())) return dateString;
       const options: Intl.DateTimeFormatOptions = {
         year: "numeric",
         month: "long",
         day: "numeric",
       };
-
       return date.toLocaleDateString(i18n.language, options);
     } catch (error) {
       console.error("Error formatting date:", error, dateString);
@@ -59,15 +54,21 @@ export const History: React.FC = () => {
 
   const handleShare = (event: React.MouseEvent, promisId: string) => {
     event.stopPropagation();
+    trackButtonClick("share_history_item", { promis_id: promisId });
     navigate(`/qna/shareHistory/${promisId}`);
   };
 
   const handleBlockClick = (promisId: string) => {
+    trackButtonClick("view_history_detail", { promis_id: promisId });
     navigate(`/qna/history/${promisId}`);
   };
 
-  // Загрузка следующих запросов истории
   const handleLoadMore = async () => {
+    trackButtonClick("load_more_history", {
+      current_page: pagination.page,
+      total_pages: pagination.pageAmount,
+    });
+
     try {
       await loadMoreHistory();
     } catch (error) {
@@ -83,9 +84,7 @@ export const History: React.FC = () => {
     );
   }
 
-  // Проверяем, есть ли вообще какие-либо QA элементы
   const hasHistory = history.some((day) => day.qa && day.qa.length > 0);
-
   if (!hasHistory) return <HistoryEmpty />;
 
   return (
@@ -114,7 +113,6 @@ export const History: React.FC = () => {
           </div>
         ))}
 
-        {/* Кнопка загрузки следующих запросов */}
         {pagination.hasNext && (
           <div className={styles.loadMoreContainer}>
             <button
@@ -134,7 +132,6 @@ export const History: React.FC = () => {
           </div>
         )}
 
-        {/* Информация о странице */}
         <div className={styles.paginationInfo}>
           {pagination.page < pagination.pageAmount && t("page")}{" "}
           {pagination.page} {t("of")} {pagination.pageAmount}

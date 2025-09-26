@@ -13,6 +13,7 @@ import {
   useScreenshotExport,
   shareToTelegramStory,
 } from "../../../../hooks/useScreenshotExport";
+import { trackButtonClick } from "../../../../api/global";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -53,14 +54,18 @@ export const ShareStory: React.FC = () => {
 
     loadData();
   }, [id, getHistoryItem]);
-  useEffect(() => {
-    console.log("backgroundImg URL:", backgroundImg);
-  }, []);
+
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
+    // 📊 Аналитика: пользователь нажал "Поделиться"
+    trackButtonClick("share_story_init", {
+      promis_id: id,
+      question_length: currentItem.question?.length || 0,
+      answer_length: currentItem.answer?.length || 0,
+    });
+
     try {
-      // Найдём элемент кнопки и скроем его перед экспортом
       const buttonContainer = screenshotRef.current.querySelector(
         `.${styles.blockButton}`
       );
@@ -73,18 +78,33 @@ export const ShareStory: React.FC = () => {
         id: id,
       });
 
-      console.log("screenshotUrl", screenshotUrl);
+      // 📊 Аналитика: скриншот успешно создан
+      if (screenshotUrl) {
+        trackButtonClick("story_screenshot_created", {
+          promis_id: id,
+          screenshot_url_length: screenshotUrl.length,
+        });
 
-      // Восстанавливаем видимость кнопки
+        // Попытка отправить в Telegram Story
+        const success = await shareToTelegramStory(screenshotUrl);
+
+        // 📊 Аналитика: отправка завершена (успешно или нет)
+        trackButtonClick("story_shared_to_telegram", {
+          promis_id: id,
+          success: success,
+        });
+      }
+
       if (buttonContainer) {
         buttonContainer.classList.remove(styles.hideForScreenshot);
       }
-
-      if (screenshotUrl) {
-        shareToTelegramStory(screenshotUrl);
-      }
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
+      // 📊 Аналитика: ошибка при экспорте/отправке
+      trackButtonClick("share_story_failed", {
+        promis_id: id,
+        error: (error as Error).message || "unknown",
+      });
       alert(t("exportFailed"));
     }
   };
@@ -108,16 +128,13 @@ export const ShareStory: React.FC = () => {
   return (
     <PageWrapper showBackButton={true} styleHave={false} navigateTo="/qna">
       <div className={styles.container}>
-        {/* Видимый фон — для пользователя */}
         <img
           src={backgroundImg}
           alt="Background"
           className={styles.visibleBackground}
         />
 
-        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Скрытый фон — только для скриншота */}
           <img
             src={backgroundImg}
             alt=""
@@ -142,7 +159,6 @@ export const ShareStory: React.FC = () => {
             </div>
           </div>
 
-          {/* Кнопка теперь внутри contentWrapper, но с классом для скрытия при скриншоте */}
           <div
             className={`${styles.blockButton} ${
               loading ? styles.hideForScreenshot : ""

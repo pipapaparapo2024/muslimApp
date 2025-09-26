@@ -9,7 +9,7 @@ import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-
+import { trackButtonClick } from "../../../api/global";
 export const PrayerTimes: React.FC = () => {
   const { isLoading, error, fetchPrayers, prayers } = usePrayerApiStore();
   const geoData = useGeoStore((state) => state);
@@ -79,7 +79,17 @@ export const PrayerTimes: React.FC = () => {
           return (
             <div
               key={prayer.id}
-              onClick={() => handlePrayerClick(prayer)}
+              onClick={() => {
+                trackButtonClick("prayer_card_click", {
+                  prayer_name: prayer.name,
+                  prayer_id: prayer.id,
+                  time: prayer.time,
+                  minutes_until: minutesUntil,
+                  is_near: isNear,
+                  is_passed: isPassed,
+                });
+                handlePrayerClick(prayer);
+              }}
               className={`${styles.prayerCard} ${
                 isNear ? styles.nearPrayer : ""
               } ${isPassed ? styles.passedPrayer : ""}`}

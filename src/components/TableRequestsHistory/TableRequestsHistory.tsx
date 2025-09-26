@@ -5,7 +5,7 @@ import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
 import { useEffect, useState } from "react";
-
+import { trackButtonClick } from "../../api/global";
 interface ClickHistory {
   text: string;
 }
@@ -13,7 +13,7 @@ interface ClickHistory {
 export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft,fetchUserData } =
+  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft, fetchUserData } =
     usePremiumStore();
   const navigate = useNavigate();
 
@@ -29,14 +29,26 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
     fetchUserData();
   }, [fetchUserData]);
 
+  const handleHistoryClick = () => {
+    trackButtonClick("history_button", { destination: text });
+    navigate(text);
+  };
+
+  const handleBuyRequestsClick = () => {
+    trackButtonClick("buy_requests_button", {
+      current_requests_left: requestsLeft,
+      has_premium: hasPremium,
+    });
+    setShowModal(true);
+  };
 
   return (
     <div className={styles.header}>
-      <button className={styles.button} onClick={() => navigate(text)}>
+      <button className={styles.button} onClick={handleHistoryClick}>
         <Clock size={20} strokeWidth={1.5} />
         <span>{t("history")}</span>
       </button>
-      <button className={styles.button} onClick={() => setShowModal(true)}>
+      <button className={styles.button} onClick={handleBuyRequestsClick}>
         <MessageCircle size={20} strokeWidth={1.5} />
         {getStatusText()}
       </button>

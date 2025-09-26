@@ -5,6 +5,7 @@ import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
+import { trackButtonClick } from "../../../api/global";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;
@@ -39,16 +40,66 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // 📊 Аналитика: Открытие модального окна премиума
+  React.useEffect(() => {
+    if (isOpen) {
+      trackButtonClick('premium_modal_open', {
+        default_selection: selectedRequests
+      });
+    }
+  }, [isOpen, selectedRequests]);
+
   if (!isOpen) return null;
   const prices = getPrices(selectedRequests);
   const formattedStars = formatNumber(prices.stars);
 
+  const handleClose = () => {
+    // 📊 Аналитика: Закрытие модального окна
+    trackButtonClick('premium_modal_close', {
+      final_selection: selectedRequests
+    });
+    onClose();
+  };
+
+  const handleOptionSelect = (option: string) => {
+    // 📊 Аналитика: Изменение выбора периода
+    trackButtonClick('premium_period_change', {
+      from_period: selectedRequests,
+      to_period: option,
+      ton_price: getPrices(option).ton,
+      stars_price: getPrices(option).stars
+    });
+    onSelectRequests(option);
+  };
+
+  const handleTonPurchase = () => {
+    // 📊 Аналитика: Попытка покупки через TON
+    trackButtonClick('premium_purchase_attempt', {
+      payment_method: 'ton',
+      period: selectedRequests,
+      price: prices.ton
+    });
+    console.log("buy with ton");
+    // Здесь будет логика покупки
+  };
+
+  const handleStarsPurchase = () => {
+    // 📊 Аналитика: Попытка покупки через Stars
+    trackButtonClick('premium_purchase_attempt', {
+      payment_method: 'stars',
+      period: selectedRequests,
+      price: prices.stars
+    });
+    console.log("buy with stars");
+    // Здесь будет логика покупки
+  };
+
   return (
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("goPremium")}</h2>
-          <button className={styles.closeButton} onClick={onClose}>
+          <button className={styles.closeButton} onClick={handleClose}>
             ×
           </button>
         </div>
@@ -63,7 +114,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
                 className={`${styles.option} ${
                   selectedRequests === option ? styles.selected : ""
                 }`}
-                onClick={() => onSelectRequests(option)}
+                onClick={() => handleOptionSelect(option)}
               >
                 <div>{t(option.replace(" ", ""))}</div>
                 {selectedRequests === option && <Check size={20} />}
@@ -75,7 +126,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         <div className={styles.priceBlocks}>
           <div
             className={`${styles.priceBlock} ${styles.tonBlock}`}
-            onClick={() => console.log("buy with ton")}
+            onClick={handleTonPurchase}
           >
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
@@ -87,7 +138,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
           <div
             className={`${styles.priceBlock} ${styles.starsBlock}`}
-            onClick={() => console.log("buy with stars")}
+            onClick={handleStarsPurchase}
           >
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />

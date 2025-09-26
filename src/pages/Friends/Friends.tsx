@@ -5,6 +5,7 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
+import { trackButtonClick } from "../../api/global";
 
 export const Friends: React.FC = () => {
   const {
@@ -20,7 +21,7 @@ export const Friends: React.FC = () => {
     totalHas,
     totalNeeded,
   } = useFriendsStore();
-  const [isLoading] = useState<boolean>(false);
+  const [isLoading, ] = useState<boolean>(false);
 
   useEffect(() => {
     fetchReferralLink();
@@ -30,10 +31,16 @@ export const Friends: React.FC = () => {
     fetchFriends();
     fetchReferralLink();
     fetchBonusesStatus();
-  }, [fetchFriends, fetchReferralLink]);
+  }, [fetchFriends, fetchReferralLink, fetchBonusesStatus]);
 
   const shareViaTelegram = () => {
     if (!referralLink) return;
+
+    // 📊 Аналитика: клик по "Пригласить друзей"
+    trackButtonClick("invite_friends_from_friends_screen", {
+      has_referral_link: !!referralLink,
+      friends_count: friends.length,
+    });
 
     const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
@@ -43,7 +50,26 @@ export const Friends: React.FC = () => {
     window.open(shareUrl, "_blank");
   };
 
-  // Сортировка друзей
+  const handleGetFreeRequestsReward = () => {
+    // 📊 Аналитика: попытка получить награду за бесплатные запросы
+    trackButtonClick("claim_free_requests_reward", {
+      total_has: totalHas,
+      total_needed: totalNeeded,
+    });
+    // Здесь может быть вызов API для получения награды
+    alert(t("rewardClaimed"));
+  };
+
+  const handleGetPremiumReward = () => {
+    // 📊 Аналитика: попытка получить премиум-награду
+    trackButtonClick("claim_premium_access_reward", {
+      purchased_has: purchasedHas,
+      purchased_needed: purchasedNeeded,
+    });
+    // Здесь может быть вызов API для активации премиума
+    alert(t("premiumUnlocked"));
+  };
+
   const sortedFriends = [...friends].sort((a, b) => {
     if (a.status === "Purchased" && b.status !== "Purchased") return -1;
     if (a.status !== "Purchased" && b.status === "Purchased") return 1;
@@ -98,7 +124,12 @@ export const Friends: React.FC = () => {
             </div>
           </div>
           {totalHas >= totalNeeded && (
-            <button className={styles.rewardBtn}>{t("getReward")}</button>
+            <button
+              className={styles.rewardBtn}
+              onClick={handleGetFreeRequestsReward}
+            >
+              {t("getReward")}
+            </button>
           )}
         </div>
 
@@ -118,7 +149,12 @@ export const Friends: React.FC = () => {
             </div>
           </div>
           {purchasedHas >= purchasedNeeded && (
-            <button className={styles.rewardBtn}>{t("getReward")}</button>
+            <button
+              className={styles.rewardBtn}
+              onClick={handleGetPremiumReward}
+            >
+              {t("getReward")}
+            </button>
           )}
         </div>
 

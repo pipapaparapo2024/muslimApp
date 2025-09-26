@@ -146,3 +146,13 @@ interface InitDataUnsafe {
 }
 
 export {};
+
+export const trackButtonClick = (buttonName, additionalData = {}) => {
+  // 2. Отправляем в Telegram Analytics (если доступно)
+  if (window.Telegram?.WebApp?.trackEvent) {
+    window.Telegram.WebApp.trackEvent('button_click', {
+      button_name: buttonName,
+      ...additionalData
+    });
+  }
+};

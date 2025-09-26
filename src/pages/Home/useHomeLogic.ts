@@ -5,7 +5,7 @@ import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
 import i18n from "../../api/i18n";
 import { applyLanguageStyles } from "../../hooks/useLanguages";
-
+import { trackButtonClick } from "../../api/global";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
 
@@ -35,7 +35,7 @@ export const useHomeLogic = () => {
   const [orientationListenerActive, setOrientationListenerActive] =
     useState(false);
   const [languageReady, setLanguageReady] = useState(false);
-  
+
   const [showVpnWarning, setShowVpnWarning] = useState(false);
 
   const [sensorPermission, setSensorPermission] = useState<string>(() => {
@@ -119,16 +119,20 @@ export const useHomeLogic = () => {
         ).requestPermission();
         if (result === "granted") {
           setSensorPermission("granted");
+          trackButtonClick("sensor_permission_granted");
         } else {
           setSensorPermission("denied");
+          trackButtonClick("sensor_permission_denied");
         }
       } else {
         window.addEventListener("deviceorientation", () => {}, { once: true });
         setSensorPermission("granted");
+        trackButtonClick("sensor_permission_auto_granted");
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
       setSensorPermission("denied");
+      trackButtonClick('sensor_permission_error', { error: err });
     } finally {
       setIsRequestingPermission(false);
     }
@@ -178,6 +182,7 @@ export const useHomeLogic = () => {
   );
 
   const handleMapClick = useCallback(() => {
+    trackButtonClick('map_navigation');
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 

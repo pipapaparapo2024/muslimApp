@@ -7,6 +7,8 @@ import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPray
 import { Info } from "lucide-react";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
+import { trackButtonClick } from "../../../../api/global";
+
 export const SettingPrayerTimes: React.FC = () => {
   const {
     prayerSetting,
@@ -22,13 +24,14 @@ export const SettingPrayerTimes: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
   const [localLoading, setLocalLoading] = useState(false);
-  const {coords:geoCoords}=useGeoStore()
+  const { coords: geoCoords } = useGeoStore();
 
   useEffect(() => {
     if (geoCoords) {
       fetchPrayers(geoCoords.lat, geoCoords.lon);
     }
-  }, []);
+  }, [geoCoords]);
+
   useEffect(() => {
     const loadSettings = async () => {
       setLocalLoading(true);
@@ -42,28 +45,37 @@ export const SettingPrayerTimes: React.FC = () => {
   const handleSelectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(true);
+    trackButtonClick("toggle_all_prayers", { enabled: true });
     setLocalLoading(false);
   };
 
   const handleDeselectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(false);
+    trackButtonClick("toggle_all_prayers", { enabled: false });
     setLocalLoading(false);
   };
 
   const handleEnableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(true);
+    trackButtonClick("toggle_all_notifications", { enabled: true });
     setLocalLoading(false);
   };
 
   const handleDisableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(false);
+    trackButtonClick("toggle_all_notifications", { enabled: false });
     setLocalLoading(false);
   };
 
   const handleInfoClick = (prayer: any) => {
+    // 📊 Аналитика: открытие информации о намазе
+    trackButtonClick("open_prayer_info_modal", {
+      prayer_id: prayer.id,
+      prayer_name: prayer.name,
+    });
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
   };
@@ -73,15 +85,29 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const handleToggleSelection = async (id: string) => {
+  const handleToggleSelection = async (id: string, name: string) => {
     setLocalLoading(true);
+    const current = prayerSetting.find(p => p.id === id);
+    const newEnabled = !current?.hasSelected;
     await togglePrayerSelection(id);
+    trackButtonClick("toggle_single_prayer", {
+      prayer_id: id,
+      prayer_name: name,
+      enabled: newEnabled,
+    });
     setLocalLoading(false);
   };
 
-  const handleToggleNotification = async (id: string) => {
+  const handleToggleNotification = async (id: string, name: string) => {
     setLocalLoading(true);
+    const current = prayerSetting.find(p => p.id === id);
+    const newEnabled = !current?.hasTelegramNotification;
     await togglePrayerNotification(id);
+    trackButtonClick("toggle_single_prayer_notification", {
+      prayer_id: id,
+      prayer_name: name,
+      enabled: newEnabled,
+    });
     setLocalLoading(false);
   };
 
@@ -186,7 +212,7 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasSelected}
-                    onChange={() => handleToggleSelection(prayer.id)}
+                    onChange={() => handleToggleSelection(prayer.id, prayer.name)}
                     className={styles.toggleInput}
                     disabled={localLoading}
                   />
@@ -198,7 +224,7 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasTelegramNotification}
-                    onChange={() => handleToggleNotification(prayer.id)}
+                    onChange={() => handleToggleNotification(prayer.id, prayer.name)}
                     className={styles.toggleInput}
                     disabled={!prayer.hasSelected || localLoading}
                   />

@@ -1,28 +1,27 @@
 {
   "home": {
-    "daysLeft": "",
-    "allowSensors": "",
-    "vpnWarning":""
+    "daysLeft": "Дней осталось",
+    "allowSensors": "Дать доступ к датчиками движения",
+    "vpnWarning": "Будьте осторожны при входе с включенным VPN, это может повлиять на расположение Каабы и времени молитв"
   },
   "all": {
-    "premiumActive": "",
-    "buyPremium": "",
-    "buyRequests": "",
-    "history": "",
-    "share": "",
-    "newQuestion": ""
+    "premiumActive": "Премиум активен",
+    "buyPremium": "Купить премиум",
+    "buyRequests": "Купить запросы",
+    "history": "История",
+    "share": "Поделиться"
   },
   "qa": {
-    "copy": "",
-    "askQuestion": "",
-    "newQuestion": ""
+    "copy": "Копировать",
+    "askQuestion": "Задать вопрос",
+    "newQuestion": "Новый вопрос"
   },
   "scanner": {
-    "scanPicture": "",
-    "newScan": ""
+    "scanPicture": "Сканировать состав",
+    "newScan": "Новый скан"
   },
   "friends": {
-    "inviteFriends": "",
-    "getReward": ""
+    "inviteFriends": "Пригласить друга",
+    "getReward": "Получить награду"
   }
 }

@@ -13,6 +13,7 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { type ScanResult } from "../../../../hooks/useScannerStore";
+import { trackButtonClick } from "../../../../api/global";
 
 export const HistoryScannerDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -34,34 +35,61 @@ export const HistoryScannerDetail: React.FC = () => {
 
       try {
         const item = await fetchHistoryItem(id);
-        console.log("API Response item:", item);
 
         if (item) {
           setCurrentItem(item);
+          // 📊 Аналитика: успешный просмотр деталей скана
+          trackButtonClick("view_scanner_detail_screen", {
+            scan_id: id,
+            eng_type: item.engType,
+            has_haram: (item.haramProducts?.length || 0) > 0,
+            products_count: item.products?.length || 0,
+          });
         } else {
-          // Если item = null, ищем в локальной истории
+          // Поиск в локальной истории
           const { history } = useHistoryScannerStore.getState();
           const allScans = history.flatMap((group) => group.qa);
           const localItem = allScans.find((scan) => scan.id === id);
 
           if (localItem) {
             setCurrentItem(localItem);
+            trackButtonClick("view_scanner_detail_screen", {
+              scan_id: id,
+              eng_type: localItem.engType,
+              has_haram: (localItem.haramProducts?.length || 0) > 0,
+              products_count: localItem.products?.length || 0,
+              source: "local_fallback",
+            });
           } else {
             setNetworkError("Элемент не найден в истории");
+            // 📊 Аналитика: элемент не найден
+            trackButtonClick("scanner_detail_not_found", { scan_id: id });
             setTimeout(() => navigate("/scanner"), 2000);
           }
         }
       } catch (error: any) {
         console.error("API Error:", error);
-        setNetworkError(error.message || "Network error");
+        const errorMessage = error.message || "Network error";
+        setNetworkError(errorMessage);
 
+        let errorCode = "unknown";
         if (error.response?.status === 403) {
           setNetworkError("Доступ запрещен (403). Возможно ограничение по IP");
+          errorCode = "403";
         } else if (error.response?.status === 401) {
           setNetworkError("Неавторизованный доступ (401)");
+          errorCode = "401";
         } else if (error.response?.status === 404) {
           setNetworkError("Элемент не найден (404)");
+          errorCode = "404";
         }
+
+        // 📊 Аналитика: ошибка загрузки деталей
+        trackButtonClick("scanner_detail_load_failed", {
+          scan_id: id,
+          error_code: errorCode,
+          error_message: errorMessage,
+        });
       }
 
       setIsLoading(false);
@@ -70,15 +98,19 @@ export const HistoryScannerDetail: React.FC = () => {
     loadItem();
   }, [id, navigate, fetchHistoryItem]);
 
+  const handleRetry = () => {
+    // 📊 Аналитика: повторная попытка загрузки
+    trackButtonClick("retry_scanner_detail_load", { scan_id: id });
+    window.location.reload();
+  };
+
   if (networkError) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <div className={styles.errorContainer}>
           <h2>Ошибка сети</h2>
           <p>{networkError}</p>
-          <button onClick={() => window.location.reload()}>
-            Попробовать снова
-          </button>
+          <button onClick={handleRetry}>{t("tryAgain")}</button>
         </div>
       </PageWrapper>
     );
@@ -99,6 +131,7 @@ export const HistoryScannerDetail: React.FC = () => {
       </PageWrapper>
     );
   }
+
   return (
     <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
       <div className={styles.container}>
@@ -140,7 +173,7 @@ export const HistoryScannerDetail: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
           {currentItem.description && (
             <div className={styles.blockInside}>
               <div className={styles.scanTitle}>{t("conclusion")}</div>

@@ -4,6 +4,7 @@ import { Check, Loader } from "lucide-react";
 import { t } from "i18next";
 import { type Language } from "../../../hooks/useLanguages";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
+import { trackButtonClick } from "../../../api/global";
 
 // Импортируем иконки
 import enIcon from "../../../assets/icons/united-king.svg";
@@ -56,9 +57,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     };
 
     if (isOpen) {
-      // Если уже загружено, не ждем
       if (isLoaded) return;
-      
       preloadIcons();
     }
 
@@ -68,6 +67,12 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   }, [isOpen, isLoaded, languages]);
 
   const handleSelect = (lang: Language) => {
+    // 📊 Аналитика: пользователь выбрал язык
+    trackButtonClick("select_language_in_modal", {
+      from: currentLanguage,
+      to: lang,
+    });
+
     onLanguageChange?.(lang);
     onClose?.();
   };

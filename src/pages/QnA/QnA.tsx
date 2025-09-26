@@ -9,6 +9,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { trackButtonClick } from "../../api/global";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium } = usePremiumStore();
@@ -20,7 +21,6 @@ export const QnA: React.FC = () => {
   const [question, setQuestion] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
-
 
   // Предзагрузка изображения
   useEffect(() => {
@@ -51,11 +51,25 @@ export const QnA: React.FC = () => {
   const handleSubmit = async () => {
     if (!question.trim()) return;
 
+    trackButtonClick("submit_question", {
+      question_length: question.trim().length,
+      has_premium: hasPremium,
+      requests_left: requestsLeft,
+    });
+
     navigate("/qna/analyzing", {
       state: {
         question: question.trim(),
       },
     });
+  };
+
+  const handleBuyRequestsClick = () => {
+    trackButtonClick("buy_requests_from_qna", {
+      has_premium: hasPremium,
+      requests_left: requestsLeft,
+    });
+    setShowModal(true);
   };
 
   // Пока изображение не загружено — показываем лоадер
@@ -94,7 +108,7 @@ export const QnA: React.FC = () => {
             if (showAskButton && question.trim()) {
               handleSubmit();
             } else if (!showAskButton) {
-              setShowModal(true);
+              handleBuyRequestsClick();
             }
           }}
           className={styles.form}
@@ -111,7 +125,7 @@ export const QnA: React.FC = () => {
             type="submit"
             className={styles.submitButton}
             disabled={showAskButton && !question.trim()}
-            onClick={!showAskButton ? () => setShowModal(true) : undefined}
+            onClick={!showAskButton ? handleBuyRequestsClick : undefined}
           >
             {showAskButton ? "" : <Wallet strokeWidth={1.5} />}
             {getButtonText()}

@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./ModalTheme.module.css";
 import { Check, Moon, Smartphone, Sun } from "lucide-react";
 import { t } from "i18next";
+import { trackButtonClick } from "../../../api/global";
 
 interface ThemeModalProps {
   isOpen?: boolean;
@@ -25,8 +26,14 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
   ];
 
   const handleSelect = (theme: "light" | "dark" | "system") => {
+    // 📊 Аналитика: пользователь выбрал тему
+    trackButtonClick("select_theme_in_modal", {
+      from: currentTheme,
+      to: theme,
+    });
+
     onThemeChange?.(theme);
-    onClose?.(); 
+    onClose?.();
   };
 
   return (

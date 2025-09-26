@@ -15,6 +15,8 @@ import {
   getStatusClassName,
   getStatusTranslationKey,
 } from "../productStatus";
+import { trackButtonClick } from "../../../api/global";
+
 console.log("start history");
 
 export const HistoryScanner: React.FC = () => {
@@ -26,7 +28,6 @@ export const HistoryScanner: React.FC = () => {
     fetchHistory(1);
   }, []);
 
-  // Добавьте проверку на undefined
   const groupedHistory = history ? historyUtils.groupByDate(history) : [];
 
   const formatDateWithTranslation = (dateString: string) => {
@@ -42,6 +43,7 @@ export const HistoryScanner: React.FC = () => {
       )} ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
+
   const getMonthKey = (monthIndex: number): string => {
     const months = [
       "january",
@@ -62,10 +64,14 @@ export const HistoryScanner: React.FC = () => {
 
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
+    // 📊 Аналитика: клик по "Поделиться"
+    trackButtonClick("share_scanner_history_item", { scan_id: scanId });
     navigate(`/scanner/ScannerShareHistory/${scanId}`);
   };
 
   const handleScanClick = (scanId: string) => {
+    // 📊 Аналитика: переход к деталям скана
+    trackButtonClick("view_scanner_history_detail", { scan_id: scanId });
     navigate(`/scanner/historyScanner/${scanId}`);
   };
 

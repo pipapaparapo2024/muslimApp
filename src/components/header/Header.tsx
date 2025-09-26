@@ -6,6 +6,7 @@ import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGeoStore } from "../../hooks/useGeoStore";
+import { trackButtonClick } from "../../api/global";
 
 export const Header: React.FC = () => {
   const { formattedDate, updateFormattedDate } = useDataTimeStore();
@@ -15,6 +16,16 @@ export const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { city, country } = useGeoStore();
+
+  // 📊 Аналитика: Отслеживаем статус премиума при загрузке
+  React.useEffect(() => {
+    trackButtonClick('header_loaded', {
+      has_premium: hasPremium,
+      premium_days_left: premiumDaysLeft || 0,
+      location_available: !!(city && country)
+    });
+  }, []);
+
   const getButtonText = () => {
     if (!hasPremium) return t("buyPremium");
     if (!premiumDaysLeft) return t("premiumActive");
@@ -24,10 +35,12 @@ export const Header: React.FC = () => {
       return t("buyPremium");
     }
   };
+
   useEffect(() => {
     fetchUserData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   // Обновляем дату при каждом рендере
   useEffect(() => {
     updateFormattedDate();
@@ -38,6 +51,34 @@ export const Header: React.FC = () => {
     return styles.DaysLeftPrem;
   };
 
+  const handlePremiumButtonClick = () => {
+    // 📊 Аналитика: Клик по кнопке премиума
+    trackButtonClick('premium_button_click', {
+      current_status: hasPremium ? 'premium_active' : 'no_premium',
+      days_left: premiumDaysLeft || 0,
+      button_text: getButtonText()
+    });
+    setShowModal(true);
+  };
+
+  const handleDateClick = () => {
+    // 📊 Аналитика: Клик по дате (навигация в настройки)
+    trackButtonClick('date_click', {
+      current_date: formattedDate,
+      destination: '/settings/dateTime'
+    });
+    navigate("/settings/dateTime");
+  };
+
+  const handleModalClose = () => {
+    // 📊 Аналитика: Закрытие модального окна премиума
+    trackButtonClick('premium_modal_close', {
+      selected_requests: selectedRequests,
+      session_duration: 'short' // можно добавить таймер сессии
+    });
+    setShowModal(false);
+  };
+
   return (
     <div className={styles.header}>
       <div className={styles.locationInfo}>
@@ -45,7 +86,7 @@ export const Header: React.FC = () => {
           {country || "Unknown"}, {city || "Unknown"}
         </div>
         <div
-          onClick={() => navigate("/settings/dateTime")}
+          onClick={handleDateClick}
           className={styles.formattedDate}
         >
           {formattedDate}
@@ -54,7 +95,7 @@ export const Header: React.FC = () => {
 
       <button
         className={getButtonClassName()}
-        onClick={() => setShowModal(true)}
+        onClick={handlePremiumButtonClick}
       >
         <svg
           width="20"
@@ -89,9 +130,16 @@ export const Header: React.FC = () => {
 
       <BuyPremiumModal
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={handleModalClose}
         selectedRequests={selectedRequests}
-        onSelectRequests={setSelectedRequests}
+        onSelectRequests={(value) => {
+          // 📊 Аналитика: Изменение выбора количества запросов
+          trackButtonClick('premium_requests_change', {
+            from_value: selectedRequests,
+            to_value: value
+          });
+          setSelectedRequests(value);
+        }}
       />
     </div>
   );

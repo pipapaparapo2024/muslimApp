@@ -17,6 +17,7 @@ import {
   getStatusIcon,
   getStatusTranslationKey,
 } from "../../productStatus";
+import { trackButtonClick } from "../../../../api/global";
 
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -66,6 +67,14 @@ export const ScannerShareStory: React.FC = () => {
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
+    // 📊 Аналитика: пользователь нажал "Поделиться"
+    trackButtonClick("share_scanner_story_init", {
+      scan_id: id,
+      eng_type: currentItem.engType,
+      products_count: currentItem.products?.length || 0,
+      has_haram: (currentItem.haramProducts?.length || 0) > 0,
+    });
+
     try {
       const buttonContainer = document.querySelector(`.${styles.blockButton}`);
       if (buttonContainer) {
@@ -82,10 +91,28 @@ export const ScannerShareStory: React.FC = () => {
       }
 
       if (screenshotUrl) {
-        await shareToTelegramStory(screenshotUrl);
+        // 📊 Аналитика: скриншот успешно создан
+        trackButtonClick("scanner_story_screenshot_created", {
+          scan_id: id,
+          screenshot_url_length: screenshotUrl.length,
+        });
+
+        // Попытка отправить в Telegram Story
+        const success = await shareToTelegramStory(screenshotUrl);
+
+        // 📊 Аналитика: результат отправки
+        trackButtonClick("scanner_story_shared_to_telegram", {
+          scan_id: id,
+          success: success,
+        });
       }
     } catch (error) {
       console.error("Failed to export and share screenshot:", error);
+      // 📊 Аналитика: ошибка при экспорте/отправке
+      trackButtonClick("share_scanner_story_failed", {
+        scan_id: id,
+        error: (error as Error).message || "unknown",
+      });
       alert(t("exportFailed"));
     }
   };
@@ -113,25 +140,20 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        {/* Видимый фон — для пользователя */}
         <img
           src={backgroundImg}
           alt="Background"
           className={styles.visibleBackground}
         />
 
-        {/* Контент для скриншота */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* Скрытый фон — только для скриншота */}
           <img
             src={backgroundImg}
             alt=""
             className={styles.hiddenBackgroundForScreenshot}
           />
 
-          {/* Контейнер для изображения и контента */}
           <div className={styles.imageContainer}>
-            {/* Основное изображение */}
             <img
               src={message}
               alt="Message background"
@@ -139,7 +161,6 @@ export const ScannerShareStory: React.FC = () => {
               crossOrigin="anonymous"
             />
 
-            {/* Контент поверх изображения */}
             <div className={styles.blockScan}>
               <div
                 className={`${styles.accessBlock} ${getStatusClassName(
@@ -193,7 +214,6 @@ export const ScannerShareStory: React.FC = () => {
           </div>
         </div>
 
-        {/* Кнопка share */}
         <div
           className={`${styles.blockButton} ${
             loading ? styles.hideForScreenshot : ""

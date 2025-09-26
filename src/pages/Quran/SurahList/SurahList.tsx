@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, use } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SurahList.module.css";
 import {
@@ -20,6 +20,7 @@ import {
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
+import { trackButtonClick } from "../../../api/global";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ export const SurahList: React.FC = () => {
     fetchVariants,
     setSelectedSurah,
     selectedVariant,
-    loading,
     error,
   } = useSurahListStore();
   const { language } = useLanguage();
@@ -47,6 +47,15 @@ export const SurahList: React.FC = () => {
     return language === "ar" ? "5%" : "85%";
   };
 
+  // 📊 Аналитика: Загрузка страницы списка сур
+  React.useEffect(() => {
+    trackButtonClick('surah_list_loaded', {
+      surahs_count: surahs.length,
+      selected_variant: selectedVariant?.name || 'none',
+      language: language
+    });
+  }, []);
+
   // Сортировка сур по номеру
   const sortedSurahs = React.useMemo(() => {
     return [...surahs].sort((a, b) => a.number - b.number);
@@ -56,15 +65,25 @@ export const SurahList: React.FC = () => {
     const loadData = async () => {
       try {
         await fetchVariants();
-        setLoad(true); // устанавливаем после завершения загрузки
+        setLoad(true);
+        // 📊 Аналитика: Успешная загрузка данных
+        trackButtonClick('surah_data_loaded', {
+          surahs_count: surahs.length,
+          variants_loaded: true
+        });
       } catch (error) {
         console.error("Failed to load surahs:", error);
-        setLoad(true); // все равно устанавливаем true даже при ошибке
+        setLoad(true);
+        // 📊 Аналитика: Ошибка загрузки
+        trackButtonClick('surah_data_error', {
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
     };
 
     loadData();
-  }, [fetchVariants]);
+  }, [fetchVariants, surahs.length]);
+
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
@@ -81,6 +100,8 @@ export const SurahList: React.FC = () => {
   const scrollToTop = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // 📊 Аналитика: Клик по кнопке скролла наверх
+    trackButtonClick('scroll_to_top_click');
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -138,6 +159,13 @@ export const SurahList: React.FC = () => {
         setCurrentResultIndex(results.length > 0 ? 0 : -1);
         setShowSearchNavigation(results.length > 0);
 
+        // 📊 Аналитика: Выполнение поиска
+        trackButtonClick('surah_search_performed', {
+          query: localSearchQuery,
+          results_count: results.length,
+          has_results: results.length > 0
+        });
+
         if (results.length > 0) {
           const firstResult = results[0];
           const element = resultRefs.current.get(firstResult);
@@ -158,6 +186,11 @@ export const SurahList: React.FC = () => {
         setSearchResults([]);
         setCurrentResultIndex(-1);
         setShowSearchNavigation(false);
+        // 📊 Аналитика: Ошибка поиска
+        trackButtonClick('surah_search_error', {
+          query: localSearchQuery,
+          error: err instanceof Error ? err.message : 'Unknown error'
+        });
       } finally {
         setIsSearching(false);
       }
@@ -182,6 +215,14 @@ export const SurahList: React.FC = () => {
       }
 
       setCurrentResultIndex(newIndex);
+
+      // 📊 Аналитика: Навигация по результатам поиска
+      trackButtonClick('search_results_navigation', {
+        direction: direction,
+        current_index: newIndex + 1,
+        total_results: searchResults.length,
+        surah_number: searchResults[newIndex]
+      });
 
       const resultNumber = searchResults[newIndex];
       const element = resultRefs.current.get(resultNumber);
@@ -219,10 +260,27 @@ export const SurahList: React.FC = () => {
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
   const handleSurahClick = (surah: Surah) => {
+    // 📊 Аналитика: Клик по суре для перехода к чтению
+    trackButtonClick('surah_selected', {
+      surah_number: surah.number,
+      surah_name: surah.name,
+      ayahs_count: surah.numberOfAyahs,
+      place: surah.suraPlaceOfWriting,
+      variant: selectedVariant?.name || 'default'
+    });
+    
     setSelectedSurah(surah);
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
     });
+  };
+
+  const handleTranslationClick = () => {
+    // 📊 Аналитика: Клик по выбору перевода
+    trackButtonClick('translation_selection_click', {
+      current_translation: selectedVariant?.name || 'none'
+    });
+    navigate("/quran/translation");
   };
 
   // Проверяем, является ли сура результатом поиска
@@ -243,7 +301,7 @@ export const SurahList: React.FC = () => {
               <div className={styles.nameHoly}>{t("holyQuran")}</div>
               <div
                 className={styles.sahihInternational}
-                onClick={() => navigate("/quran/translation")}
+                onClick={handleTranslationClick}
               >
                 {selectedVariant?.name}
                 {language === "ar" ? (
@@ -261,7 +319,15 @@ export const SurahList: React.FC = () => {
               type="text"
               placeholder={t("searchSurahs")}
               value={localSearchQuery}
-              onChange={(e) => setLocalSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setLocalSearchQuery(e.target.value);
+                // 📊 Аналитика: Ввод текста в поиск
+                if (e.target.value.trim()) {
+                  trackButtonClick('search_query_typed', {
+                    query_length: e.target.value.length
+                  });
+                }
+              }}
               className={styles.searchInput}
             />
 

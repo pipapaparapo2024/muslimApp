@@ -11,7 +11,7 @@ import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
-
+import { trackButtonClick } from "../../api/global";
 export const Home: React.FC = () => {
   const {
     sensorPermission,
@@ -24,7 +24,6 @@ export const Home: React.FC = () => {
     initializationError,
     showVpnWarning,
     handleCloseVpnWarning,
-    handleResetVpnWarning,
   } = useHomeLogic();
 
   const { isLoading, error } = useGeoStore();
@@ -43,7 +42,12 @@ export const Home: React.FC = () => {
         <div className={styles.errorContainer}>
           <h2>{t("initializationError")}</h2>
           <p>{initializationError}</p>
-          <button onClick={() => window.location.reload()}>
+          <button
+            onClick={() => {
+              trackButtonClick("try_again_after_error");
+              window.location.reload();
+            }}
+          >
             {t("tryAgain")}
           </button>
         </div>
@@ -54,9 +58,6 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <button onClick={handleResetVpnWarning} style={{ background: "#ff6b6b" }}>
-        Reset VPN Warning
-      </button>
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
@@ -72,7 +73,13 @@ export const Home: React.FC = () => {
               <div className={styles.vpnWarningOverlay}>
                 <div className={styles.vpnWarningModal}>
                   <div className={styles.vpnWarningClose}>
-                    <X onClick={handleCloseVpnWarning} size={20} />
+                    <X
+                      onClick={() => {
+                        trackButtonClick("close_vpn_warning");
+                        handleCloseVpnWarning();
+                      }}
+                      size={20}
+                    />
                   </div>
                   <div className={styles.vpnWarningText}>
                     <div className={styles.TriangleAlert}>
@@ -108,6 +115,9 @@ export const Home: React.FC = () => {
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
+                        trackButtonClick("request_sensor_permission", {
+                          current_status: sensorPermission,
+                        });
                         requestSensorPermission && requestSensorPermission();
                       }}
                     >
@@ -118,7 +128,11 @@ export const Home: React.FC = () => {
                   ) : (
                     <button
                       className={styles.permissionButton}
-                      onClick={resetSensorPermission}
+                      onClick={() => {
+                        // 📊 Аналитика: Кнопка сброса разрешения
+                        trackButtonClick("reset_sensor_permission");
+                        resetSensorPermission();
+                      }}
                     >
                       {t("resetPermission")}
                     </button>
@@ -129,7 +143,13 @@ export const Home: React.FC = () => {
                 </div>
 
                 <div className={styles.qiblaBlockRow}>
-                  <div onClick={handleMapClick} className={styles.mapContainer}>
+                  <div
+                    onClick={() => {
+                      trackButtonClick("map_click");
+                      handleMapClick();
+                    }}
+                    className={styles.mapContainer}
+                  >
                     <QiblaMap
                       onMapClick={handleMapClick}
                       orientationListenerActive={sensorPermission === "granted"}
@@ -137,7 +157,12 @@ export const Home: React.FC = () => {
                   </div>
 
                   <div
-                    onClick={() => handleCompassClick(sensorPermission)}
+                    onClick={() => {
+                      trackButtonClick("compass_click", {
+                        sensor_permission: sensorPermission,
+                      });
+                      handleCompassClick(sensorPermission);
+                    }}
                     className={styles.compassContainer}
                   >
                     <QiblaCompass
