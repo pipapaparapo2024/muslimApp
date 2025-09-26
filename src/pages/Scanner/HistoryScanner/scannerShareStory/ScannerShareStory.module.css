@@ -20,7 +20,6 @@
   z-index: 0;
 }
 
-/* Обёртка для скриншота */
 .contentWrapper {
   position: relative;
   z-index: 1;
@@ -34,7 +33,6 @@
   flex: 1;
 }
 
-/* Скрытый фон для скриншота */
 .hiddenBackgroundForScreenshot {
   position: absolute;
   top: 0;
@@ -47,7 +45,6 @@
   z-index: -1;
 }
 
-/* Контейнер для изображения и контента */
 .imageContainer {
   position: relative;
   display: flex;
@@ -66,10 +63,10 @@
   z-index: 1;
 }
 
-/* Блок с контентом позиционируется относительно изображения */
 .blockScan {
   position: absolute;
   bottom: -270px;
+  max-width: 350px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -126,7 +123,6 @@
   transform: none !important;
 }
 
-/* Скрываем кнопку при экспорте */
 .hideForScreenshot {
   visibility: hidden !important;
   height: 64px;
