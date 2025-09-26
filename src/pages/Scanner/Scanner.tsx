@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { t } from "i18next";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../../api/global"
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();

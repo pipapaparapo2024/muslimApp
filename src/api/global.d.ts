@@ -18,7 +18,10 @@ declare global {
         showConfirm: (message: string) => Promise<boolean>;
         showScanQrPopup: (params: ScanQrParams) => void;
         closeScanQrPopup: () => void;
-
+        trackEvent?: (
+          eventType: string,
+          eventData: Record<string, unknown>
+        ) => void;
         onClosing: (callback: () => void) => void;
         offClosing: (callback: () => void) => void;
         // Свайпы и жесты
@@ -146,12 +149,13 @@ interface InitDataUnsafe {
 }
 
 export {};
-
 export const trackButtonClick = (buttonName, additionalData = {}) => {
+  console.log("🎯 BUTTON CLICK:", buttonName, additionalData);
+
   if (window.Telegram?.WebApp?.trackEvent) {
-    window.Telegram.WebApp.trackEvent('button_click', {
+    window.Telegram.WebApp.trackEvent("button_click", {
       button_name: buttonName,
-      ...additionalData
+      ...additionalData,
     });
   }
 };
