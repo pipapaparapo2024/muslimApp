@@ -5,7 +5,7 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet, Share } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../api/analytics";
 
 export const Friends: React.FC = () => {
   const {

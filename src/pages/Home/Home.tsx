@@ -11,7 +11,7 @@ import { t } from "i18next";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 export const Home: React.FC = () => {
   const {
     sensorPermission,

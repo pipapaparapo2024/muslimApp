@@ -149,13 +149,3 @@ interface InitDataUnsafe {
 }
 
 export {};
-export const trackButtonClick = (buttonName, additionalData = {}) => {
-  console.log("🎯 BUTTON CLICK:", buttonName, additionalData);
-
-  if (window.Telegram?.WebApp?.trackEvent) {
-    window.Telegram.WebApp.trackEvent("button_click", {
-      button_name: buttonName,
-      ...additionalData,
-    });
-  }
-};

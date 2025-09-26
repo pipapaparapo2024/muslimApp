@@ -6,7 +6,7 @@ import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
 import { useLanguage } from "../../../../hooks/useLanguages";
 import { t } from "i18next";
-import { trackButtonClick } from "../../../../api/global";
+import { trackButtonClick } from "../../../api/analytics";
 
 // Получаем текущую дату
 const today = new Date();

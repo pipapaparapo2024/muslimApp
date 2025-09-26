@@ -5,7 +5,7 @@ import friendsImage from "../../assets/image/Friiends.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { t } from "i18next";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../api/analytics";
 
 export const WelcomeFriends: React.FC = () => {
   const { referralLink, fetchReferralLink } = useFriendsStore();

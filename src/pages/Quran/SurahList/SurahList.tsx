@@ -20,7 +20,7 @@ import {
 import { useLanguage } from "../../../hooks/useLanguages";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { trackButtonClick } from "../../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();

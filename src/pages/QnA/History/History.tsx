@@ -7,7 +7,7 @@ import { Share2, ChevronDown, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { trackButtonClick } from "../../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 
 export const History: React.FC = () => {
   const { t, i18n } = useTranslation();

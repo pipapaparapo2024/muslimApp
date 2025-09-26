@@ -6,7 +6,7 @@ import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGeoStore } from "../../hooks/useGeoStore";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 
 export const Header: React.FC = () => {
   const { formattedDate, updateFormattedDate } = useDataTimeStore();

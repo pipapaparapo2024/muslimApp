@@ -19,7 +19,7 @@ import {
   Sun,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { trackButtonClick } from "../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();

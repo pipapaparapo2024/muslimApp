@@ -9,7 +9,7 @@ import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
 import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { trackButtonClick } from "../../../api/global";
+import { trackButtonClick } from "../../api/analytics";
 export const PrayerTimes: React.FC = () => {
   const { isLoading, error, fetchPrayers, prayers } = usePrayerApiStore();
   const geoData = useGeoStore((state) => state);

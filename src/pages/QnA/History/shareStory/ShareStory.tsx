@@ -13,7 +13,7 @@ import {
   useScreenshotExport,
   shareToTelegramStory,
 } from "../../../../hooks/useScreenshotExport";
-import { trackButtonClick } from "../../../../api/global";
+import { trackButtonClick } from "../../../api/analytics";
 
 export const ShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
