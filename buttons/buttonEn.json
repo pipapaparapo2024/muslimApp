@@ -1,8 +1,8 @@
 {
   "home": {
     "daysLeft": "",
-    "allowSensors": ""
-    "":"",
+    "allowSensors": "",
+    "vpnWarning":"",
   },
   "all": {
     "premiumActive": "",
