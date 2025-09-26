@@ -49,8 +49,7 @@ quranApi.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Простой POST запрос на /auth/refresh - refreshToken автоматически отправляется из cookie
-        const response = await quranApi.post("/auth/refresh");
+        const response = await quranApi.post("api/v1/auth/refresh");
 
         // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
         const { accessToken } = response.data.data.accessToken;
