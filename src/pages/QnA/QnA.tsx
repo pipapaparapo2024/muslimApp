@@ -9,7 +9,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { trackButtonClick } from "../api/analytics";
+import { trackButtonClick } from "../../api/analytics";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium } = usePremiumStore();

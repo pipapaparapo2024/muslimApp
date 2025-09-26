@@ -7,7 +7,7 @@ import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPray
 import { Info } from "lucide-react";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
-import { trackButtonClick } from "../../../api/analytics";
+import { trackButtonClick } from "../../../../api/analytics";
 
 export const SettingPrayerTimes: React.FC = () => {
   const {

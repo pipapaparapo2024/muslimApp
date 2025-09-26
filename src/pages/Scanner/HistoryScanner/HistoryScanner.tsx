@@ -15,7 +15,7 @@ import {
   getStatusClassName,
   getStatusTranslationKey,
 } from "../productStatus";
-import { trackButtonClick } from "../../api/analytics";
+import { trackButtonClick } from "../../../api/analytics";
 
 console.log("start history");
 

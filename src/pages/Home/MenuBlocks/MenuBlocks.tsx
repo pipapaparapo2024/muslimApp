@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
 import { useTranslation } from "react-i18next";
 import { useFriendsStore } from "../../../hooks/useFriendsStore";
-import { trackButtonClick } from "../../api/analytics"
+import { trackButtonClick } from "../../../api/analytics";
 
 // Импорты иконок
 import Quaran from "../../../assets/icons/quaran1.svg";

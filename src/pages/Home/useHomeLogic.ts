@@ -5,7 +5,7 @@ import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
 import i18n from "../../api/i18n";
 import { applyLanguageStyles } from "../../hooks/useLanguages";
-import { trackButtonClick } from "../api/analytics";
+import { trackButtonClick } from "../../api/analytics";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
 

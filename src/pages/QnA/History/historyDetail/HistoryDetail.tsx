@@ -9,7 +9,7 @@ import { Share } from "../../../../components/share/Share";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { type QaItem } from "../../../../hooks/useHistoryStore";
-import { trackButtonClick } from "../../../api/analytics";
+import { trackButtonClick } from "../../../../api/analytics";
 
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();

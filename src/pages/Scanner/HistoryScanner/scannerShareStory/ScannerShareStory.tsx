@@ -17,7 +17,7 @@ import {
   getStatusIcon,
   getStatusTranslationKey,
 } from "../../productStatus";
-import { trackButtonClick } from "../../../api/analytics";
+import { trackButtonClick } from "../../../../api/analytics";
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string | undefined }>();

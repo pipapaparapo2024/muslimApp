@@ -13,7 +13,7 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { type ScanResult } from "../../../../hooks/useScannerStore";
-import { trackButtonClick } from "../../../api/analytics";
+import { trackButtonClick } from "../../../../api/analytics";
 
 export const HistoryScannerDetail: React.FC = () => {
   const navigate = useNavigate();

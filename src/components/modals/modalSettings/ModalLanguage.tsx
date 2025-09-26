@@ -4,7 +4,7 @@ import { Check, Loader } from "lucide-react";
 import { t } from "i18next";
 import { type Language } from "../../../hooks/useLanguages";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
-import { trackButtonClick } from "../../api/analytics";
+import { trackButtonClick } from "../../../api/analytics";
 
 // Импортируем иконки
 import enIcon from "../../../assets/icons/united-king.svg";

@@ -5,7 +5,7 @@ import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
 import { useEffect, useState } from "react";
-import { trackButtonClick } from "../api/analytics";
+import { trackButtonClick } from "../../api/analytics";
 interface ClickHistory {
   text: string;
 }

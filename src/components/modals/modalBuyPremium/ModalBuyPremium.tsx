@@ -5,7 +5,7 @@ import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
-import { trackButtonClick } from "../../api/analytics";
+import { trackButtonClick } from "../../../api/analytics";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;

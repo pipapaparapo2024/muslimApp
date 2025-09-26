@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./ModalTheme.module.css";
 import { Check, Moon, Smartphone, Sun } from "lucide-react";
 import { t } from "i18next";
-import { trackButtonClick } from "../../api/analytics";
+import { trackButtonClick } from "../../../api/analytics";
 
 interface ThemeModalProps {
   isOpen?: boolean;
