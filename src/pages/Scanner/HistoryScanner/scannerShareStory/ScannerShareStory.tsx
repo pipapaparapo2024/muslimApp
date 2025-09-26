@@ -18,7 +18,6 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { trackButtonClick } from "../../../../api/global";
-
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string | undefined }>();
