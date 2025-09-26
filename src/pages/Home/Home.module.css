@@ -29,7 +29,7 @@
 
 .vpnWarningModal {
   background: var(--bg-surface);
-  border-radius: var(--roundings-small);
+  border-radius: var(--roundings-medium);
   padding: var(--numbers-24);
   max-width: 300px;
   width: 90%;
