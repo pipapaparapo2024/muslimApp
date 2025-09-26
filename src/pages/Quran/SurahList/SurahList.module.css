@@ -189,7 +189,7 @@
   height: 50px;
   border-radius: 50%;
   background: var(--color-background-semantic-solid-brand);
-  color: var(--desk-text);
+  color: var(--text);
   border: none;
   cursor: pointer;
   display: flex;
