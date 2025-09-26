@@ -45,7 +45,7 @@ export const WelcomeFriends: React.FC = () => {
   const shareViaTelegram = () => {
     if (!referralLink) return;
 
-    const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
+    const shareText = "Join any cool app! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
     )}&text=${encodeURIComponent(shareText)}`;
