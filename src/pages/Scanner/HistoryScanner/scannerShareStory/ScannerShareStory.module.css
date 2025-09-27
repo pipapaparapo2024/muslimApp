@@ -26,8 +26,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--numbers-32) var(--numbers-16);
-  margin: 0;
+  padding: 0 var(--numbers-16);
+  margin: 0 var(--numbers-16);
   flex: 1;
 }
 
