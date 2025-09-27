@@ -49,7 +49,7 @@ quranApi.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await quranApi.post("api/v1/auth/refresh");
+        const response = await quranApi.post("/api/v1/user/auth/refresh");
 
         // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
         const { accessToken } = response.data.data.accessToken;
