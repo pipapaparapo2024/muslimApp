@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
-import message from "../../../../assets/image/shareStory.png";
+import message from "../../../../assets/image/storyshare.png";
 import backgroundImg from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
