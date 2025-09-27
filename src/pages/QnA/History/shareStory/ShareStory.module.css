@@ -28,7 +28,7 @@
   flex-direction: column;
   align-items: center;
   padding-top: var(--numbers-32);
-  margin: 0;
+  margin: 0 var(--numbers-16);
   flex: 1;
 }
 .hiddenBackgroundForScreenshot {
