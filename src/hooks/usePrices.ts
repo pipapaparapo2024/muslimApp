@@ -35,7 +35,7 @@ export const usePrices = () => {
       setError(null);
       
       const response = await quranApi.get<PricesResponse>('api/v1/payments/prices');
-      
+      console.log("response",response)
       if (response.data?.data?.prices) {
         setPrices(response.data.data.prices);
       } else {
