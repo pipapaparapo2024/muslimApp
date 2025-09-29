@@ -267,6 +267,7 @@ const resources = {
       newScan: "New Scan",
       newQuestion: "New Question",
       goPremium: "Go Premium",
+      days:"days",
       premiumDescription:
         "Unlock all features with a single upgrade. Enjoy full access without limits.",
       week: " Week",
@@ -526,6 +527,7 @@ const resources = {
 
       // Scanner words
       copy: "نسخ",
+      days:"أيام",
       haram: "حرام",
       mushbooh: "مشبوه",
       needs_info: "يحتاج إلى معلومات",
