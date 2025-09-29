@@ -60,6 +60,17 @@
   z-index: 1;
 }
  
+/* .blockScan {
+  position: absolute;
+  bottom: -270px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--numbers-4);
+  box-sizing: border-box;
+  z-index: 2;
+} */
 .blockScan {
   position: absolute;
   bottom: -270px;
@@ -70,6 +81,7 @@
   gap: var(--numbers-4);
   box-sizing: border-box;
   z-index: 2;
+  padding: 0 var(--numbers-16); /* Добавляем padding вместо margin у детей */
 }
 
 .blockButton {
@@ -126,15 +138,21 @@
   pointer-events: none;
 }
 
-.blockInside {
+/* .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 0 var(--numbers-16);
   box-sizing: border-box;
+} */
+.blockInside {
+  border-radius: var(--roundings-medium);
+  background: var(--bg-surface);
+  padding: var(--numbers-12) var(--numbers-16);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0;
 }
-
 .blockInside .scanDesk {
   display: -webkit-box;
   line-clamp: 3;
@@ -170,7 +188,7 @@
   color: var(--color-stroke-semantic-warning);
 }
 
-.accessBlock {
+/* .accessBlock {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -182,8 +200,21 @@
   border-radius: var(--roundings-medium);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 0 var(--numbers-16);
+} */
+.accessBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: var(--font-500);
+  font-size: var(--numbers-18);
+  gap: var(--numbers-4);
+  padding: var(--numbers-12) var(--numbers-16);
+  background: var(--bg-surface);
+  border-radius: var(--roundings-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  /* Убираем margin */
+  margin: 0;
 }
-
 .QiblaGuidebot {
   font-size: var(--numbers-14);
   color: var(--desk-text);
