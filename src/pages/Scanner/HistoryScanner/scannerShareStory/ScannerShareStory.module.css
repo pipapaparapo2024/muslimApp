@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
 }
 
 .visibleBackground {
@@ -20,12 +21,13 @@
 .contentWrapper {
   position: relative;
   z-index: 1;
-  max-width: 390px;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 var(--numbers-16);
   flex: 1;
+  margin-bottom: auto;
 }
 
 .hiddenBackgroundForScreenshot {
@@ -45,6 +47,7 @@
   display: flex;
   justify-content: center;
   width: 100%;
+  margin-top: auto;
 }
 
 .foregroundImage {
@@ -52,6 +55,7 @@
   max-width: 100%;
   height: auto;
   width: auto;
+  margin: 0 auto;
   object-fit: contain;
   position: relative;
   z-index: 1;
@@ -67,6 +71,7 @@
   gap: var(--numbers-4);
   box-sizing: border-box;
   z-index: 2;
+  padding: 0 var(--numbers-16);
 }
 
 .blockButton {
@@ -78,6 +83,8 @@
   justify-content: center;
   z-index: 3;
   width: 100%;
+  padding: 0 var(--numbers-16);
+  box-sizing: border-box;
 }
 
 .shareButton {
@@ -90,7 +97,8 @@
   justify-content: center;
   gap: var(--numbers-6);
   align-items: center;
-  width: 90%;
+  margin: 0 auto;
+  width: 100%;
   color: white;
   padding: var(--numbers-16);
   cursor: pointer;
@@ -125,6 +133,7 @@
   background: var(--bg-surface);
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 var(--numbers-16);
 }
 
 .blockInside .scanDesk {
@@ -147,6 +156,7 @@
   font-weight: var(--font-600);
   font-size: var(--numbers-16);
   color: var(--text);
+  margin-bottom: var(--numbers-4);
 }
 
 .haram {
@@ -172,6 +182,7 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 var(--numbers-16);
 }
 
 .QiblaGuidebot {
@@ -184,4 +195,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-} 
+}
