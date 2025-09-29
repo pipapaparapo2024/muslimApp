@@ -213,9 +213,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
         <div className={styles.options}>
           {[
-            `10 ${t("requestsPrem")}`,
-            `100 ${t("requestsPrem")}`,
-            `1000 ${t("requestsPrem")}`,
+            `10 ${t("requests")}`,
+            `100 ${t("requests")}`,
+            `1000 ${t("requests")}`,
           ].map((option) => (
             <div
               key={option}
