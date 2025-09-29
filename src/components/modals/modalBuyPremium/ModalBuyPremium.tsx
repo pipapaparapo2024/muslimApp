@@ -27,53 +27,63 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pay, isConnected } = useTonPay();
-  const { getPrice, loading: pricesLoading } = usePrices();
+  const { getProductsByType, loading: pricesLoading } = usePrices();
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  // Получаем цены для премиума
-  const getPrices = (duration: string) => {
-    const tonPrice = getPrice('premium', 'TON');
-    const starsPrice = getPrice('premium', 'XTR');
-    
-    // Базовые цены на случай если API не вернул данные
-    const basePrices = {
-      week: { ton: 3.45, stars: 2250 },
-      month: { ton: 34.5, stars: 22500 },
-      year: { ton: 345, stars: 225000 }
+  // Получаем все премиум продукты из API
+  const premiumProducts = getProductsByType('premium');
+
+  // Сопоставляем опции с данными из API
+  const getProductForOption = (option: string) => {
+    const durationMap: { [key: string]: number } = {
+      [`1 ${t("week")}`]: 7,
+      [`1 ${t("month")}`]: 30,
+      [`1 ${t("year")}`]: 365
     };
 
-    switch (duration) {
-      case `1 ${t("week")}`:
-        return { 
-          ton: tonPrice || basePrices.week.ton, 
-          stars: starsPrice || basePrices.week.stars, 
-          duration: 'week' 
-        };
-      case `1 ${t("month")}`:
-        return { 
-          ton: tonPrice || basePrices.month.ton, 
-          stars: starsPrice || basePrices.month.stars, 
-          duration: 'month' 
-        };
-      case `1 ${t("year")}`:
-        return { 
-          ton: tonPrice || basePrices.year.ton, 
-          stars: starsPrice || basePrices.year.stars, 
-          duration: 'year' 
-        };
-      default:
-        return { ton: 0, stars: 0, duration: '' };
+    const targetDuration = durationMap[option];
+    return premiumProducts.find(product => product.revardAmount === targetDuration);
+  };
+
+  // Получаем цены для выбранной опции
+  const getPrices = (option: string) => {
+    const product = getProductForOption(option);
+    
+    if (!product) {
+      // Fallback цены если продукт не найден
+      const fallbackPrices = {
+        [`1 ${t("week")}`]: { ton: 1, stars: 1 },
+        [`1 ${t("month")}`]: { ton: 2, stars: 2 },
+        [`1 ${t("year")}`]: { ton: 3, stars: 3 }
+      };
+      return { 
+        ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
+        stars: fallbackPrices[option as keyof typeof fallbackPrices]?.stars || 1,
+        duration: option,
+        productId: null
+      };
     }
+
+    const tonPrice = product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
+    const starsPrice = product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
+
+    return {
+      ton: tonPrice,
+      stars: starsPrice,
+      duration: option,
+      productId: product.id
+    };
   };
 
   React.useEffect(() => {
     if (isOpen) {
       trackButtonClick('premium_modal_open', {
         default_selection: selectedRequests,
-        is_wallet_connected: isConnected
+        is_wallet_connected: isConnected,
+        available_products_count: premiumProducts.length
       });
     }
-  }, [isOpen, selectedRequests, isConnected]);
+  }, [isOpen, selectedRequests, isConnected, premiumProducts.length]);
 
   if (!isOpen) return null;
   
@@ -88,11 +98,13 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleOptionSelect = (option: string) => {
+    const newPrices = getPrices(option);
     trackButtonClick('premium_period_change', {
       from_period: selectedRequests,
       to_period: option,
-      ton_price: getPrices(option).ton,
-      stars_price: getPrices(option).stars
+      ton_price: newPrices.ton,
+      stars_price: newPrices.stars,
+      product_id: newPrices.productId
     });
     onSelectRequests(option);
   };
@@ -107,6 +119,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         amount: prices.ton,
         type: 'premium',
         duration: prices.duration,
+        // productId: prices.productId || undefined
       });
 
       // Обработка результата
@@ -115,7 +128,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           trackButtonClick('premium_purchase_success', {
             payment_method: 'ton',
             period: selectedRequests,
-            price: prices.ton
+            price: prices.ton,
+            product_id: prices.productId
           });
           alert(t('paymentSuccess'));
           onClose();
@@ -124,7 +138,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         case 'rejected':
           trackButtonClick('premium_purchase_rejected', {
             payment_method: 'ton',
-            period: selectedRequests
+            period: selectedRequests,
+            product_id: prices.productId
           });
           alert(t('paymentRejected'));
           break;
@@ -138,7 +153,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         default:
           trackButtonClick('premium_purchase_error', {
             payment_method: 'ton',
-            error: result.status
+            error: result.status,
+            product_id: prices.productId
           });
           alert(t('paymentError'));
       }
@@ -146,7 +162,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       console.error('Payment error:', error);
       trackButtonClick('premium_purchase_exception', {
         payment_method: 'ton',
-        error: error.message
+        error: error.message,
+        product_id: prices.productId
       });
       alert(t('paymentError'));
     } finally {
@@ -158,9 +175,14 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     trackButtonClick('premium_purchase_attempt', {
       payment_method: 'stars',
       period: selectedRequests,
-      price: prices.stars
+      price: prices.stars,
+      product_id: prices.productId
     });
-    console.log("buy with stars");
+    console.log("buy with stars", {
+      productId: prices.productId,
+      amount: prices.stars,
+      period: selectedRequests
+    });
   };
 
   if (pricesLoading) {
@@ -187,18 +209,26 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
         <div className={styles.options}>
           {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map(
-            (option) => (
-              <div
-                key={option}
-                className={`${styles.option} ${
-                  selectedRequests === option ? styles.selected : ""
-                }`}
-                onClick={() => handleOptionSelect(option)}
-              >
-                <div>{t(option.replace(" ", ""))}</div>
-                {selectedRequests === option && <Check size={20} />}
-              </div>
-            )
+            (option) => {
+              const optionPrices = getPrices(option);
+              return (
+                <div
+                  key={option}
+                  className={`${styles.option} ${
+                    selectedRequests === option ? styles.selected : ""
+                  }`}
+                  onClick={() => handleOptionSelect(option)}
+                >
+                  <div className={styles.optionContent}>
+                    <div>{t(option.replace(" ", ""))}</div>
+                    <div className={styles.optionPrice}>
+                      {optionPrices.ton} TON / {formatNumber(optionPrices.stars)} ⭐
+                    </div>
+                  </div>
+                  {selectedRequests === option && <Check size={20} />}
+                </div>
+              );
+            }
           )}
         </div>
 
