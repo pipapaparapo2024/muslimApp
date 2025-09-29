@@ -56,10 +56,10 @@ export const Friends: React.FC = () => {
         total_has: totalHas,
         total_needed: totalNeeded,
       });
-      
-      await claimTotalReward(); 
+
+      await claimTotalReward();
       alert(t("rewardClaimed"));
-      
+
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении награды:", error);
@@ -73,10 +73,10 @@ export const Friends: React.FC = () => {
         purchased_has: purchasedHas,
         purchased_needed: purchasedNeeded,
       });
-      
+
       await claimPurchasedReward();
       alert(t("premiumUnlocked"));
-      
+
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении премиум награды:", error);
