@@ -67,7 +67,7 @@ export const useTonPay = () => {
 
       // Отправляем транзакцию
       const result = await tonConnectUI.sendTransaction({
-        network: CHAIN.MAINNET,
+        network: CHAIN.TESTNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
