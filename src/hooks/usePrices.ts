@@ -54,7 +54,7 @@ export const usePrices = () => {
     const product = prices.find(item => 
       item.revardType.toLowerCase() === productType.toLowerCase()
     );
-    
+    console.log("product",product)
     if (!product) return null;
 
     const currency = product.currency.find(curr => 

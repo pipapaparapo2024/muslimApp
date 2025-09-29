@@ -1,4 +1,3 @@
-// ModalBuyPremium.tsx (обновленная версия)
 import React from "react";
 import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
@@ -34,7 +33,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   // Получаем цены для премиума
   const getPrices = (duration: string) => {
     const tonPrice = getPrice('premium', 'TON');
-    const starsPrice = getPrice('premium', 'STARS'); // или другая валюта для stars
+    const starsPrice = getPrice('premium', 'XTR');
     
     // Базовые цены на случай если API не вернул данные
     const basePrices = {
