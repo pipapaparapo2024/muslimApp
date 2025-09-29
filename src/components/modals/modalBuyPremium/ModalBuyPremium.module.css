@@ -96,7 +96,7 @@
   padding: var(--numbers-12) 0;
   width: 100%;
   justify-content: center;
-    cursor: pointer;
+  cursor: pointer;
   display: flex;
   padding: var(--numbers-12);
   border-radius: var(--roundings-medium);
@@ -104,19 +104,11 @@
   align-items: center;
 }
 
-.priceText{
+.priceText {
   display: flex;
   align-items: center;
   gap: var(--numbers-4);
   margin: 0 auto;
-}
-.priceBlock {
-  cursor: pointer;
-  display: flex;
-  padding: var(--numbers-12);
-  border-radius: var(--roundings-medium);
-  gap: var(--numbers-8);
-  align-items: center;
 }
 
 .tonBlock {
@@ -126,7 +118,6 @@
 .starsBlock {
   background-color: var(--colors-amber-100);
 }
-
 
 .priceIcon img {
   width: 100%;
@@ -142,7 +133,7 @@
 .priceValueStar {
   font-size: var(--numbers-16);
   font-weight: var(--font-500);
-  color: #FFC700;
+  color: #ffc700;
 }
 
 .priceValueStar.formatted {
