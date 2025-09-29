@@ -226,7 +226,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             >
               <div className={styles.optionText}>
                 {option.replace("requests", "").trim()}
-                <span className={styles.requestsLabel}>{t("requests")}</span>
               </div>
               {selectedRequests === option && (
                 <div className={styles.selectedIndicator}>
