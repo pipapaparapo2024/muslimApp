@@ -17,7 +17,7 @@
   z-index: 0;
 } 
 
-/* .contentWrapper {
+.contentWrapper {
   position: relative;
   z-index: 1;
   max-width: 390px;
@@ -29,7 +29,7 @@
   margin: 0 var(--numbers-16);
   flex: 1;
 }
-
+/*
 .hiddenBackgroundForScreenshot {
   position: absolute;
   top: 0;
