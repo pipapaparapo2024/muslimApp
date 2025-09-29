@@ -305,7 +305,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {isProcessing ? t("processing") : prices.ton.toFixed(2)}
+                {prices.ton.toFixed(2)}
               </div>
             </div>
             {!isConnected && !isProcessing && (
@@ -324,8 +324,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
               <div className={`${styles.priceValueStar} ${styles.formatted}`}>
-                {/* {formattedStars} */}
-                {isProcessing ? t("processing") : formattedStars}
+                {formattedStars}
               </div>
             </div>
           </div>
