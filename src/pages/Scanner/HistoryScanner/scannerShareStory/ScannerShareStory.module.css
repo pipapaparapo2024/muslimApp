@@ -60,11 +60,10 @@
 .blockScan {
   position: absolute;
   bottom: -100px;
-  width: 100%;
+  width: 95%;
   display: flex;
   flex-direction: column;
   gap: var(--numbers-4);
-  box-sizing: border-box;
   z-index: 2;
 }
 
@@ -124,7 +123,6 @@
 .blockInside {
   border-radius: var(--roundings-medium);
   background: var(--bg-surface);
-  width: 95%;
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
