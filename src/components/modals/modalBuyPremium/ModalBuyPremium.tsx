@@ -137,8 +137,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     onSelectRequests(option);
   };
   const handleTonPurchase = async () => {
+    console.log("TOOOOOOOOOOOOOOOOOOOOOOOOOON")
     if (isProcessing || !prices.productId) return;
-
     setIsProcessing(true);
     setPaymentMethod("ton");
 
