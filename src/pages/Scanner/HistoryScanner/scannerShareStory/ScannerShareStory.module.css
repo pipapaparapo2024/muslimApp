@@ -71,7 +71,7 @@
   gap: var(--numbers-4);
   box-sizing: border-box;
   z-index: 2;
-  margin-top: -200px;
+  margin-top: -240px;
 }
 .blockButton {
   position: absolute;
