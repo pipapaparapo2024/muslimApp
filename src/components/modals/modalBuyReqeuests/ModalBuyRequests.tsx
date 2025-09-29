@@ -36,9 +36,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   // Сопоставляем опции с данными из API
   const getProductForOption = (option: string) => {
     const quantityMap: { [key: string]: number } = {
-      [`10 ${t("requestsPrem")}`]: 10,
-      [`100 ${t("requestsPrem")}`]: 100,
-      [`1000 ${t("requestsPrem")}`]: 1000
+      [`10 ${t("requests")}`]: 10,
+      [`100 ${t("requests")}`]: 100,
+      [`1000 ${t("requests")}`]: 1000
     };
 
     const targetQuantity = quantityMap[option];
@@ -52,9 +52,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     if (!product) {
       // Fallback цены если продукт не найден
       const fallbackPrices = {
-        [`10 ${t("requestsPrem")}`]: { ton: 10, stars: 10 },
-        [`100 ${t("requestsPrem")}`]: { ton: 20, stars: 20 },
-        [`1000 ${t("requestsPrem")}`]: { ton: 30, stars: 30 }
+        [`10 ${t("requests")}`]: { ton: 10, stars: 10 },
+        [`100 ${t("requests")}`]: { ton: 20, stars: 20 },
+        [`1000 ${t("requests")}`]: { ton: 30, stars: 30 }
       };
       return { 
         ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
