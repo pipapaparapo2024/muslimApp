@@ -61,7 +61,7 @@
  
 .blockScan {
   position: absolute;
-  bottom: -120px;
+  bottom: -100px;
   width: 95%;
   /* height: 100%; */
   display: flex;
