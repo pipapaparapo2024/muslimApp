@@ -136,7 +136,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleTonPurchase = async () => {
-    console.log("TOOOOOOOOOOOOOOOOOOOOOOOOOON");
+    console.log("TON");
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
     setIsProcessingTon(true);
 
@@ -199,7 +199,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleStarsPurchase = async () => {
-    console.log("STAAAAAAAR")
+    console.log("STAR")
     if (isProcessingStars || isProcessingTon || !prices.productId) return;
 
     setIsProcessingStars(true);
@@ -295,7 +295,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         <div className={styles.priceBlocks}>
           <div
             className={`${styles.priceBlock} ${styles.tonBlock} ${
-              isProcessingTon ? styles.processingTon : ""
+              isProcessingTon ? styles.processing : ""
             }`}
             onClick={handleTonPurchase}
           >
@@ -314,7 +314,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
           <div
             className={`${styles.priceBlock} ${styles.starsBlock} ${
-              isProcessingStars ? styles.processingStars : ""
+              isProcessingStars ? styles.processing : ""
             }`}
             onClick={handleStarsPurchase}
           >
