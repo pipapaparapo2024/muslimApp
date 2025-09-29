@@ -132,6 +132,7 @@
   background: var(--bg-surface);
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 var(--numbers-16);
 }
 
 .blockInside .scanDesk {
@@ -170,6 +171,7 @@
 }
 
 .accessBlock {
+  margin: 0 var(--numbers-16);
   display: flex;
   justify-content: space-between;
   align-items: center;
