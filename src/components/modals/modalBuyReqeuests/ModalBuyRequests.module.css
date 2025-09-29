@@ -108,7 +108,6 @@
   gap: var(--numbers-8);
   align-items: center;
 }
-
 .tonBlock {
   background-color: var(--colors-sky-100);
 }
@@ -140,10 +139,6 @@
   font-size: var(--numbers-14);
   font-weight: var(--font-500);
   color: #FFC700;
-  font-size: 18px;
-  font-weight: 600;
-  margin-left: 8px;
-  font-variant-numeric: tabular-nums;
 }
 
 .priceValueStar.formatted {
