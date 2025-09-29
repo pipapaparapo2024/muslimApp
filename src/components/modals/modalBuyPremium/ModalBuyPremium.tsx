@@ -52,9 +52,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     if (!product) {
       // Fallback цены если продукт не найден
       const fallbackPrices = {
-        [`1 ${t("week")}`]: { ton: 1, stars: 1 },
-        [`1 ${t("month")}`]: { ton: 2, stars: 2 },
-        [`1 ${t("year")}`]: { ton: 3, stars: 3 }
+        [`1 ${t("week")}`]: { ton: 10, stars: 10 },
+        [`1 ${t("month")}`]: { ton: 20, stars: 20 },
+        [`1 ${t("year")}`]: { ton: 30, stars: 30 }
       };
       return { 
         ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
