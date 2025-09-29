@@ -2,15 +2,15 @@ import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 import { CHAIN } from "@tonconnect/ui-react";
 import { quranApi } from "../api/api";
 
-export interface PayParams {
+export interface TonPayParams {
   amount: number;
   type: "premium" | "requests";
-  testId?: string;
   duration?: string;
   quantity?: number;
+  productId?: string;
 }
 
-export interface PaymentResponse {
+export interface TonPaymentResponse {
   status: "success" | "rejected" | "not_connected" | "server_error" | "error";
   error?: any;
   data?: any;
@@ -20,13 +20,7 @@ export const useTonPay = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
-  const pay = async ({
-    amount,
-    type,
-    testId,
-    duration,
-    quantity,
-  }: PayParams): Promise<PaymentResponse> => {
+  const payWithTon = async (params: TonPayParams): Promise<TonPaymentResponse> => {
     try {
       if (!userAddress) {
         console.log("Wallet not connected, opening modal...");
@@ -34,7 +28,7 @@ export const useTonPay = () => {
         return { status: "not_connected" };
       }
 
-      // Получаем адрес кошелька для оплаты (только если кошелек подключен)
+      // Получаем адрес кошелька для оплаты
       const response = await quranApi.get<{ data: { wallet: string } }>(
         "/api/ton-config"
       );
@@ -49,17 +43,16 @@ export const useTonPay = () => {
         "/bot/create-invoice-ton",
         {
           walletAddress: address,
-          amount,
-          type,
-          testId,
-          duration,
-          quantity,
+          amount: params.amount,
+          type: params.type,
+          duration: params.duration,
+          quantity: params.quantity,
+          productId: params.productId,
           wallet: userAddress,
         }
       );
 
       const { payload, boc } = invoiceResponse.data;
-
 
       if (!boc) {
         return { status: "server_error" };
@@ -72,7 +65,7 @@ export const useTonPay = () => {
         messages: [
           {
             address: address,
-            amount: (amount * 1e9).toString(),
+            amount: (params.amount * 1e9).toString(),
             payload: boc,
           },
         ],
@@ -89,7 +82,7 @@ export const useTonPay = () => {
         data: verificationResponse,
       };
     } catch (err: any) {
-      console.error("Payment error:", err);
+      console.error("TON payment error:", err);
 
       if (err?.message?.includes("Rejected")) {
         return { status: "rejected", error: err };
@@ -100,7 +93,7 @@ export const useTonPay = () => {
   };
 
   return {
-    pay,
+    payWithTon,
     connectedAddress: userAddress,
     isConnected: !!userAddress,
   };
