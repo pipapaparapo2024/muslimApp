@@ -88,7 +88,7 @@ export const App: React.FC = () => {
   }
   return (
     <div>
-      <TonConnectUIProvider manifestUrl="https://your-app.com/tonconnect-manifest.json">
+      <TonConnectUIProvider manifestUrl="https://islamapp.myfavouritegames.org/ton/manifest.json">
         <Routes>
           <Route path="/welcomeFriends" element={<WelcomeFriends />} />
           <Route path="/friends" element={<Friends />} />
