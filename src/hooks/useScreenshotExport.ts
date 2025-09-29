@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { quranApi } from "../api/api";
 import { init, shareStory } from "@telegram-apps/sdk";
 
@@ -17,82 +17,47 @@ interface ExportOptions {
 
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [, setSdkInitialized] = useState<boolean>(false);
 
-  useEffect(() => {
-    const initializeSdk = async () => {
-      try {
-        await init();
-        setSdkInitialized(true);
-        console.log("Telegram SDK initialized successfully");
-      } catch (error) {
-        console.error("Failed to initialize Telegram SDK:", error);
-        setSdkInitialized(false);
-      }
-    };
+  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+    const html2canvas = (await import("html2canvas")).default;
 
-    initializeSdk();
-  }, []);
+    // Ждем загрузки всех изображений
+    await preloadAllImages(element);
 
-const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-  const html2canvas = (await import("html2canvas")).default;
+    // Даем время для полного рендеринга
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-  // Принудительно устанавливаем ширину для элементов
-  const blockInsideElements = element.querySelectorAll('.blockInside');
-  blockInsideElements.forEach((el: any) => {
-    el.style.margin = '0 40px'; // Явно устанавливаем margin
-  });
-
-  await preloadAllImages(element);
-  await new Promise((resolve) => setTimeout(resolve, 500));
-
-  const canvas = await html2canvas(element, {
-    background: "#ffffff",
-    scale: 2,
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    width: element.scrollWidth,
-    height: element.scrollHeight,
-    scrollX: 0,
-    scrollY: 0,
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
-    onclone: (_clonedDoc: Document, clonedElement: HTMLElement) => {
-      // Применяем те же стили к клонированному элементу
-      const blockInsideElements = clonedElement.querySelectorAll('.blockInside');
-      blockInsideElements.forEach((el: any) => {
-        el.style.margin = '0 40px';
-      });
-      
-      clonedElement.style.display = "block";
-      clonedElement.style.visibility = "visible";
-      clonedElement.style.opacity = "1";
-
-      const images = clonedElement.querySelectorAll("img");
-      images.forEach((img) => {
-        const imageElement = img as HTMLImageElement;
-        imageElement.style.display = "block";
-        imageElement.style.visibility = "visible";
-        imageElement.style.opacity = "1";
-      });
-    },
-  } as any);
-
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          reject(new Error("Failed to create blob from canvas"));
-        }
+    const canvas = await html2canvas(element, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      width: element.scrollWidth,
+      height: element.scrollHeight,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (clonedDoc: Document, clonedElement: HTMLElement) => {
+        clonedElement.style.display = "block";
+        clonedElement.style.visibility = "visible";
+        clonedElement.style.opacity = "1";
       },
-      "image/png",
-      0.9
-    );
-  });
-};
+    });
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Failed to create blob from canvas"));
+          }
+        },
+        "image/png",
+        0.9
+      );
+    });
+  };
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
     try {
@@ -174,90 +139,51 @@ async function preloadAllImages(element: HTMLElement): Promise<void> {
         console.warn(`Failed to load image: ${image.src}`);
         resolve();
       };
-
-      // Если src не установлен, сразу резолвим
-      if (!image.src || image.src === "") {
-        resolve();
-      }
     });
 
     promises.push(promise);
   });
-
-  // Также предзагружаем фоновые изображения
-  const walker = document.createTreeWalker(
-    element,
-    NodeFilter.SHOW_ELEMENT,
-    null
-  );
-
-  let node;
-  while ((node = walker.nextNode())) {
-    const el = node as HTMLElement;
-    const style = getComputedStyle(el);
-    const backgroundImage = style.backgroundImage;
-
-    if (backgroundImage && backgroundImage !== "none") {
-      const urlMatch = backgroundImage.match(/url\(["']?(.*?)["']?\)/);
-      if (urlMatch && urlMatch[1]) {
-        const imageUrl = urlMatch[1];
-        const promise = new Promise<void>((resolve) => {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = imageUrl;
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-        });
-        promises.push(promise);
-      }
-    }
-  }
 
   await Promise.all(promises);
 }
 
 export const shareToTelegramStory = async (
   url: string | undefined
-): Promise<void> => {
-  if (!url) return;
-
-  const tg = (window as any).Telegram;
-
-  console.log("=== DEBUG SHARE STORY ===");
-  console.log("URL:", url);
-  console.log("Telegram WebApp:", tg?.WebApp);
-  console.log(
-    "shareStory function available:",
-    typeof shareStory === "function"
-  );
-  console.log("Platform:", tg?.WebApp?.platform);
-  console.log("Version:", tg?.WebApp?.version);
+): Promise<boolean> => {
+  if (!url) return false;
 
   try {
     await init();
-    console.log("Telegram SDK init attempted");
 
     if (typeof shareStory === "function") {
-      console.log("Calling shareStory with URL:", url);
       await shareStory(url, {
         widgetLink: {
           url: "https://t.me/QiblaGuidebot",
           name: "@QiblaGuidebot",
         },
       });
-      console.log("shareStory completed successfully");
-    } else if (tg?.WebApp?.shareStory) {
-      return await tg.WebApp.shareStory(url, {
-        widget: {
-          url: "https://t.me/QiblaGuidebot",
-          name: "@QiblaGuidebot",
-        },
-      });
+      return true;
     } else {
-      throw new Error("shareStory function not available");
+      // Fallback для старых версий Telegram
+      const tg = (window as any).Telegram;
+      if (tg?.WebApp?.shareStory) {
+        await tg.WebApp.shareStory(url, {
+          widget: {
+            url: "https://t.me/QiblaGuidebot",
+            name: "@QiblaGuidebot",
+          },
+        });
+        return true;
+      } else {
+        // Ultimate fallback - открываем в новом окне
+        window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+        return true;
+      }
     }
   } catch (error) {
-    console.error("Share story completely failed:", error);
+    console.error("Share story failed:", error);
+    // Fallback на обычное открытие ссылки
     window.open(`tg://share?url=${encodeURIComponent(url)}`, "_blank");
+    return true;
   }
 };
