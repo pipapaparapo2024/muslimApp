@@ -40,7 +40,7 @@ const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
   // Принудительно устанавливаем ширину для элементов
   const blockInsideElements = element.querySelectorAll('.blockInside');
   blockInsideElements.forEach((el: any) => {
-    el.style.margin = '0 16px'; // Явно устанавливаем margin
+    el.style.margin = '0 40px'; // Явно устанавливаем margin
     el.style.boxSizing = 'border-box';
   });
 
