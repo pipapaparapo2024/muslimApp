@@ -18,6 +18,7 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { trackButtonClick } from "../../../../api/analytics";
+
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string | undefined }>();
@@ -66,7 +67,6 @@ export const ScannerShareStory: React.FC = () => {
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
-    // 📊 Аналитика: пользователь нажал "Поделиться"
     trackButtonClick("share_scanner_story_init", {
       scan_id: id,
       eng_type: currentItem.engType,
@@ -90,16 +90,13 @@ export const ScannerShareStory: React.FC = () => {
       }
 
       if (screenshotUrl) {
-        // 📊 Аналитика: скриншот успешно создан
         trackButtonClick("scanner_story_screenshot_created", {
           scan_id: id,
           screenshot_url_length: screenshotUrl.length,
         });
 
-        // Попытка отправить в Telegram Story
         const success = await shareToTelegramStory(screenshotUrl);
 
-        // 📊 Аналитика: результат отправки
         trackButtonClick("scanner_story_shared_to_telegram", {
           scan_id: id,
           success: success,
@@ -107,7 +104,6 @@ export const ScannerShareStory: React.FC = () => {
       }
     } catch (error) {
       console.error("Failed to export and share screenshot:", error);
-      // 📊 Аналитика: ошибка при экспорте/отправке
       trackButtonClick("share_scanner_story_failed", {
         scan_id: id,
         error: (error as Error).message || "unknown",
@@ -139,17 +135,20 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
+        {/* Основной фон - видимый всегда */}
         <img
           src={backgroundImg}
           alt="Background"
           className={styles.visibleBackground}
         />
 
+        {/* Этот контейнер будет захвачен в скриншот */}
         <div ref={screenshotRef} className={styles.contentWrapper}>
+          {/* Фон для скриншота - теперь видимый */}
           <img
             src={backgroundImg}
             alt=""
-            className={styles.hiddenBackgroundForScreenshot}
+            className={styles.visibleBackground}
           />
 
           <div className={styles.imageContainer}>
