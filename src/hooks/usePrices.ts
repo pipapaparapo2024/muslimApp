@@ -60,7 +60,7 @@ export const usePrices = () => {
     const currency = product.currency.find(curr => 
       curr.priceType.toUpperCase() === currencyType.toUpperCase()
     );
-    
+    console.log("currency",currency)
     return currency ? currency.priceAmount : null;
   };
 
@@ -71,7 +71,7 @@ export const usePrices = () => {
     );
     
     if (!product) return null;
-
+    console.log("product",product)
     return {
       id: product.id,
       amount: product.revardAmount,
