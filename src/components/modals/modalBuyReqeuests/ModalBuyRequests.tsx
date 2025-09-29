@@ -4,9 +4,9 @@ import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { t } from "i18next";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
+import { usePrices } from "../../../hooks/usePrices";
 
 interface BuyRequestsModalProps {
   isOpen: boolean;
@@ -19,19 +19,6 @@ const formatNumber = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 };
 
-const getPrices = (requests: string) => {
-  switch (requests) {
-    case `10 ${t("requestsPrem")}`:
-      return { ton: 3.45, stars: 2250, quantity: 10 };
-    case `100 ${t("requestsPrem")}`:
-      return { ton: 34.5, stars: 22500, quantity: 100 };
-    case `1000 ${t("requestsPrem")}`:
-      return { ton: 345, stars: 225000, quantity: 1000 };
-    default:
-      return { ton: 0, stars: 0, quantity: 0 };
-  }
-};
-
 export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   isOpen,
   onClose,
@@ -40,7 +27,44 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pay, isConnected } = useTonPay();
+  const { getPrice, loading: pricesLoading } = usePrices();
   const [isProcessing, setIsProcessing] = React.useState(false);
+
+  // Получаем цены для запросов
+  const getPrices = (requests: string) => {
+    const tonPrice = getPrice('requests', 'TON');
+    const starsPrice = getPrice('requests', 'STARS');
+    
+    // Базовые цены на случай если API не вернул данные
+    const basePrices = {
+      '10': { ton: 3.45, stars: 2250 },
+      '100': { ton: 34.5, stars: 22500 },
+      '1000': { ton: 345, stars: 225000 }
+    };
+
+    switch (requests) {
+      case `10 ${t("requestsPrem")}`:
+        return { 
+          ton: tonPrice || basePrices['10'].ton, 
+          stars: starsPrice || basePrices['10'].stars, 
+          quantity: 10 
+        };
+      case `100 ${t("requestsPrem")}`:
+        return { 
+          ton: tonPrice || basePrices['100'].ton, 
+          stars: starsPrice || basePrices['100'].stars, 
+          quantity: 100 
+        };
+      case `1000 ${t("requestsPrem")}`:
+        return { 
+          ton: tonPrice || basePrices['1000'].ton, 
+          stars: starsPrice || basePrices['1000'].stars, 
+          quantity: 1000 
+        };
+      default:
+        return { ton: 0, stars: 0, quantity: 0 };
+    }
+  };
 
   React.useEffect(() => {
     if (isOpen) {
@@ -91,7 +115,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           trackButtonClick('requests_purchase_success', {
             payment_method: 'ton',
             requests_count: selectedRequests,
-            price: prices.ton
+            price: prices.ton,
+            quantity: prices.quantity
           });
           alert(t('paymentSuccess'));
           onClose();
@@ -106,11 +131,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           break;
           
         case 'not_connected':
-          // Модальное окно уже открыто автоматически в useTonPay
           trackButtonClick('wallet_connection_opened', {
             context: 'requests_purchase'
           });
-          // Не закрываем модалку - пусть пользователь подключит кошелек
           break;
           
         default:
@@ -136,10 +159,25 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     trackButtonClick('requests_purchase_attempt', {
       payment_method: 'stars', 
       requests_count: selectedRequests,
-      price: prices.stars
+      price: prices.stars,
+      quantity: prices.quantity
     });
-    console.log("buy with stars");
+    console.log("Buying", prices.quantity, "requests with stars for", prices.stars, "stars");
+    // Логика для оплаты звездами
   };
+
+  if (pricesLoading) {
+    return (
+      <div className={styles.modalOverlay} onClick={handleClose}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <p>{t("loadingPrices")}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.modalOverlay} onClick={handleClose}>
@@ -166,8 +204,15 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               }`}
               onClick={() => handleOptionSelect(option)}
             >
-              <div>{t(option.replace(" ", ""))}</div>
-              {selectedRequests === option && <Check size={20} />}
+              <div className={styles.optionText}>
+                {option.replace("requestsPrem", "").trim()}
+                <span className={styles.requestsLabel}>{t("requests")}</span>
+              </div>
+              {selectedRequests === option && (
+                <div className={styles.selectedIndicator}>
+                  <Check size={20} />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -179,30 +224,38 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             }`}
             onClick={handleTonPurchase}
           >
-            <div className={styles.priceText}>
-              <img src={ton} alt="TON" width="24" height="24" />
-              <div className={styles.priceValueTon}>
-                {isProcessing ? t('processing') : prices.ton.toFixed(2)}
+            <div className={styles.priceContent}>
+              <div className={styles.priceText}>
+                <img src={ton} alt="TON" className={styles.currencyIcon} />
+                <div className={styles.priceValue}>
+                  {isProcessing ? t('processing') : `${prices.ton.toFixed(2)} TON`}
+                </div>
               </div>
+              {!isConnected && !isProcessing && (
+                <div className={styles.connectHint}>
+                  {t('connectWalletToPay')}
+                </div>
+              )}
             </div>
-            {!isConnected && !isProcessing && (
-              <div className={styles.connectHint}>
-                {t('connectWalletToPay')}
-              </div>
-            )}
           </div>
 
           <div
             className={`${styles.priceBlock} ${styles.starsBlock}`}
             onClick={handleStarsPurchase}
           >
-            <div className={styles.priceText}>
-              <img src={star} alt="Stars" width="24" height="24" />
-              <div className={`${styles.priceValueStar} ${styles.formatted}`}>
-                {formattedStars}
+            <div className={styles.priceContent}>
+              <div className={styles.priceText}>
+                <img src={star} alt="Stars" className={styles.currencyIcon} />
+                <div className={styles.priceValue}>
+                  {formattedStars} {t('stars')}
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div className={styles.footerNote}>
+          {t("paymentSecureNote")}
         </div>
       </div>
     </div>

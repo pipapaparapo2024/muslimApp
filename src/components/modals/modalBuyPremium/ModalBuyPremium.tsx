@@ -1,12 +1,13 @@
+// ModalBuyPremium.tsx (обновленная версия)
 import React from "react";
 import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { t } from "i18next";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
+import { usePrices } from "../../../hooks/usePrices";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;
@@ -19,19 +20,6 @@ const formatNumber = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 };
 
-const getPrices = (requests: string) => {
-  switch (requests) {
-    case `1 ${t("week")}`:
-      return { ton: 3.45, stars: 2250, duration: 'week' };
-    case `1 ${t("month")}`:
-      return { ton: 34.5, stars: 22500, duration: 'month' };
-    case `1 ${t("year")}`:
-      return { ton: 345, stars: 225000, duration: 'year' };
-    default:
-      return { ton: 0, stars: 0, duration: '' };
-  }
-};
-
 export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   isOpen,
   onClose,
@@ -40,7 +28,44 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pay, isConnected } = useTonPay();
+  const { getPrice, loading: pricesLoading } = usePrices();
   const [isProcessing, setIsProcessing] = React.useState(false);
+
+  // Получаем цены для премиума
+  const getPrices = (duration: string) => {
+    const tonPrice = getPrice('premium', 'TON');
+    const starsPrice = getPrice('premium', 'STARS'); // или другая валюта для stars
+    
+    // Базовые цены на случай если API не вернул данные
+    const basePrices = {
+      week: { ton: 3.45, stars: 2250 },
+      month: { ton: 34.5, stars: 22500 },
+      year: { ton: 345, stars: 225000 }
+    };
+
+    switch (duration) {
+      case `1 ${t("week")}`:
+        return { 
+          ton: tonPrice || basePrices.week.ton, 
+          stars: starsPrice || basePrices.week.stars, 
+          duration: 'week' 
+        };
+      case `1 ${t("month")}`:
+        return { 
+          ton: tonPrice || basePrices.month.ton, 
+          stars: starsPrice || basePrices.month.stars, 
+          duration: 'month' 
+        };
+      case `1 ${t("year")}`:
+        return { 
+          ton: tonPrice || basePrices.year.ton, 
+          stars: starsPrice || basePrices.year.stars, 
+          duration: 'year' 
+        };
+      default:
+        return { ton: 0, stars: 0, duration: '' };
+    }
+  };
 
   React.useEffect(() => {
     if (isOpen) {
@@ -106,11 +131,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           break;
           
         case 'not_connected':
-          // Модальное окно уже открыто автоматически в useTonPay
           trackButtonClick('wallet_connection_opened', {
             context: 'premium_purchase'
           });
-          // Не закрываем модалку - пусть пользователь подключит кошелек
           break;
           
         default:
@@ -139,8 +162,17 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       price: prices.stars
     });
     console.log("buy with stars");
-    // Логика для Stars
   };
+
+  if (pricesLoading) {
+    return (
+      <div className={styles.modalOverlay} onClick={handleClose}>
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.loading}>Loading prices...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.modalOverlay} onClick={handleClose}>
