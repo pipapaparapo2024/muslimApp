@@ -71,7 +71,7 @@
   box-sizing: border-box;
   z-index: 2;
 }
-/*
+
 .blockButton {
   position: absolute;
   bottom: var(--numbers-40);
