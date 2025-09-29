@@ -139,11 +139,11 @@ export const ScannerShareStory: React.FC = () => {
       navigateTo="/scanner/historyScanner"
     >
       <div className={styles.container}>
-        <img
+        {/* <img
           src={backgroundImg}
           alt="Background"
           className={styles.visibleBackground}
-        />
+        /> */}
 
         <div ref={screenshotRef} className={styles.contentWrapper}>
           <img
