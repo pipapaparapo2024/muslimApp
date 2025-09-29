@@ -18,6 +18,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
       headers: { Authorization: `Bearer ${token}` },
     });
     const backendLanguage = response.data.data.language.languageCode;
+    console.log("backendLanguage",backendLanguage)
     return backendLanguage;
   } catch (error) {
     console.error("Error fetching language:", error);
