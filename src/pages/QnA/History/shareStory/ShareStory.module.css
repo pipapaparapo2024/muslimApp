@@ -7,7 +7,6 @@
   align-items: center;
 }
 
-/* Видимый фон */
 .visibleBackground {
   position: absolute;
   top: 0;
@@ -21,7 +20,6 @@
 .contentWrapper {
   position: relative;
   z-index: 1;
-  max-width: 390px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -53,7 +51,7 @@
 
 .blockButton {
   position: absolute;
-  bottom: var(--numbers-40); /* отступ от низа */
+  bottom: var(--numbers-40); 
   left: 0;
   right: 0;
   display: flex;
@@ -174,7 +172,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--numbers-8);
-  width: 97%;
+  width: 95%;
   max-width: 390px;
   box-sizing: border-box;
 }
