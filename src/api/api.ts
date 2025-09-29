@@ -44,30 +44,25 @@ quranApi.interceptors.response.use(
       console.error("[API Error]", error.response?.status, error.config.url);
     }
 
-    // Обработка 401 — только один раз
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const response = await quranApi.post("/api/v1/user/auth/refresh");
 
-        // Структура ответа: { data: { accessToken: "..."}, status: "ok" }
         const { accessToken } = response.data.data.accessToken;
-        console.log("accessToken",accessToken)
+        console.log("accessToken", accessToken);
         if (!accessToken) {
           throw new Error("Refresh failed: no accessToken in response");
         }
 
-        // Сохраняем новый accessToken
         localStorage.setItem("accessToken", accessToken);
 
-        // Обновляем заголовок запроса
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         // Обновляем дефолтный заголовок
         quranApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
-        // Повторяем запрос
         return quranApi(originalRequest);
       } catch (refreshError) {
         console.error("❌ Refresh token failed:", refreshError);
