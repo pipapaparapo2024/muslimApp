@@ -18,7 +18,6 @@
   z-index: 0;
 }
 
-/* Обёртка для скриншота */
 .contentWrapper {
   position: relative;
   z-index: 1;
