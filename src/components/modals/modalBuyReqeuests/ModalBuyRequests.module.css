@@ -91,7 +91,6 @@
   color: var(--color-background-semantic-solid-brand);
   border-color: var(--color-background-semantic-solid-brand);
 }
-/* Блоки с ценами */
 .priceBlocks {
   display: flex;
   flex-direction: column;

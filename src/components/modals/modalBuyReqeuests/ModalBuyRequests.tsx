@@ -247,7 +247,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               <div className={styles.priceText}>
                 <img src={ton} alt="TON" className={styles.currencyIcon} />
                 <div className={styles.priceValueTon}>
-                  {isProcessing ? t('processing') : `${prices.ton.toFixed(2)} TON`}
+                  {isProcessing ? t('processing') : `${prices.ton.toFixed(2)}`}
                 </div>
               </div>
               {!isConnected && !isProcessing && (
@@ -266,7 +266,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               <div className={styles.priceText}>
                 <img src={star} alt="Stars" className={styles.currencyIcon} />
                 <div className={styles.priceValueStar}>
-                  {formattedStars} {t('stars')}
+                  {formattedStars}
                 </div>
               </div>
             </div>
