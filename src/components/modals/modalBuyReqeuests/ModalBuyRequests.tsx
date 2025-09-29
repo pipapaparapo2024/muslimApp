@@ -30,10 +30,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   const { getProductsByType, loading: pricesLoading } = usePrices();
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const [, setPaymentMethod] = React.useState<
-    "ton" | "stars" | null
-  >(null);
+  const [isProcessingTon, setIsProcessingTon] = React.useState(false);
+  const [isProcessingStars, setIsProcessingStars] = React.useState(false);
 
   // Получаем все продукты запросов из API
   const requestsProducts = getProductsByType("requests");
@@ -125,10 +123,10 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleTonPurchase = async () => {
-    if (isProcessing || !prices.productId) return;
+    console.log("TON")
+    if (isProcessingTon || isProcessingStars || !prices.productId) return;
 
-    setIsProcessing(true);
-    setPaymentMethod("ton");
+    setIsProcessingTon(true);
 
     try {
       const result = await payWithTon({
@@ -184,16 +182,15 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       });
       alert(t("paymentError"));
     } finally {
-      setIsProcessing(false);
-      setPaymentMethod(null);
+      setIsProcessingTon(false);
     }
   };
 
   const handleStarsPurchase = async () => {
-    if (isProcessing || !prices.productId) return;
+    console.log("STARS")
+    if (isProcessingStars || isProcessingTon || !prices.productId) return;
 
-    setIsProcessing(true);
-    setPaymentMethod("stars");
+    setIsProcessingStars(true);
 
     try {
       const result = await payWithStars({
@@ -242,8 +239,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       });
       alert(t("paymentError"));
     } finally {
-      setIsProcessing(false);
-      setPaymentMethod(null);
+      setIsProcessingStars(false);
     }
   };
 
@@ -296,7 +292,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         <div className={styles.priceBlocks}>
           <div
             className={`${styles.priceBlock} ${styles.tonBlock} ${
-              isProcessing ? styles.processing : ""
+              isProcessingTon ? styles.processing : ""
             }`}
             onClick={handleTonPurchase}
           >
@@ -304,10 +300,10 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               <div className={styles.priceText}>
                 <img src={ton} alt="TON" className={styles.currencyIcon} />
                 <div className={styles.priceValueTon}>
-                  {isProcessing ? t("processing") : `${prices.ton.toFixed(2)}`}
+                  {`${prices.ton.toFixed(2)}`}
                 </div>
               </div>
-              {!isConnected && !isProcessing && (
+              {!isConnected && !isProcessingTon && (
                 <div className={styles.connectHint}>
                   {t("connectWalletToPay")}
                 </div>
@@ -316,13 +312,17 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           </div>
 
           <div
-            className={`${styles.priceBlock} ${styles.starsBlock}`}
+            className={`${styles.priceBlock} ${styles.starsBlock} ${
+              isProcessingStars ? styles.processing : ""
+            }`}
             onClick={handleStarsPurchase}
           >
             <div className={styles.priceContent}>
               <div className={styles.priceText}>
                 <img src={star} alt="Stars" className={styles.currencyIcon} />
-                <div className={styles.priceValueStar}>{formattedStars}</div>
+                <div className={styles.priceValueStar}>
+                  {formattedStars}
+                </div>
               </div>
             </div>
           </div>

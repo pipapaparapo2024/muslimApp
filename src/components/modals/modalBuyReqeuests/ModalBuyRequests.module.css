@@ -144,3 +144,9 @@
 .priceValueStar.formatted {
   letter-spacing: 0.5px;
 }
+
+
+.processing {
+  opacity: 0.7;
+  pointer-events: none;
+}
