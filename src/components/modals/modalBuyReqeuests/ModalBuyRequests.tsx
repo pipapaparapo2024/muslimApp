@@ -27,53 +27,63 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { pay, isConnected } = useTonPay();
-  const { getPrice, loading: pricesLoading } = usePrices();
+  const { getProductsByType, loading: pricesLoading } = usePrices();
   const [isProcessing, setIsProcessing] = React.useState(false);
 
-  // Получаем цены для запросов
-  const getPrices = (requests: string) => {
-    const tonPrice = getPrice('requests', 'TON');
-    const starsPrice = getPrice('requests', 'STARS');
-    
-    // Базовые цены на случай если API не вернул данные
-    const basePrices = {
-      '10': { ton: 3.45, stars: 2250 },
-      '100': { ton: 34.5, stars: 22500 },
-      '1000': { ton: 345, stars: 225000 }
+  // Получаем все продукты запросов из API
+  const requestsProducts = getProductsByType('requests');
+
+  // Сопоставляем опции с данными из API
+  const getProductForOption = (option: string) => {
+    const quantityMap: { [key: string]: number } = {
+      [`10 ${t("requestsPrem")}`]: 10,
+      [`100 ${t("requestsPrem")}`]: 100,
+      [`1000 ${t("requestsPrem")}`]: 1000
     };
 
-    switch (requests) {
-      case `10 ${t("requests")}`:
-        return { 
-          ton: tonPrice || basePrices['10'].ton, 
-          stars: starsPrice || basePrices['10'].stars, 
-          quantity: 10 
-        };
-      case `100 ${t("requests")}`:
-        return { 
-          ton: tonPrice || basePrices['100'].ton, 
-          stars: starsPrice || basePrices['100'].stars, 
-          quantity: 100 
-        };
-      case `1000 ${t("requests")}`:
-        return { 
-          ton: tonPrice || basePrices['1000'].ton, 
-          stars: starsPrice || basePrices['1000'].stars, 
-          quantity: 1000 
-        };
-      default:
-        return { ton: 0, stars: 0, quantity: 0 };
+    const targetQuantity = quantityMap[option];
+    return requestsProducts.find(product => product.revardAmount === targetQuantity);
+  };
+
+  // Получаем цены для выбранной опции
+  const getPrices = (option: string) => {
+    const product = getProductForOption(option);
+    
+    if (!product) {
+      // Fallback цены если продукт не найден
+      const fallbackPrices = {
+        [`10 ${t("requestsPrem")}`]: { ton: 10, stars: 10 },
+        [`100 ${t("requestsPrem")}`]: { ton: 20, stars: 20 },
+        [`1000 ${t("requestsPrem")}`]: { ton: 30, stars: 30 }
+      };
+      return { 
+        ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
+        stars: fallbackPrices[option as keyof typeof fallbackPrices]?.stars || 1,
+        quantity: parseInt(option.split(' ')[0]) || 10,
+        productId: null
+      };
     }
+
+    const tonPrice = product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
+    const starsPrice = product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
+
+    return {
+      ton: tonPrice,
+      stars: starsPrice,
+      quantity: product.revardAmount,
+      productId: product.id
+    };
   };
 
   React.useEffect(() => {
     if (isOpen) {
       trackButtonClick('requests_modal_open', {
         default_selection: selectedRequests,
-        is_wallet_connected: isConnected
+        is_wallet_connected: isConnected,
+        available_products_count: requestsProducts.length
       });
     }
-  }, [isOpen, selectedRequests, isConnected]);
+  }, [isOpen, selectedRequests, isConnected, requestsProducts.length]);
 
   if (!isOpen) return null;
   
@@ -88,11 +98,13 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleOptionSelect = (option: string) => {
+    const newPrices = getPrices(option);
     trackButtonClick('requests_count_change', {
       from_count: selectedRequests,
       to_count: option,
-      ton_price: getPrices(option).ton,
-      stars_price: getPrices(option).stars
+      ton_price: newPrices.ton,
+      stars_price: newPrices.stars,
+      product_id: newPrices.productId
     });
     onSelectRequests(option);
   };
@@ -116,7 +128,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             payment_method: 'ton',
             requests_count: selectedRequests,
             price: prices.ton,
-            quantity: prices.quantity
+            quantity: prices.quantity,
+            product_id: prices.productId
           });
           alert(t('paymentSuccess'));
           onClose();
@@ -125,7 +138,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         case 'rejected':
           trackButtonClick('requests_purchase_rejected', {
             payment_method: 'ton',
-            requests_count: selectedRequests
+            requests_count: selectedRequests,
+            product_id: prices.productId
           });
           alert(t('paymentRejected'));
           break;
@@ -139,7 +153,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         default:
           trackButtonClick('requests_purchase_error', {
             payment_method: 'ton',
-            error: result.status
+            error: result.status,
+            product_id: prices.productId
           });
           alert(t('paymentError'));
       }
@@ -147,7 +162,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       console.error('Payment error:', error);
       trackButtonClick('requests_purchase_exception', {
         payment_method: 'ton',
-        error: error.message
+        error: error.message,
+        product_id: prices.productId
       });
       alert(t('paymentError'));
     } finally {
@@ -160,9 +176,12 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       payment_method: 'stars', 
       requests_count: selectedRequests,
       price: prices.stars,
-      quantity: prices.quantity
+      quantity: prices.quantity,
+      product_id: prices.productId
     });
-    console.log("Buying", prices.quantity, "requests with stars for", prices.stars, "stars");
+    console.log("Buying", prices.quantity, "requests with stars for", prices.stars, "stars", {
+      productId: prices.productId
+    });
     // Логика для оплаты звездами
   };
 
@@ -181,6 +200,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   return (
     <div className={styles.modalOverlay} onClick={handleClose}>
+
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("buyRequests")}</h2>
@@ -257,3 +277,4 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     </div>
   );
 };
+
