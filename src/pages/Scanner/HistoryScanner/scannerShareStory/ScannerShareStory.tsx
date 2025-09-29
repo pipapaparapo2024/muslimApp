@@ -107,7 +107,6 @@ export const ScannerShareStory: React.FC = () => {
       }
     } catch (error) {
       console.error("Failed to export and share screenshot:", error);
-      // 📊 Аналитика: ошибка при экспорте/отправке
       trackButtonClick("share_scanner_story_failed", {
         scan_id: id,
         error: (error as Error).message || "unknown",
