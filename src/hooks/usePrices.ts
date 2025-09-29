@@ -1,4 +1,3 @@
-// hooks/usePrices.ts
 import { useState, useEffect } from 'react';
 import { quranApi } from '../api/api';
 
