@@ -132,6 +132,7 @@
   background: var(--bg-surface);
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 var(--numbers-16);
 }
 
 .blockInside .scanDesk {
@@ -180,6 +181,7 @@
   background: var(--bg-surface);
   border-radius: var(--roundings-medium);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 var(--numbers-16);
 }
 
 .QiblaGuidebot {
