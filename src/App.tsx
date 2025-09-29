@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { useTheme } from "./hooks/useTheme";
-
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { Home } from "./pages/Home/Home";
 import { Welcome } from "./pages/Welcome/Welcome";
 import { Friends } from "./pages/Friends/Friends";
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
       window.Telegram.WebApp.disableVerticalSwipes();
     }
   }, []);
-  
+
   useEffect(() => {
     const initializeApp = () => {
       const tg = window.Telegram?.WebApp;
@@ -88,47 +88,52 @@ export const App: React.FC = () => {
   }
   return (
     <div>
-      <Routes>
-        <Route path="/welcomeFriends" element={<WelcomeFriends />} />
-        <Route path="/friends" element={<Friends />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/" element={<Welcome />} />
-        <Route path="/quran" element={<SurahList />} />
-        <Route path="/quran/:surahId" element={<AyahList />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/settings/region" element={<Region />} />
-        <Route path="/settings/language" element={<ModalLanguage />} />
-        <Route path="/settings/dateTime" element={<DataTime />} />
-        <Route path="/settings/prayerTimes" element={<SettingPrayerTimes />} />
-        <Route path="/settings/theme" element={<ModalTheme />} />
-        <Route path="/qibla" element={<QiblaCompassPage />} />
-        <Route
-          path="/privacy-policy"
-          element={<div>Privacy Policy Page</div>}
-        />
-        <Route path="/scanner/camera" element={<CameraPage />} />
-        <Route path="/quran/translation" element={<ChooseTranslation />} />
-        <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
-        <Route path="/contact-us" element={<div>Contact Us Page</div>} />
-        <Route path="/scanner" element={<Scanner />} />
-        <Route path="/scanner/historyScanner" element={<HistoryScanner />} />
-        <Route
-          path="/scanner/historyScanner/:id"
-          element={<HistoryScannerDetail />}
-        />
-        <Route path="/scanner/analyze" element={<ScannerFlowManager />} />
-        <Route
-          path="/scanner/ScannerShareHistory/:id"
-          element={<ScannerShareStory />}
-        />
-        <Route path="/scanner/notScanned" element={<NotScaned />} />
-        <Route path="/qna" element={<QnA />} />
-        <Route path="/qna/analyzing" element={<AnalyzingPromise />} />
-        <Route path="/qna/history" element={<History />} />
-        <Route path="/qna/history/:id" element={<HistoryDetail />} />
-        <Route path="/qna/shareHistory/:id" element={<ShareStory />} />
-        <Route path="*" element={<PageWrapper>404 Not Found</PageWrapper>} />
-      </Routes>
+      <TonConnectUIProvider manifestUrl="https://your-app.com/tonconnect-manifest.json">
+        <Routes>
+          <Route path="/welcomeFriends" element={<WelcomeFriends />} />
+          <Route path="/friends" element={<Friends />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Welcome />} />
+          <Route path="/quran" element={<SurahList />} />
+          <Route path="/quran/:surahId" element={<AyahList />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings/region" element={<Region />} />
+          <Route path="/settings/language" element={<ModalLanguage />} />
+          <Route path="/settings/dateTime" element={<DataTime />} />
+          <Route
+            path="/settings/prayerTimes"
+            element={<SettingPrayerTimes />}
+          />
+          <Route path="/settings/theme" element={<ModalTheme />} />
+          <Route path="/qibla" element={<QiblaCompassPage />} />
+          <Route
+            path="/privacy-policy"
+            element={<div>Privacy Policy Page</div>}
+          />
+          <Route path="/scanner/camera" element={<CameraPage />} />
+          <Route path="/quran/translation" element={<ChooseTranslation />} />
+          <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
+          <Route path="/contact-us" element={<div>Contact Us Page</div>} />
+          <Route path="/scanner" element={<Scanner />} />
+          <Route path="/scanner/historyScanner" element={<HistoryScanner />} />
+          <Route
+            path="/scanner/historyScanner/:id"
+            element={<HistoryScannerDetail />}
+          />
+          <Route path="/scanner/analyze" element={<ScannerFlowManager />} />
+          <Route
+            path="/scanner/ScannerShareHistory/:id"
+            element={<ScannerShareStory />}
+          />
+          <Route path="/scanner/notScanned" element={<NotScaned />} />
+          <Route path="/qna" element={<QnA />} />
+          <Route path="/qna/analyzing" element={<AnalyzingPromise />} />
+          <Route path="/qna/history" element={<History />} />
+          <Route path="/qna/history/:id" element={<HistoryDetail />} />
+          <Route path="/qna/shareHistory/:id" element={<ShareStory />} />
+          <Route path="*" element={<PageWrapper>404 Not Found</PageWrapper>} />
+        </Routes>
+      </TonConnectUIProvider>
     </div>
   );
 };
