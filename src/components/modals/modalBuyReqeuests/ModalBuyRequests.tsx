@@ -123,7 +123,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleTonPurchase = async () => {
-    console.log("TON")
+    console.log("TON");
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
 
     setIsProcessingTon(true);
@@ -187,7 +187,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleStarsPurchase = async () => {
-    console.log("STARS")
+    console.log("STARS");
     if (isProcessingStars || isProcessingTon || !prices.productId) return;
 
     setIsProcessingStars(true);
@@ -298,7 +298,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           >
             <div className={styles.priceContent}>
               <div className={styles.priceText}>
-                <img src={ton} alt="TON" className={styles.currencyIcon} />
+                <img src={ton} alt="TON" width="24" height="24" />
                 <div className={styles.priceValueTon}>
                   {`${prices.ton.toFixed(2)}`}
                 </div>
@@ -319,10 +319,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           >
             <div className={styles.priceContent}>
               <div className={styles.priceText}>
-                <img src={star} alt="Stars" className={styles.currencyIcon} />
-                <div className={styles.priceValueStar}>
-                  {formattedStars}
-                </div>
+                <img src={star} alt="Stars" width="24" height="24" />
+                <div className={styles.priceValueStar}>{formattedStars}</div>
               </div>
             </div>
           </div>

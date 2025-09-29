@@ -63,7 +63,6 @@
   padding: var(--numbers-8);
 }
 
-/* Описание */
 .modalDescription {
   font-size: var(--numbers-14);
   color: var(--desk-text);
