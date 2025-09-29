@@ -146,11 +146,11 @@ export const ScannerShareStory: React.FC = () => {
         />
 
         <div ref={screenshotRef} className={styles.contentWrapper}>
-          {/* <img
+          <img
             src={backgroundImg}
             alt=""
             className={styles.hiddenBackgroundForScreenshot}
-          /> */}
+          />
 
           <div className={styles.imageContainer}>
             <img

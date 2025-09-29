@@ -69,6 +69,7 @@
   flex-direction: column;
   gap: var(--numbers-4);
   box-sizing: border-box;
+  margin: 0 var(--numbers-16);
   z-index: 2;
 }
 
