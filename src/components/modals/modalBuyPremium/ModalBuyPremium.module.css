@@ -135,19 +135,10 @@
 
 .priceValueStar {
   font-size: var(--numbers-14);
-  font-weight: 500;
+  font-weight: var(--font-500);
   color: #FFC700;
 }
 
-
-.priceValueStar {
-  font-size: 18px;
-  font-weight: 600;
-  margin-left: 8px;
-  font-variant-numeric: tabular-nums; /* Для одинаковой ширины цифр */
-}
-
-/* Добавьте этот класс для чисел с пробелами */
 .priceValueStar.formatted {
   letter-spacing: 0.5px;
 }
