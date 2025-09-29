@@ -225,7 +225,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               onClick={() => handleOptionSelect(option)}
             >
               <div className={styles.optionText}>
-                {option.replace("requestsPrem", "").trim()}
+                {option.replace("requests", "").trim()}
                 <span className={styles.requestsLabel}>{t("requests")}</span>
               </div>
               {selectedRequests === option && (
