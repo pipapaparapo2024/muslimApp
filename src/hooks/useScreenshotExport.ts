@@ -18,59 +18,55 @@ interface ExportOptions {
 export const useScreenshotExport = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    const html2canvas = (await import("html2canvas")).default;
+const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+  const html2canvas = (await import("html2canvas")).default;
 
-    await preloadAllImages(element);
-    await new Promise((resolve) => setTimeout(resolve, 500)); // увеличить задержку
+  // Ждем загрузки всех изображений
+  await preloadAllImages(element);
 
-    // Автоматически рассчитываем высоту
-    const containerHeight = element.scrollHeight;
+  // Даем время для полного рендеринга
+  await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const canvas = await html2canvas(element, {
-      backgroundColor: null,
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      logging: true, // временно включить для отладки
-      width: element.scrollWidth,
-      height: containerHeight,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: element.scrollWidth,
-      windowHeight: containerHeight,
-      onclone: (clonedDoc: Document, clonedElement: HTMLElement) => {
-        // Принудительно показываем все элементы
-        clonedElement.style.display = "block";
-        clonedElement.style.visibility = "visible";
-        clonedElement.style.opacity = "1";
-        clonedElement.style.position = "relative";
-        clonedElement.style.overflow = "visible";
+  // Рассчитываем оптимальную высоту для скриншота
+  const containerHeight = 570 + 270; // высота imageContainer + blockScan
 
-        // Убедиться, что все дочерние элементы видны
-        const children = clonedElement.querySelectorAll("*");
-        children.forEach((child: Element) => {
-          (child as HTMLElement).style.display = "block";
-          (child as HTMLElement).style.visibility = "visible";
-          (child as HTMLElement).style.opacity = "1";
-        });
+  const canvas = await html2canvas(element, {
+    backgroundColor: null, // Прозрачный фон вместо белого
+    scale: 2,
+    useCORS: true,
+    allowTaint: false,
+    logging: false,
+    width: element.scrollWidth,
+    height: containerHeight, // Фиксируем высоту
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: element.scrollWidth,
+    windowHeight: containerHeight,
+    onclone: (clonedDoc: Document, clonedElement: HTMLElement) => {
+      // Принудительно устанавливаем высоту для клонированного элемента
+      clonedElement.style.height = `${containerHeight}px`;
+      clonedElement.style.overflow = 'hidden';
+      
+      clonedElement.style.display = "block";
+      clonedElement.style.visibility = "visible";
+      clonedElement.style.opacity = "1";
+    },
+  });
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to create blob from canvas"));
+        }
       },
-    });
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error("Failed to create blob from canvas"));
-          }
-        },
-        "image/png",
-        1.0 // максимальное качество
-      );
-    });
-  };
+      "image/png",
+      0.9
+    );
+  });
+};
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
     try {
