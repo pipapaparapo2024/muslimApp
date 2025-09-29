@@ -32,7 +32,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
   const [isProcessing, setIsProcessing] = React.useState(false);
-  const [paymentMethod, setPaymentMethod] = React.useState<
+  const [, setPaymentMethod] = React.useState<
     "ton" | "stars" | null
   >(null);
 
