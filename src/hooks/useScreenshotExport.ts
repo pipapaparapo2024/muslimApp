@@ -41,7 +41,6 @@ const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
   const blockInsideElements = element.querySelectorAll('.blockInside');
   blockInsideElements.forEach((el: any) => {
     el.style.margin = '0 40px'; // Явно устанавливаем margin
-    el.style.boxSizing = 'border-box';
   });
 
   await preloadAllImages(element);
@@ -64,7 +63,6 @@ const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
       const blockInsideElements = clonedElement.querySelectorAll('.blockInside');
       blockInsideElements.forEach((el: any) => {
         el.style.margin = '0 40px';
-        el.style.boxSizing = 'border-box';
       });
       
       clonedElement.style.display = "block";
