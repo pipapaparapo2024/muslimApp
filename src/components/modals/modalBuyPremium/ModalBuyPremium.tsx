@@ -200,6 +200,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleStarsPurchase = async () => {
+    console.log("STAAAAAAAR")
     if (isProcessing || !prices.productId) return;
 
     setIsProcessing(true);
