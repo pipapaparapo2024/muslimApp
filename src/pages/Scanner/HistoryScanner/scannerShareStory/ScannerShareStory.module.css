@@ -154,7 +154,7 @@
   color: var(--text);
   margin-bottom: var(--numbers-4);
 }
-
+*/
 .haram {
   color: #ef4444;
 }
@@ -190,4 +190,4 @@
   display: flex;
   align-items: center;
   gap: var(--numbers-8);
-} */
+} 
