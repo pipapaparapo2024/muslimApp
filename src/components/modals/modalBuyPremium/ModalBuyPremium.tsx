@@ -33,47 +33,60 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   // Получаем все премиум продукты из API
   const premiumProducts = getProductsByType('premium');
 
-  // Сопоставляем опции с данными из API
-  const getProductForOption = (option: string) => {
-    const durationMap: { [key: string]: number } = {
-      [`1 ${t("week")}`]: 7,
-      [`1 ${t("month")}`]: 30,
-      [`1 ${t("year")}`]: 365
-    };
-
-    const targetDuration = durationMap[option];
-    return premiumProducts.find(product => product.revardAmount === targetDuration);
+  // Формируем опции на основе данных из API
+  const getPremiumOptions = () => {
+    return premiumProducts.map(product => {
+      const days = product.revardAmount;
+      let label = '';
+      
+      if (days === 7) label = `1 ${t("week")}`;
+      else if (days === 30) label = `1 ${t("month")}`;
+      else if (days === 365) label = `1 ${t("year")}`;
+      else label = `${days} ${t("days")}`;
+      
+      return {
+        label,
+        days,
+        product
+      };
+    }).sort((a, b) => a.days - b.days); // Сортируем по возрастанию дней
   };
 
+  const premiumOptions = getPremiumOptions();
+
   // Получаем цены для выбранной опции
-  const getPrices = (option: string) => {
-    const product = getProductForOption(option);
+  const getPrices = (optionLabel: string) => {
+    const option = premiumOptions.find(opt => opt.label === optionLabel);
     
-    if (!product) {
-      // Fallback цены если продукт не найден
-      const fallbackPrices = {
-        [`1 ${t("week")}`]: { ton: 10, stars: 10 },
-        [`1 ${t("month")}`]: { ton: 20, stars: 20 },
-        [`1 ${t("year")}`]: { ton: 30, stars: 30 }
-      };
+    if (!option) {
+      // Fallback если опция не найдена
       return { 
-        ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
-        stars: fallbackPrices[option as keyof typeof fallbackPrices]?.stars || 1,
-        duration: option,
-        productId: null
+        ton: 1, 
+        stars: 1,
+        duration: optionLabel,
+        productId: null,
+        days: 7
       };
     }
 
-    const tonPrice = product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
-    const starsPrice = product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
+    const tonPrice = option.product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
+    const starsPrice = option.product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
 
     return {
       ton: tonPrice,
       stars: starsPrice,
-      duration: option,
-      productId: product.id
+      duration: optionLabel,
+      productId: option.product.id,
+      days: option.days
     };
   };
+
+  React.useEffect(() => {
+    if (isOpen && premiumOptions.length > 0 && !selectedRequests) {
+      // Автоматически выбираем первую опцию если ничего не выбрано
+      onSelectRequests(premiumOptions[0].label);
+    }
+  }, [isOpen, premiumOptions, selectedRequests, onSelectRequests]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -87,7 +100,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   if (!isOpen) return null;
   
-  const prices = getPrices(selectedRequests);
+  const prices = selectedRequests ? getPrices(selectedRequests) : { ton: 0, stars: 0, duration: '', productId: null, days: 0 };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
@@ -104,13 +117,14 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       to_period: option,
       ton_price: newPrices.ton,
       stars_price: newPrices.stars,
-      product_id: newPrices.productId
+      product_id: newPrices.productId,
+      days: newPrices.days
     });
     onSelectRequests(option);
   };
 
   const handleTonPurchase = async () => {
-    if (isProcessing) return;
+    if (isProcessing || !prices.productId) return;
     
     setIsProcessing(true);
     
@@ -119,7 +133,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         amount: prices.ton,
         type: 'premium',
         duration: prices.duration,
-        // productId: prices.productId || undefined
+        // productId: prices.productId
       });
 
       // Обработка результата
@@ -129,7 +143,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             payment_method: 'ton',
             period: selectedRequests,
             price: prices.ton,
-            product_id: prices.productId
+            product_id: prices.productId,
+            days: prices.days
           });
           alert(t('paymentSuccess'));
           onClose();
@@ -172,16 +187,20 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleStarsPurchase = () => {
+    if (!prices.productId) return;
+    
     trackButtonClick('premium_purchase_attempt', {
       payment_method: 'stars',
       period: selectedRequests,
       price: prices.stars,
-      product_id: prices.productId
+      product_id: prices.productId,
+      days: prices.days
     });
     console.log("buy with stars", {
       productId: prices.productId,
       amount: prices.stars,
-      period: selectedRequests
+      period: selectedRequests,
+      days: prices.days
     });
   };
 
@@ -208,20 +227,18 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         <p className={styles.modalDescription}>{t("premiumDescription")}</p>
 
         <div className={styles.options}>
-          {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map(
-            (option) => (
-              <div
-                key={option}
-                className={`${styles.option} ${
-                  selectedRequests === option ? styles.selected : ""
-                }`}
-                onClick={() => handleOptionSelect(option)}
-              >
-                <div>{t(option.replace(" ", ""))}</div>
-                {selectedRequests === option && <Check size={20} />}
-              </div>
-            )
-          )}
+          {premiumOptions.map((option) => (
+            <div
+              key={option.label}
+              className={`${styles.option} ${
+                selectedRequests === option.label ? styles.selected : ""
+              }`}
+              onClick={() => handleOptionSelect(option.label)}
+            >
+              <div>{option.label}</div>
+              {selectedRequests === option.label && <Check size={20} />}
+            </div>
+          ))}
         </div>
 
         <div className={styles.priceBlocks}>

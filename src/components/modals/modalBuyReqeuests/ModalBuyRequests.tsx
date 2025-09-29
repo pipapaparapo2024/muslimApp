@@ -33,47 +33,48 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   // Получаем все продукты запросов из API
   const requestsProducts = getProductsByType('requests');
 
-  // Сопоставляем опции с данными из API
-  const getProductForOption = (option: string) => {
-    const quantityMap: { [key: string]: number } = {
-      [`10 ${t("requests")}`]: 10,
-      [`100 ${t("requests")}`]: 100,
-      [`1000 ${t("requests")}`]: 1000
-    };
-
-    const targetQuantity = quantityMap[option];
-    return requestsProducts.find(product => product.revardAmount === targetQuantity);
+  // Формируем опции на основе данных из API
+  const getRequestOptions = () => {
+    return requestsProducts.map(product => ({
+      label: `${product.revardAmount} ${t("requests")}`,
+      quantity: product.revardAmount,
+      product
+    })).sort((a, b) => a.quantity - b.quantity); // Сортируем по возрастанию количества
   };
 
+  const requestOptions = getRequestOptions();
+
   // Получаем цены для выбранной опции
-  const getPrices = (option: string) => {
-    const product = getProductForOption(option);
+  const getPrices = (optionLabel: string) => {
+    const option = requestOptions.find(opt => opt.label === optionLabel);
     
-    if (!product) {
-      // Fallback цены если продукт не найден
-      const fallbackPrices = {
-        [`10 ${t("requests")}`]: { ton: 10, stars: 10 },
-        [`100 ${t("requests")}`]: { ton: 20, stars: 20 },
-        [`1000 ${t("requests")}`]: { ton: 30, stars: 30 }
-      };
+    if (!option) {
+      // Fallback если опция не найдена
       return { 
-        ton: fallbackPrices[option as keyof typeof fallbackPrices]?.ton || 1, 
-        stars: fallbackPrices[option as keyof typeof fallbackPrices]?.stars || 1,
-        quantity: parseInt(option.split(' ')[0]) || 10,
+        ton: 1, 
+        stars: 1,
+        quantity: parseInt(optionLabel.split(' ')[0]) || 10,
         productId: null
       };
     }
 
-    const tonPrice = product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
-    const starsPrice = product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
+    const tonPrice = option.product.currency.find(curr => curr.priceType === 'TON')?.priceAmount || 1;
+    const starsPrice = option.product.currency.find(curr => curr.priceType === 'XTR')?.priceAmount || 1;
 
     return {
       ton: tonPrice,
       stars: starsPrice,
-      quantity: product.revardAmount,
-      productId: product.id
+      quantity: option.quantity,
+      productId: option.product.id
     };
   };
+
+  React.useEffect(() => {
+    if (isOpen && requestOptions.length > 0 && !selectedRequests) {
+      // Автоматически выбираем первую опцию если ничего не выбрано
+      onSelectRequests(requestOptions[0].label);
+    }
+  }, [isOpen, requestOptions, selectedRequests, onSelectRequests]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -87,7 +88,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   if (!isOpen) return null;
   
-  const prices = getPrices(selectedRequests);
+  const prices = selectedRequests ? getPrices(selectedRequests) : { ton: 0, stars: 0, quantity: 0, productId: null };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
@@ -104,13 +105,14 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       to_count: option,
       ton_price: newPrices.ton,
       stars_price: newPrices.stars,
-      product_id: newPrices.productId
+      product_id: newPrices.productId,
+      quantity: newPrices.quantity
     });
     onSelectRequests(option);
   };
 
   const handleTonPurchase = async () => {
-    if (isProcessing) return;
+    if (isProcessing || !prices.productId) return;
     
     setIsProcessing(true);
     
@@ -119,6 +121,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         amount: prices.ton,
         type: 'requests',
         quantity: prices.quantity,
+        // productId: prices.productId
       });
 
       // Обработка результата оплаты
@@ -172,6 +175,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleStarsPurchase = () => {
+    if (!prices.productId) return;
+    
     trackButtonClick('requests_purchase_attempt', {
       payment_method: 'stars', 
       requests_count: selectedRequests,
@@ -182,7 +187,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     console.log("Buying", prices.quantity, "requests with stars for", prices.stars, "stars", {
       productId: prices.productId
     });
-    // Логика для оплаты звездами
   };
 
   if (pricesLoading) {
@@ -200,7 +204,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   return (
     <div className={styles.modalOverlay} onClick={handleClose}>
-
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{t("buyRequests")}</h2>
@@ -212,22 +215,18 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         <p className={styles.modalDescription}>{t("requestsDescription")}</p>
 
         <div className={styles.options}>
-          {[
-            `10 ${t("requests")}`,
-            `100 ${t("requests")}`,
-            `1000 ${t("requests")}`,
-          ].map((option) => (
+          {requestOptions.map((option) => (
             <div
-              key={option}
+              key={option.label}
               className={`${styles.option} ${
-                selectedRequests === option ? styles.selected : ""
+                selectedRequests === option.label ? styles.selected : ""
               }`}
-              onClick={() => handleOptionSelect(option)}
+              onClick={() => handleOptionSelect(option.label)}
             >
               <div className={styles.optionText}>
-                {option.replace("requests", "").trim()}
+                {option.label.replace("requests", "").trim()}
               </div>
-              {selectedRequests === option && (
+              {selectedRequests === option.label && (
                 <div className={styles.selectedIndicator}>
                   <Check size={20} />
                 </div>
@@ -276,4 +275,3 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     </div>
   );
 };
-
