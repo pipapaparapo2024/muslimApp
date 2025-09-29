@@ -18,7 +18,7 @@ export const useStarsPay = () => {
   const payWithStars = async (params: StarsPayParams): Promise<StarsPaymentResponse> => {
     try {
       const response = await quranApi.post<{ data: { payment_url: string } }>(
-        "/stars/invoice",
+        "api/v1/stars/invoice",
         {
           amount: params.amount,
           type: params.type,

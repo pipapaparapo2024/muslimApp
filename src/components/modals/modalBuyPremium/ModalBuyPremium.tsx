@@ -31,8 +31,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const [, setPaymentMethod] = React.useState<"ton" | "stars" | null>(null);
+  const [isProcessingTon, setIsProcessingTon] = React.useState(false);
+  const [isProcessingStars, setIsProcessingStars] = React.useState(false);
 
   // Получаем все премиум продукты из API
   const premiumProducts = getProductsByType("premium");
@@ -134,11 +134,11 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     });
     onSelectRequests(option);
   };
+
   const handleTonPurchase = async () => {
     console.log("TOOOOOOOOOOOOOOOOOOOOOOOOOON");
-    if (isProcessing || !prices.productId) return;
-    setIsProcessing(true);
-    setPaymentMethod("ton");
+    if (isProcessingTon || isProcessingStars || !prices.productId) return;
+    setIsProcessingTon(true);
 
     try {
       const result = await payWithTon({
@@ -194,17 +194,15 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       });
       alert(t("paymentError"));
     } finally {
-      setIsProcessing(false);
-      setPaymentMethod(null);
+      setIsProcessingTon(false);
     }
   };
 
   const handleStarsPurchase = async () => {
     console.log("STAAAAAAAR")
-    if (isProcessing || !prices.productId) return;
+    if (isProcessingStars || isProcessingTon || !prices.productId) return;
 
-    setIsProcessing(true);
-    setPaymentMethod("stars");
+    setIsProcessingStars(true);
 
     try {
       const result = await payWithStars({
@@ -253,8 +251,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       });
       alert(t("paymentError"));
     } finally {
-      setIsProcessing(false);
-      setPaymentMethod(null);
+      setIsProcessingStars(false);
     }
   };
 
@@ -298,17 +295,17 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         <div className={styles.priceBlocks}>
           <div
             className={`${styles.priceBlock} ${styles.tonBlock} ${
-              isProcessing ? styles.processing : ""
+              isProcessingTon ? styles.processingTon : ""
             }`}
             onClick={handleTonPurchase}
           >
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {prices.ton.toFixed(2)}
+                {isProcessingTon ? t("processing") : prices.ton.toFixed(2)}
               </div>
             </div>
-            {!isConnected && !isProcessing && (
+            {!isConnected && !isProcessingTon && (
               <div className={styles.connectHint}>
                 {t("connectWalletToPay")}
               </div>
@@ -317,14 +314,14 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
           <div
             className={`${styles.priceBlock} ${styles.starsBlock} ${
-              isProcessing ? styles.processing : ""
+              isProcessingStars ? styles.processingStars : ""
             }`}
             onClick={handleStarsPurchase}
           >
             <div className={styles.priceText}>
               <img src={star} alt="Stars" width="24" height="24" />
               <div className={`${styles.priceValueStar} ${styles.formatted}`}>
-                {formattedStars}
+                {isProcessingStars ? t("processing") : formattedStars}
               </div>
             </div>
           </div>

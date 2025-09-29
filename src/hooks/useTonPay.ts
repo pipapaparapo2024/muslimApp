@@ -30,7 +30,7 @@ export const useTonPay = () => {
 
       // Получаем адрес кошелька для оплаты
       const response = await quranApi.get<{ data: { wallet: string } }>(
-        "/api/ton-config"
+        "/api/v1/ton/invoice"
       );
       const address = response.data.data.wallet;
 
