@@ -50,18 +50,17 @@ quranApi.interceptors.response.use(
       try {
         const response = await quranApi.post("/api/v1/user/auth/refresh");
 
-        const { accessToken } = response.data.data.accessToken;
-        console.log("accessToken", accessToken);
-        if (!accessToken) {
+        console.log("accessToken", response.data.data.accessToken);
+        if (!response.data.data.accessToken) {
           throw new Error("Refresh failed: no accessToken in response");
         }
 
-        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("accessToken", response.data.data.accessToken);
 
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${response.data.data.accessToken}`;
 
         // Обновляем дефолтный заголовок
-        quranApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        quranApi.defaults.headers.common.Authorization = `Bearer ${response.data.data.accessToken}`;
 
         return quranApi(originalRequest);
       } catch (refreshError) {
