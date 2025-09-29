@@ -134,7 +134,7 @@
 }
 
 .priceValueStar {
-  font-size: var(--numbers-14);
+  font-size: var(--numbers-16);
   font-weight: var(--font-500);
   color: #FFC700;
 }
