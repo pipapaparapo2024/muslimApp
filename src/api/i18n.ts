@@ -267,7 +267,7 @@ const resources = {
       newScan: "New Scan",
       newQuestion: "New Question",
       goPremium: "Go Premium",
-      days:"days",
+      days:"Days",
       premiumDescription:
         "Unlock all features with a single upgrade. Enjoy full access without limits.",
       week: " Week",
