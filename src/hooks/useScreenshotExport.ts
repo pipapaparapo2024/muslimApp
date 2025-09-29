@@ -63,7 +63,7 @@ const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
       // Применяем те же стили к клонированному элементу
       const blockInsideElements = clonedElement.querySelectorAll('.blockInside');
       blockInsideElements.forEach((el: any) => {
-        el.style.margin = '0 16px';
+        el.style.margin = '0 40px';
         el.style.boxSizing = 'border-box';
       });
       
