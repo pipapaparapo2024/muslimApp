@@ -131,7 +131,6 @@
   background: var(--bg-surface);
   padding: var(--numbers-12) var(--numbers-16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 32px); /* Компенсируем отступы */
   margin-left: auto;
   margin-right: auto;
 }
