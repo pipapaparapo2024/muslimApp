@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { t } from "i18next";
 import { trackButtonClick } from "../../../api/analytics";
+import { useTonPay } from "../../../hooks/useTonPay";
 
 interface BuyRequestsModalProps {
   isOpen: boolean;
@@ -14,7 +15,6 @@ interface BuyRequestsModalProps {
   onSelectRequests: (count: string) => void;
 }
 
-// Функция для форматирования чисел с пробелами
 const formatNumber = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 };
@@ -22,13 +22,13 @@ const formatNumber = (num: number): string => {
 const getPrices = (requests: string) => {
   switch (requests) {
     case `10 ${t("requestsPrem")}`:
-      return { ton: 3.45, stars: 2250 };
+      return { ton: 3.45, stars: 2250, quantity: 10 };
     case `100 ${t("requestsPrem")}`:
-      return { ton: 34.5, stars: 22500 };
+      return { ton: 34.5, stars: 22500, quantity: 100 };
     case `1000 ${t("requestsPrem")}`:
-      return { ton: 345, stars: 225000 };
+      return { ton: 345, stars: 225000, quantity: 1000 };
     default:
-      return { ton: 0, stars: 0 };
+      return { ton: 0, stars: 0, quantity: 0 };
   }
 };
 
@@ -39,22 +39,24 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   onSelectRequests,
 }) => {
   const { t } = useTranslation();
+  const { pay, isConnected } = useTonPay();
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
-  // 📊 Аналитика: Открытие модального окна запросов
   React.useEffect(() => {
     if (isOpen) {
       trackButtonClick('requests_modal_open', {
-        default_selection: selectedRequests
+        default_selection: selectedRequests,
+        is_wallet_connected: isConnected
       });
     }
-  }, [isOpen, selectedRequests]);
+  }, [isOpen, selectedRequests, isConnected]);
 
   if (!isOpen) return null;
+  
   const prices = getPrices(selectedRequests);
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
-    // 📊 Аналитика: Закрытие модального окна
     trackButtonClick('requests_modal_close', {
       final_selection: selectedRequests
     });
@@ -62,7 +64,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleOptionSelect = (option: string) => {
-    // 📊 Аналитика: Изменение выбора количества запросов
     trackButtonClick('requests_count_change', {
       from_count: selectedRequests,
       to_count: option,
@@ -72,26 +73,72 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     onSelectRequests(option);
   };
 
-  const handleTonPurchase = () => {
-    // 📊 Аналитика: Попытка покупки запросов через TON
-    trackButtonClick('requests_purchase_attempt', {
-      payment_method: 'ton',
-      requests_count: selectedRequests,
-      price: prices.ton
-    });
-    console.log("buy with ton");
-    // Здесь будет логика покупки
+  const handleTonPurchase = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    
+    try {
+      const result = await pay({
+        amount: prices.ton,
+        type: 'requests',
+        quantity: prices.quantity,
+      });
+
+      // Обработка результата оплаты
+      switch (result.status) {
+        case 'success':
+          trackButtonClick('requests_purchase_success', {
+            payment_method: 'ton',
+            requests_count: selectedRequests,
+            price: prices.ton
+          });
+          alert(t('paymentSuccess'));
+          onClose();
+          break;
+          
+        case 'rejected':
+          trackButtonClick('requests_purchase_rejected', {
+            payment_method: 'ton',
+            requests_count: selectedRequests
+          });
+          alert(t('paymentRejected'));
+          break;
+          
+        case 'not_connected':
+          // Модальное окно уже открыто автоматически в useTonPay
+          trackButtonClick('wallet_connection_opened', {
+            context: 'requests_purchase'
+          });
+          // Не закрываем модалку - пусть пользователь подключит кошелек
+          break;
+          
+        default:
+          trackButtonClick('requests_purchase_error', {
+            payment_method: 'ton',
+            error: result.status
+          });
+          alert(t('paymentError'));
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      trackButtonClick('requests_purchase_exception', {
+        payment_method: 'ton',
+        error: error.message
+      });
+      alert(t('paymentError'));
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleStarsPurchase = () => {
-    // 📊 Аналитика: Попытка покупки запросов через Stars
     trackButtonClick('requests_purchase_attempt', {
       payment_method: 'stars', 
       requests_count: selectedRequests,
       price: prices.stars
     });
     console.log("buy with stars");
-    // Здесь будет логика покупки
   };
 
   return (
@@ -126,16 +173,23 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         </div>
 
         <div className={styles.priceBlocks}>
-          <div className={`${styles.priceBlock} ${styles.tonBlock}`}>
-            <div
-              className={styles.priceText}
-              onClick={handleTonPurchase}
-            >
+          <div 
+            className={`${styles.priceBlock} ${styles.tonBlock} ${
+              isProcessing ? styles.processing : ''
+            }`}
+            onClick={handleTonPurchase}
+          >
+            <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {prices.ton.toFixed(2)}
+                {isProcessing ? t('processing') : prices.ton.toFixed(2)}
               </div>
             </div>
+            {!isConnected && !isProcessing && (
+              <div className={styles.connectHint}>
+                {t('connectWalletToPay')}
+              </div>
+            )}
           </div>
 
           <div

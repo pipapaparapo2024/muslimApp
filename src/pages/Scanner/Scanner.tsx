@@ -9,12 +9,16 @@ import { t } from "i18next";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
 import { trackButtonClick } from "../../api/analytics";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const [selectedRequests, setSelectedRequests] = useState("10");
+  
+  const userAddress = useTonAddress();
+  const [tonConnectUI] = useTonConnectUI();
 
   useEffect(() => {
     fetchUserData();
@@ -23,7 +27,7 @@ export const Scanner: React.FC = () => {
   const showAskButton =
     hasPremium || (requestsLeft != null && requestsLeft > 0);
 
-  const handleScanClick = () => {
+  const handleScanClick = async () => {
     if (showAskButton) {
       // 📊 Аналитика: пользователь переходит к сканированию
       trackButtonClick("scan_button_click", {
@@ -33,12 +37,22 @@ export const Scanner: React.FC = () => {
       });
       navigate("/scanner/camera");
     } else {
-      // 📊 Аналитика: попытка сканировать без запросов → открытие модалки
+      // 📊 Аналитика: попытка сканировать без запросов → проверка кошелька
       trackButtonClick("scan_button_click", {
-        action: "open_buy_requests_modal",
+        action: "check_wallet_for_requests",
         has_premium: hasPremium,
         requests_left: requestsLeft,
+        wallet_connected: !!userAddress
       });
+
+      if (!userAddress) {
+        trackButtonClick('wallet_connection_triggered', {
+          context: 'buy_requests_scanner'
+        });
+        await tonConnectUI.openModal();
+        return; 
+      }
+
       setShowModal(true);
     }
   };

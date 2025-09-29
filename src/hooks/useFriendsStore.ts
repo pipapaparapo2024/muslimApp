@@ -43,6 +43,9 @@ interface FriendsState {
   setTotalHas: (n: number) => void;
   setTotalNeeded: (n: number) => void;
   fetchBonusesStatus: () => Promise<void>;
+
+  claimTotalReward: () => Promise<void>;
+  claimPurchasedReward: () => Promise<void>;
 }
 
 // Вспомогательная функция для безопасной проверки ошибки
@@ -120,7 +123,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       });
     }
   },
-  // Получить реферальную ссылку
   fetchReferralLink: async () => {
     set({ loading: true, error: null });
     try {
@@ -142,7 +144,57 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       });
     }
   },
+  claimTotalReward: async () => {
+    try {
+      set({ loading: true, error: null });
 
+      // Отправляем запрос на получение награды за общий резерв
+      await quranApi.post("/referral/bonuses/total/reward", {
+        // Если нужно передавать какие-то параметры, добавьте их здесь
+        // Например: userId, referralId и т.д.
+      });
+
+      // После успешного получения награды обновляем статус
+      await get().fetchBonusesStatus();
+
+      set({ loading: false });
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Failed to claim total reward";
+      set({
+        loading: false,
+        error: message || "Ошибка при получении награды",
+      });
+      throw err; // Пробрасываем ошибку для обработки в компоненте
+    }
+  },
+
+  // Получить награду за покупки друзей
+  claimPurchasedReward: async () => {
+    try {
+      set({ loading: true, error: null });
+
+      // Отправляем запрос на получение награды за покупки
+      await quranApi.post("/referral/bonuses/purchased/reward", {
+        // Если нужно передавать какие-то параметры, добавьте их здесь
+      });
+
+      // После успешного получения награды обновляем статус
+      await get().fetchBonusesStatus();
+
+      set({ loading: false });
+    } catch (err: unknown) {
+      const message = isErrorWithMessage(err)
+        ? err.message
+        : "Failed to claim purchased reward";
+      set({
+        loading: false,
+        error: message || "Ошибка при получении премиум награды",
+      });
+      throw err; // Пробрасываем ошибку для обработки в компоненте
+    }
+  },
   // Добавить нового друга (приглашение)
   addFriend: async (friendData) => {
     set({ loading: true, error: null });

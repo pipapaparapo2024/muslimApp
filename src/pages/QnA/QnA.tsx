@@ -10,10 +10,10 @@ import { TableRequestsHistory } from "../../components/TableRequestsHistory/Tabl
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium } = usePremiumStore();
-
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -21,6 +21,10 @@ export const QnA: React.FC = () => {
   const [question, setQuestion] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
+  
+  // Добавляем проверку подключения кошелька
+  const userAddress = useTonAddress();
+  const [tonConnectUI] = useTonConnectUI();
 
   // Предзагрузка изображения
   useEffect(() => {
@@ -64,15 +68,24 @@ export const QnA: React.FC = () => {
     });
   };
 
-  const handleBuyRequestsClick = () => {
+  const handleBuyRequestsClick = async () => {
     trackButtonClick("buy_requests_from_qna", {
       has_premium: hasPremium,
       requests_left: requestsLeft,
+      wallet_connected: !!userAddress
     });
+
+    if (!userAddress) {
+      trackButtonClick('wallet_connection_triggered', {
+        context: 'buy_requests_qna'
+      });
+      await tonConnectUI.openModal();
+      return; 
+    }
+
     setShowModal(true);
   };
 
-  // Пока изображение не загружено — показываем лоадер
   if (!imageLoaded) {
     return (
       <PageWrapper showBackButton={true}>

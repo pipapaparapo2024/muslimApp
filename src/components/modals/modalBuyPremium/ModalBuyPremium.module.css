@@ -151,3 +151,20 @@
 .priceValueStar.formatted {
   letter-spacing: 0.5px;
 }
+
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.connectHint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.processing {
+  opacity: 0.7;
+  pointer-events: none;
+}

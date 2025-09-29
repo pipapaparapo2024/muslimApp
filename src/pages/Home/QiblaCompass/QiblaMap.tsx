@@ -1,4 +1,3 @@
-// QiblaMap.tsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import styles from "./QiblaMap.module.css";

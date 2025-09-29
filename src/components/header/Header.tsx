@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { trackButtonClick } from "../../api/analytics";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 
 export const Header: React.FC = () => {
   const { formattedDate, updateFormattedDate } = useDataTimeStore();
@@ -16,13 +17,17 @@ export const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { city, country } = useGeoStore();
+  
+  // Добавляем проверку подключения кошелька
+  const userAddress = useTonAddress();
+  const [tonConnectUI] = useTonConnectUI();
 
-  // 📊 Аналитика: Отслеживаем статус премиума при загрузке
   React.useEffect(() => {
     trackButtonClick('header_loaded', {
       has_premium: hasPremium,
       premium_days_left: premiumDaysLeft || 0,
-      location_available: !!(city && country)
+      location_available: !!(city && country),
+      wallet_connected: !!userAddress // добавляем статус кошелька
     });
   }, []);
 
@@ -41,7 +46,6 @@ export const Header: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Обновляем дату при каждом рендере
   useEffect(() => {
     updateFormattedDate();
   }, []);
@@ -51,18 +55,26 @@ export const Header: React.FC = () => {
     return styles.DaysLeftPrem;
   };
 
-  const handlePremiumButtonClick = () => {
-    // 📊 Аналитика: Клик по кнопке премиума
-    trackButtonClick('premium_button_click', {
+  const handlePremiumButtonClick = async () => {
+    trackButtonClick('premium_buy_click', {
       current_status: hasPremium ? 'premium_active' : 'no_premium',
       days_left: premiumDaysLeft || 0,
-      button_text: getButtonText()
+      button_text: getButtonText(),
+      wallet_connected: !!userAddress
     });
+
+    if (!userAddress) {
+      trackButtonClick('wallet_connection_triggered', {
+        context: 'premium_purchase'
+      });
+      await tonConnectUI.openModal();
+      return; 
+    }
+
     setShowModal(true);
   };
 
   const handleDateClick = () => {
-    // 📊 Аналитика: Клик по дате (навигация в настройки)
     trackButtonClick('date_click', {
       current_date: formattedDate,
       destination: '/settings/dateTime'
@@ -71,10 +83,9 @@ export const Header: React.FC = () => {
   };
 
   const handleModalClose = () => {
-    // 📊 Аналитика: Закрытие модального окна премиума
     trackButtonClick('premium_modal_close', {
       selected_requests: selectedRequests,
-      session_duration: 'short' // можно добавить таймер сессии
+      session_duration: 'short'
     });
     setShowModal(false);
   };
@@ -133,7 +144,6 @@ export const Header: React.FC = () => {
         onClose={handleModalClose}
         selectedRequests={selectedRequests}
         onSelectRequests={(value) => {
-          // 📊 Аналитика: Изменение выбора количества запросов
           trackButtonClick('premium_requests_change', {
             from_value: selectedRequests,
             to_value: value

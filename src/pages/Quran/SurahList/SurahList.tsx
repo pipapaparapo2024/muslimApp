@@ -276,7 +276,6 @@ export const SurahList: React.FC = () => {
   };
 
   const handleTranslationClick = () => {
-    // 📊 Аналитика: Клик по выбору перевода
     trackButtonClick('translation_selection_click', {
       current_translation: selectedVariant?.name || 'none'
     });
@@ -321,7 +320,6 @@ export const SurahList: React.FC = () => {
               value={localSearchQuery}
               onChange={(e) => {
                 setLocalSearchQuery(e.target.value);
-                // 📊 Аналитика: Ввод текста в поиск
                 if (e.target.value.trim()) {
                   trackButtonClick('search_query_typed', {
                     query_length: e.target.value.length

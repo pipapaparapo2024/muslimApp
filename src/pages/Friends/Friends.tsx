@@ -20,8 +20,10 @@ export const Friends: React.FC = () => {
     purchasedNeeded,
     totalHas,
     totalNeeded,
+    claimTotalReward,
+    claimPurchasedReward,
   } = useFriendsStore();
-  const [isLoading, ] = useState<boolean>(false);
+  const [isLoading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchReferralLink();
@@ -35,8 +37,6 @@ export const Friends: React.FC = () => {
 
   const shareViaTelegram = () => {
     if (!referralLink) return;
-
-    // 📊 Аналитика: клик по "Пригласить друзей"
     trackButtonClick("invite_friends_from_friends_screen", {
       has_referral_link: !!referralLink,
       friends_count: friends.length,
@@ -50,26 +50,39 @@ export const Friends: React.FC = () => {
     window.open(shareUrl, "_blank");
   };
 
-  const handleGetFreeRequestsReward = () => {
-    // 📊 Аналитика: попытка получить награду за бесплатные запросы
-    trackButtonClick("claim_free_requests_reward", {
-      total_has: totalHas,
-      total_needed: totalNeeded,
-    });
-    // Здесь может быть вызов API для получения награды
-    alert(t("rewardClaimed"));
+  const handleGetFreeRequestsReward = async () => {
+    try {
+      trackButtonClick("claim_free_requests_reward", {
+        total_has: totalHas,
+        total_needed: totalNeeded,
+      });
+      
+      await claimTotalReward(); 
+      alert(t("rewardClaimed"));
+      
+      await fetchBonusesStatus();
+    } catch (error) {
+      console.error("Ошибка при получении награды:", error);
+      alert(t("rewardClaimError"));
+    }
   };
 
-  const handleGetPremiumReward = () => {
-    // 📊 Аналитика: попытка получить премиум-награду
-    trackButtonClick("claim_premium_access_reward", {
-      purchased_has: purchasedHas,
-      purchased_needed: purchasedNeeded,
-    });
-    // Здесь может быть вызов API для активации премиума
-    alert(t("premiumUnlocked"));
+  const handleGetPremiumReward = async () => {
+    try {
+      trackButtonClick("claim_premium_access_reward", {
+        purchased_has: purchasedHas,
+        purchased_needed: purchasedNeeded,
+      });
+      
+      await claimPurchasedReward();
+      alert(t("premiumUnlocked"));
+      
+      await fetchBonusesStatus();
+    } catch (error) {
+      console.error("Ошибка при получении премиум награды:", error);
+      alert(t("premiumUnlockError"));
+    }
   };
-
   const sortedFriends = [...friends].sort((a, b) => {
     if (a.status === "Purchased" && b.status !== "Purchased") return -1;
     if (a.status !== "Purchased" && b.status === "Purchased") return 1;
