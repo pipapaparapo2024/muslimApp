@@ -209,26 +209,18 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
         <div className={styles.options}>
           {[`1 ${t("week")}`, `1 ${t("month")}`, `1 ${t("year")}`].map(
-            (option) => {
-              const optionPrices = getPrices(option);
-              return (
-                <div
-                  key={option}
-                  className={`${styles.option} ${
-                    selectedRequests === option ? styles.selected : ""
-                  }`}
-                  onClick={() => handleOptionSelect(option)}
-                >
-                  <div className={styles.optionContent}>
-                    <div>{t(option.replace(" ", ""))}</div>
-                    <div className={styles.optionPrice}>
-                      {optionPrices.ton} TON / {formatNumber(optionPrices.stars)} ⭐
-                    </div>
-                  </div>
-                  {selectedRequests === option && <Check size={20} />}
-                </div>
-              );
-            }
+            (option) => (
+              <div
+                key={option}
+                className={`${styles.option} ${
+                  selectedRequests === option ? styles.selected : ""
+                }`}
+                onClick={() => handleOptionSelect(option)}
+              >
+                <div>{t(option.replace(" ", ""))}</div>
+                {selectedRequests === option && <Check size={20} />}
+              </div>
+            )
           )}
         </div>
 
