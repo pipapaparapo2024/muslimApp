@@ -140,8 +140,6 @@
   font-size: var(--numbers-14);
   font-weight: var(--font-500);
   color: #FFC700;
-}
-.priceValueStar {
   font-size: 18px;
   font-weight: 600;
   margin-left: 8px;

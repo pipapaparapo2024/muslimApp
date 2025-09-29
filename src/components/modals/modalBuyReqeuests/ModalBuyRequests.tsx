@@ -43,19 +43,19 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     };
 
     switch (requests) {
-      case `10 ${t("requestsPrem")}`:
+      case `10 ${t("requests")}`:
         return { 
           ton: tonPrice || basePrices['10'].ton, 
           stars: starsPrice || basePrices['10'].stars, 
           quantity: 10 
         };
-      case `100 ${t("requestsPrem")}`:
+      case `100 ${t("requests")}`:
         return { 
           ton: tonPrice || basePrices['100'].ton, 
           stars: starsPrice || basePrices['100'].stars, 
           quantity: 100 
         };
-      case `1000 ${t("requestsPrem")}`:
+      case `1000 ${t("requests")}`:
         return { 
           ton: tonPrice || basePrices['1000'].ton, 
           stars: starsPrice || basePrices['1000'].stars, 
@@ -227,7 +227,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             <div className={styles.priceContent}>
               <div className={styles.priceText}>
                 <img src={ton} alt="TON" className={styles.currencyIcon} />
-                <div className={styles.priceValue}>
+                <div className={styles.priceValueTon}>
                   {isProcessing ? t('processing') : `${prices.ton.toFixed(2)} TON`}
                 </div>
               </div>
@@ -246,16 +246,12 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             <div className={styles.priceContent}>
               <div className={styles.priceText}>
                 <img src={star} alt="Stars" className={styles.currencyIcon} />
-                <div className={styles.priceValue}>
+                <div className={styles.priceValueStar}>
                   {formattedStars} {t('stars')}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className={styles.footerNote}>
-          {t("paymentSecureNote")}
         </div>
       </div>
     </div>
