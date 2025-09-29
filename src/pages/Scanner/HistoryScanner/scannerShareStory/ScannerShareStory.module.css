@@ -73,6 +73,7 @@
   gap: var(--numbers-4);
   box-sizing: border-box;
   z-index: 2;
+  padding: 0 var(--numbers-16);
 }
 
 .blockButton {
