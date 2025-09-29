@@ -97,13 +97,6 @@
   width: 100%;
   justify-content: center;
 }
-
-.priceText{
-  display: flex;
-  align-items: center;
-  gap: var(--numbers-4);
-  margin: 0 auto;
-}
 .priceBlock {
   cursor: pointer;
   display: flex;
@@ -111,6 +104,12 @@
   border-radius: var(--roundings-medium);
   gap: var(--numbers-8);
   align-items: center;
+}
+.priceText{
+  display: flex;
+  align-items: center;
+  gap: var(--numbers-4);
+  margin: 0 auto;
 }
 
 .tonBlock {
