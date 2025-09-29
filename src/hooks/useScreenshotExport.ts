@@ -34,58 +34,67 @@ export const useScreenshotExport = () => {
     initializeSdk();
   }, []);
 
-  const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
-    // Динамически импортируем html2canvas для уменьшения размера бандла
-    const html2canvas = (await import("html2canvas")).default;
+const captureScreenshot = async (element: HTMLElement): Promise<Blob> => {
+  const html2canvas = (await import("html2canvas")).default;
 
-    // Ждем загрузки всех изображений
-    await preloadAllImages(element);
+  // Принудительно устанавливаем ширину для элементов
+  const blockInsideElements = element.querySelectorAll('.blockInside');
+  blockInsideElements.forEach((el: any) => {
+    el.style.margin = '0 16px'; // Явно устанавливаем margin
+    el.style.boxSizing = 'border-box';
+  });
 
-    // Даем время для полного рендеринга
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  await preloadAllImages(element);
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const canvas = await html2canvas(element, {
-      background: "#ffffff",
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      logging: false,
-      width: element.scrollWidth,
-      height: element.scrollHeight,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
-      onclone: (_clonedDoc: Document, element: HTMLElement) => {
-        const clonedElement = element;
-        clonedElement.style.display = "block";
-        clonedElement.style.visibility = "visible";
-        clonedElement.style.opacity = "1";
+  const canvas = await html2canvas(element, {
+    background: "#ffffff",
+    scale: 2,
+    useCORS: true,
+    allowTaint: false,
+    logging: false,
+    width: element.scrollWidth,
+    height: element.scrollHeight,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: element.scrollWidth,
+    windowHeight: element.scrollHeight,
+    onclone: (_clonedDoc: Document, clonedElement: HTMLElement) => {
+      // Применяем те же стили к клонированному элементу
+      const blockInsideElements = clonedElement.querySelectorAll('.blockInside');
+      blockInsideElements.forEach((el: any) => {
+        el.style.margin = '0 16px';
+        el.style.boxSizing = 'border-box';
+      });
+      
+      clonedElement.style.display = "block";
+      clonedElement.style.visibility = "visible";
+      clonedElement.style.opacity = "1";
 
-        const images = clonedElement.querySelectorAll("img");
-        images.forEach((img) => {
-          const imageElement = img as HTMLImageElement;
-          imageElement.style.display = "block";
-          imageElement.style.visibility = "visible";
-          imageElement.style.opacity = "1";
-        });
+      const images = clonedElement.querySelectorAll("img");
+      images.forEach((img) => {
+        const imageElement = img as HTMLImageElement;
+        imageElement.style.display = "block";
+        imageElement.style.visibility = "visible";
+        imageElement.style.opacity = "1";
+      });
+    },
+  } as any);
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error("Failed to create blob from canvas"));
+        }
       },
-    } as any); // ← вот так обходим ошибку
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error("Failed to create blob from canvas"));
-          }
-        },
-        "image/png",
-        0.9
-      ); // Качество 90%
-    });
-  };
+      "image/png",
+      0.9
+    );
+  });
+};
 
   const uploadScreenshot = async (blob: Blob, id: string): Promise<string> => {
     try {
