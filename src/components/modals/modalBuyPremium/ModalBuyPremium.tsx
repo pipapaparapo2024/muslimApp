@@ -27,7 +27,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   onSelectRequests,
 }) => {
   const { t } = useTranslation();
-  const { getProductsByType, loading: pricesLoading } = usePrices();
+  const { getProductsByType, getPrice, loading: pricesLoading } = usePrices();
 
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
@@ -53,12 +53,12 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           product,
         };
       })
-      .sort((a, b) => a.days - b.days); // Сортируем по возрастанию дней
+      .sort((a, b) => a.days - b.days);
   };
 
   const premiumOptions = getPremiumOptions();
 
-  // В функции getPrices добавляем получение currencyId
+  // Используем getPrice из usePrices для получения валюты с ID
   const getPrices = (optionLabel: string) => {
     const option = premiumOptions.find((opt) => opt.label === optionLabel);
 
@@ -73,26 +73,31 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       };
     }
 
-    const tonCurrency = option.product.currency.find(
+    // Используем getPrice для получения валюты с ID
+    const tonCurrency = getPrice("premium", "TON");
+    const starsCurrency = getPrice("premium", "XTR");
+
+    // Ищем конкретную валюту для этого продукта
+    const productTonCurrency = option.product.currency.find(
       (curr) => curr.priceType === "TON"
     );
-    const starsCurrency = option.product.currency.find(
+    const productStarsCurrency = option.product.currency.find(
       (curr) => curr.priceType === "XTR"
     );
 
     return {
-      ton: tonCurrency?.priceAmount || 1,
-      stars: starsCurrency?.priceAmount || 1,
+      ton: productTonCurrency?.priceAmount || tonCurrency?.priceAmount || 1,
+      stars: productStarsCurrency?.priceAmount || starsCurrency?.priceAmount || 1,
       duration: optionLabel,
       productId: option.product.id,
-      currencyId: starsCurrency?.id,
+      currencyId: productStarsCurrency?.id || starsCurrency?.id, // Берем ID из валюты
       days: option.days,
     };
   };
 
   const handleStarsPurchase = async () => {
     console.log("STAR");
-
+    
     if (
       isProcessingTon ||
       isProcessingStars ||
@@ -107,10 +112,15 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     }
 
     setIsProcessingStars(true);
-    console.log("prices.currencyId", prices.currencyId);
+    console.log("Sending payment request with:", {
+      currencyId: prices.currencyId,
+      productId: prices.productId
+    });
+    
     try {
       const result = await payWithStars({
         currencyId: prices.currencyId,
+        productId: prices.productId, // Добавляем productId
       });
 
       switch (result.status) {
@@ -184,7 +194,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         duration: "",
         productId: null,
         days: 0,
-        currencyId: 0,
+        currencyId: null,
       };
   const formattedStars = formatNumber(prices.stars);
 
