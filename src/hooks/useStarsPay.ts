@@ -17,8 +17,7 @@ export const useStarsPay = () => {
     params: StarsPayParams
   ): Promise<StarsPaymentResponse> => {
     try {
-      // Создаем инвойс для оплаты Stars
-      const response = await quranApi.post("/api/v1/stars/invoice", {
+      const response = await quranApi.post("/api/v1/payments/stars/invoice", {
         currencyId: params.currencyId, 
       });
 
