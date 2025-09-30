@@ -78,7 +78,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const res = await quranApi.get<ReferralResponse>(
-        "api/v1/referal/bonuses/users"
+        "/api/v1/referal/bonuses/users"
       );
       // Преобразуем данные из API в формат Friend
       const friendsData: Friend[] = res.data.data.users.map((user) => ({
