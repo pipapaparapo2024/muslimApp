@@ -202,7 +202,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     console.log("STAR")
     
     setIsProcessingStars(true);
-    if (isProcessingStars || isProcessingTon || !prices.productId) return;
     console.log("amount", prices.stars)
     console.log("duration", prices.duration)
     console.log("productId", prices.productId)
@@ -211,7 +210,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         amount: prices.stars,
         type: "premium",
         duration: prices.duration,
-        productId: prices.productId,
+        // productId: prices.productId,
       });
 
       // Обработка результата Stars оплаты
