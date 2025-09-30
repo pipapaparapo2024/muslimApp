@@ -87,17 +87,27 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
     return {
       ton: productTonCurrency?.priceAmount || tonCurrency?.priceAmount || 1,
-      stars: productStarsCurrency?.priceAmount || starsCurrency?.priceAmount || 1,
+      stars:
+        productStarsCurrency?.priceAmount || starsCurrency?.priceAmount || 1,
       duration: optionLabel,
       productId: option.product.id,
       currencyId: productStarsCurrency?.id || starsCurrency?.id, // Берем ID из валюты
       days: option.days,
     };
   };
-
+  const prices = selectedRequests
+    ? getPrices(selectedRequests)
+    : {
+        ton: 0,
+        stars: 0,
+        duration: "",
+        productId: null,
+        days: 0,
+        currencyId: null,
+      };
   const handleStarsPurchase = async () => {
     console.log("STAR");
-    
+
     if (
       isProcessingTon ||
       isProcessingStars ||
@@ -114,9 +124,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     setIsProcessingStars(true);
     console.log("Sending payment request with:", {
       currencyId: prices.currencyId,
-      productId: prices.productId
+      productId: prices.productId,
     });
-    
+
     try {
       const result = await payWithStars({
         currencyId: prices.currencyId,
@@ -186,16 +196,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   if (!isOpen) return null;
 
-  const prices = selectedRequests
-    ? getPrices(selectedRequests)
-    : {
-        ton: 0,
-        stars: 0,
-        duration: "",
-        productId: null,
-        days: 0,
-        currencyId: null,
-      };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
