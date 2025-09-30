@@ -307,7 +307,7 @@ export const AyahList: React.FC = () => {
             aria-label={t("scrollToTop")}
             style={{ left: getScrollButtonPosition() }}
           >
-            <ArrowUp size={20} />
+            <ArrowUp size={20} color="white"/>
           </button>
         )}
       </div>
