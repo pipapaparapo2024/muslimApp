@@ -203,7 +203,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     if (isProcessingStars || isProcessingTon || !prices.productId) return;
 
     setIsProcessingStars(true);
-
+    console.log("amount", prices.stars)
+    console.log("duration", prices.duration)
+    console.log("productId", prices.productId)
     try {
       const result = await payWithStars({
         amount: prices.stars,
