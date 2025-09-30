@@ -27,29 +27,33 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   onSelectRequests,
 }) => {
   const { t } = useTranslation();
-  const { getProductsByType, loading: pricesLoading } = usePrices();
+  const {
+    getProductsByType,
+    getPriceByProductId,
+    loading: pricesLoading,
+  } = usePrices();
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
   const [isProcessingTon, setIsProcessingTon] = React.useState(false);
   const [isProcessingStars, setIsProcessingStars] = React.useState(false);
 
-  // Получаем все продукты запросов из API
   const requestsProducts = getProductsByType("requests");
 
-  // Формируем опции на основе данных из API
   const getRequestOptions = () => {
     return requestsProducts
-      .map((product) => ({
-        label: `${product.revardAmount} ${t("requests")}`,
-        quantity: product.revardAmount,
-        product,
-      }))
-      .sort((a, b) => a.quantity - b.quantity); // Сортируем по возрастанию количества
+      .map((product) => {
+        const requests = product.revardAmount;
+        return {
+          label: `${requests} ${t("requests")}`,
+          quantity: requests,
+          product,
+        };
+      })
+      .sort((a, b) => a.quantity - b.quantity);
   };
 
   const requestOptions = getRequestOptions();
 
-  // В функции getPrices добавляем получение currencyId
   const getPrices = (optionLabel: string) => {
     const option = requestOptions.find((opt) => opt.label === optionLabel);
 
@@ -59,50 +63,63 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         stars: 1,
         quantity: parseInt(optionLabel.split(" ")[0]) || 10,
         productId: null,
-        currencyId: null, // Добавляем currencyId
+        currencyId: null,
       };
     }
 
-    const tonCurrency = option.product.currency.find(
-      (curr) => curr.priceType === "TON"
-    );
-    const starsCurrency = option.product.currency.find(
-      (curr) => curr.priceType === "XTR"
-    );
+    const tonCurrency = getPriceByProductId(option.product.id, "TON");
+    const starsCurrency = getPriceByProductId(option.product.id, "XTR");
+
+    console.log("🔄 getPrices for requests option:", {
+      optionLabel,
+      productId: option.product.id,
+      productTitle: option.product.title,
+      tonCurrency,
+      starsCurrency,
+    });
 
     return {
       ton: tonCurrency?.priceAmount || 1,
       stars: starsCurrency?.priceAmount || 1,
       quantity: option.quantity,
       productId: option.product.id,
-      currencyId: starsCurrency?.id, // Получаем ID валюты для Stars
+      currencyId: starsCurrency?.id,
     };
   };
 
-  // Обновляем функцию handleStarsPurchase в ModalBuyRequests
+  const prices = selectedRequests
+    ? getPrices(selectedRequests)
+    : {
+        ton: 0,
+        stars: 0,
+        quantity: 0,
+        productId: null,
+        currencyId: null,
+      };
+
   const handleStarsPurchase = async () => {
-    console.log("STARS");
     if (
-      isProcessingStars ||
       isProcessingTon ||
+      isProcessingStars ||
       !prices.productId ||
       !prices.currencyId
     ) {
-      console.log("Missing required data:", {
+      console.log("❌ Missing required data for requests purchase:", {
         productId: prices.productId,
         currencyId: prices.currencyId,
+        selectedRequests: selectedRequests,
+        requestOptionsCount: requestOptions.length,
       });
       return;
     }
 
     setIsProcessingStars(true);
-
     try {
       const result = await payWithStars({
-        currencyId: prices.currencyId, 
+        currencyId: prices.currencyId,
+        productId: prices.productId,
       });
 
-      // Обработка результата Stars оплаты
       switch (result.status) {
         case "success":
           trackButtonClick("requests_purchase_success", {
@@ -113,7 +130,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
-          // Не закрываем модалку сразу
           break;
 
         case "insufficient_funds":
@@ -136,7 +152,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           alert(t("paymentError"));
       }
     } catch (error: any) {
-      console.error("Stars payment error:", error);
+      console.error("Stars payment error for requests:", error);
       trackButtonClick("requests_purchase_exception", {
         payment_method: "stars",
         error: error.message,
@@ -151,7 +167,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   React.useEffect(() => {
     if (isOpen && requestOptions.length > 0 && !selectedRequests) {
-      // Автоматически выбираем первую опцию если ничего не выбрано
       onSelectRequests(requestOptions[0].label);
     }
   }, [isOpen, requestOptions, selectedRequests, onSelectRequests]);
@@ -168,9 +183,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   if (!isOpen) return null;
 
-  const prices = selectedRequests
-    ? getPrices(selectedRequests)
-    : { ton: 0, stars: 0, quantity: 0, productId: null, currencyId: 0 };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
@@ -194,9 +206,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleTonPurchase = async () => {
-    console.log("TON");
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
-
     setIsProcessingTon(true);
 
     try {
@@ -207,7 +217,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         productId: prices.productId,
       });
 
-      // Обработка результата TON оплаты
       switch (result.status) {
         case "success":
           trackButtonClick("requests_purchase_success", {
@@ -245,7 +254,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           alert(t("paymentError"));
       }
     } catch (error: any) {
-      console.error("TON payment error:", error);
+      console.error("TON payment error for requests:", error);
       trackButtonClick("requests_purchase_exception", {
         payment_method: "ton",
         error: error.message,
@@ -261,10 +270,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     return (
       <div className={styles.modalOverlay} onClick={handleClose}>
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
-            <p>{t("loadingPrices")}</p>
-          </div>
+          <div className={styles.loading}>Loading prices...</div>
         </div>
       </div>
     );
@@ -291,14 +297,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
               }`}
               onClick={() => handleOptionSelect(option.label)}
             >
-              <div className={styles.optionText}>
-                {option.label.replace("requests", "").trim()}
-              </div>
-              {selectedRequests === option.label && (
-                <div className={styles.selectedIndicator}>
-                  <Check size={20} />
-                </div>
-              )}
+              <div>{option.label}</div>
+              {selectedRequests === option.label && <Check size={20} />}
             </div>
           ))}
         </div>
@@ -310,19 +310,17 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             }`}
             onClick={handleTonPurchase}
           >
-            <div className={styles.priceContent}>
-              <div className={styles.priceText}>
-                <img src={ton} alt="TON" width="24" height="24" />
-                <div className={styles.priceValueTon}>
-                  {`${prices.ton.toFixed(2)}`}
-                </div>
+            <div className={styles.priceText}>
+              <img src={ton} alt="TON" width="24" height="24" />
+              <div className={styles.priceValueTon}>
+                {prices.ton.toFixed(2)}
               </div>
-              {!isConnected && !isProcessingTon && (
-                <div className={styles.connectHint}>
-                  {t("connectWalletToPay")}
-                </div>
-              )}
             </div>
+            {!isConnected && !isProcessingTon && (
+              <div className={styles.connectHint}>
+                {t("connectWalletToPay")}
+              </div>
+            )}
           </div>
 
           <div
@@ -331,10 +329,10 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             }`}
             onClick={handleStarsPurchase}
           >
-            <div className={styles.priceContent}>
-              <div className={styles.priceText}>
-                <img src={star} alt="Stars" width="24" height="24" />
-                <div className={styles.priceValueStar}>{formattedStars}</div>
+            <div className={styles.priceText}>
+              <img src={star} alt="Stars" width="24" height="24" />
+              <div className={`${styles.priceValueStar} ${styles.formatted}`}>
+                {formattedStars}
               </div>
             </div>
           </div>

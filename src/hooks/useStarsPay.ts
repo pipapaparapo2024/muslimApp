@@ -19,7 +19,7 @@ export const useStarsPay = () => {
     try {
       console.log("params.currencyId",params.currencyId)
       const response = await quranApi.post("/api/v1/payments/stars/invoice", {
-        currencyId: params.currencyId, 
+        currencyId: params.productId, 
       });
 
       if (response.data.data.url) {
