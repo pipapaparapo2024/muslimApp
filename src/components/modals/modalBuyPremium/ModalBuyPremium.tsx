@@ -94,7 +94,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       stars: starsCurrency?.priceAmount || 1,
       duration: optionLabel,
       productId: option.product.id,
-      currencyId: starsCurrency?.id, // Берем ID из stars currency
+      currencyId: starsCurrency?.id, 
       days: option.days,
     };
   };
