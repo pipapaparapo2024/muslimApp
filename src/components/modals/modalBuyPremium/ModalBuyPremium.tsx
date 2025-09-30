@@ -200,9 +200,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const handleStarsPurchase = async () => {
     console.log("STAR")
-    if (isProcessingStars || isProcessingTon || !prices.productId) return;
-
+    
     setIsProcessingStars(true);
+    if (isProcessingStars || isProcessingTon || !prices.productId) return;
     console.log("amount", prices.stars)
     console.log("duration", prices.duration)
     console.log("productId", prices.productId)
