@@ -54,7 +54,7 @@ quranApi.interceptors.response.use(
         if (!response.data.data.accessToken) {
           throw new Error("Refresh failed: no accessToken in response");
         }
-
+        console.log("response.data.data.accessToken",response.data.data.accessToken)
         localStorage.setItem("accessToken", response.data.data.accessToken);
 
         originalRequest.headers.Authorization = `Bearer ${response.data.data.accessToken}`;
