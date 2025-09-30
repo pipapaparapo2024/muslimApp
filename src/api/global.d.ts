@@ -6,6 +6,7 @@ declare global {
     };
     Telegram?: {
       WebApp: {
+        openInvoice: (url: string, callback?: (status: string) => void) => void;
         // Основные методы
         ready: () => void;
         expand: () => void;

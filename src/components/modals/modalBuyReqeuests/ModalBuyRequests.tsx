@@ -49,33 +49,104 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   const requestOptions = getRequestOptions();
 
-  // Получаем цены для выбранной опции
+  // В функции getPrices добавляем получение currencyId
   const getPrices = (optionLabel: string) => {
     const option = requestOptions.find((opt) => opt.label === optionLabel);
 
     if (!option) {
-      // Fallback если опция не найдена
       return {
         ton: 1,
         stars: 1,
         quantity: parseInt(optionLabel.split(" ")[0]) || 10,
         productId: null,
+        currencyId: null, // Добавляем currencyId
       };
     }
 
-    const tonPrice =
-      option.product.currency.find((curr) => curr.priceType === "TON")
-        ?.priceAmount || 1;
-    const starsPrice =
-      option.product.currency.find((curr) => curr.priceType === "XTR")
-        ?.priceAmount || 1;
+    const tonCurrency = option.product.currency.find(
+      (curr) => curr.priceType === "TON"
+    );
+    const starsCurrency = option.product.currency.find(
+      (curr) => curr.priceType === "XTR"
+    );
 
     return {
-      ton: tonPrice,
-      stars: starsPrice,
+      ton: tonCurrency?.priceAmount || 1,
+      stars: starsCurrency?.priceAmount || 1,
       quantity: option.quantity,
       productId: option.product.id,
+      currencyId: starsCurrency?.id, // Получаем ID валюты для Stars
     };
+  };
+
+  // Обновляем функцию handleStarsPurchase в ModalBuyRequests
+  const handleStarsPurchase = async () => {
+    console.log("STARS");
+    if (
+      isProcessingStars ||
+      isProcessingTon ||
+      !prices.productId ||
+      !prices.currencyId
+    ) {
+      console.log("Missing required data:", {
+        productId: prices.productId,
+        currencyId: prices.currencyId,
+      });
+      return;
+    }
+
+    setIsProcessingStars(true);
+
+    try {
+      const result = await payWithStars({
+        currencyId: prices.currencyId, 
+      });
+
+      // Обработка результата Stars оплаты
+      switch (result.status) {
+        case "success":
+          trackButtonClick("requests_purchase_success", {
+            payment_method: "stars",
+            requests_count: selectedRequests,
+            price: prices.stars,
+            quantity: prices.quantity,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+          });
+          // Не закрываем модалку сразу
+          break;
+
+        case "insufficient_funds":
+          trackButtonClick("requests_purchase_insufficient_funds", {
+            payment_method: "stars",
+            requests_count: selectedRequests,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+          });
+          alert(t("insufficientStars"));
+          break;
+
+        default:
+          trackButtonClick("requests_purchase_error", {
+            payment_method: "stars",
+            error: result.error,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+          });
+          alert(t("paymentError"));
+      }
+    } catch (error: any) {
+      console.error("Stars payment error:", error);
+      trackButtonClick("requests_purchase_exception", {
+        payment_method: "stars",
+        error: error.message,
+        product_id: prices.productId,
+        currency_id: prices.currencyId,
+      });
+      alert(t("paymentError"));
+    } finally {
+      setIsProcessingStars(false);
+    }
   };
 
   React.useEffect(() => {
@@ -99,7 +170,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   const prices = selectedRequests
     ? getPrices(selectedRequests)
-    : { ton: 0, stars: 0, quantity: 0, productId: null };
+    : { ton: 0, stars: 0, quantity: 0, productId: null, currencyId: 0 };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
@@ -183,63 +254,6 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       alert(t("paymentError"));
     } finally {
       setIsProcessingTon(false);
-    }
-  };
-
-  const handleStarsPurchase = async () => {
-    console.log("STARS");
-    if (isProcessingStars || isProcessingTon || !prices.productId) return;
-
-    setIsProcessingStars(true);
-
-    try {
-      const result = await payWithStars({
-        amount: prices.stars,
-        type: "requests",
-        quantity: prices.quantity,
-        productId: prices.productId,
-      });
-
-      // Обработка результата Stars оплаты
-      switch (result.status) {
-        case "success":
-          trackButtonClick("requests_purchase_success", {
-            payment_method: "stars",
-            requests_count: selectedRequests,
-            price: prices.stars,
-            quantity: prices.quantity,
-            product_id: prices.productId,
-          });
-          // Не закрываем модалку сразу
-          break;
-
-        case "insufficient_funds":
-          trackButtonClick("requests_purchase_insufficient_funds", {
-            payment_method: "stars",
-            requests_count: selectedRequests,
-            product_id: prices.productId,
-          });
-          alert(t("insufficientStars"));
-          break;
-
-        default:
-          trackButtonClick("requests_purchase_error", {
-            payment_method: "stars",
-            error: result.error,
-            product_id: prices.productId,
-          });
-          alert(t("paymentError"));
-      }
-    } catch (error: any) {
-      console.error("Stars payment error:", error);
-      trackButtonClick("requests_purchase_exception", {
-        payment_method: "stars",
-        error: error.message,
-        product_id: prices.productId,
-      });
-      alert(t("paymentError"));
-    } finally {
-      setIsProcessingStars(false);
     }
   };
 

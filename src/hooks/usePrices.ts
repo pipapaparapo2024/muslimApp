@@ -50,7 +50,7 @@ export const usePrices = () => {
   };
 
   // Получить цену по типу продукта и валюте
-  const getPrice = (productType: ProductType, currencyType: string = 'TON'): number | null => {
+  const getPrice = (productType: ProductType, currencyType: string = 'TON'): PriceCurrency | null => {
     const product = prices.find(item => 
       item.revardType.toLowerCase() === productType.toLowerCase()
     );
@@ -60,8 +60,7 @@ export const usePrices = () => {
     const currency = product.currency.find(curr => 
       curr.priceType.toUpperCase() === currencyType.toUpperCase()
     );
-    console.log("currency",currency)
-    return currency ? currency.priceAmount : null;
+    return currency ? currency : null;
   };
 
   // Получить количество (для requests) или длительность (для premium)

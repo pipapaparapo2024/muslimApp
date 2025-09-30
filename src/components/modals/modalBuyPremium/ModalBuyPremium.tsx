@@ -34,10 +34,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   const [isProcessingTon, setIsProcessingTon] = React.useState(false);
   const [isProcessingStars, setIsProcessingStars] = React.useState(false);
 
-  // Получаем все премиум продукты из API
   const premiumProducts = getProductsByType("premium");
 
-  // Формируем опции на основе данных из API
   const getPremiumOptions = () => {
     return premiumProducts
       .map((product) => {
@@ -60,40 +58,108 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const premiumOptions = getPremiumOptions();
 
-  // Получаем цены для выбранной опции
+  // В функции getPrices добавляем получение currencyId
   const getPrices = (optionLabel: string) => {
     const option = premiumOptions.find((opt) => opt.label === optionLabel);
 
     if (!option) {
-      // Fallback если опция не найдена
       return {
         ton: 1,
         stars: 1,
         duration: optionLabel,
         productId: null,
+        currencyId: null,
         days: 7,
       };
     }
 
-    const tonPrice =
-      option.product.currency.find((curr) => curr.priceType === "TON")
-        ?.priceAmount || 1;
-    const starsPrice =
-      option.product.currency.find((curr) => curr.priceType === "XTR")
-        ?.priceAmount || 1;
+    const tonCurrency = option.product.currency.find(
+      (curr) => curr.priceType === "TON"
+    );
+    const starsCurrency = option.product.currency.find(
+      (curr) => curr.priceType === "XTR"
+    );
 
     return {
-      ton: tonPrice,
-      stars: starsPrice,
+      ton: tonCurrency?.priceAmount || 1,
+      stars: starsCurrency?.priceAmount || 1,
       duration: optionLabel,
       productId: option.product.id,
+      currencyId: starsCurrency?.id,
       days: option.days,
     };
   };
 
+  const handleStarsPurchase = async () => {
+    console.log("STAR");
+
+    if (
+      isProcessingTon ||
+      isProcessingStars ||
+      !prices.productId ||
+      !prices.currencyId
+    ) {
+      console.log("Missing required data:", {
+        productId: prices.productId,
+        currencyId: prices.currencyId,
+      });
+      return;
+    }
+
+    setIsProcessingStars(true);
+    console.log("prices.currencyId", prices.currencyId);
+    try {
+      const result = await payWithStars({
+        currencyId: prices.currencyId,
+      });
+
+      switch (result.status) {
+        case "success":
+          trackButtonClick("premium_purchase_success", {
+            payment_method: "stars",
+            period: selectedRequests,
+            price: prices.stars,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+            days: prices.days,
+          });
+          break;
+
+        case "insufficient_funds":
+          trackButtonClick("premium_purchase_insufficient_funds", {
+            payment_method: "stars",
+            period: selectedRequests,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+          });
+          alert(t("insufficientStars"));
+          break;
+
+        default:
+          trackButtonClick("premium_purchase_error", {
+            payment_method: "stars",
+            error: result.error,
+            product_id: prices.productId,
+            currency_id: prices.currencyId,
+          });
+          alert(t("paymentError"));
+      }
+    } catch (error: any) {
+      console.error("Stars payment error:", error);
+      trackButtonClick("premium_purchase_exception", {
+        payment_method: "stars",
+        error: error.message,
+        product_id: prices.productId,
+        currency_id: prices.currencyId,
+      });
+      alert(t("paymentError"));
+    } finally {
+      setIsProcessingStars(false);
+    }
+  };
+
   React.useEffect(() => {
     if (isOpen && premiumOptions.length > 0 && !selectedRequests) {
-      // Автоматически выбираем первую опцию если ничего не выбрано
       onSelectRequests(premiumOptions[0].label);
     }
   }, [isOpen, premiumOptions, selectedRequests, onSelectRequests]);
@@ -112,7 +178,14 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const prices = selectedRequests
     ? getPrices(selectedRequests)
-    : { ton: 0, stars: 0, duration: "", productId: null, days: 0 };
+    : {
+        ton: 0,
+        stars: 0,
+        duration: "",
+        productId: null,
+        days: 0,
+        currencyId: 0,
+      };
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
@@ -148,7 +221,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         productId: prices.productId,
       });
 
-      // Обработка результата TON оплаты
       switch (result.status) {
         case "success":
           trackButtonClick("premium_purchase_success", {
@@ -195,64 +267,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       alert(t("paymentError"));
     } finally {
       setIsProcessingTon(false);
-    }
-  };
-
-  const handleStarsPurchase = async () => {
-    console.log("STAR")
-    
-    setIsProcessingStars(true);
-    console.log("amount", prices.stars)
-    console.log("duration", prices.duration)
-    console.log("productId", prices.productId)
-    try {
-      const result = await payWithStars({
-        amount: prices.stars,
-        type: "premium",
-        duration: prices.duration,
-        // productId: prices.productId,
-      });
-
-      // Обработка результата Stars оплаты
-      switch (result.status) {
-        case "success":
-          trackButtonClick("premium_purchase_success", {
-            payment_method: "stars",
-            period: selectedRequests,
-            price: prices.stars,
-            product_id: prices.productId,
-            days: prices.days,
-          });
-          // Не закрываем модалку сразу, так как пользователь будет перенаправлен на страницу оплаты
-          break;
-
-        case "insufficient_funds":
-          trackButtonClick("premium_purchase_insufficient_funds", {
-            payment_method: "stars",
-            period: selectedRequests,
-            product_id: prices.productId,
-          });
-          alert(t("insufficientStars"));
-          break;
-
-        default:
-          trackButtonClick("premium_purchase_error", {
-            payment_method: "stars",
-            error: result.error,
-            product_id: prices.productId,
-          });
-          alert(t("paymentError"));
-      }
-    } catch (error: any) {
-      console.error("Stars payment error:", error);
-      trackButtonClick("premium_purchase_exception", {
-        payment_method: "stars",
-        error: error.message,
-        product_id: prices.productId,
-      });
-      alert(t("paymentError"));
-    } finally {
-      setIsProcessingStars(false);
     }
   };
 
