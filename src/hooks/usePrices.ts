@@ -37,7 +37,6 @@ export const usePrices = () => {
       const response = await quranApi.get<PricesResponse>(
         "/api/v1/payments/prices/"
       );
-      console.log("response", response);
       if (response.data?.data?.prices) {
         setPrices(response.data.data.prices);
       } else {
@@ -59,7 +58,6 @@ export const usePrices = () => {
     const product = prices.find(
       (item) => item.revardType.toLowerCase() === productType.toLowerCase()
     );
-    console.log("product", product);
     if (!product) return null;
 
     const currency = product.currency.find(

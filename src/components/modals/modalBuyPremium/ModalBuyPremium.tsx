@@ -27,7 +27,11 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   onSelectRequests,
 }) => {
   const { t } = useTranslation();
-  const { getProductsByType, getPriceByProductId, loading: pricesLoading } = usePrices();
+  const {
+    getProductsByType,
+    getPriceByProductId,
+    loading: pricesLoading,
+  } = usePrices();
 
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
@@ -82,7 +86,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       productId: option.product.id,
       productTitle: option.product.title,
       tonCurrency,
-      starsCurrency
+      starsCurrency,
     });
 
     return {
@@ -107,9 +111,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       };
 
   const handleStarsPurchase = async () => {
-    console.log("STAR");
-    console.log("Current prices data:", prices);
-
     if (
       isProcessingTon ||
       isProcessingStars ||
@@ -120,18 +121,12 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         productId: prices.productId,
         currencyId: prices.currencyId,
         selectedRequests: selectedRequests,
-        premiumOptionsCount: premiumOptions.length
+        premiumOptionsCount: premiumOptions.length,
       });
       return;
     }
 
     setIsProcessingStars(true);
-    console.log("✅ Sending payment request with:", {
-      currencyId: prices.currencyId,
-      productId: prices.productId,
-      starsPrice: prices.stars
-    });
-
     try {
       const result = await payWithStars({
         currencyId: prices.currencyId,
@@ -189,24 +184,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     }
   }, [isOpen, premiumOptions, selectedRequests, onSelectRequests]);
 
-  // Добавляем эффект для отладки
-  React.useEffect(() => {
-    if (isOpen && selectedRequests) {
-      const currentPrices = getPrices(selectedRequests);
-      console.log("🔍 DEBUG - Prices updated:", {
-        selectedRequests,
-        productId: currentPrices.productId,
-        currencyId: currentPrices.currencyId,
-        stars: currentPrices.stars,
-        allPremiumProducts: premiumProducts.map(p => ({
-          id: p.id,
-          title: p.title,
-          revardAmount: p.revardAmount
-        }))
-      });
-    }
-  }, [selectedRequests, isOpen]);
-
   React.useEffect(() => {
     if (isOpen) {
       trackButtonClick("premium_modal_open", {
@@ -230,11 +207,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const handleOptionSelect = (option: string) => {
     const newPrices = getPrices(option);
-    console.log("🎯 Option selected:", {
-      from: selectedRequests,
-      to: option,
-      newPrices: newPrices
-    });
     trackButtonClick("premium_period_change", {
       from_period: selectedRequests,
       to_period: option,
@@ -247,7 +219,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleTonPurchase = async () => {
-    console.log("TON");
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
     setIsProcessingTon(true);
 
