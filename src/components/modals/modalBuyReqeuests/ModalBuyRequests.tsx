@@ -8,6 +8,7 @@ import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
+import { usePremiumStore } from "../../../hooks/usePremiumStore";
 
 interface BuyRequestsModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   onSelectRequests,
 }) => {
   const { t } = useTranslation();
+  const { fetchUserData } = usePremiumStore();
   const {
     getProductsByType,
     getPriceByProductId,
@@ -130,6 +132,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
+          // Обновляем данные пользователя после успешной покупки
+          await fetchUserData();
+          onClose();
           break;
 
         case "insufficient_funds":

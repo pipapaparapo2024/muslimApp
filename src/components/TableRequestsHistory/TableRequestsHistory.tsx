@@ -27,7 +27,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData]);
+  }, [fetchUserData,]);
 
   const handleHistoryClick = () => {
     trackButtonClick("history_button", { destination: text });
