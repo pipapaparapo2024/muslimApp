@@ -148,13 +148,8 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      // Отправляем запрос на получение награды за общий резерв
-      await quranApi.post("/referral/bonuses/total/reward", {
-        // Если нужно передавать какие-то параметры, добавьте их здесь
-        // Например: userId, referralId и т.д.
-      });
+      await quranApi.post("/referal/bonuses/total/revard", {});
 
-      // После успешного получения награды обновляем статус
       await get().fetchBonusesStatus();
 
       set({ loading: false });
@@ -166,21 +161,16 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         loading: false,
         error: message || "Ошибка при получении награды",
       });
-      throw err; // Пробрасываем ошибку для обработки в компоненте
+      throw err;
     }
   },
 
-  // Получить награду за покупки друзей
   claimPurchasedReward: async () => {
     try {
       set({ loading: true, error: null });
 
-      // Отправляем запрос на получение награды за покупки
-      await quranApi.post("/referral/bonuses/purchased/reward", {
-        // Если нужно передавать какие-то параметры, добавьте их здесь
-      });
+      await quranApi.post("/referal/bonuses/purchased/revard", {});
 
-      // После успешного получения награды обновляем статус
       await get().fetchBonusesStatus();
 
       set({ loading: false });
@@ -192,10 +182,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         loading: false,
         error: message || "Ошибка при получении премиум награды",
       });
-      throw err; // Пробрасываем ошибку для обработки в компоненте
+      throw err; 
     }
   },
-  // Добавить нового друга (приглашение)
   addFriend: async (friendData) => {
     set({ loading: true, error: null });
     try {
@@ -205,13 +194,11 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         invitedDate: new Date().toISOString(),
       };
 
-      // Оптимистичное обновление UI
       set((state) => ({
         friends: [...state.friends, newFriend],
         loading: false,
       }));
 
-      // Перезагружаем актуальные данные
       await get().fetchFriends();
     } catch (err: unknown) {
       const message = isErrorWithMessage(err)
