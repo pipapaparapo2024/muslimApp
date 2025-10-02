@@ -75,7 +75,7 @@ export const useTonPay = () => {
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
-      const response = await quranApi.post("/api/v1/payment/ton/wallet");
+      const response = await quranApi.post("/api/v1/payments/ton/wallet");
       console.log("response.data.data.wallet", response.data.data.wallet);
       return response.data.data.wallet;
     } catch (err: any) {
