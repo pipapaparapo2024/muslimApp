@@ -21,8 +21,7 @@ export const useTonPay = () => {
   const [tonConnectUI] = useTonConnectUI();
 
   const waitForConfirmation = async (
-    boc: string,
-    orderId: string,
+    payload: string,
     maxAttempts = 20
   ): Promise<TonPaymentResponse> => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -31,25 +30,16 @@ export const useTonPay = () => {
           `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
         );
 
-        const verificationResponse = await quranApi.post(
-          "/api/v1/payments/ton/verify",
-          {
-            boc,
-            orderId,
-            userWallet: userAddress,
-            attempt,
-          }
+        const responce = await quranApi.get(
+          `/api/v1/payments/ton/${payload}/check`
         );
 
-        const { status, confirmations } = verificationResponse.data;
+        const  status  = responce.data.data.orderStatus;
 
-        if (status === "confirmed") {
-          console.log(
-            `✅ Транзакция подтверждена с ${confirmations} подтверждениями`
-          );
+        if (status === "success") {
           return {
             status: "success",
-            data: verificationResponse.data,
+            data: responce.data,
           };
         }
 
@@ -107,29 +97,29 @@ export const useTonPay = () => {
       }
 
       const merchantWallet = await getTonWallet();
-      
+
       const invoiceResponse = await quranApi.post(
         "/api/v1/payments/ton/invoice",
         {
           priceId: params.productId,
-          userWallet: userAddress, 
+          userWallet: userAddress,
         }
       );
 
       const payload = invoiceResponse.data.data.payload;
       const merchantAddress = merchantWallet; // Адрес мерчанта
-      const amount =(params.amount * 1e9).toString(); // Сумма в нанотонах
+      const amount = (params.amount * 1e9).toString(); // Сумма в нанотонах
 
       console.log("📦 Данные транзакции:", {
         merchantAddress,
         amount,
-        hasPayload: !!payload
+        hasPayload: !!payload,
       });
 
       // Отправляем транзакцию
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.TESTNET,
-        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
+        validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
             address: merchantAddress,
@@ -142,7 +132,7 @@ export const useTonPay = () => {
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
       // Ждем подтверждения
-      return await waitForConfirmation(result.boc, "fds", 20);
+      return await waitForConfirmation(result.boc, payload);
     } catch (err: any) {
       console.error("TON payment error:", err);
       if (err?.message?.includes("Rejected")) {
