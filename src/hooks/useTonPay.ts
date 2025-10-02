@@ -20,47 +20,54 @@ export const useTonPay = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
-  const waitForConfirmation = async (boc: string, orderId: string, maxAttempts = 20): Promise<TonPaymentResponse> => {
+  const waitForConfirmation = async (
+    boc: string,
+    orderId: string,
+    maxAttempts = 20
+  ): Promise<TonPaymentResponse> => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`);
-        
-        const verificationResponse = await quranApi.post("/api/v1/payments/ton/verify", {
-          boc,
-          orderId,
-          userWallet: userAddress,
-          attempt
-        });
+        console.log(
+          `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
+        );
+
+        const verificationResponse = await quranApi.post(
+          "/api/v1/payments/ton/verify",
+          {
+            boc,
+            orderId,
+            userWallet: userAddress,
+            attempt,
+          }
+        );
 
         const { status, confirmations } = verificationResponse.data;
 
         if (status === "confirmed") {
-          console.log(`✅ Транзакция подтверждена с ${confirmations} подтверждениями`);
+          console.log(
+            `✅ Транзакция подтверждена с ${confirmations} подтверждениями`
+          );
           return {
             status: "success",
-            data: verificationResponse.data
+            data: verificationResponse.data,
           };
         }
 
         if (status === "failed" || status === "rejected") {
           console.log("❌ Транзакция отклонена сетью");
           return {
-            status: "error", 
-            error: "Transaction failed in blockchain"
+            status: "error",
+            error: "Transaction failed in blockchain",
           };
         }
 
-        // Если статус "pending" - ждем 3 секунды до следующей проверки
         if (attempt < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise((resolve) => setTimeout(resolve, 3000));
         }
-
       } catch (error) {
         console.error(`⚠️ Ошибка при проверке (попытка ${attempt}):`, error);
-        
-        // На ошибках сети тоже ждем перед повторной попыткой
         if (attempt < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 3000));
+          await new Promise((resolve) => setTimeout(resolve, 3000));
         }
       }
     }
@@ -68,43 +75,74 @@ export const useTonPay = () => {
     console.log("⏰ Таймаут ожидания подтверждения");
     return {
       status: "error",
-      error: "Confirmation timeout"
+      error: "Confirmation timeout",
     };
   };
 
-  const payWithTon = async (params: TonPayParams): Promise<TonPaymentResponse> => {
+  const getTonWallet = async () => {
+    try {
+      if (!userAddress) {
+        await tonConnectUI.openModal();
+        return { status: "not_connected" };
+      }
+      const response = await quranApi.post("/api/v1/payment/ton/wallet");
+      console.log("response.data.data.wallet", response.data.data.wallet);
+      return response.data.data.wallet;
+    } catch (err: any) {
+      console.error("TON wallet error:", err);
+      if (err?.message?.includes("Rejected")) {
+        return { status: "rejected", error: err };
+      }
+      return { status: "error", error: err };
+    }
+  };
+
+  const payWithTon = async (
+    params: TonPayParams
+  ): Promise<TonPaymentResponse> => {
     try {
       if (!userAddress) {
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
 
-      // Создаем заказ (как раньше)
-      const invoiceResponse = await quranApi.post("/api/v1/payments/ton/invoice", {
-        userWalletAddress: userAddress,
-        amount: params.amount,
-        type: params.type,
-        productId: params.productId,
-      });
+      const merchantWallet = await getTonWallet();
+      
+      const invoiceResponse = await quranApi.post(
+        "/api/v1/payments/ton/invoice",
+        {
+          priceId: params.productId,
+          userWallet: userAddress, 
+        }
+      );
 
-      const { /*payload*/ boc, merchantWallet, orderId } = invoiceResponse.data;
+      const payload = invoiceResponse.data.data.payload;
+      const merchantAddress = merchantWallet; // Адрес мерчанта
+      const amount =(params.amount * 1e9).toString(); // Сумма в нанотонах
+
+      console.log("📦 Данные транзакции:", {
+        merchantAddress,
+        amount,
+        hasPayload: !!payload
+      });
 
       // Отправляем транзакцию
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.TESTNET,
-        validUntil: Math.floor(Date.now() / 1000) + 300,
+        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
         messages: [
           {
-            address: merchantWallet,
-            amount: (params.amount * 1e9).toString(),
-            payload: boc,
+            address: merchantAddress,
+            amount: amount,
+            payload: payload,
           },
         ],
       });
 
-      // 🔄 Ждем подтверждения с polling
-      return await waitForConfirmation(result.boc, orderId, 20);
+      console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
+      // Ждем подтверждения
+      return await waitForConfirmation(result.boc, 20);
     } catch (err: any) {
       console.error("TON payment error:", err);
       if (err?.message?.includes("Rejected")) {
@@ -114,5 +152,9 @@ export const useTonPay = () => {
     }
   };
 
-  return { payWithTon, connectedAddress: userAddress, isConnected: !!userAddress };
+  return {
+    payWithTon,
+    connectedAddress: userAddress,
+    isConnected: !!userAddress,
+  };
 };

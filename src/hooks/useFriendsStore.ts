@@ -148,7 +148,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      await quranApi.post("/referal/bonuses/total/revard", {});
+      await quranApi.post("api/v1/referal/bonuses/total/revard", {});
 
       await get().fetchBonusesStatus();
 
