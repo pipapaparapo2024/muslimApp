@@ -116,7 +116,6 @@ export const useTonPay = () => {
         hasPayload: !!payload,
       });
 
-      // Отправляем транзакцию
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.TESTNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
