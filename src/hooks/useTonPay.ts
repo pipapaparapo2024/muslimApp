@@ -142,7 +142,7 @@ export const useTonPay = () => {
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
       // Ждем подтверждения
-      return await waitForConfirmation(result.boc, 20);
+      return await waitForConfirmation(result.boc, "fds", 20);
     } catch (err: any) {
       console.error("TON payment error:", err);
       if (err?.message?.includes("Rejected")) {
