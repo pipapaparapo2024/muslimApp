@@ -29,8 +29,6 @@ export const useTonPay = () => {
         console.log(
           `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
         );
-        console.log("payload", payload);
-
         const response = await quranApi.get(
           `/api/v1/payments/ton/${payload}/check`
         );
@@ -145,7 +143,7 @@ export const useTonPay = () => {
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
       // Ждем подтверждения
-      return await waitForConfirmation(result.boc, payload);
+      return await waitForConfirmation(payload);
     } catch (err: any) {
       console.error("TON payment error:", err);
       if (err?.message?.includes("Rejected")) {
