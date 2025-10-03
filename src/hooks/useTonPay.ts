@@ -108,12 +108,13 @@ export const useTonPay = () => {
 
       const payload = invoiceResponse.data.data.payload;
       const merchantAddress = merchantWallet; // Адрес мерчанта
-      const amount = (params.amount * 1e9).toString(); // Сумма в нанотонах
+      const amount = (params.amount).toString(); // Сумма в нанотонах
 
       console.log("📦 Данные транзакции:", {
         merchantAddress,
         amount,
         hasPayload: !!payload,
+
       });
 
       const result = await tonConnectUI.sendTransaction({
