@@ -114,7 +114,7 @@ export const useTonPay = () => {
         merchantAddress,
         amount,
         hasPayload: !!payload,
-
+        payload:payload
       });
 
       const result = await tonConnectUI.sendTransaction({
