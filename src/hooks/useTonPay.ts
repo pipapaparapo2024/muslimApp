@@ -30,16 +30,17 @@ export const useTonPay = () => {
           `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
         );
         console.log("payload", payload);
-        const responce = await quranApi.get(
+
+        const response = await quranApi.get(
           `/api/v1/payments/ton/${payload}/check`
         );
 
-        const status = responce.data.data.orderStatus;
+        const status = response.data.data.orderStatus;
 
         if (status === "success") {
           return {
             status: "success",
-            data: responce.data,
+            data: response.data,
           };
         }
 
@@ -51,8 +52,20 @@ export const useTonPay = () => {
           };
         }
 
-        if (attempt < maxAttempts) {
-          await new Promise((resolve) => setTimeout(resolve, 3000));
+        if (status === "pending") {
+          console.log("⏳ Транзакция в обработке, ждем подтверждения...");
+          if (attempt < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            continue;
+          }
+        }
+
+        if (status === "timeout") {
+          console.log("⏰ Истекло время ожидания подтверждения");
+          return {
+            status: "error",
+            error: "Confirmation timeout",
+          };
         }
       } catch (error) {
         console.error(`⚠️ Ошибка при проверке (попытка ${attempt}):`, error);
@@ -62,7 +75,7 @@ export const useTonPay = () => {
       }
     }
 
-    console.log("⏰ Таймаут ожидания подтверждения");
+    console.log("⏰ Таймаут ожидания подтверждения (maxAttempts)");
     return {
       status: "error",
       error: "Confirmation timeout",
@@ -108,8 +121,8 @@ export const useTonPay = () => {
 
       const payload = invoiceResponse.data.data.payload;
       const payloadBOC = invoiceResponse.data.data.payloadBOC;
-      const merchantAddress = merchantWallet; 
-      const amount = (params.amount).toString();
+      const merchantAddress = merchantWallet;
+      const amount = params.amount.toString();
 
       console.log("📦 Данные транзакции:", {
         merchantAddress,
