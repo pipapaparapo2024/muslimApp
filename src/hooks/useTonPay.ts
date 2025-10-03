@@ -29,7 +29,7 @@ export const useTonPay = () => {
         console.log(
           `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
         );
-
+        console.log("payload",payload)
         const responce = await quranApi.get(
           `/api/v1/payments/ton/${payload}/check`
         );
