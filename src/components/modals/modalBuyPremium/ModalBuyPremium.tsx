@@ -263,7 +263,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             error: result.status,
             product_id: prices.productId,
           });
-          alert(t("paymentError"));
       }
     } catch (error: any) {
       console.error("TON payment error:", error);
