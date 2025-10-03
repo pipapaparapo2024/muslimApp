@@ -107,6 +107,7 @@ export const useTonPay = () => {
       );
 
       const payload = invoiceResponse.data.data.payload;
+      const payloadBOC = invoiceResponse.data.data.payloadBOC;
       const merchantAddress = merchantWallet; 
       const amount = (params.amount).toString();
 
@@ -123,7 +124,7 @@ export const useTonPay = () => {
           {
             address: merchantAddress,
             amount: amount,
-            payload: payload,
+            payload: payloadBOC,
           },
         ],
       });
