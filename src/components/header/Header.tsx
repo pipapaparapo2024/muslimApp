@@ -63,7 +63,12 @@ export const Header: React.FC = () => {
       button_text: getButtonText(),
       wallet_connected: !!userAddress,
     });
-
+    console.log("userAddress",userAddress)
+    console.log("userAddress",userAddress)
+    console.log("userAddress",userAddress)
+    console.log("userAddress",userAddress)
+    console.log("userAddress",userAddress)
+    console.log("userAddress",userAddress)
     if (!userAddress) {
       trackButtonClick("wallet_connection_triggered", {
         context: "premium_purchase",

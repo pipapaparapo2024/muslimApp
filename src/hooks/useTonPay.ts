@@ -107,8 +107,8 @@ export const useTonPay = () => {
       );
 
       const payload = invoiceResponse.data.data.payload;
-      const merchantAddress = merchantWallet; // Адрес мерчанта
-      const amount = (params.amount).toString(); // Сумма в нанотонах
+      const merchantAddress = merchantWallet; 
+      const amount = (params.amount).toString();
 
       console.log("📦 Данные транзакции:", {
         merchantAddress,
