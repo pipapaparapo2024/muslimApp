@@ -318,7 +318,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {(prices.ton/10e9).toFixed(2)}
+                {(prices.ton/10e9).toFixed(20)}
               </div>
             </div>
             {!isConnected && !isProcessingTon && (
