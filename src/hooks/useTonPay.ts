@@ -29,12 +29,12 @@ export const useTonPay = () => {
         console.log(
           `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
         );
-        console.log("payload",payload)
+        console.log("payload", payload);
         const responce = await quranApi.get(
           `/api/v1/payments/ton/${payload}/check`
         );
 
-        const  status  = responce.data.data.orderStatus;
+        const status = responce.data.data.orderStatus;
 
         if (status === "success") {
           return {
@@ -108,17 +108,17 @@ export const useTonPay = () => {
 
       const payload = invoiceResponse.data.data.payload;
       const merchantAddress = merchantWallet; // Адрес мерчанта
-      const amount = (params.amount/10e9).toString(); // Сумма в нанотонах
+      const amount = (params.amount / 10e9).toString(); // Сумма в нанотонах
 
       console.log("📦 Данные транзакции:", {
         merchantAddress,
         amount,
         hasPayload: !!payload,
-        payload:payload
+        payload: payload,
       });
 
       const result = await tonConnectUI.sendTransaction({
-        network: CHAIN.TESTNET,
+        network: CHAIN.MAINNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
