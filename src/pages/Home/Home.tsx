@@ -7,7 +7,6 @@ import { QiblaCompass } from "./QiblaCompass/QiblaCompass";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
-import { t } from "i18next";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
@@ -26,7 +25,7 @@ export const Home: React.FC = () => {
     showVpnWarning,
     handleCloseVpnWarning,
   } = useHomeLogic();
-  const{translations}=useTranslationsStore()
+  const { translations } = useTranslationsStore();
   const { isLoading, error } = useGeoStore();
 
   if (isInitializing) {
@@ -41,7 +40,7 @@ export const Home: React.FC = () => {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
-          <h2>{t("initializationError")}</h2>
+          <h2> {translations?.initializationError}</h2>
           <p>{initializationError}</p>
           <button
             onClick={() => {
@@ -49,7 +48,7 @@ export const Home: React.FC = () => {
               window.location.reload();
             }}
           >
-            {t("tryAgain")}
+            {translations?.tryAgain}
           </button>
         </div>
       </PageWrapper>
@@ -91,7 +90,7 @@ export const Home: React.FC = () => {
                         fill="#F59E0B"
                       />
                     </div>
-                    {t("vpnWarning")}
+                    {translations?.vpnWarning}
                   </div>
                 </div>
               </div>
@@ -107,7 +106,7 @@ export const Home: React.FC = () => {
 
               <div className={styles.qiblaBlock}>
                 <div className={styles.titleFaceKaaba}>
-                  {t("faceTheKaaba")}{" "}
+                  {translations?.faceTheKaaba}
                   {sensorPermission === "prompt" ? (
                     <div
                       className={`${styles.permissionButton} ${
@@ -123,9 +122,8 @@ export const Home: React.FC = () => {
                       }}
                     >
                       {isRequestingPermission
-                        ? t("requesting...")
-                        : t("allowSensors")}
-                        {translations?.allowSensors}
+                        ? translations?.requesting
+                        : translations?.allowSensors}
                     </div>
                   ) : (
                     <button
@@ -136,12 +134,12 @@ export const Home: React.FC = () => {
                         resetSensorPermission();
                       }}
                     >
-                      {t("resetPermission")}
+                      {translations?.resetPermission}
                     </button>
                   )}
                 </div>
                 <div className={styles.diskFaceKaaba}>
-                  {t("useMapForSalah")}
+                  {translations?.useMapForSalah}
                 </div>
 
                 <div className={styles.qiblaBlockRow}>
@@ -180,7 +178,7 @@ export const Home: React.FC = () => {
                   color="white"
                   fill="#F59E0B"
                 />
-                {t("locationMay")}{" "}
+                {translations?.locationMay}
               </div>
             </div>
           </div>
