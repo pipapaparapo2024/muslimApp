@@ -3,8 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
-import i18n from "../../api/i18n";
-import { applyLanguageStyles, useLanguage } from "../../hooks/useLanguages";
+import { applyLanguageStyles } from "../../hooks/useLanguages";
 import { trackButtonClick } from "../../api/analytics";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
@@ -28,8 +27,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
-  const {language}=useLanguage();
-  const {loadTranslations}=useTranslationsStore()
+  const { loadTranslations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -49,10 +47,9 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
-        loadTranslations(language);
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
-          await i18n.changeLanguage(userLanguage);
+          loadTranslations(userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }
