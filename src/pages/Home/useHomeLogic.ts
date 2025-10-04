@@ -28,7 +28,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 
 export const fetchTranslationsEnAr = async () => {
   try {
-    const response = await quranApi.get("/api/v1/translations");
+    const response = await quranApi.get("/api/v1/settings/translations");
 
     const translationString = response?.data?.data?.translations;
 
