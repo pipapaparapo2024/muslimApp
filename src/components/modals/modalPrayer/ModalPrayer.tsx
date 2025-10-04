@@ -24,7 +24,7 @@ export const ModalPrayer: React.FC<ModalProps> = ({
     <div className={styles.modalOverlay} onClick={onRequestClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>{t(prayer.name)}</h2>
+          <h2>{prayer.name}</h2>
           <button className={styles.closeButton} onClick={onRequestClose}>
             ×
           </button>
