@@ -18,10 +18,39 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
       headers: { Authorization: `Bearer ${token}` },
     });
     const backendLanguage = response.data.data.language.languageCode;
-    console.log("backendLanguage",backendLanguage)
+    console.log("backendLanguage", backendLanguage);
     return backendLanguage;
   } catch (error) {
     console.error("Error fetching language:", error);
+    return null;
+  }
+};
+
+export const fetchTranslationsEnAr = async () => {
+  try {
+    const response = await quranApi.get("/api/v1/translations");
+
+    const translationString = response?.data?.data?.translations;
+
+    if (!translationString) {
+      console.error("⚠️ Переводы не найдены в ответе API");
+      return null;
+    }
+
+    let parsedTranslations;
+    try {
+      parsedTranslations = JSON.parse(translationString);
+    } catch (parseError) {
+      console.error("❌ Ошибка парсинга строки переводов:", parseError);
+      console.log("📦 Исходная строка:", translationString);
+      return null;
+    }
+
+    console.log("🌐 Переводы успешно получены:", parsedTranslations);
+
+    return parsedTranslations;
+  } catch (error) {
+    console.error("❌ Ошибка при получении переводов:", error);
     return null;
   }
 };
@@ -133,7 +162,7 @@ export const useHomeLogic = () => {
     } catch (err) {
       console.error("Sensor permission error:", err);
       setSensorPermission("denied");
-      trackButtonClick('sensor_permission_error', { error: err });
+      trackButtonClick("sensor_permission_error", { error: err });
     } finally {
       setIsRequestingPermission(false);
     }
@@ -183,7 +212,7 @@ export const useHomeLogic = () => {
   );
 
   const handleMapClick = useCallback(() => {
-    trackButtonClick('map_navigation');
+    trackButtonClick("map_navigation");
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 
