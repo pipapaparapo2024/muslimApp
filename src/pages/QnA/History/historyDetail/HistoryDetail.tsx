@@ -10,9 +10,10 @@ import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { type QaItem } from "../../../../hooks/useHistoryStore";
 import { trackButtonClick } from "../../../../api/analytics";
-
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { translations } = useTranslationsStore();
   const { getHistoryItem } = useHistoryStore();
   const [currentItem, setCurrentItem] = useState<QaItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -114,7 +115,12 @@ export const HistoryDetail: React.FC = () => {
           </div>
         </div>
 
-        <Share shareUrl={`/qna/shareHistory/${id}`} newUrl="/qna" />
+        <Share
+          shareUrl={`/qna/shareHistory/${id}`}
+          newUrl="/qna"
+          shareText={translations?.share}
+          newText={translations?.newQuestion}
+        />
       </div>
     </PageWrapper>
   );

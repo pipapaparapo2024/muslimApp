@@ -2,49 +2,37 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { quranApi } from '../api/api';
 import type { Language } from './useLanguages';
-// Типы для переводов
+
 interface Translations {
   [key: string]: string;
 }
 
 interface TranslationsStore {
-  // Состояние
   translations: Translations | null;
   isLoading: boolean;
   error: string | null;
   
-  // Действия
   setTranslations: (translations: Translations | null) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
   
-  // Загрузка переводов
   loadTranslations: (language: Language) => Promise<Translations | null>;
-  
-  // Получение перевода по ключу
   getTranslation: (key: string) => string | undefined;
-  
-  // Проверка наличия перевода
   hasTranslation: (key: string) => boolean;
-  
-  // Очистка store
   clearTranslations: () => void;
 }
 
 export const useTranslationsStore = create<TranslationsStore>()(
   persist(
     (set, get) => ({
-      // Состояние
       translations: null,
       isLoading: false,
       error: null,
       
-      // Действия
       setTranslations: (translations) => set({ translations }),
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       
-      // Загрузка переводов
       loadTranslations: async (language: Language) => {
         set({ isLoading: true, error: null });
         
@@ -81,19 +69,16 @@ export const useTranslationsStore = create<TranslationsStore>()(
         }
       },
       
-      // Получение перевода по ключу
       getTranslation: (key: string) => {
         const { translations } = get();
         return translations?.[key];
       },
       
-      // Проверка наличия перевода
       hasTranslation: (key: string) => {
         const { translations } = get();
         return translations?.[key] !== undefined;
       },
       
-      // Очистка store
       clearTranslations: () => {
         set({ 
           translations: null,

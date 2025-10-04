@@ -4,17 +4,16 @@ import { BuyPremiumModal } from "../modals/modalBuyPremium/ModalBuyPremium";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { trackButtonClick } from "../../api/analytics";
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
-
+import { useTranslationsStore } from "../../hooks/useTranslations";
 export const Header: React.FC = () => {
+  const {translations}=useTranslationsStore();
   const { formattedDate, updateFormattedDate } = useDataTimeStore();
   const { hasPremium, premiumDaysLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { city, country } = useGeoStore();
 
@@ -34,12 +33,12 @@ export const Header: React.FC = () => {
   }, []);
 
   const getButtonText = () => {
-    if (!hasPremium) return t("buyPremium");
-    if (!premiumDaysLeft) return t("premiumActive");
+    if (!hasPremium) return translations?.buyPremium;
+    if (!premiumDaysLeft) return translations?.premiumActive;
     if (premiumDaysLeft > 0) {
-      return `${premiumDaysLeft} ${t("daysLeft")}`;
+      return `${premiumDaysLeft} ${translations?.daysLeft}`;
     } else {
-      return t("buyPremium");
+      return translations?.buyPremium;
     }
   };
 
@@ -145,7 +144,7 @@ export const Header: React.FC = () => {
           </defs>
         </svg>
 
-        {isConnecting ? t("connecting") : getButtonText()}
+        {isConnecting ?translations?.connecting : getButtonText()}
       </button>
 
       <BuyPremiumModal

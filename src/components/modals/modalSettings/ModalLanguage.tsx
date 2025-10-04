@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "./ModalLanguage.module.css";
 import { Check, Loader } from "lucide-react";
-import { t } from "i18next";
 import { type Language } from "../../../hooks/useLanguages";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { trackButtonClick } from "../../../api/analytics";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 // Импортируем иконки
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
@@ -19,7 +18,7 @@ interface LanguageModalProps {
 
 interface LanguageItem {
   code: Language;
-  name: string;
+  name: string | undefined;
   iconUrl: string;
 }
 
@@ -29,18 +28,19 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   currentLanguage = "en",
   onLanguageChange,
 }) => {
+  const { translations } = useTranslationsStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const { fetchVariants } = useSurahListStore();
 
   const languages: LanguageItem[] = [
-    { code: "en" as Language, name: t("english"), iconUrl: enIcon },
-    { code: "ar" as Language, name: t("arabic"), iconUrl: arIcon },
+    { code: "en" as Language, name: translations?.english, iconUrl: enIcon },
+    { code: "ar" as Language, name: translations?.arabic, iconUrl: arIcon },
   ];
 
   // Прогрузка иконок
   useEffect(() => {
     let isMounted = true;
-    
+
     const preloadIcons = () => {
       const imagePromises = languages.map((item) => {
         return new Promise<void>((resolve) => {
@@ -89,19 +89,21 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>{t("languageModal")}</h2>
+          <h2>{translations?.languageModal}</h2>
           <button className={styles.closeButton} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <p className={styles.modalDescription}>{t("selectLanguages")}</p>
+        <p className={styles.modalDescription}>
+          {translations?.selectLanguages}
+        </p>
 
         <div className={styles.options}>
           {!isLoaded ? (
             <div className={styles.loadingContainer}>
               <Loader size={24} className={styles.spinner} />
-              <span>{t("loadingLanguages")}</span>
+              <span> {translations?.loadingLanguages}</span>
             </div>
           ) : (
             languages.map((lang) => (
@@ -114,17 +116,18 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") handleSelect(lang.code);
+                  if (e.key === "Enter" || e.key === " ")
+                    handleSelect(lang.code);
                 }}
               >
                 <div className={styles.option}>
                   <span className={styles.flag}>
-                    <img 
-                      src={lang.iconUrl} 
+                    <img
+                      src={lang.iconUrl}
                       alt={lang.name}
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
+                        target.style.display = "none";
                       }}
                     />
                   </span>

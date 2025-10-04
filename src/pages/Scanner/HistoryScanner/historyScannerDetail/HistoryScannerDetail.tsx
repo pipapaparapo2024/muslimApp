@@ -14,7 +14,7 @@ import {
 } from "../../productStatus";
 import { type ScanResult } from "../../../../hooks/useScannerStore";
 import { trackButtonClick } from "../../../../api/analytics";
-
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 export const HistoryScannerDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -22,7 +22,7 @@ export const HistoryScannerDetail: React.FC = () => {
   const [currentItem, setCurrentItem] = useState<ScanResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
-
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     const loadItem = async () => {
       if (!id) {
@@ -184,7 +184,8 @@ export const HistoryScannerDetail: React.FC = () => {
         <Share
           shareUrl={`/scanner/ScannerShareHistory/${id}`}
           newUrl="/scanner"
-          newText={t("newScan")}
+          shareText={translations?.share}
+          newText={translations?.newScan}
         />
       </div>
     </PageWrapper>

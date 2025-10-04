@@ -75,6 +75,7 @@ const resources = {
       selectLanguages: "Select your preferred language for the app.",
       english: "English",
       arabic: "Arabic",
+      loadingLanguages: "Loading Languages",
 
       //Modal Theme
       setYourPreferred: "Set your preferred appearance mode.",
@@ -105,7 +106,7 @@ const resources = {
       //Camera Page
       again: "Again",
       send: "Send",
-
+      connecting: "Connecting",
       // Friends
       haventInvited: "You haven't invited any friends yet",
       earnRewards: "🎁 Earn Rewards by Sharing",
@@ -253,6 +254,10 @@ const resources = {
       analysisCouldntComplete:
         "Image analysis could not be completed (possibly incorrect image). Please try scanning again or check your connection.",
       scanFirstProduct: "Scan first product",
+      permissionResetSuccess: "Permission Reset Success",
+      sensorPermissionDeniedMessage: "Sensor Permission Denied Message",
+      sensorPermissionRequired: "Sensor Permission Required",
+      sensorPermissionError: "Sensor Permission Error",
 
       // Scanner words
       copy: "Copy",
@@ -267,7 +272,7 @@ const resources = {
       newScan: "New Scan",
       newQuestion: "New Question",
       goPremium: "Go Premium",
-      days:"Days",
+      days: "Days",
       premiumDescription:
         "Unlock all features with a single upgrade. Enjoy full access without limits.",
       week: " Week",
@@ -348,7 +353,7 @@ const resources = {
       selectLanguages: "اختر لغتك المفضلة للتطبيق.",
       english: "إنجليزي",
       arabic: "عربي",
-
+      loadingLanguages: "تحميل اللغات",
       //Modal Theme
       setYourPreferred: "اضبط وضع المظهر المفضل لديك.",
       chooseTheme: "اختر الموضوع",
@@ -375,6 +380,7 @@ const resources = {
       //Camera Page
       again: "مرة أخرى",
       send: "يرسل",
+      connecting: "ربط",
 
       // Friends
       earnRewards: "🎁 اربح مكافآت بالمشاركة",
@@ -524,10 +530,14 @@ const resources = {
       analysisCouldntComplete:
         "لا يمكن إكمال تحليل الصورة (ربما تكون الصورة غير صحيحة). يرجى محاولة المسح مرة أخرى أو التحقق من اتصالك.",
       scanFirstProduct: "مسح المنتج الأول",
+      permissionResetSuccess: "نجاح إعادة تعيين الإذن",
+      sensorPermissionDeniedMessage: "رسالة رفض إذن المستشعر",
+      sensorPermissionRequired: "مطلوب إذن الاستشعار",
+      sensorPermissionError: "خطأ في إذن الاستشعار",
 
       // Scanner words
       copy: "نسخ",
-      days:"أيام",
+      days: "أيام",
       haram: "حرام",
       mushbooh: "مشبوه",
       needs_info: "يحتاج إلى معلومات",

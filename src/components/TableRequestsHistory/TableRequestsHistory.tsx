@@ -2,32 +2,38 @@ import { Clock, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TableRequestsHistory.module.css";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
-import { t } from "i18next";
 import { BuyRequestsModal } from "../modals/modalBuyReqeuests/ModalBuyRequests";
 import { useEffect, useState } from "react";
+import { useTranslationsStore } from "../../hooks/useTranslations";
 import { trackButtonClick } from "../../api/analytics";
 interface ClickHistory {
   text: string;
 }
 
 export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
+  const { translations } = useTranslationsStore();
   const [showModal, setShowModal] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState("10");
-  const { requestsLeft, hasPremium, isLoading, premiumDaysLeft, fetchUserData } =
-    usePremiumStore();
+  const {
+    requestsLeft,
+    hasPremium,
+    isLoading,
+    premiumDaysLeft,
+    fetchUserData,
+  } = usePremiumStore();
   const navigate = useNavigate();
 
   const getStatusText = () => {
-    if (isLoading) return t("loading");
-    if (hasPremium) return `${premiumDaysLeft} ${t("daysLeft")}`;
+    if (isLoading) return translations?.loading;
+    if (hasPremium) return `${premiumDaysLeft} ${translations?.daysLeft}`;
     if (requestsLeft != null && requestsLeft > 0)
-      return `${requestsLeft} ${t("requests")}`;
-    return t("noRequests");
+      return `${requestsLeft} ${translations?.requests}`;
+    return translations?.noRequests;
   };
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData,]);
+  }, [fetchUserData]);
 
   const handleHistoryClick = () => {
     trackButtonClick("history_button", { destination: text });
@@ -46,7 +52,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
     <div className={styles.header}>
       <button className={styles.button} onClick={handleHistoryClick}>
         <Clock size={20} strokeWidth={1.5} />
-        <span>{t("history")}</span>
+        <span>{translations?.history}</span>
       </button>
       <button className={styles.button} onClick={handleBuyRequestsClick}>
         <MessageCircle size={20} strokeWidth={1.5} />

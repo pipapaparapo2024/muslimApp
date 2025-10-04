@@ -2,7 +2,6 @@ import React from "react";
 import { Plus, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from './Share.module.css'
-import { t } from "i18next";
 
 interface ShareProps {
   shareUrl: string;
@@ -14,8 +13,8 @@ interface ShareProps {
 export const Share: React.FC<ShareProps> = ({ 
   shareUrl, 
   newUrl, 
-  shareText = t("share"), 
-  newText = t("newQuestion") 
+  shareText = "share", 
+  newText = "newQuestion" 
 }) => {
   const navigate = useNavigate();
 

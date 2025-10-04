@@ -1,4 +1,3 @@
-import { t } from "i18next";
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Language } from "../../hooks/useLanguages";
@@ -27,7 +26,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
-  const { loadTranslations } = useTranslationsStore();
+  const { loadTranslations, translations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -104,7 +103,7 @@ export const useHomeLogic = () => {
     setOrientationListenerActive(false);
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
-    alert(t("permissionResetSuccess"));
+    alert(translations?.permissionResetSuccess);
   }, []);
 
   const requestSensorPermission = useCallback(async () => {
@@ -141,7 +140,7 @@ export const useHomeLogic = () => {
   const handleCompassClick = useCallback(
     async (currentPermission: string) => {
       if (currentPermission === "denied") {
-        alert(t("sensorPermissionDeniedMessage"));
+        alert(translations?.sensorPermissionDeniedMessage);
         return;
       }
 
@@ -161,7 +160,7 @@ export const useHomeLogic = () => {
               navigate("/qibla", { state: { activeTab: "compass" } });
             } else {
               setSensorPermission("denied");
-              alert(t("sensorPermissionRequired"));
+              alert(translations?.sensorPermissionRequired);
             }
           } else {
             setSensorPermission("granted");
@@ -170,7 +169,7 @@ export const useHomeLogic = () => {
         } catch (err) {
           console.error("Sensor permission error:", err);
           setSensorPermission("denied");
-          alert(t("sensorPermissionError"));
+          alert(translations?.sensorPermissionError);
         } finally {
           setIsRequestingPermission(false);
         }
