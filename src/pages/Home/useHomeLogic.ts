@@ -26,7 +26,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   }
 };
 
-export const fetchTranslationsEnAr = async () => {
+export const fetchTranslationsEnAr = async (currentLanguage?: Language) => {
   try {
     const response = await quranApi.get("/api/v1/settings/translations");
 
@@ -48,6 +48,11 @@ export const fetchTranslationsEnAr = async () => {
 
     console.log("🌐 Переводы успешно получены:", parsedTranslations);
 
+    // 🔄 Возвращаем переводы в зависимости от текущего языка
+    if (currentLanguage) {
+      console.log("parsedTranslations[currentLanguage]?.translation",parsedTranslations[currentLanguage]?.translation)
+      return parsedTranslations[currentLanguage]?.translation || parsedTranslations.en.translation;
+    }
     return parsedTranslations;
   } catch (error) {
     console.error("❌ Ошибка при получении переводов:", error);
