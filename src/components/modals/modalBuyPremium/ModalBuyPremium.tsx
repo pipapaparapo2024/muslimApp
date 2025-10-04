@@ -8,6 +8,7 @@ import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
+import { usePremiumStore } from "../../../hooks/usePremiumStore";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     getPriceByProductId,
     loading: pricesLoading,
   } = usePrices();
-
+  const { fetchUserData } = usePremiumStore();
   const { payWithTon, isConnected } = useTonPay();
   const { payWithStars } = useStarsPay();
   const [isProcessingTon, setIsProcessingTon] = React.useState(false);
@@ -238,7 +239,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             product_id: prices.productId,
             days: prices.days,
           });
-          alert(t("paymentSuccess"));
+          alert(t("Payment Success"));
+          await fetchUserData();
           onClose();
           break;
 
@@ -248,7 +250,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             period: selectedRequests,
             product_id: prices.productId,
           });
-          alert(t("paymentRejected"));
+          alert(t("Payment Rejected"));
           break;
 
         case "not_connected":
@@ -324,7 +326,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {(prices.ton/10e9).toFixed(10)}
+                {(prices.ton / 10e9).toFixed(10)}
               </div>
             </div>
             {!isConnected && !isProcessingTon && (
