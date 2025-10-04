@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
 import i18n from "../../api/i18n";
-import { applyLanguageStyles } from "../../hooks/useLanguages";
+import { applyLanguageStyles, useLanguage } from "../../hooks/useLanguages";
 import { trackButtonClick } from "../../api/analytics";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
-
+import { useTranslationsStore } from "../../hooks/useTranslations";
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -26,42 +26,10 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   }
 };
 
-export const fetchTranslationsEnAr = async (currentLanguage?: Language) => {
-  try {
-    const response = await quranApi.get("/api/v1/settings/translations");
-
-    const translationString = response?.data?.data?.translations;
-
-    if (!translationString) {
-      console.error("⚠️ Переводы не найдены в ответе API");
-      return null;
-    }
-
-    let parsedTranslations;
-    try {
-      parsedTranslations = JSON.parse(translationString);
-    } catch (parseError) {
-      console.error("❌ Ошибка парсинга строки переводов:", parseError);
-      console.log("📦 Исходная строка:", translationString);
-      return null;
-    }
-
-    console.log("🌐 Переводы успешно получены:", parsedTranslations);
-
-    // 🔄 Возвращаем переводы в зависимости от текущего языка
-    if (currentLanguage) {
-      console.log("parsedTranslations[currentLanguage]?.translation",parsedTranslations[currentLanguage]?.translation)
-      return parsedTranslations[currentLanguage]?.translation || parsedTranslations.en.translation;
-    }
-    return parsedTranslations;
-  } catch (error) {
-    console.error("❌ Ошибка при получении переводов:", error);
-    return null;
-  }
-};
-
 export const useHomeLogic = () => {
   const navigate = useNavigate();
+  const {language}=useLanguage();
+  const {loadTranslations}=useTranslationsStore()
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -81,9 +49,8 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
+        loadTranslations(language);
         const userLanguage = await fetchLanguageFromBackend();
-        const translations = await fetchTranslationsEnAr();
-        console.log("translations",translations)
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
           applyLanguageStyles(userLanguage);

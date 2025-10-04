@@ -8,6 +8,7 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { QiblaMap } from "./QiblaCompass/QiblaMap";
 import { Header } from "../../components/header/Header";
 import { t } from "i18next";
+import { useTranslationsStore } from "../../hooks/useTranslations";
 import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
@@ -25,7 +26,7 @@ export const Home: React.FC = () => {
     showVpnWarning,
     handleCloseVpnWarning,
   } = useHomeLogic();
-
+  const{translations}=useTranslationsStore()
   const { isLoading, error } = useGeoStore();
 
   if (isInitializing) {
@@ -124,6 +125,7 @@ export const Home: React.FC = () => {
                       {isRequestingPermission
                         ? t("requesting...")
                         : t("allowSensors")}
+                        {translations?.allowSensors}
                     </div>
                   ) : (
                     <button
