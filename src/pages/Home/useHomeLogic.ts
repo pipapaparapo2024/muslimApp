@@ -77,7 +77,8 @@ export const useHomeLogic = () => {
     const initializeLanguage = async () => {
       try {
         const userLanguage = await fetchLanguageFromBackend();
-
+        const translations = await fetchTranslationsEnAr();
+        console.log("translations",translations)
         if (userLanguage) {
           await i18n.changeLanguage(userLanguage);
           applyLanguageStyles(userLanguage);
