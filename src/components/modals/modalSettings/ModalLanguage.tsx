@@ -77,11 +77,11 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     onClose?.();
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchVariants();
-    }
-  }, [isOpen, fetchVariants]);
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     fetchVariants();
+  //   }
+  // }, [isOpen, fetchVariants]);
 
   if (!isOpen) return null;
 
