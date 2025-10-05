@@ -82,7 +82,6 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           loadTranslations(userLanguage);
-          localStorage.setItem("preferred-language", userLanguage);
         }
       } catch (error) {
         console.error("Language initialization error:", error);
