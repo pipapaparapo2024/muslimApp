@@ -30,7 +30,8 @@ const LANGUAGE_KEY = "preferred-language";
 export const useLanguage = () => {
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
   const [isChanging, setIsChanging] = useState(false);
-  const { translations } = useTranslationsStore();
+  const { translations, loadTranslations } = useTranslationsStore();
+
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
@@ -57,6 +58,7 @@ export const useLanguage = () => {
       await setLanguageOnBackend(newLang);
       await i18n.changeLanguage(newLang);
       setLanguage(newLang);
+      await loadTranslations(newLang);
     } catch (error) {
       console.error("Error changing language:", error);
     } finally {
@@ -82,7 +84,8 @@ export const useLanguage = () => {
   return {
     language,
     changeLanguage,
-    languageLabel: language === "ar" ? translations?.arabic  : translations?.english,
+    languageLabel:
+      language === "ar" ? translations?.arabic : translations?.english,
     isChanging,
   };
 };

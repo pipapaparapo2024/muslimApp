@@ -9,7 +9,6 @@ import { useTranslationsStore } from "../../../hooks/useTranslations";
 // Импортируем иконки
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
-import { fetchLanguageFromBackend } from "../../../pages/Home/useHomeLogic";
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -29,7 +28,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   currentLanguage = "en",
   onLanguageChange,
 }) => {
-  const { translations, loadTranslations } = useTranslationsStore();
+  const { translations } = useTranslationsStore();
   const [isLoaded, setIsLoaded] = useState(false);
 
   const languages: LanguageItem[] = [
@@ -76,20 +75,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     onLanguageChange?.(lang);
     onClose?.();
   };
-  useEffect(() => {
-    const initializeLanguage = async () => {
-      try {
-        const userLanguage = await fetchLanguageFromBackend();
-        if (userLanguage) {
-          loadTranslations(userLanguage);
-        }
-      } catch (error) {
-        console.error("Language initialization error:", error);
-      }
-    };
 
-    initializeLanguage();
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
