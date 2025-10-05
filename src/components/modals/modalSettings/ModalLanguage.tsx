@@ -89,7 +89,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     };
 
     initializeLanguage();
-  }, [onLanguageChange]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
