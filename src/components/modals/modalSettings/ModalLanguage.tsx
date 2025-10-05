@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import styles from "./ModalLanguage.module.css";
 import { Check, Loader } from "lucide-react";
 import {
-  applyLanguageStyles,
   type Language,
 } from "../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../api/analytics";
@@ -83,7 +82,6 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           loadTranslations(userLanguage);
-          applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }
       } catch (error) {
