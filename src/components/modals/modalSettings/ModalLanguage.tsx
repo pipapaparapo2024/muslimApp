@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import styles from "./ModalLanguage.module.css";
 import { Check, Loader } from "lucide-react";
-import { type Language } from "../../../hooks/useLanguages";
-import { useSurahListStore } from "../../../hooks/useSurahListStore";
+import {
+  applyLanguageStyles,
+  type Language,
+} from "../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 // Импортируем иконки
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
-
+import { fetchLanguageFromBackend } from "../../../pages/Home/useHomeLogic";
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -28,9 +30,8 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   currentLanguage = "en",
   onLanguageChange,
 }) => {
-  const { translations } = useTranslationsStore();
+  const { translations, loadTranslations } = useTranslationsStore();
   const [isLoaded, setIsLoaded] = useState(false);
-  const { fetchVariants } = useSurahListStore();
 
   const languages: LanguageItem[] = [
     { code: "en" as Language, name: translations?.english, iconUrl: enIcon },
@@ -76,12 +77,22 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
     onLanguageChange?.(lang);
     onClose?.();
   };
+  useEffect(() => {
+    const initializeLanguage = async () => {
+      try {
+        const userLanguage = await fetchLanguageFromBackend();
+        if (userLanguage) {
+          loadTranslations(userLanguage);
+          applyLanguageStyles(userLanguage);
+          localStorage.setItem("preferred-language", userLanguage);
+        }
+      } catch (error) {
+        console.error("Language initialization error:", error);
+      }
+    };
 
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     fetchVariants();
-  //   }
-  // }, [isOpen, fetchVariants]);
+    initializeLanguage();
+  }, [onLanguageChange]);
 
   if (!isOpen) return null;
 
