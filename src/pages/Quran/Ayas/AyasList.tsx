@@ -7,13 +7,14 @@ import { Search, Loader, ChevronUp, ChevronDown, ArrowUp } from "lucide-react";
 import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { useLanguage } from "../../../hooks/useLanguages";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const AyahList: React.FC = () => {
   const { surahId } = useParams<{ surahId: string }>();
   const location = useLocation();
   const { surah: initialSurah } = location.state || {};
   const { language } = useLanguage();
-
+  const { translations } = useTranslationsStore();
   const { ayahs, error, fetchAyahs, resetAyahs, loading } = useSurahListStore();
 
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -24,7 +25,7 @@ export const AyahList: React.FC = () => {
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   const resultRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  
+
   // Сортировка аятов по номеру
   const sortedAyahs = React.useMemo(() => {
     return [...ayahs].sort((a, b) => a.number - b.number);
@@ -42,7 +43,7 @@ export const AyahList: React.FC = () => {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   const getScrollButtonPosition = () => {
     return language === "ar" ? "5%" : "85%";
   };
@@ -214,7 +215,9 @@ export const AyahList: React.FC = () => {
         <div className={styles.blockHeader}>
           <div className={styles.text}>
             <div className={styles.title}>
-              {initialSurah?.englishName || initialSurah?.name || t("surah")}
+              {initialSurah?.englishName ||
+                initialSurah?.name ||
+                translations?.surah}
             </div>
             {initialSurah?.description && (
               <div className={styles.deskription}>
@@ -227,7 +230,7 @@ export const AyahList: React.FC = () => {
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchAyahs")}
+              placeholder={translations?.searchAyahs}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -307,7 +310,7 @@ export const AyahList: React.FC = () => {
             aria-label={t("scrollToTop")}
             style={{ left: getScrollButtonPosition() }}
           >
-            <ArrowUp size={20} color="white"/>
+            <ArrowUp size={20} color="white" />
           </button>
         )}
       </div>

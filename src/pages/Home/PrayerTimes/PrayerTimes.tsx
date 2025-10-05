@@ -6,16 +6,16 @@ import { ModalPrayer } from "../../../components/modals/modalPrayer/ModalPrayer"
 import { useNavigate } from "react-router-dom";
 import { Pen } from "lucide-react";
 import { useDataTimeStore } from "../../../hooks/useDataTimeStore";
-import { t } from "i18next";
 import { usePrayerTimesLogic, toDate } from "./usePrayerTimesLogic";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { trackButtonClick } from "../../../api/analytics";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const PrayerTimes: React.FC = () => {
   const { isLoading, error, fetchPrayers, prayers } = usePrayerApiStore();
   const geoData = useGeoStore((state) => state);
   const is24Hour = useDataTimeStore((state) => state.is24Hour);
   const navigate = useNavigate();
-
+  const { translations } = useTranslationsStore();
   const {
     isModalOpen,
     selectedPrayer,
@@ -42,15 +42,17 @@ export const PrayerTimes: React.FC = () => {
     return (
       <div className={styles.prayerTimesContainer}>
         <div className={styles.headerRow}>
-          <div className={styles.title}>{t("prayerTimes")}</div>
+          <div className={styles.title}> {translations?.prayerTimes}</div>
           <Pen
             size={16}
             onClick={() => navigate("/settings/prayerTimes")}
             className={styles.editIcon}
           />
         </div>
-        <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
-        <div className={styles.noPrayers}>{t("noPrayersAvailable")}</div>
+        <div className={styles.subtitle}>{translations?.viewTodaysSalah}</div>
+        <div className={styles.noPrayers}>
+          {translations?.noPrayersAvailable}
+        </div>
       </div>
     );
   }
@@ -58,7 +60,7 @@ export const PrayerTimes: React.FC = () => {
   return (
     <div className={styles.prayerTimesContainer}>
       <div className={styles.headerRow}>
-        <span className={styles.title}>{t("prayerTimes")}</span>
+        <span className={styles.title}> {translations?.prayerTimes}</span>
         <div className={styles.actions}>
           <Pen
             size={16}
@@ -67,7 +69,7 @@ export const PrayerTimes: React.FC = () => {
           />
         </div>
       </div>
-      <div className={styles.subtitle}>{t("viewTodaysSalah")}</div>
+      <div className={styles.subtitle}> {translations?.viewTodaysSalah}</div>
 
       <div className={styles.grid}>
         {sortedPrayers.map((prayer) => {
@@ -96,10 +98,10 @@ export const PrayerTimes: React.FC = () => {
             >
               {isNear && (
                 <div className={styles.countdownBanner}>
-                  {t("in")} {minutesUntil} {t("minutes")}
+                  {translations?.in} {minutesUntil} {translations?.minutes}
                 </div>
               )}
-              <div className={styles.prayerName}>{t(prayer.name)}</div>
+              <div className={styles.prayerName}>{prayer.name}</div>
               <div className={styles.prayerTime}>{time}</div>
             </div>
           );

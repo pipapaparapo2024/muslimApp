@@ -6,7 +6,6 @@ import { Copy } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Share } from "../../../../components/share/Share";
-import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { type QaItem } from "../../../../hooks/useHistoryStore";
 import { trackButtonClick } from "../../../../api/analytics";
@@ -99,7 +98,7 @@ export const HistoryDetail: React.FC = () => {
         <TableRequestsHistory text="/qna/history" />
         <div className={styles.blockMessages}>
           <div className={styles.blockMessageUser}>
-            <div className={styles.nickName}>{t("you")}</div>
+            <div className={styles.nickName}> {translations?.you}</div>
             <div className={styles.text}>{currentItem.question}</div>
           </div>
           <div className={styles.blockMessageBot}>
@@ -110,7 +109,7 @@ export const HistoryDetail: React.FC = () => {
               onClick={() => handleCopy(currentItem.answer)}
             >
               <Copy size={20} strokeWidth={1.5} />
-              {t("copy")}
+              {translations?.copy}
             </div>
           </div>
         </div>

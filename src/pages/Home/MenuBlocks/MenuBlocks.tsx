@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import styles from "./MenuBlocks.module.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
-import { useTranslation } from "react-i18next";
 import { useFriendsStore } from "../../../hooks/useFriendsStore";
 import { trackButtonClick } from "../../../api/analytics";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
-// Импорты иконок
 import Quaran from "../../../assets/icons/quaran1.svg";
 import apple from "../../../assets/icons/Applee.svg";
 import church from "../../../assets/icons/Churchh.svg";
@@ -17,9 +16,8 @@ import settings from "../../../assets/icons/setting.svg";
 export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { t } = useTranslation();
   const { friends, fetchFriends } = useFriendsStore();
-  
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     fetchFriends();
   }, []);
@@ -28,48 +26,48 @@ export const MenuBlocks: React.FC = () => {
     {
       id: "quran",
       icon: Quaran,
-      title: t("readQuran"),
-      description: t("openAndRead"),
+      title: translations?.readQuran,
+      description: translations?.openAndRead,
       path: "/quran",
     },
     {
       id: "qna",
       icon: church,
-      title: t("askAboutFaith"),
-      description: t("getAnswers"),
+      title: translations?.askAboutFaith,
+      description: translations?.getAnswers,
       path: "/qna",
     },
     {
       id: "scanner",
       icon: apple,
-      title: t("foodScanner"),
-      description: t("checkProduct"),
+      title: translations?.foodScanner,
+      description: translations?.checkProduct,
       path: "/scanner",
     },
     {
       id: "friends",
       icon: muslim,
-      title: t("friends"),
-      description: t("shareApp"),
+      title: translations?.friends,
+      description: translations?.shareApp,
       path: friends.length > 0 ? "/friends" : "/welcomeFriends",
     },
     {
       id: "settings",
       icon: settings,
-      title: t("settings"),
-      description: t("selectSettings"),
+      title: translations?.settings,
+      description: translations?.selectSettings,
       path: "/settings",
     },
   ];
 
   const handleNavigation = (itemId: string, path: string) => {
     // 📊 Аналитика: Клик по пункту меню
-    trackButtonClick('menu_item_click', {
+    trackButtonClick("menu_item_click", {
       menu_item: itemId,
       destination_path: path,
-      friends_count: itemId === 'friends' ? friends.length : undefined
+      friends_count: itemId === "friends" ? friends.length : undefined,
     });
-    
+
     navigate(path);
   };
 

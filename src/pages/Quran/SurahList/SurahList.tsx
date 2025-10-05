@@ -18,19 +18,15 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { useLanguage } from "../../../hooks/useLanguages";
-import { t } from "i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { trackButtonClick } from "../../../api/analytics";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const SurahList: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    surahs,
-    fetchVariants,
-    setSelectedSurah,
-    selectedVariant,
-    error,
-  } = useSurahListStore();
+  const { surahs, fetchVariants, setSelectedSurah, selectedVariant, error } =
+    useSurahListStore();
+  const { translations } = useTranslationsStore();
   const { language } = useLanguage();
   const [load, setLoad] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState("");
@@ -49,10 +45,10 @@ export const SurahList: React.FC = () => {
 
   // 📊 Аналитика: Загрузка страницы списка сур
   React.useEffect(() => {
-    trackButtonClick('surah_list_loaded', {
+    trackButtonClick("surah_list_loaded", {
       surahs_count: surahs.length,
-      selected_variant: selectedVariant?.name || 'none',
-      language: language
+      selected_variant: selectedVariant?.name || "none",
+      language: language,
     });
   }, []);
 
@@ -67,16 +63,16 @@ export const SurahList: React.FC = () => {
         await fetchVariants();
         setLoad(true);
         // 📊 Аналитика: Успешная загрузка данных
-        trackButtonClick('surah_data_loaded', {
+        trackButtonClick("surah_data_loaded", {
           surahs_count: surahs.length,
-          variants_loaded: true
+          variants_loaded: true,
         });
       } catch (error) {
         console.error("Failed to load surahs:", error);
         setLoad(true);
         // 📊 Аналитика: Ошибка загрузки
-        trackButtonClick('surah_data_error', {
-          error: error instanceof Error ? error.message : 'Unknown error'
+        trackButtonClick("surah_data_error", {
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     };
@@ -101,7 +97,7 @@ export const SurahList: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     // 📊 Аналитика: Клик по кнопке скролла наверх
-    trackButtonClick('scroll_to_top_click');
+    trackButtonClick("scroll_to_top_click");
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -160,10 +156,10 @@ export const SurahList: React.FC = () => {
         setShowSearchNavigation(results.length > 0);
 
         // 📊 Аналитика: Выполнение поиска
-        trackButtonClick('surah_search_performed', {
+        trackButtonClick("surah_search_performed", {
           query: localSearchQuery,
           results_count: results.length,
-          has_results: results.length > 0
+          has_results: results.length > 0,
         });
 
         if (results.length > 0) {
@@ -187,9 +183,9 @@ export const SurahList: React.FC = () => {
         setCurrentResultIndex(-1);
         setShowSearchNavigation(false);
         // 📊 Аналитика: Ошибка поиска
-        trackButtonClick('surah_search_error', {
+        trackButtonClick("surah_search_error", {
           query: localSearchQuery,
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: err instanceof Error ? err.message : "Unknown error",
         });
       } finally {
         setIsSearching(false);
@@ -217,11 +213,11 @@ export const SurahList: React.FC = () => {
       setCurrentResultIndex(newIndex);
 
       // 📊 Аналитика: Навигация по результатам поиска
-      trackButtonClick('search_results_navigation', {
+      trackButtonClick("search_results_navigation", {
         direction: direction,
         current_index: newIndex + 1,
         total_results: searchResults.length,
-        surah_number: searchResults[newIndex]
+        surah_number: searchResults[newIndex],
       });
 
       const resultNumber = searchResults[newIndex];
@@ -261,14 +257,14 @@ export const SurahList: React.FC = () => {
 
   const handleSurahClick = (surah: Surah) => {
     // 📊 Аналитика: Клик по суре для перехода к чтению
-    trackButtonClick('surah_selected', {
+    trackButtonClick("surah_selected", {
       surah_number: surah.number,
       surah_name: surah.name,
       ayahs_count: surah.numberOfAyahs,
       place: surah.suraPlaceOfWriting,
-      variant: selectedVariant?.name || 'default'
+      variant: selectedVariant?.name || "default",
     });
-    
+
     setSelectedSurah(surah);
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
@@ -276,8 +272,8 @@ export const SurahList: React.FC = () => {
   };
 
   const handleTranslationClick = () => {
-    trackButtonClick('translation_selection_click', {
-      current_translation: selectedVariant?.name || 'none'
+    trackButtonClick("translation_selection_click", {
+      current_translation: selectedVariant?.name || "none",
     });
     navigate("/quran/translation");
   };
@@ -297,7 +293,7 @@ export const SurahList: React.FC = () => {
           <img src={quaran} alt="Quran" className={styles.quranImage} />
           <div className={styles.holyHeader}>
             <div className={styles.titleHeader}>
-              <div className={styles.nameHoly}>{t("holyQuran")}</div>
+              <div className={styles.nameHoly}>{translations?.holyQuran}</div>
               <div
                 className={styles.sahihInternational}
                 onClick={handleTranslationClick}
@@ -310,19 +306,22 @@ export const SurahList: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className={styles.diskHeader}>{t("discoverChapters")}</div>
+            <div className={styles.diskHeader}>
+              {" "}
+              {translations?.discoverChapters}
+            </div>
           </div>
           <div ref={searchContainerRef} className={styles.searchContainer}>
             <Search size={20} strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchSurahs")}
+              placeholder={translations?.searchSurahs}
               value={localSearchQuery}
               onChange={(e) => {
                 setLocalSearchQuery(e.target.value);
                 if (e.target.value.trim()) {
-                  trackButtonClick('search_query_typed', {
-                    query_length: e.target.value.length
+                  trackButtonClick("search_query_typed", {
+                    query_length: e.target.value.length,
                   });
                 }
               }}
@@ -400,7 +399,7 @@ export const SurahList: React.FC = () => {
                     <div className={styles.blockDeskription}>
                       <Menu size={16} strokeWidth={2} />
                       <div className={styles.ayas}>
-                        {surah.numberOfAyahs} {t("ayahs")}
+                        {surah.numberOfAyahs} {translations?.ayahs}
                       </div>
                     </div>
                     <div className={styles.blockDeskription}>
@@ -434,8 +433,8 @@ export const SurahList: React.FC = () => {
                         </defs>
                       </svg>
                       {surah.suraPlaceOfWriting === "Makkah"
-                        ? t("makkah")
-                        : t("madinah")}
+                        ? translations?.makkah
+                        : translations?.madinah}
                     </div>
                   </div>
                 </div>
@@ -447,10 +446,9 @@ export const SurahList: React.FC = () => {
           <button
             className={styles.scrollToTopButton}
             onClick={scrollToTop}
-            aria-label={t("scrollToTop")}
             style={{ left: getScrollButtonPosition() }}
           >
-            <ArrowUp size={20} color="white"/>
+            <ArrowUp size={20} color="white" />
           </button>
         )}
       </div>

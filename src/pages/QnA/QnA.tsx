@@ -8,9 +8,9 @@ import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/Moda
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
+import { useTranslationsStore } from "../../hooks/useTranslations";
 
 export const QnA: React.FC = () => {
   const { requestsLeft, hasPremium } = usePremiumStore();
@@ -20,8 +20,7 @@ export const QnA: React.FC = () => {
   const [, setImageError] = useState(false);
   const [question, setQuestion] = useState("");
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  
+  const { translations } = useTranslationsStore();
   // Добавляем проверку подключения кошелька
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
@@ -44,9 +43,9 @@ export const QnA: React.FC = () => {
 
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return t("askQuestion");
+      return translations?.askQuestion;
     }
-    return t("buyRequests");
+    return translations?.buyRequests;
   };
 
   const showAskButton =
@@ -72,15 +71,15 @@ export const QnA: React.FC = () => {
     trackButtonClick("buy_requests_from_qna", {
       has_premium: hasPremium,
       requests_left: requestsLeft,
-      wallet_connected: !!userAddress
+      wallet_connected: !!userAddress,
     });
 
     if (!userAddress) {
-      trackButtonClick('wallet_connection_triggered', {
-        context: 'buy_requests_qna'
+      trackButtonClick("wallet_connection_triggered", {
+        context: "buy_requests_qna",
       });
       await tonConnectUI.openModal();
-      return; 
+      return;
     }
 
     setShowModal(true);
@@ -110,8 +109,8 @@ export const QnA: React.FC = () => {
           </div>
 
           <div className={styles.guidance}>
-            <span>{t("needGuidance")}</span>
-            <p>{t("getClearAnswers")}</p>
+            <span>{translations?.needGuidance}</span>
+            <p>{translations?.getClearAnswers}</p>
           </div>
         </div>
 
@@ -128,7 +127,7 @@ export const QnA: React.FC = () => {
         >
           <input
             type="text"
-            placeholder={t("yourQuestion")}
+            placeholder={translations?.yourQuestion}
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             disabled={!showAskButton}

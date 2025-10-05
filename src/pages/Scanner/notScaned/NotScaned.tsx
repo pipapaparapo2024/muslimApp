@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { useNavigate } from "react-router-dom";
-import styles from './NotScanner.module.css';
+import styles from "./NotScanner.module.css";
 import scanempty from "../../../assets/image/emptyscan.png";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { t } from "i18next";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const NotScaned: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
-
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
       return new Promise((resolve) => {
@@ -41,11 +41,9 @@ export const NotScaned: React.FC = () => {
     <PageWrapper showBackButton>
       <div className={styles.root}>
         <div className={styles.header}>
-          <div className={styles.title}>
-          {t("scanFailed")}
-          </div>
+          <div className={styles.title}> {translations?.scanFailed}</div>
           <div className={styles.subtitle}>
-           {t("analysisCouldntComplete")}
+            {translations?.analysisCouldntComplete}
           </div>
         </div>
 
@@ -62,7 +60,7 @@ export const NotScaned: React.FC = () => {
             className={styles.inviteButton}
             onClick={() => navigate("/scanner")}
           >
-            {t("tryAgain")}
+            {translations?.tryAgain}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 import { ModalLanguage } from "../../components/modals/modalSettings/ModalLanguage";
 import { ModalTheme } from "../../components/modals/modalSettings/ModalTheme";
+import { useTranslationsStore } from "../../hooks/useTranslations";
 import {
   Calendar,
   ChevronLeft,
@@ -22,11 +23,12 @@ import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
 
 export const Settings: React.FC = () => {
+  const { translations } = useTranslationsStore();
   const navigate = useNavigate();
   const { prayers } = usePrayerApiStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
 
@@ -60,7 +62,7 @@ export const Settings: React.FC = () => {
       <div className={styles.settingsContainer}>
         {/* === App Settings === */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("appSettings")}</h2>
+          <h2 className={styles.sectionTitle}>{translations?.appSettings}</h2>
 
           {/* Language */}
           <div className={styles.settingItem} onClick={openLanguageModal}>
@@ -71,7 +73,7 @@ export const Settings: React.FC = () => {
                   color="var(--color-icon-secondary)"
                 />
               </div>
-              <div className={styles.title}>{t("language")}</div>
+              <div className={styles.title}>{translations?.language}</div>
             </div>
             <div className={styles.settingItemRight}>
               <div className={styles.description}>{languageLabel}</div>
@@ -97,7 +99,7 @@ export const Settings: React.FC = () => {
                   color="var(--color-icon-secondary)"
                 />
               </div>
-              <div className={styles.title}>{t("dateTime")}</div>
+              <div className={styles.title}>{translations?.dateTime}</div>
             </div>
             <div className={styles.settingItemRight}>
               {language === "ar" ? (
@@ -112,20 +114,24 @@ export const Settings: React.FC = () => {
           <div
             className={styles.settingItem}
             onClick={() =>
-              navigateTo("/settings/prayerTimes", "open_prayer_times_settings", {
-                prayers_count: prayers.length,
-              })
+              navigateTo(
+                "/settings/prayerTimes",
+                "open_prayer_times_settings",
+                {
+                  prayers_count: prayers.length,
+                }
+              )
             }
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Clock strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
-              <div className={styles.title}>{t("prayerTimes")}</div>
+              <div className={styles.title}>{translations?.prayerTimes}</div>
             </div>
             <div className={styles.settingItemRight}>
               <div className={styles.description}>
-                {prayers.length} {t("prayers")}
+                {prayers.length} {translations?.prayers}
               </div>
               {language === "ar" ? (
                 <ChevronLeft size={24} />
@@ -141,7 +147,7 @@ export const Settings: React.FC = () => {
               <div className={styles.iconWrapper}>
                 <Sun strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
-              <div className={styles.title}>{t("theme")}</div>
+              <div className={styles.title}> {translations?.theme}</div>
             </div>
             <div className={styles.settingItemRight}>
               <div className={styles.description}>{themeLabel}</div>
@@ -156,20 +162,20 @@ export const Settings: React.FC = () => {
 
         {/* === Important Links === */}
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("importantLinks")}</h2>
+          <h2 className={styles.sectionTitle}>
+            {translations?.importantLinks}
+          </h2>
 
           {/* Privacy Policy */}
           <div
             className={styles.settingItem}
-            onClick={() =>
-              navigateTo("/privacy-policy", "open_privacy_policy")
-            }
+            onClick={() => navigateTo("/privacy-policy", "open_privacy_policy")}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Shield strokeWidth={1.5} color="var(--color-icon-secondary)" />
               </div>
-              <div className={styles.title}>{t("privacyPolicy")}</div>
+              <div className={styles.title}>{translations?.privacyPolicy}</div>
             </div>
             <div className={styles.settingItemRight}>
               {language === "ar" ? (
@@ -183,9 +189,7 @@ export const Settings: React.FC = () => {
           {/* Terms Of Use */}
           <div
             className={styles.settingItem}
-            onClick={() =>
-              navigateTo("/terms-of-use", "open_terms_of_use")
-            }
+            onClick={() => navigateTo("/terms-of-use", "open_terms_of_use")}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -194,7 +198,7 @@ export const Settings: React.FC = () => {
                   color="var(--color-icon-secondary)"
                 />
               </div>
-              <div className={styles.title}>{t("termsOfUse")}</div>
+              <div className={styles.title}>{translations?.termsOfUse}</div>
             </div>
             <div className={styles.settingItemRight}>
               {language === "ar" ? (
@@ -217,7 +221,7 @@ export const Settings: React.FC = () => {
                   color="var(--color-icon-secondary)"
                 />
               </div>
-              <div className={styles.title}>{t("contactUs")}</div>
+              <div className={styles.title}> {translations?.contactUs}</div>
             </div>
             <div className={styles.settingItemRight}>
               {language === "ar" ? (
@@ -235,9 +239,9 @@ export const Settings: React.FC = () => {
         currentLanguage={language}
         onClose={() => setIsLanguageModalOpen(false)}
         onLanguageChange={(newLang) => {
-          trackButtonClick("change_language", { 
-            from: language, 
-            to: newLang 
+          trackButtonClick("change_language", {
+            from: language,
+            to: newLang,
           });
           changeLanguage(newLang);
         }}
@@ -248,9 +252,9 @@ export const Settings: React.FC = () => {
         currentTheme={rawTheme}
         onClose={() => setIsThemeModalOpen(false)}
         onThemeChange={(theme) => {
-          trackButtonClick("change_theme", { 
-            from: rawTheme, 
-            to: theme 
+          trackButtonClick("change_theme", {
+            from: rawTheme,
+            to: theme,
           });
           changeTheme(theme);
         }}

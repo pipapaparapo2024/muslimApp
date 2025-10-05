@@ -1,33 +1,31 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
-import { useTranslation } from "react-i18next";
 import prayerRemindersImage from "../../assets/image/playeR.png";
 import quranImage from "../../assets/image/read.png";
 import scannerImage from "../../assets/image/scan.png";
 import qnaImage from "../../assets/image/get.png";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
-
+import { useTranslationsStore } from "../../hooks/useTranslations";
 interface Step {
-  title: string;
-  desc: string;
+  title: string |undefined;
+  desc: string |undefined;
   image: string;
 }
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-
+  const {translations}=useTranslationsStore()
   const steps: Step[] = [
     {
-      title: t("prayerReminders"),
-      desc: t("stayOnTrack"),
+      title:translations?.prayerReminders,
+      desc: translations?.stayOnTrack,
       image: prayerRemindersImage,
     },
-    { title: t("readTheQuran"), desc: t("accessQuran"), image: quranImage },
-    { title: t("scanYourFood"), desc: t("checkHalal"), image: scannerImage },
-    { title: t("trustedAnswers"), desc: t("receiveAnswers"), image: qnaImage },
+    { title:translations?.readTheQuran , desc:translations?.accessQuran , image: quranImage },
+    { title:translations?.scanYourFood , desc:translations?.checkHalal , image: scannerImage },
+    { title:translations?.trustedAnswers , desc:translations?.receiveAnswers , image: qnaImage },
   ];
 
   const [step, setStep] = useState(0);

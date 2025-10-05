@@ -5,18 +5,18 @@ import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
-import { t } from "i18next";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
 import { trackButtonClick } from "../../api/analytics";
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
+import { useTranslationsStore } from "../../hooks/useTranslations";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const [selectedRequests, setSelectedRequests] = useState("10");
-  
+  const { translations } = useTranslationsStore();
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
@@ -42,15 +42,15 @@ export const Scanner: React.FC = () => {
         action: "check_wallet_for_requests",
         has_premium: hasPremium,
         requests_left: requestsLeft,
-        wallet_connected: !!userAddress
+        wallet_connected: !!userAddress,
       });
 
       if (!userAddress) {
-        trackButtonClick('wallet_connection_triggered', {
-          context: 'buy_requests_scanner'
+        trackButtonClick("wallet_connection_triggered", {
+          context: "buy_requests_scanner",
         });
         await tonConnectUI.openModal();
-        return; 
+        return;
       }
 
       setShowModal(true);
@@ -59,9 +59,9 @@ export const Scanner: React.FC = () => {
 
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return t("scanPicture");
+      return translations?.scanPicture;
     }
-    return t("buyRequests");
+    return translations?.buyRequests;
   };
 
   return (
@@ -73,12 +73,12 @@ export const Scanner: React.FC = () => {
 
         <div className={styles.content}>
           <div className={styles.illustration}>
-            <img src={analyze} alt={t("scanIllustration")} />
+            <img src={analyze} alt={translations?.scanIllustration} />
           </div>
 
           <div className={styles.halalCheck}>
-            <span>{t("instantHalalCheck")}</span>
-            <p>{t("takePhotoCheck")}</p>
+            <span> {translations?.instantHalalCheck}</span>
+            <p> {translations?.takePhotoCheck}</p>
             <p className={styles.warning}>
               <TriangleAlert
                 strokeWidth={1.5}
@@ -86,7 +86,7 @@ export const Scanner: React.FC = () => {
                 color="white"
                 fill="#F59E0B"
               />
-              {t("informationalOnly")}
+              {translations?.informationalOnly}
             </p>
           </div>
         </div>

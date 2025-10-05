@@ -7,7 +7,6 @@ import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpi
 import { useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
 import { Upload } from "lucide-react";
-import { t } from "i18next";
 import {
   useScreenshotExport,
   shareToTelegramStory,
@@ -18,6 +17,8 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { trackButtonClick } from "../../../../api/analytics";
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
+
 export const ScannerShareStory: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { id } = useParams<{ id: string | undefined }>();
@@ -25,6 +26,7 @@ export const ScannerShareStory: React.FC = () => {
   const [currentItem, setCurrentItem] = useState<any>(null);
   const screenshotRef = useRef<HTMLDivElement>(null);
   const { loading, exportScreenshot } = useScreenshotExport();
+  const { translations } = useTranslationsStore();
 
   useEffect(() => {
     const preloadImages = (): Promise<void[]> => {
@@ -111,7 +113,7 @@ export const ScannerShareStory: React.FC = () => {
         scan_id: id,
         error: (error as Error).message || "unknown",
       });
-      alert(t("exportFailed"));
+      alert(translations?.exportFailed || "Export failed");
     }
   };
 
@@ -126,7 +128,7 @@ export const ScannerShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
-        <div>{t("itemNotFound")}</div>
+        <div>{translations?.itemNotFound || "Item not found"}</div>
       </PageWrapper>
     );
   }
@@ -168,14 +170,20 @@ export const ScannerShareStory: React.FC = () => {
               >
                 <div className={styles.statusProduct}>
                   {getStatusIcon(currentItem.engType)}
-                  {t(getStatusTranslationKey(currentItem.engType))}
+                  {
+                    translations?.[
+                      getStatusTranslationKey(currentItem.engType)
+                    ]
+                  }
                 </div>
                 <div className={styles.QiblaGuidebot}>@QiblaGuidebot</div>
               </div>
 
               {currentItem.products && currentItem.products.length > 0 && (
                 <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("ingredients")}</div>
+                  <div className={styles.scanTitle}>
+                    {translations?.ingredients}
+                  </div>
                   <div className={styles.scanDesk}>
                     {currentItem.products.join(", ")}
                   </div>
@@ -185,7 +193,9 @@ export const ScannerShareStory: React.FC = () => {
               {currentItem.haramProducts &&
                 currentItem.haramProducts.length > 0 && (
                   <div className={styles.blockInside}>
-                    <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                    <div className={styles.scanTitle}>
+                      {translations?.analysisResult}
+                    </div>
                     <div className={styles.scanDesk}>
                       {currentItem.haramProducts.map(
                         (product: any, index: number) => (
@@ -204,8 +214,12 @@ export const ScannerShareStory: React.FC = () => {
 
               {currentItem.description && (
                 <div className={styles.blockInside}>
-                  <div className={styles.scanTitle}>{t("conclusion")}</div>
-                  <div className={styles.scanDesk}>{currentItem.description}</div>
+                  <div className={styles.scanTitle}>
+                    {translations?.conclusion}
+                  </div>
+                  <div className={styles.scanDesk}>
+                    {currentItem.description}
+                  </div>
                 </div>
               )}
             </div>
@@ -226,7 +240,9 @@ export const ScannerShareStory: React.FC = () => {
             }`}
           >
             <Upload size={18} />
-            {loading ? t("loading") : t("share")}
+            {loading
+              ? translations?.loading || "Loading..."
+              : translations?.share || "Share"}
           </button>
         </div>
       </div>

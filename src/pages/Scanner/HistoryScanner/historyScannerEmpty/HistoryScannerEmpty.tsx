@@ -7,7 +7,7 @@ import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
-import { t } from "i18next";
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
 export const HistoryScannerEmpty: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
@@ -16,6 +16,7 @@ export const HistoryScannerEmpty: React.FC = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [, setImageError] = useState(false);
   const navigate = useNavigate();
+  const { translations } = useTranslationsStore();
 
   // Загружаем данные пользователя
   useEffect(() => {
@@ -41,9 +42,9 @@ export const HistoryScannerEmpty: React.FC = () => {
   // Логика кнопки
   const getButtonText = () => {
     if (hasPremium || (requestsLeft != null && requestsLeft > 0)) {
-      return t("scanFirstProduct");
+      return translations?.scanFirstProduct || "Scan your first product";
     }
-    return t("buyRequests");
+    return translations?.buyRequests || "Buy requests";
   };
 
   const showAskButton =
@@ -57,12 +58,17 @@ export const HistoryScannerEmpty: React.FC = () => {
       </PageWrapper>
     );
   }
+
   return (
     <PageWrapper navigateTo="/scanner" showBackButton title="Product Scanner">
       <div className={styles.contain}>
         <div className={styles.header}>
-          <div className={styles.title}>{t("haventChecked")}</div>
-          <div className={styles.disk}>{t("onceYouScan")}</div>
+          <div className={styles.title}>
+            {translations?.haventChecked || "You haven’t checked any products yet"}
+          </div>
+          <div className={styles.disk}>
+            {translations?.onceYouScan || "Once you scan, results will appear here"}
+          </div>
         </div>
         <img src={emptyscan} alt="think" />
         <button
@@ -77,6 +83,7 @@ export const HistoryScannerEmpty: React.FC = () => {
           {getButtonText()}
         </button>
       </div>
+
       <BuyRequestsModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}

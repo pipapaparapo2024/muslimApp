@@ -9,20 +9,18 @@ import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { useTranslation } from "react-i18next";
 import {
   getStatusIcon,
   getStatusClassName,
   getStatusTranslationKey,
 } from "../productStatus";
 import { trackButtonClick } from "../../../api/analytics";
-
-console.log("start history");
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const HistoryScanner: React.FC = () => {
-  const { t, i18n } = useTranslation();
   const { history, isLoading, fetchHistory } = useHistoryScannerStore();
   const navigate = useNavigate();
+  const { translations } = useTranslationsStore();
 
   useEffect(() => {
     fetchHistory(1);
@@ -33,14 +31,13 @@ export const HistoryScanner: React.FC = () => {
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
-    if (i18n.language === "ar") {
-      return `${date.getDate()} ${t(
-        getMonthKey(date.getMonth())
-      )} ${date.getFullYear()}`;
+    // Определяем текущий язык (можно хранить в translations или глобальном сторе)
+    const lang = translations?.lang || "en";
+
+    if (lang === "ar") {
+      return `${date.getDate()} ${translations?.[getMonthKey(date.getMonth())]} ${date.getFullYear()}`;
     } else {
-      return `${t(
-        getMonthKey(date.getMonth())
-      )} ${date.getDate()}, ${date.getFullYear()}`;
+      return `${translations?.[getMonthKey(date.getMonth())]} ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
 
@@ -64,13 +61,11 @@ export const HistoryScanner: React.FC = () => {
 
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
-    // 📊 Аналитика: клик по "Поделиться"
     trackButtonClick("share_scanner_history_item", { scan_id: scanId });
     navigate(`/scanner/ScannerShareHistory/${scanId}`);
   };
 
   const handleScanClick = (scanId: string) => {
-    // 📊 Аналитика: переход к деталям скана
     trackButtonClick("view_scanner_history_detail", { scan_id: scanId });
     navigate(`/scanner/historyScanner/${scanId}`);
   };
@@ -93,62 +88,72 @@ export const HistoryScanner: React.FC = () => {
             <div className={styles.dateHeader}>
               {formatDateWithTranslation(date)}
             </div>
-            {scans.map((scan) => {
-              return (
-                <div
-                  key={scan.id}
-                  onClick={() => handleScanClick(scan.id)}
-                  className={styles.blockScan}
-                >
-                  <div>
-                    <div className={styles.scanTitle}>{t("ingredients")}</div>
-                    <div className={styles.scanDesk}>
-                      {scan.products.join(", ")}
-                    </div>
+
+            {scans.map((scan) => (
+              <div
+                key={scan.id}
+                onClick={() => handleScanClick(scan.id)}
+                className={styles.blockScan}
+              >
+                <div>
+                  <div className={styles.scanTitle}>
+                    {translations?.ingredients}
                   </div>
-                  {scan.haramProducts && scan.haramProducts.length > 0 && (
-                    <div className={styles.scanAnalysis}>
-                      <div className={styles.scanTitle}>
-                        {t("analysisResult")}
-                      </div>
-                      <div className={styles.scanDesk}>
-                        {scan.haramProducts.map((item, index) => (
-                          <React.Fragment key={index}>
-                            <strong>{item.name}</strong> - {item.reason} (
-                            {item.source})
-                            {index < scan.haramProducts.length - 1 && <br />}
-                          </React.Fragment>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {scan.description && (
-                    <div>
-                      <div className={styles.scanTitle}>{t("conclusion")}</div>
-                      <div className={styles.scanDesk}>{scan.description}</div>
-                    </div>
-                  )}
-                  <div className={styles.blockUnderInfo}>
-                    <div
-                      className={`${styles.accessBlock} ${getStatusClassName(
-                        scan.engType,
-                        styles
-                      )}`}
-                    >
-                      {getStatusIcon(scan.engType, 16)}
-                      {t(getStatusTranslationKey(scan.engType))}
-                    </div>
-                    <button
-                      onClick={(event) => handleShare(event, scan.id)}
-                      className={styles.share}
-                    >
-                      <Share2 size={16} strokeWidth={2} />
-                      {t("share")}
-                    </button>
+                  <div className={styles.scanDesk}>
+                    {scan.products.join(", ")}
                   </div>
                 </div>
-              );
-            })}
+
+                {scan.haramProducts && scan.haramProducts.length > 0 && (
+                  <div className={styles.scanAnalysis}>
+                    <div className={styles.scanTitle}>
+                      {translations?.analysisResult}
+                    </div>
+                    <div className={styles.scanDesk}>
+                      {scan.haramProducts.map((item, index) => (
+                        <React.Fragment key={index}>
+                          <strong>{item.name}</strong> - {item.reason} (
+                          {item.source})
+                          {index < scan.haramProducts.length - 1 && <br />}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {scan.description && (
+                  <div>
+                    <div className={styles.scanTitle}>
+                      {translations?.conclusion}
+                    </div>
+                    <div className={styles.scanDesk}>{scan.description}</div>
+                  </div>
+                )}
+
+                <div className={styles.blockUnderInfo}>
+                  <div
+                    className={`${styles.accessBlock} ${getStatusClassName(
+                      scan.engType,
+                      styles
+                    )}`}
+                  >
+                    {getStatusIcon(scan.engType, 16)}
+                    {
+                      translations?.[
+                        getStatusTranslationKey(scan.engType)
+                      ]
+                    }
+                  </div>
+                  <button
+                    onClick={(event) => handleShare(event, scan.id)}
+                    className={styles.share}
+                  >
+                    <Share2 size={16} strokeWidth={2} />
+                    {translations?.share}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         ))}
       </div>

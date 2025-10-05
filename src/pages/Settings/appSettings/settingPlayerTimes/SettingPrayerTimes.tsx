@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styles from "./SettingPrayerTimes.module.css";
 import { usePrayerApiStore } from "../../../../hooks/usePrayerApiStore";
-import { t } from "i18next";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { ModalPrayer } from "../../../../components/modals/modalPrayer/ModalPrayer";
 import { Info } from "lucide-react";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { trackButtonClick } from "../../../../api/analytics";
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
 export const SettingPrayerTimes: React.FC = () => {
   const {
@@ -20,7 +20,7 @@ export const SettingPrayerTimes: React.FC = () => {
     fetchPrayerSettings,
     fetchPrayers,
   } = usePrayerApiStore();
-
+  const { translations } = useTranslationsStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPrayer, setSelectedPrayer] = useState<any>(null);
   const [localLoading, setLocalLoading] = useState(false);
@@ -87,7 +87,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
   const handleToggleSelection = async (id: string, name: string) => {
     setLocalLoading(true);
-    const current = prayerSetting.find(p => p.id === id);
+    const current = prayerSetting.find((p) => p.id === id);
     const newEnabled = !current?.hasSelected;
     await togglePrayerSelection(id);
     trackButtonClick("toggle_single_prayer", {
@@ -100,7 +100,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
   const handleToggleNotification = async (id: string, name: string) => {
     setLocalLoading(true);
-    const current = prayerSetting.find(p => p.id === id);
+    const current = prayerSetting.find((p) => p.id === id);
     const newEnabled = !current?.hasTelegramNotification;
     await togglePrayerNotification(id);
     trackButtonClick("toggle_single_prayer_notification", {
@@ -150,7 +150,9 @@ export const SettingPrayerTimes: React.FC = () => {
   if (prayerSetting.length === 0) {
     return (
       <div className={styles.settingsContainer}>
-        <div className={styles.loading}>{t("noSettingsAvailable")}</div>
+        <div className={styles.loading}>
+          {translations?.noSettingsAvailable}
+        </div>
       </div>
     );
   }
@@ -158,14 +160,16 @@ export const SettingPrayerTimes: React.FC = () => {
   return (
     <PageWrapper showBackButton navigateTo="/settings">
       <div>
-        <h1 className={styles.title}>{t("prayerTimes")}</h1>
-        <p className={styles.subtitle}>{t("choosePrayers")}</p>
+        <h1 className={styles.title}> {translations?.prayerTimes}</h1>
+        <p className={styles.subtitle}>{translations?.choosePrayers}</p>
 
         {/* Глобальные переключатели */}
         <div className={styles.globalControls}>
           <div className={styles.toggleGroup}>
             <label className={styles.toggleItem}>
-              <span className={styles.showMain}>{t("showAllPrayerTimes")}</span>
+              <span className={styles.showMain}>
+                {translations?.showAllPrayerTimes}
+              </span>
               <input
                 type="checkbox"
                 checked={allPrayersEnabled}
@@ -177,7 +181,7 @@ export const SettingPrayerTimes: React.FC = () => {
             </label>
 
             <label className={styles.toggleItem}>
-              <span>{t("getAllTelegramNotifications")}</span>
+              <span> {translations?.getAllTelegramNotifications}</span>
               <input
                 type="checkbox"
                 checked={allNotificationsEnabled}
@@ -194,7 +198,7 @@ export const SettingPrayerTimes: React.FC = () => {
           {prayerSetting.map((prayer) => (
             <div key={prayer.id} className={styles.prayerItem}>
               <div className={styles.prayerHeader}>
-                <div className={styles.prayerName}>{t(prayer.name)}</div>
+                <div className={styles.prayerName}>{prayer.name}</div>
                 <div className={styles.headerIconInfo}>
                   <Info
                     size={18}
@@ -207,12 +211,14 @@ export const SettingPrayerTimes: React.FC = () => {
               <div className={styles.toggleGroup}>
                 <label className={styles.toggleItem}>
                   <span className={styles.showMain}>
-                    {t("showOnMainScreen")}
+                    {translations?.showOnMainScreen}
                   </span>
                   <input
                     type="checkbox"
                     checked={prayer.hasSelected}
-                    onChange={() => handleToggleSelection(prayer.id, prayer.name)}
+                    onChange={() =>
+                      handleToggleSelection(prayer.id, prayer.name)
+                    }
                     className={styles.toggleInput}
                     disabled={localLoading}
                   />
@@ -220,11 +226,13 @@ export const SettingPrayerTimes: React.FC = () => {
                 </label>
 
                 <label className={styles.toggleItem}>
-                  <span>{t("getTelegramNotifications")}</span>
+                  <span>{translations?.getTelegramNotifications}</span>
                   <input
                     type="checkbox"
                     checked={prayer.hasTelegramNotification}
-                    onChange={() => handleToggleNotification(prayer.id, prayer.name)}
+                    onChange={() =>
+                      handleToggleNotification(prayer.id, prayer.name)
+                    }
                     className={styles.toggleInput}
                     disabled={!prayer.hasSelected || localLoading}
                   />

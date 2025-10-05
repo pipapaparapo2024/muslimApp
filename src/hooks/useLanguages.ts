@@ -3,7 +3,7 @@ import i18n from "../api/i18n";
 import { quranApi } from "../api/api";
 export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
-
+import { useTranslationsStore } from "./useTranslations";
 const arabId = "7b64a96d-1dc9-4cd0-b3f0-59cbfbc9fdf7";
 const enId = "1e5a0c2e-8e6b-4e76-8fc0-2b0f5a933b4a";
 let langId = "";
@@ -30,14 +30,14 @@ const LANGUAGE_KEY = "preferred-language";
 export const useLanguage = () => {
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
   const [isChanging, setIsChanging] = useState(false);
-
+  const { translations } = useTranslationsStore();
   const setLanguageOnBackend = async (lang: Language): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) return;
       if (lang == "ar") langId = arabId;
       else if (lang == "en") langId = enId;
-      console.log("langId",langId)
+      console.log("langId", langId);
       await quranApi.post(
         "api/v1/settings/languages",
         { languageId: langId },
@@ -82,7 +82,7 @@ export const useLanguage = () => {
   return {
     language,
     changeLanguage,
-    languageLabel: language === "ar" ? i18n.t("arabic") : i18n.t("english"),
+    languageLabel: language === "ar" ? translations?.arabic  : translations?.english,
     isChanging,
   };
 };

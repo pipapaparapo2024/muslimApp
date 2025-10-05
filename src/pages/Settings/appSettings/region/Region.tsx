@@ -8,7 +8,7 @@ import {
 } from "../../../../hooks/useRegionStore";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
-import { t } from "i18next";
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
 export const Region: React.FC = () => {
   const {
@@ -23,7 +23,7 @@ export const Region: React.FC = () => {
     country: currentCountry,
     timeZone: currentTimeZone,
   } = useGeoStore();
-
+  const { translations } = useTranslationsStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -58,13 +58,15 @@ export const Region: React.FC = () => {
     <PageWrapper showBackButton navigateTo="/settings">
       <div className={styles.container}>
         <div className={styles.blockChoose}>
-          <div className={styles.title}>{t("chooseRegion")}</div>
-          <div className={styles.description}>{t("chooseLocation")}</div>
+          <div className={styles.title}>{translations?.chooseRegion}</div>
+          <div className={styles.description}>
+            {translations?.chooseLocation}
+          </div>
           <div className={styles.searchWrapper}>
             <Search strokeWidth={1.5} color="var(--desk-text)" />
             <input
               type="text"
-              placeholder={t("searchRegion")}
+              placeholder={translations?.searchRegion}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -74,7 +76,9 @@ export const Region: React.FC = () => {
 
         <div className={styles.regionsList}>
           {filteredRegions.length === 0 ? (
-            <div className={styles.regionItem}>{t("noRegionsFound")}</div>
+            <div className={styles.regionItem}>
+              {translations?.noRegionsFound}
+            </div>
           ) : (
             filteredRegions.map((region) => (
               <div

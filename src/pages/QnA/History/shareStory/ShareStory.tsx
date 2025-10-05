@@ -3,12 +3,12 @@ import styles from "./ShareStory.module.css";
 import message from "../../../../assets/image/storyshare.png";
 import backgroundImg from "../../../../assets/image/background.png";
 
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { useParams } from "react-router-dom";
 import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Upload } from "lucide-react";
-import { t } from "i18next";
 import {
   useScreenshotExport,
   shareToTelegramStory,
@@ -16,6 +16,7 @@ import {
 import { trackButtonClick } from "../../../../api/analytics";
 
 export const ShareStory: React.FC = () => {
+  const { translations } = useTranslationsStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
   const { id } = useParams<{ id: string }>();
@@ -105,7 +106,7 @@ export const ShareStory: React.FC = () => {
         promis_id: id,
         error: (error as Error).message || "unknown",
       });
-      alert(t("exportFailed"));
+      alert(translations?.exportFailed);
     }
   };
 
@@ -120,7 +121,7 @@ export const ShareStory: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true}>
-        <div>{t("requestNotFound")}</div>
+        <div>{translations?.requestNotFound}</div>
       </PageWrapper>
     );
   }
@@ -149,7 +150,7 @@ export const ShareStory: React.FC = () => {
             />
             <div className={styles.blockMessages}>
               <div className={styles.blockMessageUser}>
-                <div className={styles.nickName}>{t("you")}</div>
+                <div className={styles.nickName}> {translations?.you}</div>
                 <div className={styles.text}>{currentItem.question}</div>
               </div>
               <div className={styles.blockMessageBot}>
@@ -172,7 +173,7 @@ export const ShareStory: React.FC = () => {
                 loading ? styles.shareButtonDisabled : ""
               }`}
             >
-              <Upload /> {loading ? t("loading") : t("share")}
+              <Upload /> {loading ? translations?.loading : translations?.share}
             </button>
           </div>
         </div>

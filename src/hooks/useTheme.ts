@@ -1,6 +1,5 @@
-import { t } from "i18next";
 import { useEffect, useState, useCallback } from "react";
-
+import { useTranslationsStore } from "./useTranslations";
 export const THEMES = {
   LIGHT: "light",
   DARK: "dark",
@@ -17,6 +16,7 @@ export const THEME_VARIANTS = [
 ];
 
 export const useTheme = () => {
+  const {translations}=useTranslationsStore()
   const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
   const [effectiveTheme, setEffectiveTheme] = useState<"light" | "dark">("light");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -115,7 +115,7 @@ export const useTheme = () => {
     theme: effectiveTheme,
     rawTheme: theme,
     changeTheme,
-    themeLabel: theme === "system" ? t("system") : theme === "light" ? t("light") : t("dark"),
+    themeLabel: theme === "system" ? translations?.system : theme === "light" ?  translations?.light : translations?.dark,
     isThemeReady: isInitialized,
   };
 };

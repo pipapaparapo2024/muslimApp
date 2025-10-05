@@ -5,8 +5,8 @@ import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
 import { useLanguage } from "../../../../hooks/useLanguages";
-import { t } from "i18next";
 import { trackButtonClick } from "../../../../api/analytics";
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
 // Получаем текущую дату
 const today = new Date();
@@ -39,7 +39,7 @@ export const DataTime: React.FC = () => {
     setAutoTime,
     setSelectedDateFormat,
   } = useDataTimeStore();
-
+  const { translations } = useTranslationsStore();
   const handle24HourToggle = (checked: boolean) => {
     // 📊 Аналитика: переключение 24-часового формата
     trackButtonClick("toggle_24_hour_format", { enabled: checked });
@@ -56,7 +56,7 @@ export const DataTime: React.FC = () => {
     // 📊 Аналитика: выбор формата даты
     trackButtonClick("select_date_format", {
       format: formatKey,
-      example: DATE_FORMATS.find(f => f.key === formatKey)?.value || "",
+      example: DATE_FORMATS.find((f) => f.key === formatKey)?.value || "",
     });
     setSelectedDateFormat(formatKey);
   };
@@ -65,11 +65,11 @@ export const DataTime: React.FC = () => {
     <PageWrapper showBackButton navigateTo="/settings">
       {/* Time Format */}
       <div className={styles.timeFormat}>
-        <div className={styles.titleTime}>{t("timeFormat")}</div>
+        <div className={styles.titleTime}>{translations?.timeFormat}</div>
         <div className={styles.blockTime}>
           {/* 24-Hour Time */}
           <label className={styles.toggleItem}>
-            <span className={styles.showMain}>{t("hourTime")}</span>
+            <span className={styles.showMain}>{translations?.hourTime}</span>
             <input
               type="checkbox"
               checked={is24Hour}
@@ -81,7 +81,9 @@ export const DataTime: React.FC = () => {
 
           {/* Set Automatically */}
           <label className={styles.toggleItem}>
-            <span className={styles.showMain}>{t("setAutomatically")}</span>
+            <span className={styles.showMain}>
+              {translations?.setAutomatically}
+            </span>
             <input
               type="checkbox"
               checked={isAutoTime}
@@ -93,7 +95,7 @@ export const DataTime: React.FC = () => {
 
           {/* Time zone */}
           <div className={styles.toggleItem}>
-            <span className={styles.showMain}>{t("timeZone")}</span>
+            <span className={styles.showMain}> {translations?.timeZone}</span>
             <div className={styles.timeZone}>
               <span className={styles.timeZoneValue}>{ipData?.timeZone}</span>
               {language === "ar" ? (
@@ -108,7 +110,7 @@ export const DataTime: React.FC = () => {
 
       {/* Date Format */}
       <div className={styles.dateFormat}>
-        <div className={styles.titleTime}>{t("dateFormat")}</div>
+        <div className={styles.titleTime}> {translations?.dateFormat}</div>
         <div className={styles.blockDate}>
           {DATE_FORMATS.map((format) => (
             <div

@@ -5,7 +5,6 @@ import { TableRequestsHistory } from "../../../../components/TableRequestsHistor
 import { Share } from "../../../../components/share/Share";
 import { useNavigate, useParams } from "react-router-dom";
 import { useHistoryScannerStore } from "../../../../hooks/useHistoryScannerStore";
-import { t } from "i18next";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import {
   getStatusIcon,
@@ -15,6 +14,7 @@ import {
 import { type ScanResult } from "../../../../hooks/useScannerStore";
 import { trackButtonClick } from "../../../../api/analytics";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
+
 export const HistoryScannerDetail: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -23,6 +23,7 @@ export const HistoryScannerDetail: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [networkError, setNetworkError] = useState<string | null>(null);
   const { translations } = useTranslationsStore();
+
   useEffect(() => {
     const loadItem = async () => {
       if (!id) {
@@ -62,7 +63,6 @@ export const HistoryScannerDetail: React.FC = () => {
             });
           } else {
             setNetworkError("Элемент не найден в истории");
-            // 📊 Аналитика: элемент не найден
             trackButtonClick("scanner_detail_not_found", { scan_id: id });
             setTimeout(() => navigate("/scanner"), 2000);
           }
@@ -99,7 +99,6 @@ export const HistoryScannerDetail: React.FC = () => {
   }, [id, navigate, fetchHistoryItem]);
 
   const handleRetry = () => {
-    // 📊 Аналитика: повторная попытка загрузки
     trackButtonClick("retry_scanner_detail_load", { scan_id: id });
     window.location.reload();
   };
@@ -108,9 +107,11 @@ export const HistoryScannerDetail: React.FC = () => {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
         <div className={styles.errorContainer}>
-          <h2>Ошибка сети</h2>
+          <h2>{translations?.networkError || "Network Error"}</h2>
           <p>{networkError}</p>
-          <button onClick={handleRetry}>{t("tryAgain")}</button>
+          <button onClick={handleRetry}>
+            {translations?.tryAgain || "Try again"}
+          </button>
         </div>
       </PageWrapper>
     );
@@ -127,7 +128,7 @@ export const HistoryScannerDetail: React.FC = () => {
   if (!currentItem) {
     return (
       <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
-        <div>{t("itemNotFound")}</div>
+        <div>{translations?.itemNotFound || "Item not found"}</div>
       </PageWrapper>
     );
   }
@@ -136,6 +137,7 @@ export const HistoryScannerDetail: React.FC = () => {
     <PageWrapper showBackButton={true} navigateTo="/scanner/historyScanner">
       <div className={styles.container}>
         <TableRequestsHistory text="/scanner/historyScanner" />
+
         <div className={styles.blockScan}>
           <div
             className={`${styles.accessBlock} ${getStatusClassName(
@@ -144,12 +146,15 @@ export const HistoryScannerDetail: React.FC = () => {
             )}`}
           >
             {getStatusIcon(currentItem.engType)}
-            {t(getStatusTranslationKey(currentItem.engType))}
+            {translations?.[getStatusTranslationKey(currentItem.engType)] ||
+              getStatusTranslationKey(currentItem.engType)}
           </div>
 
           {currentItem.products && currentItem.products.length > 0 && (
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("ingredients")}</div>
+              <div className={styles.scanTitle}>
+                {translations?.ingredients || "Ingredients"}
+              </div>
               <div className={styles.scanDesk}>
                 {currentItem.products.join(", ")}
               </div>
@@ -159,7 +164,9 @@ export const HistoryScannerDetail: React.FC = () => {
           {currentItem.haramProducts &&
             currentItem.haramProducts.length > 0 && (
               <div className={styles.blockInside}>
-                <div className={styles.scanTitle}>{t("analysisResult")}</div>
+                <div className={styles.scanTitle}>
+                  {translations?.analysisResult || "Analysis result"}
+                </div>
                 <div className={styles.scanDesk}>
                   {currentItem.haramProducts.map(
                     (product: any, index: number) => (
@@ -176,16 +183,21 @@ export const HistoryScannerDetail: React.FC = () => {
 
           {currentItem.description && (
             <div className={styles.blockInside}>
-              <div className={styles.scanTitle}>{t("conclusion")}</div>
-              <div className={styles.scanDesk}>{currentItem.description}</div>
+              <div className={styles.scanTitle}>
+                {translations?.conclusion || "Conclusion"}
+              </div>
+              <div className={styles.scanDesk}>
+                {currentItem.description}
+              </div>
             </div>
           )}
         </div>
+
         <Share
           shareUrl={`/scanner/ScannerShareHistory/${id}`}
           newUrl="/scanner"
-          shareText={translations?.share}
-          newText={translations?.newScan}
+          shareText={translations?.share || "Share"}
+          newText={translations?.newScan || "New scan"}
         />
       </div>
     </PageWrapper>

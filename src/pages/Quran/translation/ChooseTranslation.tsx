@@ -2,27 +2,34 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./ChooseTranslation.module.css";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { Check } from "lucide-react";
-import { t } from "i18next";
 import { useEffect } from "react";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const ChooseTranslation: React.FC = () => {
-  const { selectedVariant, setSelectedVariant, fetchVariants, variants, loading } =
-    useSurahListStore();
-
+  const {
+    selectedVariant,
+    setSelectedVariant,
+    fetchVariants,
+    variants,
+    loading,
+  } = useSurahListStore();
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     fetchVariants();
-  }, [fetchVariants]); 
+  }, [fetchVariants]);
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/quran">
       <div className={styles.container}>
         <div className={styles.text}>
-          <div className={styles.title}>{t("chooseTranslation")}</div>
-          <div className={styles.deskription}>{t("selectPreferred")}</div>
+          <div className={styles.title}> {translations?.chooseTranslation}</div>
+          <div className={styles.deskription}>
+            {translations?.selectPreferred}
+          </div>
         </div>
 
         {loading ? (
-          <div className={styles.loading}>{t("loading")}...</div>
+          <div className={styles.loading}> {translations?.loading}...</div>
         ) : (
           <div className={styles.blockVariant}>
             {variants.length > 0 ? (
@@ -30,7 +37,9 @@ export const ChooseTranslation: React.FC = () => {
                 <div
                   key={variant.id}
                   className={`${styles.itemVariant} ${
-                    selectedVariant?.id === variant.id ? styles.selectedVariant : ""
+                    selectedVariant?.id === variant.id
+                      ? styles.selectedVariant
+                      : ""
                   }`}
                   onClick={() => setSelectedVariant(variant)}
                 >
@@ -39,7 +48,9 @@ export const ChooseTranslation: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className={styles.noVariants}>{t("noTranslationsAvailable")}</div>
+              <div className={styles.noVariants}>
+                {translations?.noTranslationsAvailable}
+              </div>
             )}
           </div>
         )}

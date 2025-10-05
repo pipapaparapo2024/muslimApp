@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { trackButtonClick } from "../../../api/analytics";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const History: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const {
     history,
     fetchHistory,
@@ -21,7 +21,7 @@ export const History: React.FC = () => {
   } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     const loadHistory = async () => {
       try {
@@ -106,7 +106,7 @@ export const History: React.FC = () => {
                   className={styles.share}
                 >
                   <Share2 size={16} strokeWidth={2} />
-                  {t("share")}
+                  {translations?.share}
                 </button>
               </div>
             ))}
@@ -125,7 +125,7 @@ export const History: React.FC = () => {
               ) : (
                 <>
                   <ChevronDown size={20} />
-                  {t("loadMore")}
+                  {translations?.loadMore}
                 </>
               )}
             </button>
@@ -133,8 +133,8 @@ export const History: React.FC = () => {
         )}
 
         <div className={styles.paginationInfo}>
-          {pagination.page < pagination.pageAmount && t("page")}{" "}
-          {pagination.page} {t("of")} {pagination.pageAmount}
+          {pagination.page < pagination.pageAmount && translations?.page}
+          {pagination.page} {translations?.of} {pagination.pageAmount}
         </div>
       </div>
     </PageWrapper>

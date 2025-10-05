@@ -5,15 +5,14 @@ import { useQnAStore } from "../../../hooks/useQnAStore";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import styles from "./AnalyzingPromise.module.css";
 import analyz from "../../../assets/image/check.png";
-import { t } from "i18next";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const AnalyzingPromise: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { question } = location.state || {};
   const { askQuestion } = useQnAStore();
   const { fetchUserData } = usePremiumStore();
-
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     if (!question) {
       navigate("/qna");
@@ -38,8 +37,8 @@ export const AnalyzingPromise: React.FC = () => {
   return (
     <PageWrapper>
       <div className={styles.container}>
-        <div className={styles.title}>{t("analyzingPromis")}</div>
-        <div className={styles.desk}>{t("checkingPromis")}</div>
+        <div className={styles.title}>{translations?.analyzingPromis}</div>
+        <div className={styles.desk}>{translations?.checkingPromis}</div>
         <div className={styles.image}>
           <img src={analyz} />
         </div>

@@ -3,13 +3,12 @@ import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 interface BuyPremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +26,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   selectedRequests,
   onSelectRequests,
 }) => {
-  const { t } = useTranslation();
+  const { translations } = useTranslationsStore();
   const {
     getProductsByType,
     getPriceByProductId,
@@ -152,7 +151,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
-          alert(t("insufficientStars"));
+          alert(translations?.insufficientStars);
           break;
 
         default:
@@ -162,7 +161,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
-          alert(t("paymentError"));
+          alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("Stars payment error:", error);
@@ -172,7 +171,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         product_id: prices.productId,
         currency_id: prices.currencyId,
       });
-      alert(t("paymentError"));
+      alert(translations?.paymentError);
     } finally {
       setIsProcessingStars(false);
     }
@@ -239,7 +238,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             product_id: prices.productId,
             days: prices.days,
           });
-          alert(t("Payment Success"));
+          alert(translations?.paymentSuccess);
           await fetchUserData();
           onClose();
           break;
@@ -250,7 +249,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             period: selectedRequests,
             product_id: prices.productId,
           });
-          alert(t("Payment Rejected"));
+          alert(translations?.paymentRejected);
           break;
 
         case "not_connected":
@@ -273,7 +272,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         error: error.message,
         product_id: prices.productId,
       });
-      alert(t("paymentError"));
+      alert(translations?.paymentError);
     } finally {
       setIsProcessingTon(false);
     }
@@ -293,13 +292,13 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>{t("goPremium")}</h2>
+          <h2>{translations?.goPremium}</h2>
           <button className={styles.closeButton} onClick={handleClose}>
             ×
           </button>
         </div>
 
-        <p className={styles.modalDescription}>{t("premiumDescription")}</p>
+        <p className={styles.modalDescription}>{translations?.premiumDescription}</p>
 
         <div className={styles.options}>
           {premiumOptions.map((option) => (
@@ -331,7 +330,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             </div>
             {!isConnected && !isProcessingTon && (
               <div className={styles.connectHint}>
-                {t("connectWalletToPay")}
+                {translations?.connectWalletToPay}
               </div>
             )}
           </div>

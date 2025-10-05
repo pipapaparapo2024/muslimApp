@@ -3,8 +3,7 @@ import styles from "./ModalPrayer.module.css";
 import { useNavigate } from "react-router-dom";
 import { type Prayers } from "../../../hooks/usePrayerApiStore";
 import { Pen } from "lucide-react";
-import { t } from "i18next";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 interface ModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
@@ -17,7 +16,7 @@ export const ModalPrayer: React.FC<ModalProps> = ({
   prayer,
 }) => {
   const navigate = useNavigate();
-
+const {translations}=useTranslationsStore();
   if (!isOpen || !prayer) return null;
 
   return (
@@ -40,7 +39,7 @@ export const ModalPrayer: React.FC<ModalProps> = ({
             <div>
               <Pen size={20} />
             </div>
-            {t("settings")}
+            {translations?.settings}
           </button>
         </div>
       </div>

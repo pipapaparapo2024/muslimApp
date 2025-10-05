@@ -5,11 +5,12 @@ import { useScannerStore } from "../../../hooks/useScannerStore";
 import styles from "./CameraPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { t } from "i18next";
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
-  const { processImage, isLoading,resetScannerState } = useScannerStore();
+  const { processImage, isLoading, resetScannerState } = useScannerStore();
+  const { translations } = useTranslationsStore();
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -118,7 +119,7 @@ export const CameraPage: React.FC = () => {
           <div className={styles.controls}>
             <button onClick={retakePhoto} className={styles.againButton}>
               <RotateCcw size={20} />
-              {t("again")}
+              {translations?.again}
             </button>
             <button
               onClick={handleProcessPhoto}
@@ -126,7 +127,7 @@ export const CameraPage: React.FC = () => {
               disabled={isLoading}
             >
               <Send size={20} />
-              {t("send")}
+              {translations?.send}
             </button>
           </div>
         </div>

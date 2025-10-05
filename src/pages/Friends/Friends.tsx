@@ -3,10 +3,9 @@ import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./Friends.module.css";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { Check, Wallet, Share } from "lucide-react";
-import { t } from "i18next";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { trackButtonClick } from "../../api/analytics";
-
+import { useTranslationsStore } from "../../hooks/useTranslations";
 export const Friends: React.FC = () => {
   const {
     friends,
@@ -24,7 +23,7 @@ export const Friends: React.FC = () => {
     claimPurchasedReward,
   } = useFriendsStore();
   const [isLoading] = useState<boolean>(false);
-
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     fetchReferralLink();
   }, []);
@@ -58,12 +57,12 @@ export const Friends: React.FC = () => {
       });
 
       await claimTotalReward();
-      alert(t("rewardClaimed"));
+      alert(translations?.rewardClaimed);
 
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении награды:", error);
-      alert(t("rewardClaimError"));
+      alert(translations?.rewardClaimError);
     }
   };
 
@@ -75,12 +74,12 @@ export const Friends: React.FC = () => {
       });
 
       await claimPurchasedReward();
-      alert(t("premiumUnlocked"));
+      alert(translations?.premiumUnlocked);
 
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении премиум награды:", error);
-      alert(t("premiumUnlockError"));
+      alert(translations?.premiumUnlockError);
     }
   };
   const sortedFriends = [...friends].sort((a, b) => {
@@ -102,8 +101,10 @@ export const Friends: React.FC = () => {
       <div className={styles.friendsContainer}>
         {/* Карточка с реферальной ссылкой */}
         <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("earnRewards")}</div>
-          <div className={styles.cardDesc}>{t("inviteFriendsDesc")}</div>
+          <div className={styles.cardTitle}>{translations?.earnRewards} </div>
+          <div className={styles.cardDesc}>
+            {translations?.inviteFriendsDesc}
+          </div>
 
           <button
             className={`${styles.inviteBtn} ${isLoading ? styles.loading : ""}`}
@@ -111,11 +112,11 @@ export const Friends: React.FC = () => {
             disabled={isLoading || !referralLink}
           >
             {isLoading ? (
-              <>{t("loading")}</>
+              <>{translations?.loading}</>
             ) : (
               <>
                 <Share size={18} />
-                {t("inviteFriends")}
+                {translations?.inviteFriends}
               </>
             )}
           </button>
@@ -123,8 +124,12 @@ export const Friends: React.FC = () => {
 
         {/* Карточка бесплатных запросов */}
         <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("getFreeRequests")}</div>
-          <div className={styles.cardDesc}>{t("freeRequestsDesc")}</div>
+          <div className={styles.cardTitle}>
+            {translations?.getFreeRequests}
+          </div>
+          <div className={styles.cardDesc}>
+            {translations?.freeRequestsDesc}
+          </div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
@@ -141,15 +146,17 @@ export const Friends: React.FC = () => {
               className={styles.rewardBtn}
               onClick={handleGetFreeRequestsReward}
             >
-              {t("getReward")}
+              {translations?.getReward}
             </button>
           )}
         </div>
 
         {/* Карточка премиум доступа */}
         <div className={styles.card}>
-          <div className={styles.cardTitle}>{t("unlockPremium")}</div>
-          <div className={styles.cardDesc}>{t("unlockPremiumDesc")}</div>
+          <div className={styles.cardTitle}>{translations?.unlockPremium}</div>
+          <div className={styles.cardDesc}>
+            {translations?.unlockPremiumDesc}
+          </div>
           <div className={styles.progressSection}>
             <div className={styles.progressBarContainer}>
               <div
@@ -166,16 +173,18 @@ export const Friends: React.FC = () => {
               className={styles.rewardBtn}
               onClick={handleGetPremiumReward}
             >
-              {t("getReward")}
+              {translations?.getReward}
             </button>
           )}
         </div>
 
         {/* Список приглашенных друзей */}
         <div className={styles.emptyInvitations}>
-          <div className={styles.emptyTitle}>{t("yourInvitations")}</div>
+          <div className={styles.emptyTitle}>
+            {translations?.yourInvitations}
+          </div>
           {sortedFriends.length === 0 ? (
-            <div className={styles.emptyDesc}>{t("noFriendsYet")}</div>
+            <div className={styles.emptyDesc}>{translations?.noFriendsYet}</div>
           ) : (
             <div className={styles.friendsList}>
               {sortedFriends.map((friend, id) => (
@@ -189,7 +198,7 @@ export const Friends: React.FC = () => {
                         className={`${styles.accepted} ${styles.checkBlock}`}
                       >
                         <Check size={16} />
-                        {t("accepted")}
+                        {translations?.accepted}
                       </div>
                     )}
                     {friend.status === "Purchased" && (
@@ -197,7 +206,7 @@ export const Friends: React.FC = () => {
                         className={`${styles.purchased} ${styles.checkBlock}`}
                       >
                         <Wallet size={16} />
-                        {t("purchased")}
+                        {translations?.purchased}
                       </div>
                     )}
                   </div>

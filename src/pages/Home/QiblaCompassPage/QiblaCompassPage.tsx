@@ -7,13 +7,13 @@ import { useQiblaCompassPageStore } from "../../../hooks/useQiblaCompassPageStor
 import { Compass, Map } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useGeoStore } from "../../../hooks/useGeoStore";
-import { t } from "i18next";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus"; // granted/denied
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const QiblaCompassPage: React.FC = () => {
   const location = useLocation();
   const { activeTab, setActiveTab } = useQiblaCompassPageStore();
   const { coords } = useGeoStore();
+  const { translations } = useTranslationsStore();
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
@@ -40,7 +40,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Compass size={16} strokeWidth={1.5} /> {t("compass")}
+            <Compass size={16} strokeWidth={1.5} /> {translations?.compass}
           </span>
         </label>
 
@@ -53,7 +53,7 @@ export const QiblaCompassPage: React.FC = () => {
             className={styles.toggleInput}
           />
           <span className={styles.toggleSlider}>
-            <Map size={16} strokeWidth={1.5} /> {t("map")}
+            <Map size={16} strokeWidth={1.5} /> {translations?.map}
           </span>
         </label>
       </div>

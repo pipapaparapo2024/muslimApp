@@ -44,7 +44,7 @@ const resources = {
       askQuestion: "Ask Question",
       asking: "Asking...",
       scanPicture: "Scan Picture",
-
+      noSettingsAvailable: "No Settings Available",
       // Prayer Times
       calculatingPrayerTimes: "Calculating prayer times...",
       viewTodaysSalah: "View today's Salah times and upcoming prayers.",
@@ -61,7 +61,9 @@ const resources = {
       getClearAnswers:
         "Get clear, concise answers to what matters most. Ask and we'll respond right here.",
       yourQuestion: "Your Question",
-
+      of: "of",
+      exportFailed: "Export Failed",
+      requestNotFound: "Request Not Found",
       // Scanner
       instantHalalCheck: "Instant Halal Check",
       takePhotoCheck:
@@ -84,7 +86,7 @@ const resources = {
       light: "Light",
       dark: "Dark",
       system: "System",
-
+      initializationError: "Initialization Error",
       // Welcome screen
       prayerReminders: "Prayer Reminders",
       stayOnTrack:
@@ -102,6 +104,10 @@ const resources = {
       start: "Start",
       authError: "Authentication Error",
       tryAgain: "Try Again",
+      rewardClaimed: "Reward Claimed",
+      rewardClaimError: "Reward Claim Error",
+      premiumUnlocked: "Premium Unlocked",
+      premiumUnlockError: "Premium Unlock Error",
 
       //Camera Page
       again: "Again",
@@ -154,14 +160,14 @@ const resources = {
       locationMay: "Location may be inaccurate. Please consider this.",
       loadPrevious: "Load Previous",
       loadMore: "Load More",
-
+      noTranslationsAvailable: "No Translations Available",
       //Translation and other
       chooseTranslation: "Choose Translation",
       selectPreferred:
         "Select your preferred translation of the Quran for better understanding.",
       makkah: "Makkah",
       madinah: "Madinah",
-
+      scanIllustration: "Scan Illustration",
       // Date Time Settings
       timeFormat: "Time Format",
       hourTime: "24-Hour Time",
@@ -182,6 +188,7 @@ const resources = {
       showOnMainScreen: "Show On Main Screen",
       getTelegramNotifications: "Get Telegram Notifications",
       noPrayersAvailable: "No prayers available",
+      connectWalletToPay: "Connect Wallet To Pay",
 
       fajr: "Fajr",
       sunrise: "Sunrise",
@@ -215,6 +222,7 @@ const resources = {
         "Tarawih are special nightly prayers performed during Ramadan after the Isha prayer. They typically consist of 8 or 20 rak'ahs.",
       editPrayerTimes: "Edit Prayer Times",
       // Menu items
+      prayers: "Prayers",
       readQuran: "Read Quran",
       openAndRead: "Open and read the Holy Quran.",
       askAboutFaith: "Ask About Your Faith",
@@ -225,10 +233,15 @@ const resources = {
       shareApp: "Share the app for bonuses!",
       settings: "Settings",
       selectSettings: "Select your preferred settings.",
+      page: "Page",
 
       // Qibla Compass Page
       compass: "Compass",
       map: "Map",
+      insufficientStars: "Insufficient Stars",
+      paymentError: "Payment Error",
+      paymentSuccess: "Payment Success",
+      paymentRejected: "Payment Rejected",
 
       //History Scanner Empty
       haventChecked: "Haven’t Checked Anything",
@@ -324,6 +337,7 @@ const resources = {
       askQuestion: "اطرح سؤالاً",
       asking: "جاري السؤال...",
       scanPicture: "مسح الصورة",
+      noSettingsAvailable: "لا توجد إعدادات متاحة",
 
       // Prayer Times
       calculatingPrayerTimes: "جاري حساب أوقات الصلاة...",
@@ -340,6 +354,9 @@ const resources = {
       getClearAnswers:
         "احصل على إجابات واضحة وموجزة لما يهمك أكثر. اسأل وسنرد هنا.",
       yourQuestion: "سؤالك",
+      of: "ل",
+      exportFailed: "فشل التصدير",
+      requestNotFound: "لم يتم العثور على الطلب",
 
       // Scanner
       instantHalalCheck: "فحص الحلال الفوري",
@@ -360,6 +377,8 @@ const resources = {
       light: "ضوء",
       dark: "مظلم",
       system: "نظام",
+      initializationError: "خطأ في التهيئة",
+
       // Welcome screen
       prayerReminders: "تذكير الصلاة",
       stayOnTrack:
@@ -376,7 +395,10 @@ const resources = {
       start: "ابدأ",
       authError: "خطأ في المصادقة",
       tryAgain: "حاول مرة أخرى",
-
+      rewardClaimed: "المكافأة المطالب بها",
+      rewardClaimError: "خطأ في المطالبة بالمكافأة",
+      premiumUnlocked: "قسط مفتوح",
+      premiumUnlockError: "خطأ في فتح الإصدار المميز",
       //Camera Page
       again: "مرة أخرى",
       send: "يرسل",
@@ -430,11 +452,15 @@ const resources = {
       //Ayahs
       loadPrevious: "تحميل السابق",
       loadMore: "تحميل المزيد",
+      noTranslationsAvailable: "لا توجد ترجمات متاحة",
+
       //Translation and other
       chooseTranslation: "اختر الترجمة",
       selectPreferred: "اختر ترجمتك المفضلة للقرآن لفهم أفضل.",
       makkah: "مكة",
       madinah: "المدينة المنورة",
+      scanIllustration: "رسم توضيحي للمسح الضوئي",
+
       ayahs: "آيات",
 
       // Date Time Settings
@@ -489,8 +515,10 @@ const resources = {
         "التراويح هي صلوات ليلية خاصة تؤدى خلال رمضان بعد صلاة العشاء. تتكون عادة من 8 أو 20 ركعة.",
       editPrayerTimes: "تعديل أوقات الصلاة",
       noPrayersAvailable: "لا توجد صلوات متاحة",
-
+      connectWalletToPay: "ربط المحفظة للدفع",
       // Menu items
+      prayers: "صلوات",
+
       readQuran: "اقرأ القرآن",
       openAndRead: "افتح واقرأ القرآن الكريم.",
       askAboutFaith: "اسأل عن إيمانك",
@@ -501,10 +529,14 @@ const resources = {
       shareApp: "شارك التطبيق للحصول على مكافآت!",
       settings: "الإعدادات",
       selectSettings: "اختر الإعدادات المفضلة لديك.",
-
+      page: "صفحة",
       // Qibla Compass Page
       compass: "البوصلة",
       map: "الخريطة",
+      insufficientStars: "نجوم غير كافية",
+      paymentError: "خطأ في الدفع",
+      paymentSuccess: "نجاح الدفع",
+      paymentRejected: "تم رفض الدفع",
       //History Scanner Empty
       haventChecked: "لم تحقق أي شيء",
       onceYouScan: "بمجرد قيامك بمسح المنتج ضوئيًا، سترى سجلك هنا.",

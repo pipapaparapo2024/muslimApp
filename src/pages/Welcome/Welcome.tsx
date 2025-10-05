@@ -3,9 +3,8 @@ import styles from "./Welcome.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useWelcomeLogic } from "./useWelcomeLogic";
-import { t } from "i18next";
 import { useTelegram } from "../../hooks/useTelegram";
-
+import { useTranslationsStore } from "../../hooks/useTranslations";
 export const Welcome: React.FC = () => {
   const {
     steps,
@@ -20,7 +19,7 @@ export const Welcome: React.FC = () => {
     isInitialized,
   } = useWelcomeLogic();
   const { isAuthenticated, wasLogged } = useTelegram();
-
+  const { translations } = useTranslationsStore();
   // Показываем лоадер пока проверяем аутентификацию
   if (!isInitialized) {
     return (
@@ -34,13 +33,13 @@ export const Welcome: React.FC = () => {
     return (
       <PageWrapper>
         <div className={styles.errorContainer}>
-          <h2>{t("initializationError")}</h2>
+          <h2> {translations?.initializationError}</h2>
           <p>{error}</p>
           <button
             className={styles.welcomeButton}
             onClick={() => window.location.reload()}
           >
-            {t("tryAgain")}
+            {translations?.tryAgain}
           </button>
         </div>
       </PageWrapper>
@@ -120,7 +119,9 @@ export const Welcome: React.FC = () => {
                 cursor: isAnimating ? "not-allowed" : "pointer",
               }}
             >
-              {step === steps.length - 1 ? t("start") : t("next")}
+              {step === steps.length - 1
+                ? translations?.start
+                : translations?.next}
             </button>
           </div>
         </div>

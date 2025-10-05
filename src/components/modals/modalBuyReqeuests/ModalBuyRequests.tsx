@@ -3,13 +3,12 @@ import styles from "./ModalBuyRequests.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
-
+import { useTranslationsStore } from "../../../hooks/useTranslations";
 interface BuyRequestsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,7 +26,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   selectedRequests,
   onSelectRequests,
 }) => {
-  const { t } = useTranslation();
+  const { translations } = useTranslationsStore();
   const { fetchUserData } = usePremiumStore();
   const {
     getProductsByType,
@@ -46,7 +45,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       .map((product) => {
         const requests = product.revardAmount;
         return {
-          label: `${requests} ${t("requests")}`,
+          label: `${requests} ${translations?.requests}`,
           quantity: requests,
           product,
         };
@@ -144,7 +143,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
-          alert(t("insufficientStars"));
+          alert(translations?.insufficientStars);
           break;
 
         default:
@@ -154,7 +153,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             product_id: prices.productId,
             currency_id: prices.currencyId,
           });
-          alert(t("paymentError"));
+          alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("Stars payment error for requests:", error);
@@ -164,7 +163,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         product_id: prices.productId,
         currency_id: prices.currencyId,
       });
-      alert(t("paymentError"));
+      alert(translations?.paymentError);
     } finally {
       setIsProcessingStars(false);
     }
@@ -231,7 +230,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             quantity: prices.quantity,
             product_id: prices.productId,
           });
-          alert(t("paymentSuccess"));
+          alert(translations?.paymentSuccess);
           onClose();
           break;
 
@@ -241,7 +240,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             requests_count: selectedRequests,
             product_id: prices.productId,
           });
-          alert(t("paymentRejected"));
+          alert(translations?.paymentRejected);
           break;
 
         case "not_connected":
@@ -256,7 +255,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             error: result.status,
             product_id: prices.productId,
           });
-          alert(t("paymentError"));
+          alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("TON payment error for requests:", error);
@@ -265,7 +264,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         error: error.message,
         product_id: prices.productId,
       });
-      alert(t("paymentError"));
+      alert(translations?.paymentError);
     } finally {
       setIsProcessingTon(false);
     }
@@ -285,13 +284,13 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     <div className={styles.modalOverlay} onClick={handleClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>{t("buyRequests")}</h2>
+          <h2>{translations?.buyRequests}</h2>
           <button className={styles.closeButton} onClick={handleClose}>
             ×
           </button>
         </div>
 
-        <p className={styles.modalDescription}>{t("requestsDescription")}</p>
+        <p className={styles.modalDescription}>{translations?.requestsDescription}</p>
 
         <div className={styles.options}>
           {requestOptions.map((option) => (
@@ -318,12 +317,12 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {(prices.ton/10e9).toFixed(10)}
+                {(prices.ton / 10e9).toFixed(10)}
               </div>
             </div>
             {!isConnected && !isProcessingTon && (
               <div className={styles.connectHint}>
-                {t("connectWalletToPay")}
+                {translations?.connectWalletToPay}
               </div>
             )}
           </div>
