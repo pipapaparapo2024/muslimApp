@@ -11,8 +11,7 @@ const getSessionId = (): string => {
 };
 
 const getTelegramUserId = (): string | number | null => {
-  if (!window.Telegram?.WebApp) return null;
-  const user = window.Telegram.WebApp.initDataUnsafe?.user;
+  const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
   return user?.id || null;
 };
 
@@ -22,6 +21,20 @@ export const trackButtonClick = async (
 ) => {
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
+
+  if (window?.Telegram?.WebApp?.trackEvent) {
+    try {
+      window.Telegram.WebApp.trackEvent("button_click", {
+        button_name: buttonName,
+        user_id: userId,
+        session_id: sessionId,
+        timestamp: new Date().toISOString(),
+        ...additionalData,
+      });
+    } catch (err) {
+      console.warn("⚠️ Ошибка при отправке в Telegram аналитику:", err);
+    }
+  }
 
   const eventData = {
     eventName: buttonName,
