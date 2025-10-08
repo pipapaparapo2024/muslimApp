@@ -11,7 +11,14 @@ export interface TonPayParams {
 }
 
 export interface TonPaymentResponse {
-  status: "success" | "rejected" | "not_connected" | "server_error" | "error";
+  fallback?:boolean;
+  status:
+    | "success"
+    | "rejected"
+    | "not_connected"
+    | "server_error"
+    | "error"
+    | "pending";
   error?: any;
   data?: any;
 }
@@ -117,38 +124,45 @@ export const useTonPay = () => {
         }
       );
 
-      const payload = invoiceResponse.data.data.payload;
-      const payloadBOC = invoiceResponse.data.data.payloadBOC;
-      const merchantAddress = merchantWallet;
-      const amount = params.amount.toString();
+      const { payload, payloadBOC } = invoiceResponse.data.data;
+      const amountNano = Math.floor(params.amount * 1e9).toString();
 
-      console.log("📦 Данные транзакции:", {
-        merchantAddress,
-        amount,
-        hasPayload: !!payload,
-        payload: payload,
-      });
-      const result = await tonConnectUI.sendTransaction({
-        network: CHAIN.MAINNET,
+      const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
+        network: CHAIN.MAINNET,
         messages: [
           {
-            address: merchantAddress,
-            amount: amount,
+            address: merchantWallet,
+            amount: amountNano,
             payload: payloadBOC,
           },
         ],
-      });
+      };
 
-      console.log("✅ Транзакция отправлена, BOC:", result.boc);
+      try {
+        // ✅ 1. Пробуем нативное окно TonConnect
+        const result = await tonConnectUI.sendTransaction(transaction);
+        console.log("✅ TON transaction sent", result);
+        return await waitForConfirmation(payload);
+      } catch (err: any) {
+        console.warn("⚠️ sendTransaction failed, fallback to deep link:", err);
 
-      // Ждем подтверждения
-      return await waitForConfirmation(payload);
-    } catch (err: any) {
-      console.error("TON payment error:", err);
-      if (err?.message?.includes("Rejected")) {
-        return { status: "rejected", error: err };
+        // 🐤 Если ошибка типа TonConnectUIError — используем fallback
+        if (
+          err.name === "TonConnectUIError" ||
+          err.message?.includes("TonConnectUIError")
+        ) {
+          const deepLink = `https://t.me/wallet/startapp?startapp=tonconnect&transaction=${encodeURIComponent(
+            JSON.stringify(transaction)
+          )}`;
+          window.Telegram?.WebApp?.openTelegramLink(deepLink);
+          return { status: "pending", fallback: true };
+        }
+
+        throw err;
       }
+    } catch (err) {
+      console.error("TON payment fatal error:", err);
       return { status: "error", error: err };
     }
   };
