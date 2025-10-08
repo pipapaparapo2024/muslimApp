@@ -3,7 +3,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: var(--numbers-16) var(--numbers-16) var(--numbers-64)
+  padding: var(--numbers-16) var(--numbers-16) var(--numbers-40)
     var(--numbers-16);
   background: var(--bg-surface);
   border-radius: var(--roundings-medium) var(--roundings-medium) 0 0;
