@@ -117,33 +117,38 @@ export const useTonPay = () => {
         }
       );
 
-      const { payload, payloadBOC } = invoiceResponse.data.data;
+      const payload = invoiceResponse.data.data.payload;
+      const payloadBOC = invoiceResponse.data.data.payloadBOC;
+      const merchantAddress = merchantWallet;
+      const amount = params.amount.toString();
 
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 300,
+      console.log("📦 Данные транзакции:", {
+        merchantAddress,
+        amount,
+        hasPayload: !!payload,
+        payload: payload,
+      });
+      const result = await tonConnectUI.sendTransaction({
         network: CHAIN.MAINNET,
+        validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
-            address: merchantWallet,
-            amount: Math.floor(params.amount * 1e9).toString(),
+            address: merchantAddress,
+            amount: amount,
             payload: payloadBOC,
           },
         ],
-      };
+      });
 
-      if (window.Telegram?.WebApp) {
-        // Telegram Mini Apps workaround
-        const deepLink = `https://t.me/wallet/startapp=tonconnect&transaction=${encodeURIComponent(
-          JSON.stringify(transaction)
-        )}`;
-        window.Telegram.WebApp.openTelegramLink(deepLink);
-      }
+      console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
-      const result = await tonConnectUI.sendTransaction(transaction);
-      console.log("✅ Transaction result:", result);
+      // Ждем подтверждения
       return await waitForConfirmation(payload);
-    } catch (err) {
+    } catch (err: any) {
       console.error("TON payment error:", err);
+      if (err?.message?.includes("Rejected")) {
+        return { status: "rejected", error: err };
+      }
       return { status: "error", error: err };
     }
   };
