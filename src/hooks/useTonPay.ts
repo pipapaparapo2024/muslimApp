@@ -125,7 +125,7 @@ export const useTonPay = () => {
       );
 
       const { payload, payloadBOC } = invoiceResponse.data.data;
-      const amountNano = Math.floor(params.amount * 1e9).toString();
+      const amountNano = Math.floor(params.amount).toString();
 
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
