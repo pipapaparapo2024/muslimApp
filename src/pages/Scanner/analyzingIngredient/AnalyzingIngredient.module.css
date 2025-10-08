@@ -28,8 +28,8 @@
 }
 
 .image img {
-  max-height: 400px;
-  max-width: 300px;
+  max-height: 500px;
+  max-width: 400px;
   width: auto;
   height: auto;
   object-fit: contain;
