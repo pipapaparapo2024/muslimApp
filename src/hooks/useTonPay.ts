@@ -106,9 +106,7 @@ export const useTonPay = () => {
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
-      window.Telegram?.WebApp?.openTelegramLink(
-        "https://t.me/wallet/start?startapp=tonconnect"
-      );
+
       const merchantWallet = await getTonWallet();
 
       const invoiceResponse = await quranApi.post(
