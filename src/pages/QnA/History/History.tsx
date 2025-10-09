@@ -110,12 +110,11 @@ export const History: React.FC = () => {
         </div>
       </div>
       {pagination.pageAmount > 1 && (
-        <nav
+        <div
           aria-label="Навигация по страницам"
           className={styles.paginationContainer}
         >
           <ul className={styles.pagination}>
-            {/* Кнопка "Предыдущая" */}
             <li
               className={`${styles.pageItem} ${
                 !pagination.hasPrev ? styles.disabled : ""
@@ -134,7 +133,6 @@ export const History: React.FC = () => {
               </button>
             </li>
 
-            {/* Точки между кнопками */}
             <li className={styles.pageDots}>
               {Array.from({ length: pagination.pageAmount }).map((_, index) => (
                 <span
@@ -148,7 +146,6 @@ export const History: React.FC = () => {
               ))}
             </li>
 
-            {/* Кнопка "Следующая" */}
             <li
               className={`${styles.pageItem} ${
                 !pagination.hasNext ? styles.disabled : ""
@@ -167,7 +164,7 @@ export const History: React.FC = () => {
               </button>
             </li>
           </ul>
-        </nav>
+        </div>
       )}
     </PageWrapper>
   );

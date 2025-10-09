@@ -43,65 +43,11 @@
 
 
 
-.loadMoreContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loadMoreButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: white;
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 120px;
-  justify-content: center;
-}
-
-.loadMoreButton:hover:not(:disabled) {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-  transform: translateY(-1px);
-}
-
-.loadMoreButton:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.loadMoreButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: #f3f4f6;
-}
-
-.spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.paginationInfo {
-  text-align: center;
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 16px;
-}
 
 .paginationContainer {
   display: flex;
-  justify-content: center; /* центрирует всё содержимое по горизонтали */
-  align-items: center; /* центрирует по вертикали */
+  justify-content: center;
+  align-items: center; 
   width: 100%;
   margin-top: var(--numbers-16);
 }
@@ -109,17 +55,11 @@
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: center; /* <-- добавляем это */
+  justify-content: center; 
   list-style: none;
   padding: 0;
   gap: 12px;
-  margin: 0 auto; /* <-- гарантирует центрирование внутри родителя */
-}
-
-
-.pageItem {
-  display: flex;
-  align-items: center;
+  margin: 0 auto;
 }
 
 .pageButton {
