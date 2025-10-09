@@ -127,7 +127,7 @@ export const History: React.FC = () => {
 
         <div className={styles.paginationInfo}>
           {pagination.page < pagination.pageAmount && translations?.page}
-          {pagination.page} {translations?.of} {pagination.pageAmount}
+          {pagination.page} {pagination.pageAmount}
         </div>
       </div>
       {pagination.pageAmount > 1 && (
@@ -178,6 +178,7 @@ export const History: React.FC = () => {
               <button
                 className={styles.pageButton}
                 onClick={async () => {
+                  console.log("pagination.hasnext",pagination.hasNext)
                   if (pagination.hasNext) {
                     await loadMoreHistory();
                   }
