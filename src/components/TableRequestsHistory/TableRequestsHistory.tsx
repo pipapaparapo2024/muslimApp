@@ -48,12 +48,12 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
       <button
         className={styles.button}
         onClick={() => {
+          handleHistoryClick();
           if ((text = "/qna/history")) {
             trackButtonClick("qa", "history_button");
           } else {
             trackButtonClick("food_scan", "history_button");
           }
-          handleHistoryClick();
         }}
       >
         <Clock size={20} strokeWidth={1.5} />
