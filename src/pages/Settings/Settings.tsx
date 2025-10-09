@@ -166,7 +166,7 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => {
               trackButtonClick("settings", "click_privacy_policy");
-              navigateTo("/privacy-policy");
+              navigateTo("/privacyPolicy");
             }}
           >
             <div className={styles.settingItemLeft}>
@@ -189,7 +189,7 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => {
               trackButtonClick("settings", "click_terms_of_use");
-              navigateTo("/terms-of-use");
+              navigateTo("/termsOfUse");
             }}
           >
             <div className={styles.settingItemLeft}>
@@ -215,7 +215,7 @@ export const Settings: React.FC = () => {
             className={styles.settingItem}
             onClick={() => {
               trackButtonClick("settings", "click_contact_us");
-              navigateTo("/contact-us");
+              navigateTo("/contactUs");
             }}
           >
             <div className={styles.settingItemLeft}>

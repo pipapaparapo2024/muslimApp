@@ -32,6 +32,9 @@ import { AyahList } from "./pages/Quran/Ayas/AyasList";
 import { ChooseTranslation } from "./pages/Quran/translation/ChooseTranslation";
 import { AnalyzingPromise } from "./pages/QnA/analyzingPromis/AnalyzingPromise";
 import { CameraPage } from "./pages/Scanner/cameraPage/CameraPage";
+import { ContactUs } from "./pages/Settings/importantLinks/ContactUs";
+import { TermsOfUse } from "./pages/Settings/importantLinks/TermsOfUse";
+import { PrivacyPolicy } from "./pages/Settings/importantLinks/PrivacyPolicy";
 // Настройка полноэкранного режима и предотвращение свайпа
 if (viewport.expand.isAvailable()) {
   viewport.expand();
@@ -107,13 +110,13 @@ export const App: React.FC = () => {
           <Route path="/settings/theme" element={<ModalTheme />} />
           <Route path="/qibla" element={<QiblaCompassPage />} />
           <Route
-            path="/privacy-policy"
-            element={<div>Privacy Policy Page</div>}
+            path="/privacyPolicy"
+            element={<PrivacyPolicy/>}
           />
           <Route path="/scanner/camera" element={<CameraPage />} />
           <Route path="/quran/translation" element={<ChooseTranslation />} />
-          <Route path="/terms-of-use" element={<div>Terms of Use Page</div>} />
-          <Route path="/contact-us" element={<div>Contact Us Page</div>} />
+          <Route path="/termsOfUse" element={<TermsOfUse/>} />
+          <Route path="/contactUs" element={<ContactUs/>} />
           <Route path="/scanner" element={<Scanner />} />
           <Route path="/scanner/historyScanner" element={<HistoryScanner />} />
           <Route
