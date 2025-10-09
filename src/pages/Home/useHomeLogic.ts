@@ -4,11 +4,11 @@ import type { Language } from "../../hooks/useLanguages";
 import { quranApi } from "../../api/api";
 import { applyLanguageStyles } from "../../hooks/useLanguages";
 import { trackButtonClick } from "../../api/analytics";
-const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
-const VPN_WARNING_SHOWN = "vpnWarningShown";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { getPlatform } from "./QiblaCompass/QiblaCompass";
 import { useGeoStore } from "../../hooks/useGeoStore";
+const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
+const VPN_WARNING_SHOWN = "vpnWarningShown";
 
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
@@ -30,7 +30,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { country, langcode } = useGeoStore();
-  const { loadTranslations, translations } = useTranslationsStore();
+  const {  translations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -67,7 +67,6 @@ export const useHomeLogic = () => {
 
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
-          // loadTranslations(userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }
