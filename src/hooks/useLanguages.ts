@@ -3,7 +3,9 @@ import i18n from "../api/i18n";
 import { quranApi } from "../api/api";
 export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
+import { useGeoStore } from "./useGeoStore";
 import { useTranslationsStore } from "./useTranslations";
+import { usePrayerApiStore } from "./usePrayerApiStore";
 const arabId = "7b64a96d-1dc9-4cd0-b3f0-59cbfbc9fdf7";
 const enId = "1e5a0c2e-8e6b-4e76-8fc0-2b0f5a933b4a";
 let langId = "";
@@ -28,6 +30,8 @@ export const applyLanguageStyles = (lang: Language): void => {
 const LANGUAGE_KEY = "preferred-language";
 
 export const useLanguage = () => {
+  const {coords} = useGeoStore();
+    const { fetchPrayers } = usePrayerApiStore();
   const [language, setLanguage] = useState<Language>(i18n.language as Language);
   const [isChanging, setIsChanging] = useState(false);
   const { translations, loadTranslations } = useTranslationsStore();
@@ -58,6 +62,9 @@ export const useLanguage = () => {
       await setLanguageOnBackend(newLang);
       await i18n.changeLanguage(newLang);
       setLanguage(newLang);
+      if (coords) {
+        fetchPrayers(coords?.lat, coords?.lon);
+      }
       await loadTranslations(newLang);
     } catch (error) {
       console.error("Error changing language:", error);
