@@ -51,7 +51,7 @@ export const SurahList: React.FC = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // await fetchVariants();
+        await fetchVariants();
         setLoad(true);
       } catch (error) {
         console.error("Failed to load surahs:", error);
