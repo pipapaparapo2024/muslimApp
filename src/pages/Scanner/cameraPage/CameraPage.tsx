@@ -6,6 +6,7 @@ import styles from "./CameraPage.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
+import { trackButtonClick } from "../../../api/analytics";
 
 export const CameraPage: React.FC = () => {
   const navigate = useNavigate();
@@ -69,7 +70,6 @@ export const CameraPage: React.FC = () => {
   const handleProcessPhoto = async () => {
     if (photoPreview) {
       try {
-        // Сбросить состояние сканера перед новым сканированием
         resetScannerState();
 
         const response = await fetch(photoPreview);
@@ -77,7 +77,7 @@ export const CameraPage: React.FC = () => {
         const file = new File([blob], "scanned-image.png", {
           type: "image/png",
         });
-
+        trackButtonClick("food_scan","click_scan_picture")
         navigate("/scanner/analyze");
 
         setTimeout(async () => {

@@ -43,17 +43,16 @@ export const Settings: React.FC = () => {
 
   // Обработчики с аналитикой
   const openLanguageModal = () => {
-    trackButtonClick("open_language_modal", { current_language: language });
+    trackButtonClick("settings", "click_language");
     setIsLanguageModalOpen(true);
   };
 
   const openThemeModal = () => {
-    trackButtonClick("open_theme_modal", { current_theme: rawTheme });
+    trackButtonClick("settings", "click_theme");
     setIsThemeModalOpen(true);
   };
 
-  const navigateTo = (path: string, eventName: string, additionalData = {}) => {
-    trackButtonClick(eventName, additionalData);
+  const navigateTo = (path: string) => {
     navigate(path);
   };
 
@@ -88,9 +87,10 @@ export const Settings: React.FC = () => {
           {/* Date & Time */}
           <div
             className={styles.settingItem}
-            onClick={() =>
-              navigateTo("/settings/dateTime", "open_date_time_settings")
-            }
+            onClick={() => {
+              trackButtonClick("settings", "click_date_time");
+              navigateTo("/settings/dateTime");
+            }}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -113,15 +113,10 @@ export const Settings: React.FC = () => {
           {/* Prayer Times */}
           <div
             className={styles.settingItem}
-            onClick={() =>
-              navigateTo(
-                "/settings/prayerTimes",
-                "open_prayer_times_settings",
-                {
-                  prayers_count: prayers.length,
-                }
-              )
-            }
+            onClick={() => {
+              trackButtonClick("settings", "click_prayer_times");
+              navigateTo("/settings/prayerTimes");
+            }}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -169,7 +164,10 @@ export const Settings: React.FC = () => {
           {/* Privacy Policy */}
           <div
             className={styles.settingItem}
-            onClick={() => navigateTo("/privacy-policy", "open_privacy_policy")}
+            onClick={() => {
+              trackButtonClick("settings", "click_privacy_policy");
+              navigateTo("/privacy-policy");
+            }}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -189,7 +187,10 @@ export const Settings: React.FC = () => {
           {/* Terms Of Use */}
           <div
             className={styles.settingItem}
-            onClick={() => navigateTo("/terms-of-use", "open_terms_of_use")}
+            onClick={() => {
+              trackButtonClick("settings", "click_terms_of_use");
+              navigateTo("/terms-of-use");
+            }}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -212,7 +213,10 @@ export const Settings: React.FC = () => {
           {/* Contact Us */}
           <div
             className={styles.settingItem}
-            onClick={() => navigateTo("/contact-us", "open_contact_us")}
+            onClick={() => {
+              trackButtonClick("settings", "click_contact_us");
+              navigateTo("/contact-us");
+            }}
           >
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
@@ -239,10 +243,6 @@ export const Settings: React.FC = () => {
         currentLanguage={language}
         onClose={() => setIsLanguageModalOpen(false)}
         onLanguageChange={(newLang) => {
-          trackButtonClick("change_language", {
-            from: language,
-            to: newLang,
-          });
           changeLanguage(newLang);
         }}
       />
@@ -252,10 +252,6 @@ export const Settings: React.FC = () => {
         currentTheme={rawTheme}
         onClose={() => setIsThemeModalOpen(false)}
         onThemeChange={(theme) => {
-          trackButtonClick("change_theme", {
-            from: rawTheme,
-            to: theme,
-          });
           changeTheme(theme);
         }}
       />

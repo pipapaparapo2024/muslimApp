@@ -216,16 +216,6 @@ export const shareToTelegramStory = async (
 
   const tg = (window as any).Telegram;
 
-  console.log("=== DEBUG SHARE STORY ===");
-  console.log("URL:", url);
-  console.log("Telegram WebApp:", tg?.WebApp);
-  console.log(
-    "shareStory function available:",
-    typeof shareStory === "function"
-  );
-  console.log("Platform:", tg?.WebApp?.platform);
-  console.log("Version:", tg?.WebApp?.version);
-
   try {
     await init();
     console.log("Telegram SDK init attempted");

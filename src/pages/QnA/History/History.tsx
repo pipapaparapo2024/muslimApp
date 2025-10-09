@@ -7,7 +7,6 @@ import { Share2, ChevronDown, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
-import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const History: React.FC = () => {
   const { i18n } = useTranslation();
@@ -54,20 +53,14 @@ export const History: React.FC = () => {
 
   const handleShare = (event: React.MouseEvent, promisId: string) => {
     event.stopPropagation();
-    trackButtonClick("share_history_item", { promis_id: promisId });
     navigate(`/qna/shareHistory/${promisId}`);
   };
 
   const handleBlockClick = (promisId: string) => {
-    trackButtonClick("view_history_detail", { promis_id: promisId });
     navigate(`/qna/history/${promisId}`);
   };
 
   const handleLoadMore = async () => {
-    trackButtonClick("load_more_history", {
-      current_page: pagination.page,
-      total_pages: pagination.pageAmount,
-    });
 
     try {
       await loadMoreHistory();

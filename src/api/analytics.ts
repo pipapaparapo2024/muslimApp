@@ -2,9 +2,7 @@ import { quranApi } from "./api";
 
 const getSessionId = (): string => {
   if (!sessionStorage.getItem("telegram_session_id")) {
-    const sessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36)}`;
     sessionStorage.setItem("telegram_session_id", sessionId);
   }
   return sessionStorage.getItem("telegram_session_id")!;
@@ -16,20 +14,23 @@ const getTelegramUserId = (): string | number | null => {
 };
 
 export const trackButtonClick = async (
-  buttonName: string,
-  additionalData: Record<string, unknown> = {}
+  eventType: string,
+  eventName: string,
+  payload?: {}
 ) => {
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
 
   if (window?.Telegram?.WebApp?.trackEvent) {
     try {
-      window.Telegram.WebApp.trackEvent("button_click", {
-        button_name: buttonName,
-        user_id: userId,
-        session_id: sessionId,
-        timestamp: new Date().toISOString(),
-        ...additionalData,
+      window.Telegram.WebApp.trackEvent(eventType, {
+        eventName: eventName,
+        eventTimestamp: new Date().toISOString(),
+        eventType: eventType,
+        id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        payload: payload,
+        sessionId: sessionId,
+        userId: userId,
       });
     } catch (err) {
       console.warn("⚠️ Ошибка при отправке в Telegram аналитику:", err);
@@ -37,13 +38,13 @@ export const trackButtonClick = async (
   }
 
   const eventData = {
-    eventName: buttonName,
+    eventName: eventName,
     eventTimestamp: new Date().toISOString(),
-    eventType: "button_click",
+    eventType: eventType,
     id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-    payload: JSON.stringify(additionalData),
-    sessionId,
-    userId: userId ?? 0,
+    payload: payload,
+    sessionId: sessionId,
+    userId: userId,
   };
 
   try {

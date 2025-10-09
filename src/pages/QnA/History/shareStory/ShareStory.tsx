@@ -60,11 +60,7 @@ export const ShareStory: React.FC = () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
     // 📊 Аналитика: пользователь нажал "Поделиться"
-    trackButtonClick("share_story_init", {
-      promis_id: id,
-      question_length: currentItem.question?.length || 0,
-      answer_length: currentItem.answer?.length || 0,
-    });
+    trackButtonClick("qa","click_history_share")
 
     try {
       const buttonContainer = screenshotRef.current.querySelector(
@@ -81,19 +77,7 @@ export const ShareStory: React.FC = () => {
 
       // 📊 Аналитика: скриншот успешно создан
       if (screenshotUrl) {
-        trackButtonClick("story_screenshot_created", {
-          promis_id: id,
-          screenshot_url_length: screenshotUrl.length,
-        });
-
-        // Попытка отправить в Telegram Story
-        const success = await shareToTelegramStory(screenshotUrl);
-
-        // 📊 Аналитика: отправка завершена (успешно или нет)
-        trackButtonClick("story_shared_to_telegram", {
-          promis_id: id,
-          success: success,
-        });
+        await shareToTelegramStory(screenshotUrl);
       }
 
       if (buttonContainer) {
@@ -102,10 +86,6 @@ export const ShareStory: React.FC = () => {
     } catch (error) {
       console.error("Failed to create and share screenshot:", error);
       // 📊 Аналитика: ошибка при экспорте/отправке
-      trackButtonClick("share_story_failed", {
-        promis_id: id,
-        error: (error as Error).message || "unknown",
-      });
       alert(translations?.exportFailed);
     }
   };

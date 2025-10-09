@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { quranApi } from "../api/api";
+import { trackButtonClick } from "../api/analytics";
 
 interface ReferralUser {
   status: string;
@@ -147,6 +148,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   claimTotalReward: async () => {
     try {
       set({ loading: true, error: null });
+      trackButtonClick("friends","click_get_reward","requests");
 
       await quranApi.post("api/v1/referal/bonuses/total/revard", {});
 
@@ -168,6 +170,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   claimPurchasedReward: async () => {
     try {
       set({ loading: true, error: null });
+      trackButtonClick("friends","click_get_reward","premium");
 
       await quranApi.post("/referal/bonuses/purchased/revard", {});
 

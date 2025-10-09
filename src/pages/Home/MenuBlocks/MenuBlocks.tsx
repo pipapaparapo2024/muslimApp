@@ -25,6 +25,7 @@ export const MenuBlocks: React.FC = () => {
   const menuItems = [
     {
       id: "quran",
+      eventName: "click_read_quran",
       icon: Quaran,
       title: translations?.readQuran,
       description: translations?.openAndRead,
@@ -32,6 +33,7 @@ export const MenuBlocks: React.FC = () => {
     },
     {
       id: "qna",
+      eventName: "click_qa",
       icon: church,
       title: translations?.askAboutFaith,
       description: translations?.getAnswers,
@@ -39,6 +41,7 @@ export const MenuBlocks: React.FC = () => {
     },
     {
       id: "scanner",
+      eventName: "click_food_scan",
       icon: apple,
       title: translations?.foodScanner,
       description: translations?.checkProduct,
@@ -46,6 +49,7 @@ export const MenuBlocks: React.FC = () => {
     },
     {
       id: "friends",
+      eventName: "click_friends",
       icon: muslim,
       title: translations?.friends,
       description: translations?.shareApp,
@@ -53,6 +57,7 @@ export const MenuBlocks: React.FC = () => {
     },
     {
       id: "settings",
+      eventName: "click_settings",
       icon: settings,
       title: translations?.settings,
       description: translations?.selectSettings,
@@ -60,14 +65,8 @@ export const MenuBlocks: React.FC = () => {
     },
   ];
 
-  const handleNavigation = (itemId: string, path: string) => {
-    // 📊 Аналитика: Клик по пункту меню
-    trackButtonClick("menu_item_click", {
-      menu_item: itemId,
-      destination_path: path,
-      friends_count: itemId === "friends" ? friends.length : undefined,
-    });
-
+  const handleNavigation = (eventName: string, path: string) => {
+    trackButtonClick("main", eventName);
     navigate(path);
   };
 
@@ -77,7 +76,7 @@ export const MenuBlocks: React.FC = () => {
         <div
           key={item.id}
           className={styles.menuItem}
-          onClick={() => handleNavigation(item.id, item.path)}
+          onClick={() => handleNavigation(item.eventName, item.path)}
         >
           <div className={styles.contentWrapper}>
             <img

@@ -3,7 +3,6 @@ import styles from "./ModalBuyRequests.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
-import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
@@ -123,46 +122,20 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
       switch (result.status) {
         case "success":
-          trackButtonClick("requests_purchase_success", {
-            payment_method: "stars",
-            requests_count: selectedRequests,
-            price: prices.stars,
-            quantity: prices.quantity,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-          });
           // Обновляем данные пользователя после успешной покупки
           await fetchUserData();
           onClose();
           break;
 
         case "insufficient_funds":
-          trackButtonClick("requests_purchase_insufficient_funds", {
-            payment_method: "stars",
-            requests_count: selectedRequests,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-          });
           alert(translations?.insufficientStars);
           break;
 
         default:
-          trackButtonClick("requests_purchase_error", {
-            payment_method: "stars",
-            error: result.error,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-          });
           alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("Stars payment error for requests:", error);
-      trackButtonClick("requests_purchase_exception", {
-        payment_method: "stars",
-        error: error.message,
-        product_id: prices.productId,
-        currency_id: prices.currencyId,
-      });
       alert(translations?.paymentError);
     } finally {
       setIsProcessingStars(false);
@@ -175,37 +148,15 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     }
   }, [isOpen, requestOptions, selectedRequests, onSelectRequests]);
 
-  React.useEffect(() => {
-    if (isOpen) {
-      trackButtonClick("requests_modal_open", {
-        default_selection: selectedRequests,
-        is_wallet_connected: isConnected,
-        available_products_count: requestsProducts.length,
-      });
-    }
-  }, [isOpen, selectedRequests, isConnected, requestsProducts.length]);
-
   if (!isOpen) return null;
 
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
-    trackButtonClick("requests_modal_close", {
-      final_selection: selectedRequests,
-    });
     onClose();
   };
 
   const handleOptionSelect = (option: string) => {
-    const newPrices = getPrices(option);
-    trackButtonClick("requests_count_change", {
-      from_count: selectedRequests,
-      to_count: option,
-      ton_price: newPrices.ton,
-      stars_price: newPrices.stars,
-      product_id: newPrices.productId,
-      quantity: newPrices.quantity,
-    });
     onSelectRequests(option);
   };
 
@@ -223,47 +174,22 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
       switch (result.status) {
         case "success":
-          trackButtonClick("requests_purchase_success", {
-            payment_method: "ton",
-            requests_count: selectedRequests,
-            price: prices.ton,
-            quantity: prices.quantity,
-            product_id: prices.productId,
-          });
           alert(translations?.paymentSuccess);
           onClose();
           break;
 
         case "rejected":
-          trackButtonClick("requests_purchase_rejected", {
-            payment_method: "ton",
-            requests_count: selectedRequests,
-            product_id: prices.productId,
-          });
           alert(translations?.paymentRejected);
           break;
 
         case "not_connected":
-          trackButtonClick("wallet_connection_opened", {
-            context: "requests_purchase",
-          });
           break;
 
         default:
-          trackButtonClick("requests_purchase_error", {
-            payment_method: "ton",
-            error: result.status,
-            product_id: prices.productId,
-          });
           alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("TON payment error for requests:", error);
-      trackButtonClick("requests_purchase_exception", {
-        payment_method: "ton",
-        error: error.message,
-        product_id: prices.productId,
-      });
       alert(translations?.paymentError);
     } finally {
       setIsProcessingTon(false);
@@ -290,7 +216,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           </button>
         </div>
 
-        <p className={styles.modalDescription}>{translations?.requestsDescription}</p>
+        <p className={styles.modalDescription}>
+          {translations?.requestsDescription}
+        </p>
 
         <div className={styles.options}>
           {requestOptions.map((option) => (

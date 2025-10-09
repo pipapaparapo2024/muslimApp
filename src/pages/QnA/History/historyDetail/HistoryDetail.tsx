@@ -8,7 +8,6 @@ import { useHistoryStore } from "../../../../hooks/useHistoryStore";
 import { Share } from "../../../../components/share/Share";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { type QaItem } from "../../../../hooks/useHistoryStore";
-import { trackButtonClick } from "../../../../api/analytics";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,8 +33,6 @@ export const HistoryDetail: React.FC = () => {
 
         if (item) {
           setCurrentItem(item);
-          // Опционально: трекинг просмотра деталей (если нужно)
-          trackButtonClick("view_history_detail_screen", { promis_id: id });
         } else {
           setError("Запрос не найден");
         }
@@ -51,11 +48,6 @@ export const HistoryDetail: React.FC = () => {
   }, [id, getHistoryItem]);
 
   const handleCopy = (text: string) => {
-    trackButtonClick("copy_history_answer", {
-      promis_id: id,
-      text_length: text.length,
-    });
-
     navigator.clipboard
       .writeText(text)
       .then(() => {

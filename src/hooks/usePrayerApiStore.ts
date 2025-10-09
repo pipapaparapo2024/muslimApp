@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { quranApi } from "../api/api";
+import { trackButtonClick } from "../api/analytics";
 
 export interface PrayerSetting {
   id: string;
@@ -42,7 +43,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       fetchPrayers: async (lat: number, lon: number) => {
         set({ isLoading: true, error: null });
-        console.log("координаты ",lat,lon)
+        console.log("координаты ", lat, lon);
         try {
           const response = await quranApi.get(`/api/v1/prayers`, {
             params: {
@@ -50,7 +51,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-          console.log("fetchPrayers:",response)
+          console.log("fetchPrayers:", response);
           if (response.data.status == "ok" && response.data.data?.prayers) {
             set({ prayers: response.data.data.prayers, isLoading: false });
           } else {
@@ -141,11 +142,29 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       togglePrayerSelection: async (id: string) => {
         const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayerSetting.map((prayer) =>
-          prayer.id === id
-            ? { ...prayer, hasSelected: !prayer.hasSelected }
-            : prayer
-        );
+        const updatedPrayers = prayerSetting.map((prayer) => {
+          if (prayer.id === id) {
+            const newHasSelected = !prayer.hasSelected;
+
+            // 🔹 Отправляем аналитику в зависимости от состояния
+            if (newHasSelected) {
+              trackButtonClick(
+                "prayer_times",
+                "click_show_on_main_screen",
+                prayer.name
+              );
+            } else {
+              trackButtonClick(
+                "prayer_times",
+                "click_show_off_main_screen",
+                prayer.name
+              );
+            }
+
+            return { ...prayer, hasSelected: newHasSelected };
+          }
+          return prayer;
+        });
 
         await updatePrayerSettings(updatedPrayers);
         set({ prayerSetting: updatedPrayers });
@@ -154,14 +173,28 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       togglePrayerNotification: async (id: string) => {
         const { prayerSetting, updatePrayerSettings } = get();
 
-        const updatedPrayers = prayerSetting.map((prayer) =>
-          prayer.id === id
-            ? {
-                ...prayer,
-                hasTelegramNotification: !prayer.hasTelegramNotification,
-              }
-            : prayer
-        );
+        const updatedPrayers = prayerSetting.map((prayer) => {
+          if (prayer.id === id) {
+            const newHasSelected = !prayer.hasTelegramNotification;
+
+            if (newHasSelected) {
+              trackButtonClick(
+                "prayer_times",
+                "click_on_tg_notifications",
+                prayer.name
+              );
+            } else {
+              trackButtonClick(
+                "prayer_times",
+                "click_off_tg_notifications",
+                prayer.name
+              );
+            }
+
+            return { ...prayer, hasTelegramNotification: newHasSelected };
+          }
+          return prayer;
+        });
 
         await updatePrayerSettings(updatedPrayers);
         set({ prayerSetting: updatedPrayers });

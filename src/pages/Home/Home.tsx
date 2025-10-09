@@ -44,7 +44,6 @@ export const Home: React.FC = () => {
           <p>{initializationError}</p>
           <button
             onClick={() => {
-              trackButtonClick("try_again_after_error");
               window.location.reload();
             }}
           >
@@ -75,7 +74,6 @@ export const Home: React.FC = () => {
                   <div className={styles.vpnWarningClose}>
                     <X
                       onClick={() => {
-                        trackButtonClick("close_vpn_warning");
                         handleCloseVpnWarning();
                       }}
                       size={20}
@@ -115,9 +113,6 @@ export const Home: React.FC = () => {
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        trackButtonClick("request_sensor_permission", {
-                          current_status: sensorPermission,
-                        });
                         requestSensorPermission && requestSensorPermission();
                       }}
                     >
@@ -129,8 +124,6 @@ export const Home: React.FC = () => {
                     <button
                       className={styles.permissionButton}
                       onClick={() => {
-                        // 📊 Аналитика: Кнопка сброса разрешения
-                        trackButtonClick("reset_sensor_permission");
                         resetSensorPermission();
                       }}
                     >
@@ -145,7 +138,7 @@ export const Home: React.FC = () => {
                 <div className={styles.qiblaBlockRow}>
                   <div
                     onClick={() => {
-                      trackButtonClick("map_click");
+                      trackButtonClick("main", "click_map");
                       handleMapClick();
                     }}
                     className={styles.mapContainer}
@@ -158,9 +151,7 @@ export const Home: React.FC = () => {
 
                   <div
                     onClick={() => {
-                      trackButtonClick("compass_click", {
-                        sensor_permission: sensorPermission,
-                      });
+                      trackButtonClick("main", "click_compass");
                       handleCompassClick(sensorPermission);
                     }}
                     className={styles.compassContainer}

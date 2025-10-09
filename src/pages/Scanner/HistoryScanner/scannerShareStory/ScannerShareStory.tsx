@@ -68,13 +68,7 @@ export const ScannerShareStory: React.FC = () => {
   const handleShare = async () => {
     if (!currentItem || !id || !screenshotRef.current) return;
 
-    // 📊 Аналитика: пользователь нажал "Поделиться"
-    trackButtonClick("share_scanner_story_init", {
-      scan_id: id,
-      eng_type: currentItem.engType,
-      products_count: currentItem.products?.length || 0,
-      has_haram: (currentItem.haramProducts?.length || 0) > 0,
-    });
+    trackButtonClick("food_scan","click_history_share")
 
     try {
       const buttonContainer = document.querySelector(`.${styles.blockButton}`);
@@ -92,27 +86,10 @@ export const ScannerShareStory: React.FC = () => {
       }
 
       if (screenshotUrl) {
-        // 📊 Аналитика: скриншот успешно создан
-        trackButtonClick("scanner_story_screenshot_created", {
-          scan_id: id,
-          screenshot_url_length: screenshotUrl.length,
-        });
-
-        // Попытка отправить в Telegram Story
-        const success = await shareToTelegramStory(screenshotUrl);
-
-        // 📊 Аналитика: результат отправки
-        trackButtonClick("scanner_story_shared_to_telegram", {
-          scan_id: id,
-          success: success,
-        });
+        await shareToTelegramStory(screenshotUrl);
       }
     } catch (error) {
       console.error("Failed to export and share screenshot:", error);
-      trackButtonClick("share_scanner_story_failed", {
-        scan_id: id,
-        error: (error as Error).message || "unknown",
-      });
       alert(translations?.exportFailed || "Export failed");
     }
   };

@@ -12,7 +12,6 @@ import {
   getStatusTranslationKey,
 } from "../../productStatus";
 import { type ScanResult } from "../../../../hooks/useScannerStore";
-import { trackButtonClick } from "../../../../api/analytics";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
 export const HistoryScannerDetail: React.FC = () => {
@@ -39,13 +38,6 @@ export const HistoryScannerDetail: React.FC = () => {
 
         if (item) {
           setCurrentItem(item);
-          // 📊 Аналитика: успешный просмотр деталей скана
-          trackButtonClick("view_scanner_detail_screen", {
-            scan_id: id,
-            eng_type: item.engType,
-            has_haram: (item.haramProducts?.length || 0) > 0,
-            products_count: item.products?.length || 0,
-          });
         } else {
           // Поиск в локальной истории
           const { history } = useHistoryScannerStore.getState();
@@ -54,16 +46,8 @@ export const HistoryScannerDetail: React.FC = () => {
 
           if (localItem) {
             setCurrentItem(localItem);
-            trackButtonClick("view_scanner_detail_screen", {
-              scan_id: id,
-              eng_type: localItem.engType,
-              has_haram: (localItem.haramProducts?.length || 0) > 0,
-              products_count: localItem.products?.length || 0,
-              source: "local_fallback",
-            });
           } else {
             setNetworkError("Элемент не найден в истории");
-            trackButtonClick("scanner_detail_not_found", { scan_id: id });
             setTimeout(() => navigate("/scanner"), 2000);
           }
         }
@@ -71,25 +55,6 @@ export const HistoryScannerDetail: React.FC = () => {
         console.error("API Error:", error);
         const errorMessage = error.message || "Network error";
         setNetworkError(errorMessage);
-
-        let errorCode = "unknown";
-        if (error.response?.status === 403) {
-          setNetworkError("Доступ запрещен (403). Возможно ограничение по IP");
-          errorCode = "403";
-        } else if (error.response?.status === 401) {
-          setNetworkError("Неавторизованный доступ (401)");
-          errorCode = "401";
-        } else if (error.response?.status === 404) {
-          setNetworkError("Элемент не найден (404)");
-          errorCode = "404";
-        }
-
-        // 📊 Аналитика: ошибка загрузки деталей
-        trackButtonClick("scanner_detail_load_failed", {
-          scan_id: id,
-          error_code: errorCode,
-          error_message: errorMessage,
-        });
       }
 
       setIsLoading(false);
@@ -99,7 +64,6 @@ export const HistoryScannerDetail: React.FC = () => {
   }, [id, navigate, fetchHistoryItem]);
 
   const handleRetry = () => {
-    trackButtonClick("retry_scanner_detail_load", { scan_id: id });
     window.location.reload();
   };
 
@@ -186,9 +150,7 @@ export const HistoryScannerDetail: React.FC = () => {
               <div className={styles.scanTitle}>
                 {translations?.conclusion || "Conclusion"}
               </div>
-              <div className={styles.scanDesk}>
-                {currentItem.description}
-              </div>
+              <div className={styles.scanDesk}>{currentItem.description}</div>
             </div>
           )}
         </div>

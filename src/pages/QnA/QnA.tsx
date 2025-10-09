@@ -21,11 +21,9 @@ export const QnA: React.FC = () => {
   const [question, setQuestion] = useState("");
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
-  // Добавляем проверку подключения кошелька
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
-  // Предзагрузка изображения
   useEffect(() => {
     const img = new Image();
     img.src = thinkPerson;
@@ -53,13 +51,7 @@ export const QnA: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!question.trim()) return;
-
-    trackButtonClick("submit_question", {
-      question_length: question.trim().length,
-      has_premium: hasPremium,
-      requests_left: requestsLeft,
-    });
-
+    trackButtonClick("qa", "click_ask_question");
     navigate("/qna/analyzing", {
       state: {
         question: question.trim(),
@@ -68,20 +60,13 @@ export const QnA: React.FC = () => {
   };
 
   const handleBuyRequestsClick = async () => {
-    trackButtonClick("buy_requests_from_qna", {
-      has_premium: hasPremium,
-      requests_left: requestsLeft,
-      wallet_connected: !!userAddress,
-    });
-
+    
     if (!userAddress) {
-      trackButtonClick("wallet_connection_triggered", {
-        context: "buy_requests_qna",
-      });
       await tonConnectUI.openModal();
       return;
     }
-
+    
+    trackButtonClick("qa", "click_buy_requests");
     setShowModal(true);
   };
 

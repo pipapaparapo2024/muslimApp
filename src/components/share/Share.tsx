@@ -1,20 +1,21 @@
 import React from "react";
 import { Plus, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import styles from './Share.module.css'
+import styles from "./Share.module.css";
+import { trackButtonClick } from "../../api/analytics";
 
 interface ShareProps {
   shareUrl: string;
   newUrl: string;
   shareText?: string;
-  newText?: string;
+  newText?: string | undefined;
 }
 
-export const Share: React.FC<ShareProps> = ({ 
-  shareUrl, 
-  newUrl, 
-  shareText = "share", 
-  newText = "newQuestion" 
+export const Share: React.FC<ShareProps> = ({
+  shareUrl,
+  newUrl,
+  shareText = "Share",
+  newText = "New Question",
 }) => {
   const navigate = useNavigate();
 
@@ -23,6 +24,8 @@ export const Share: React.FC<ShareProps> = ({
   };
 
   const handleNew = () => {
+    if (newUrl == "/qna") trackButtonClick("qa", "click_new_question");
+    else trackButtonClick("food_scan", "click_new_scan");
     navigate(newUrl);
   };
 

@@ -7,9 +7,9 @@ import { TableRequestsHistory } from "../../components/TableRequestsHistory/Tabl
 import { useNavigate } from "react-router-dom";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
-import { trackButtonClick } from "../../api/analytics";
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
 import { useTranslationsStore } from "../../hooks/useTranslations";
+import { trackButtonClick } from "../../api/analytics";
 
 export const Scanner: React.FC = () => {
   const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
@@ -29,30 +29,13 @@ export const Scanner: React.FC = () => {
 
   const handleScanClick = async () => {
     if (showAskButton) {
-      // 📊 Аналитика: пользователь переходит к сканированию
-      trackButtonClick("scan_button_click", {
-        action: "open_camera",
-        has_premium: hasPremium,
-        requests_left: requestsLeft,
-      });
       navigate("/scanner/camera");
     } else {
-      // 📊 Аналитика: попытка сканировать без запросов → проверка кошелька
-      trackButtonClick("scan_button_click", {
-        action: "check_wallet_for_requests",
-        has_premium: hasPremium,
-        requests_left: requestsLeft,
-        wallet_connected: !!userAddress,
-      });
-
       if (!userAddress) {
-        trackButtonClick("wallet_connection_triggered", {
-          context: "buy_requests_scanner",
-        });
         await tonConnectUI.openModal();
         return;
       }
-
+      trackButtonClick("food_scan", "click_buy_requests");
       setShowModal(true);
     }
   };

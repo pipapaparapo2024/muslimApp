@@ -45,37 +45,33 @@ export const SettingPrayerTimes: React.FC = () => {
   const handleSelectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(true);
-    trackButtonClick("toggle_all_prayers", { enabled: true });
+    trackButtonClick("prayer_times","click_on_show_all_prayer_times");
     setLocalLoading(false);
   };
 
   const handleDeselectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(false);
-    trackButtonClick("toggle_all_prayers", { enabled: false });
+    trackButtonClick("prayer_times","click_off_show_all_prayer_times");
     setLocalLoading(false);
   };
 
   const handleEnableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(true);
-    trackButtonClick("toggle_all_notifications", { enabled: true });
+    trackButtonClick("prayer_times","click_on_get_all_tg_notifications");
     setLocalLoading(false);
   };
 
   const handleDisableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(false);
-    trackButtonClick("toggle_all_notifications", { enabled: false });
+    trackButtonClick("prayer_times","click_off_get_all_tg_notifications");
     setLocalLoading(false);
   };
 
   const handleInfoClick = (prayer: any) => {
-    // 📊 Аналитика: открытие информации о намазе
-    trackButtonClick("open_prayer_info_modal", {
-      prayer_id: prayer.id,
-      prayer_name: prayer.name,
-    });
+    trackButtonClick("prayer_times","click_info",prayer.name)
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
   };
@@ -85,29 +81,15 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const handleToggleSelection = async (id: string, name: string) => {
+  const handleToggleSelection = async (id: string) => {
     setLocalLoading(true);
-    const current = prayerSetting.find((p) => p.id === id);
-    const newEnabled = !current?.hasSelected;
     await togglePrayerSelection(id);
-    trackButtonClick("toggle_single_prayer", {
-      prayer_id: id,
-      prayer_name: name,
-      enabled: newEnabled,
-    });
     setLocalLoading(false);
   };
 
-  const handleToggleNotification = async (id: string, name: string) => {
+  const handleToggleNotification = async (id: string) => {
     setLocalLoading(true);
-    const current = prayerSetting.find((p) => p.id === id);
-    const newEnabled = !current?.hasTelegramNotification;
     await togglePrayerNotification(id);
-    trackButtonClick("toggle_single_prayer_notification", {
-      prayer_id: id,
-      prayer_name: name,
-      enabled: newEnabled,
-    });
     setLocalLoading(false);
   };
 
@@ -217,7 +199,7 @@ export const SettingPrayerTimes: React.FC = () => {
                     type="checkbox"
                     checked={prayer.hasSelected}
                     onChange={() =>
-                      handleToggleSelection(prayer.id, prayer.name)
+                      handleToggleSelection(prayer.id)
                     }
                     className={styles.toggleInput}
                     disabled={localLoading}
@@ -231,7 +213,7 @@ export const SettingPrayerTimes: React.FC = () => {
                     type="checkbox"
                     checked={prayer.hasTelegramNotification}
                     onChange={() =>
-                      handleToggleNotification(prayer.id, prayer.name)
+                      handleToggleNotification(prayer.id)
                     }
                     className={styles.toggleInput}
                     disabled={!prayer.hasSelected || localLoading}

@@ -20,16 +20,13 @@ interface QiblaCompassProps {
   coords?: { lat: number; lon: number } | null;
 }
 
-// Функция для определения платформы
-const getPlatform = (): 'ios' | 'android' | 'other' => {
+export const getPlatform = (): 'ios' | 'android' | 'other' => {
   const userAgent = navigator.userAgent || navigator.vendor;
   
-  // iOS detection
   if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
     return 'ios';
   }
   
-  // Android detection
   if (/android/i.test(userAgent)) {
     return 'android';
   }

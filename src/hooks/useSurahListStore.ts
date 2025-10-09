@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { quranApi } from "../api/api";
+import { trackButtonClick } from "../api/analytics";
 
 export interface Ayah {
   number: number;
@@ -199,6 +200,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       selectedVariant: variant,
       surahs: [],
     });
+    trackButtonClick("quaran", "use_translation", variant.name);
     get().fetchSurahs(variant.id);
   },
 

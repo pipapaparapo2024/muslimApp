@@ -42,11 +42,7 @@ export const WelcomeFriends: React.FC = () => {
   const shareViaTelegram = () => {
     if (!referralLink) return;
 
-    // 📊 Аналитика: пользователь нажал "Пригласить друзей"
-    trackButtonClick("invite_friends_click", {
-      has_referral_link: !!referralLink,
-    });
-
+    trackButtonClick("friends","click_invite_friends")
     const shareText = "Join any cool app!🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink

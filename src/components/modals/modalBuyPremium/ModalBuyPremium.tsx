@@ -3,7 +3,6 @@ import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
 import star from "../../../assets/icons/star.svg";
 import { Check } from "lucide-react";
-import { trackButtonClick } from "../../../api/analytics";
 import { useTonPay } from "../../../hooks/useTonPay";
 import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
@@ -134,43 +133,17 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
       switch (result.status) {
         case "success":
-          trackButtonClick("premium_purchase_success", {
-            payment_method: "stars",
-            period: selectedRequests,
-            price: prices.stars,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-            days: prices.days,
-          });
           break;
 
         case "insufficient_funds":
-          trackButtonClick("premium_purchase_insufficient_funds", {
-            payment_method: "stars",
-            period: selectedRequests,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-          });
           alert(translations?.insufficientStars);
           break;
 
         default:
-          trackButtonClick("premium_purchase_error", {
-            payment_method: "stars",
-            error: result.error,
-            product_id: prices.productId,
-            currency_id: prices.currencyId,
-          });
           alert(translations?.paymentError);
       }
     } catch (error: any) {
       console.error("Stars payment error:", error);
-      trackButtonClick("premium_purchase_exception", {
-        payment_method: "stars",
-        error: error.message,
-        product_id: prices.productId,
-        currency_id: prices.currencyId,
-      });
       alert(translations?.paymentError);
     } finally {
       setIsProcessingStars(false);
@@ -183,37 +156,16 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     }
   }, [isOpen, premiumOptions, selectedRequests, onSelectRequests]);
 
-  React.useEffect(() => {
-    if (isOpen) {
-      trackButtonClick("premium_modal_open", {
-        default_selection: selectedRequests,
-        is_wallet_connected: isConnected,
-        available_products_count: premiumProducts.length,
-      });
-    }
-  }, [isOpen, selectedRequests, isConnected, premiumProducts.length]);
 
   if (!isOpen) return null;
 
   const formattedStars = formatNumber(prices.stars);
 
   const handleClose = () => {
-    trackButtonClick("premium_modal_close", {
-      final_selection: selectedRequests,
-    });
     onClose();
   };
 
   const handleOptionSelect = (option: string) => {
-    const newPrices = getPrices(option);
-    trackButtonClick("premium_period_change", {
-      from_period: selectedRequests,
-      to_period: option,
-      ton_price: newPrices.ton,
-      stars_price: newPrices.stars,
-      product_id: newPrices.productId,
-      days: newPrices.days,
-    });
     onSelectRequests(option);
   };
 
@@ -231,47 +183,22 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
       switch (result.status) {
         case "success":
-          trackButtonClick("premium_purchase_success", {
-            payment_method: "ton",
-            period: selectedRequests,
-            price: prices.ton,
-            product_id: prices.productId,
-            days: prices.days,
-          });
           alert(translations?.paymentSuccess);
           await fetchUserData();
           onClose();
           break;
 
         case "rejected":
-          trackButtonClick("premium_purchase_rejected", {
-            payment_method: "ton",
-            period: selectedRequests,
-            product_id: prices.productId,
-          });
           alert(translations?.paymentRejected);
           break;
 
         case "not_connected":
-          trackButtonClick("wallet_connection_opened", {
-            context: "premium_purchase",
-          });
           break;
 
         default:
-          trackButtonClick("premium_purchase_error", {
-            payment_method: "ton",
-            error: result.status,
-            product_id: prices.productId,
-          });
       }
     } catch (error: any) {
       console.error("TON payment error:", error);
-      trackButtonClick("premium_purchase_exception", {
-        payment_method: "ton",
-        error: error.message,
-        product_id: prices.productId,
-      });
       alert(translations?.paymentError);
     } finally {
       setIsProcessingTon(false);

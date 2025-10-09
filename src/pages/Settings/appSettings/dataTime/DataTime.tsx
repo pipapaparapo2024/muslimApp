@@ -41,23 +41,21 @@ export const DataTime: React.FC = () => {
   } = useDataTimeStore();
   const { translations } = useTranslationsStore();
   const handle24HourToggle = (checked: boolean) => {
-    // 📊 Аналитика: переключение 24-часового формата
-    trackButtonClick("toggle_24_hour_format", { enabled: checked });
+    checked
+      ? trackButtonClick("date_format", "click_on_24h")
+      : trackButtonClick("date_format", "click_off_24h");
     set24Hour(checked);
   };
 
   const handleAutoTimeToggle = (checked: boolean) => {
-    // 📊 Аналитика: переключение автоматического времени
-    trackButtonClick("toggle_auto_time", { enabled: checked });
+    checked
+      ? trackButtonClick("date_format", "click_on_set_automatically")
+      : trackButtonClick("date_format", "click_off_set_automatically");
     setAutoTime(checked);
   };
 
   const handleSelect = (formatKey: string) => {
-    // 📊 Аналитика: выбор формата даты
-    trackButtonClick("select_date_format", {
-      format: formatKey,
-      example: DATE_FORMATS.find((f) => f.key === formatKey)?.value || "",
-    });
+    trackButtonClick("date_format", "date_format", formatKey);
     setSelectedDateFormat(formatKey);
   };
 

@@ -9,7 +9,7 @@ import { trackButtonClick } from "../../api/analytics";
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 export const Header: React.FC = () => {
-  const {translations}=useTranslationsStore();
+  const { translations } = useTranslationsStore();
   const { formattedDate, updateFormattedDate } = useDataTimeStore();
   const { hasPremium, premiumDaysLeft, fetchUserData } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
@@ -22,15 +22,6 @@ export const Header: React.FC = () => {
 
   // ✅ Добавляем проверку статуса подключения
   const [isConnecting, setIsConnecting] = useState(false);
-
-  React.useEffect(() => {
-    trackButtonClick("header_loaded", {
-      has_premium: hasPremium,
-      premium_days_left: premiumDaysLeft || 0,
-      location_available: !!(city && country),
-      wallet_connected: !!userAddress,
-    });
-  }, []);
 
   const getButtonText = () => {
     if (!hasPremium) return translations?.buyPremium;
@@ -56,25 +47,13 @@ export const Header: React.FC = () => {
   };
 
   const handlePremiumButtonClick = async () => {
-    trackButtonClick("premium_buy_click", {
-      current_status: hasPremium ? "premium_active" : "no_premium",
-      days_left: premiumDaysLeft || 0,
-      button_text: getButtonText(),
-      wallet_connected: !!userAddress,
-    });
+    trackButtonClick("main", "click_buy_premium");
     if (!userAddress) {
-      trackButtonClick("wallet_connection_triggered", {
-        context: "premium_purchase",
-      });
-
       try {
         setIsConnecting(true);
         await tonConnectUI.openModal();
       } catch (error) {
         console.error("Wallet connection error:", error);
-        trackButtonClick("wallet_connection_failed", {
-          error: error instanceof Error ? error.message : "unknown",
-        });
       } finally {
         setIsConnecting(false);
       }
@@ -85,18 +64,11 @@ export const Header: React.FC = () => {
   };
 
   const handleDateClick = () => {
-    trackButtonClick("date_click", {
-      current_date: formattedDate,
-      destination: "/settings/dateTime",
-    });
+    trackButtonClick("main", "click_date_format");
     navigate("/settings/dateTime");
   };
 
   const handleModalClose = () => {
-    trackButtonClick("premium_modal_close", {
-      selected_requests: selectedRequests,
-      session_duration: "short",
-    });
     setShowModal(false);
   };
 
@@ -144,7 +116,7 @@ export const Header: React.FC = () => {
           </defs>
         </svg>
 
-        {isConnecting ?translations?.connecting : getButtonText()}
+        {isConnecting ? translations?.connecting : getButtonText()}
       </button>
 
       <BuyPremiumModal
@@ -152,10 +124,6 @@ export const Header: React.FC = () => {
         onClose={handleModalClose}
         selectedRequests={selectedRequests}
         onSelectRequests={(value) => {
-          trackButtonClick("premium_requests_change", {
-            from_value: selectedRequests,
-            to_value: value,
-          });
           setSelectedRequests(value);
         }}
       />

@@ -36,10 +36,7 @@ export const Friends: React.FC = () => {
 
   const shareViaTelegram = () => {
     if (!referralLink) return;
-    trackButtonClick("invite_friends_from_friends_screen", {
-      has_referral_link: !!referralLink,
-      friends_count: friends.length,
-    });
+    trackButtonClick("friends", "click_invite_friends");
 
     const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
@@ -51,10 +48,6 @@ export const Friends: React.FC = () => {
 
   const handleGetFreeRequestsReward = async () => {
     try {
-      trackButtonClick("claim_free_requests_reward", {
-        total_has: totalHas,
-        total_needed: totalNeeded,
-      });
 
       await claimTotalReward();
       alert(translations?.rewardClaimed);
@@ -68,11 +61,6 @@ export const Friends: React.FC = () => {
 
   const handleGetPremiumReward = async () => {
     try {
-      trackButtonClick("claim_premium_access_reward", {
-        purchased_has: purchasedHas,
-        purchased_needed: purchasedNeeded,
-      });
-
       await claimPurchasedReward();
       alert(translations?.premiumUnlocked);
 

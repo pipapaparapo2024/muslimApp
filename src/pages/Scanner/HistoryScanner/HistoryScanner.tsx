@@ -14,7 +14,6 @@ import {
   getStatusClassName,
   getStatusTranslationKey,
 } from "../productStatus";
-import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const HistoryScanner: React.FC = () => {
@@ -61,12 +60,10 @@ export const HistoryScanner: React.FC = () => {
 
   const handleShare = (event: React.MouseEvent, scanId: string) => {
     event.stopPropagation();
-    trackButtonClick("share_scanner_history_item", { scan_id: scanId });
     navigate(`/scanner/ScannerShareHistory/${scanId}`);
   };
 
   const handleScanClick = (scanId: string) => {
-    trackButtonClick("view_scanner_history_detail", { scan_id: scanId });
     navigate(`/scanner/historyScanner/${scanId}`);
   };
 

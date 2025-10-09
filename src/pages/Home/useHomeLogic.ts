@@ -7,6 +7,9 @@ import { trackButtonClick } from "../../api/analytics";
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
 import { useTranslationsStore } from "../../hooks/useTranslations";
+import { getPlatform } from "./QiblaCompass/QiblaCompass";
+import { useGeoStore } from "../../hooks/useGeoStore";
+
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
     const token = localStorage.getItem("accessToken");
@@ -26,6 +29,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 
 export const useHomeLogic = () => {
   const navigate = useNavigate();
+  const { country, langcode } = useGeoStore();
   const { loadTranslations, translations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -46,6 +50,15 @@ export const useHomeLogic = () => {
   useEffect(() => {
     const initializeLanguage = async () => {
       try {
+        const device = getPlatform();
+        const tgUser = window?.Telegram?.WebApp?.initDataUnsafe?.user;
+        const hasTelegramPremium = tgUser?.is_premium === true;
+        trackButtonClick("user", "session_start", {
+          device,
+          country,
+          langcode,
+          hasTelegramPremium,
+        });
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           loadTranslations(userLanguage);
@@ -118,20 +131,16 @@ export const useHomeLogic = () => {
         ).requestPermission();
         if (result === "granted") {
           setSensorPermission("granted");
-          trackButtonClick("sensor_permission_granted");
         } else {
           setSensorPermission("denied");
-          trackButtonClick("sensor_permission_denied");
         }
       } else {
         window.addEventListener("deviceorientation", () => {}, { once: true });
         setSensorPermission("granted");
-        trackButtonClick("sensor_permission_auto_granted");
       }
     } catch (err) {
       console.error("Sensor permission error:", err);
       setSensorPermission("denied");
-      trackButtonClick("sensor_permission_error", { error: err });
     } finally {
       setIsRequestingPermission(false);
     }
@@ -181,7 +190,6 @@ export const useHomeLogic = () => {
   );
 
   const handleMapClick = useCallback(() => {
-    trackButtonClick("map_navigation");
     navigate("/qibla", { state: { activeTab: "map" } });
   }, [navigate]);
 

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import styles from "./ModalLanguage.module.css";
 import { Check, Loader } from "lucide-react";
-import {
-  type Language,
-} from "../../../hooks/useLanguages";
+import { type Language } from "../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
-// Импортируем иконки
+
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
 interface LanguageModalProps {
@@ -66,16 +64,11 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   }, [isOpen, isLoaded, languages]);
 
   const handleSelect = (lang: Language) => {
-    // 📊 Аналитика: пользователь выбрал язык
-    trackButtonClick("select_language_in_modal", {
-      from: currentLanguage,
-      to: lang,
-    });
+    trackButtonClick("settings", "select_language_in_modal", lang);
 
     onLanguageChange?.(lang);
     onClose?.();
   };
-
 
   if (!isOpen) return null;
 
