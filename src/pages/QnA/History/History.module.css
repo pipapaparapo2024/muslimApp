@@ -59,6 +59,7 @@
   background-color: var(--bg-app);
   color: var(--text);
   border: none;
+  height: 24px;
   cursor: pointer;
   transition: 0.2s;
 }
