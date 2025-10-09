@@ -62,11 +62,11 @@
 }
 
 .pageButton {
-  /* background-color: var(--bg-app); */
-  /* color: var(--text); */
-  /* border: none; */
-  /* cursor: pointer; */
-  /* transition: 0.2s; */
+  background-color: var(--bg-app);
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .pageButton:disabled {
