@@ -40,11 +40,13 @@
 }
 
 
+
+
+
 .loadMoreContainer {
   display: flex;
   justify-content: center;
-  margin: 24px 0;
-  padding: 0 16px;
+  align-items: center;
 }
 
 .loadMoreButton {
