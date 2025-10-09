@@ -67,8 +67,6 @@ export const History: React.FC = () => {
       </PageWrapper>
     );
   }
-  console.log("pagination.hasnext", pagination.hasNext);
-  console.log("pagination.hasPrev", pagination.hasPrev);
 
   const hasHistory = history.some((day) => day.qa && day.qa.length > 0);
   if (!hasHistory) return <HistoryEmpty />;
@@ -124,17 +122,12 @@ export const History: React.FC = () => {
           </button>
 
           <ul className={styles.pagination}>
-            <li className={styles.pageDots}>
-              {Array.from({ length: pagination.pageAmount }).map((_, index) => (
-                <span
-                  key={index}
-                  className={`${styles.dot} ${
-                    pagination.page === index + 1 ? styles.activeDot : ""
-                  }`}
-                >
-                  •
-                </span>
-              ))}
+            <li
+              className={`${styles.dot} ${
+                pagination.page === index + 1 ? styles.activeDot : ""
+              } ${styles.pageDots}`}
+            >
+              {Array.from({ length: pagination.pageAmount }).map((_) => 1)}
             </li>
           </ul>
 
