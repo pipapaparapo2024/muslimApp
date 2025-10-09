@@ -77,7 +77,7 @@ export const History: React.FC = () => {
     );
   }
   console.log("pagination.hasnext", pagination.hasNext);
-  console.log("pagination.hasnext", pagination.hasPrev);
+  console.log("pagination.hasPrev", pagination.hasPrev);
 
   const hasHistory = history.some((day) => day.qa && day.qa.length > 0);
   if (!hasHistory) return <HistoryEmpty />;
