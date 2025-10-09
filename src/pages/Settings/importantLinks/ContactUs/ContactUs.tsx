@@ -2,10 +2,12 @@ import React from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./ContactUs.module.css";
 import { MessageCircle } from "lucide-react";
-
+import { useTranslationsStore } from "../../../../hooks/useTranslations";
 const BOT_USERNAME = "QiblaGuidebot";
 
 export const ContactUs: React.FC = () => {
+  const { translations } = useTranslationsStore();
+
   const openBotChat = () => {
     const tg = window.Telegram?.WebApp;
 
@@ -26,14 +28,12 @@ export const ContactUs: React.FC = () => {
   return (
     <PageWrapper showBackButton navigateTo="/settings">
       <div className={styles.contactContainer}>
-        <div className={styles.title}>Contact Us</div>
-        <div className={styles.text}>
-          Need help or want to reach our team? Message us directly in Telegram!
-        </div>
+        <div className={styles.title}>{translations?.contactUs}</div>
+        <div className={styles.text}>{translations?.needHelp}</div>
 
         <button onClick={openBotChat} className={styles.contactButton}>
           <MessageCircle size={20} strokeWidth={1.5} />
-          Chat with Support
+          {translations?.chatWithSupport}
         </button>
       </div>
     </PageWrapper>
