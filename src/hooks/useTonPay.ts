@@ -11,7 +11,7 @@ export interface TonPayParams {
 }
 
 export interface TonPaymentResponse {
-  fallback?:boolean;
+  fallback?: boolean;
   status:
     | "success"
     | "rejected"
@@ -27,15 +27,28 @@ export const useTonPay = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
+  // ✅ ждём, пока Telegram Mini App будет готов
+  const waitForTelegramReady = async () => {
+    return new Promise<void>((resolve) => {
+      if (window.Telegram?.WebApp?.initData) {
+        window.Telegram.WebApp.ready?.();
+        resolve();
+      } else {
+        document.addEventListener("DOMContentLoaded", () => {
+          window.Telegram?.WebApp?.ready?.();
+          resolve();
+        });
+      }
+    });
+  };
+
   const waitForConfirmation = async (
     payload: string,
     maxAttempts = 20
   ): Promise<TonPaymentResponse> => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(
-          `🔍 Проверка подтверждения (попытка ${attempt}/${maxAttempts})`
-        );
+        console.log(`🔍 Проверка подтверждения (${attempt}/${maxAttempts})`);
         const response = await quranApi.get(
           `/api/v1/payments/ton/${payload}/check`
         );
@@ -43,48 +56,24 @@ export const useTonPay = () => {
         const status = response.data.data.orderStatus;
 
         if (status === "success") {
-          return {
-            status: "success",
-            data: response.data,
-          };
+          return { status: "success", data: response.data };
         }
 
         if (status === "failed" || status === "rejected") {
-          console.log("❌ Транзакция отклонена сетью");
-          return {
-            status: "error",
-            error: "Transaction failed in blockchain",
-          };
+          return { status: "error", error: "Transaction failed in blockchain" };
         }
 
-        if (status === "pending") {
-          console.log("⏳ Транзакция в обработке, ждем подтверждения...");
-          if (attempt < maxAttempts) {
-            await new Promise((resolve) => setTimeout(resolve, 3000));
-            continue;
-          }
-        }
-
-        if (status === "timeout") {
-          console.log("⏰ Истекло время ожидания подтверждения");
-          return {
-            status: "error",
-            error: "Confirmation timeout",
-          };
+        if (status === "pending" && attempt < maxAttempts) {
+          await new Promise((r) => setTimeout(r, 3000));
+          continue;
         }
       } catch (error) {
-        console.error(`⚠️ Ошибка при проверке (попытка ${attempt}):`, error);
-        if (attempt < maxAttempts) {
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-        }
+        console.error(`⚠️ Ошибка проверки (${attempt}):`, error);
+        if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 3000));
       }
     }
 
-    console.log("⏰ Таймаут ожидания подтверждения (maxAttempts)");
-    return {
-      status: "error",
-      error: "Confirmation timeout",
-    };
+    return { status: "error", error: "Confirmation timeout" };
   };
 
   const getTonWallet = async () => {
@@ -94,7 +83,6 @@ export const useTonPay = () => {
         return { status: "not_connected" };
       }
       const response = await quranApi.get("/api/v1/payments/ton/wallet");
-      console.log("response.data.data.wallet", response.data.data.wallet);
       return response.data.data.wallet;
     } catch (err: any) {
       console.error("TON wallet error:", err);
@@ -109,6 +97,10 @@ export const useTonPay = () => {
     params: TonPayParams
   ): Promise<TonPaymentResponse> => {
     try {
+      // ✅ 1. Ждём Telegram.ready перед началом
+      await waitForTelegramReady();
+
+      // ✅ 2. Проверяем подключение кошелька
       if (!userAddress) {
         await tonConnectUI.openModal();
         return { status: "not_connected" };
@@ -116,6 +108,7 @@ export const useTonPay = () => {
 
       const merchantWallet = await getTonWallet();
 
+      // Создаём инвойс
       const invoiceResponse = await quranApi.post(
         "/api/v1/payments/ton/invoice",
         {
@@ -125,7 +118,7 @@ export const useTonPay = () => {
       );
 
       const { payload, payloadBOC } = invoiceResponse.data.data;
-      const amountNano = Math.floor(params.amount).toString();
+      const amountNano = Math.floor(params.amount * 1e9).toString();
 
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
@@ -139,23 +132,39 @@ export const useTonPay = () => {
         ],
       };
 
+      // ✅ 3. Добавляем небольшую задержку — Android WebView стабилизируется
+      await new Promise((r) => setTimeout(r, 400));
+
+      // ✅ 4. Пробуем нативное окно TonConnect
       try {
-        // ✅ 1. Пробуем нативное окно TonConnect
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log("✅ TON transaction sent", result);
         return await waitForConfirmation(payload);
       } catch (err: any) {
-        console.warn("⚠️ sendTransaction failed, fallback to deep link:", err);
+        console.warn("⚠️ sendTransaction failed:", err);
 
-        // 🐤 Если ошибка типа TonConnectUIError — используем fallback
+        // ✅ 5. Если ошибка TonConnectUIError — делаем повтор
         if (
           err.name === "TonConnectUIError" ||
           err.message?.includes("TonConnectUIError")
         ) {
+          console.log("🔄 Повторная попытка TonConnect после ошибки...");
+          await new Promise((r) => setTimeout(r, 700)); // короткий retry delay
+          try {
+            const retry = await tonConnectUI.sendTransaction(transaction);
+            console.log("✅ Успешно после повторной попытки:", retry);
+            return await waitForConfirmation(payload);
+          } catch (retryErr) {
+            console.warn("⚠️ Retry тоже не сработал, fallback → Telegram Wallet");
+          }
+        }
+
+        // ✅ 6. Fallback через Telegram Wallet deep link
+        if (window.Telegram?.WebApp) {
           const deepLink = `https://t.me/wallet/startapp?startapp=tonconnect&transaction=${encodeURIComponent(
             JSON.stringify(transaction)
           )}`;
-          window.Telegram?.WebApp?.openTelegramLink(deepLink);
+          window.Telegram.WebApp.openTelegramLink(deepLink);
           return { status: "pending", fallback: true };
         }
 
