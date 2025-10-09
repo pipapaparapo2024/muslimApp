@@ -116,15 +116,15 @@ export const History: React.FC = () => {
             <ChevronLeft size={24} />
           </button>
 
-          <ul className={styles.pagination}>
+          <div className={styles.pagination}>
             {Array.from({ length: pagination.pageAmount }).map((_, index) => (
-              <li
+              <div
                 className={`${styles.dot} ${
                   pagination.page === index + 1 ? styles.activeDot : ""
                 }`}
-              ></li>
+              ></div>
             ))}
-          </ul>
+          </div>
 
           <button
             className={`${styles.pageButton}  ${
