@@ -54,7 +54,7 @@ export const useLanguage = () => {
     };
 
     fetchLanguageFromBackend();
-  }, [loadTranslations]);
+  }, []);
 
   // 🔹 Меняем язык вручную (по действию пользователя)
   const changeLanguage = async (newLang: Language) => {
