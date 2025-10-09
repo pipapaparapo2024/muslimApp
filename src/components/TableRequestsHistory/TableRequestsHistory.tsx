@@ -36,9 +36,12 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   }, [fetchUserData]);
 
   const handleHistoryClick = () => {
+    if ((text = "/qna/history")) {
+      trackButtonClick("qa", "history_button");
+    } else {
+      trackButtonClick("food_scan", "history_button");
+    }
     navigate(text);
-    if ((text = "/qna/history")) trackButtonClick("qa", "history_button");
-    else trackButtonClick("food_scan", "history_button");
   };
 
   const handleBuyRequestsClick = () => {
