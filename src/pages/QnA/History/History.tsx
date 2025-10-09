@@ -96,7 +96,6 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
-        ываываываыва
       </div>
       {pagination.pageAmount > 1 && (
         <div
