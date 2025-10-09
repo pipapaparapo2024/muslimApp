@@ -40,10 +40,6 @@
 }
 
 
-
-
-
-
 .paginationContainer {
   display: flex;
   justify-content: center;
@@ -87,5 +83,5 @@
 }
 
 .activeDot {
-  color: var(--color-background-semantic-solid-brand);
+  background-color: var(--color-background-semantic-solid-brand);
 }
