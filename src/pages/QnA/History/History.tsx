@@ -17,6 +17,7 @@ export const History: React.FC = () => {
     loading,
     isLoadingMore,
     pagination,
+    loadPrevHistory
   } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +62,6 @@ export const History: React.FC = () => {
   };
 
   const handleLoadMore = async () => {
-
     try {
       await loadMoreHistory();
     } catch (error) {
@@ -130,6 +130,66 @@ export const History: React.FC = () => {
           {pagination.page} {translations?.of} {pagination.pageAmount}
         </div>
       </div>
+      {pagination.pageAmount > 1 && (
+        <nav
+          aria-label="Навигация по страницам"
+          className={styles.paginationContainer}
+        >
+          <ul className={styles.pagination}>
+            {/* Кнопка "Предыдущая" */}
+            <li
+              className={`${styles.pageItem} ${
+                !pagination.hasPrev ? styles.disabled : ""
+              }`}
+            >
+              <button
+                className={styles.pageButton}
+                onClick={async () => {
+                  if (pagination.hasPrev) {
+                    await loadPrevHistory();
+                  }
+                }}
+                disabled={!pagination.hasPrev}
+              >
+                ◀
+              </button>
+            </li>
+
+            {/* Точки между кнопками */}
+            <li className={styles.pageDots}>
+              {Array.from({ length: pagination.pageAmount }).map((_, index) => (
+                <span
+                  key={index}
+                  className={`${styles.dot} ${
+                    pagination.page === index + 1 ? styles.activeDot : ""
+                  }`}
+                >
+                  •
+                </span>
+              ))}
+            </li>
+
+            {/* Кнопка "Следующая" */}
+            <li
+              className={`${styles.pageItem} ${
+                !pagination.hasNext ? styles.disabled : ""
+              }`}
+            >
+              <button
+                className={styles.pageButton}
+                onClick={async () => {
+                  if (pagination.hasNext) {
+                    await loadMoreHistory();
+                  }
+                }}
+                disabled={!pagination.hasNext}
+              >
+                ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
     </PageWrapper>
   );
 };
