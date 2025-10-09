@@ -4,7 +4,8 @@ import { Check, Loader } from "lucide-react";
 import { type Language } from "../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
-
+import { useGeoStore } from "../../../hooks/useGeoStore";
+import { usePrayerApiStore } from "../../../hooks/usePrayerApiStore";
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
 interface LanguageModalProps {
@@ -26,6 +27,8 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   currentLanguage = "en",
   onLanguageChange,
 }) => {
+  const { coords } = useGeoStore();
+  const { fetchPrayers } = usePrayerApiStore();
   const { translations } = useTranslationsStore();
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -65,8 +68,10 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
 
   const handleSelect = (lang: Language) => {
     trackButtonClick("settings", "select_language_in_modal", lang);
-
     onLanguageChange?.(lang);
+    if (coords) {
+      fetchPrayers(coords?.lat, coords?.lon);
+    }
     onClose?.();
   };
 

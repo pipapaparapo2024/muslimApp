@@ -44,7 +44,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       fetchPrayers: async (lat: number, lon: number) => {
         set({ isLoading: true, error: null });
-        console.log("координаты ", lat, lon);
         try {
           const response = await quranApi.get(`/api/v1/prayers`, {
             params: {
@@ -52,7 +51,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               lon: lon,
             },
           });
-          console.log("fetchPrayers:", response);
           if (response.data.status == "ok" && response.data.data?.prayers) {
             set({ prayers: response.data.data.prayers, isLoading: false });
           } else {
@@ -74,7 +72,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-          console.log("fetchPrayerSettings:", response.data);
 
           if (
             response.data.status == "ok" &&
