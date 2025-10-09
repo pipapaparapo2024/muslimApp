@@ -48,19 +48,19 @@ export const SurahList: React.FC = () => {
     return [...surahs].sort((a, b) => a.number - b.number);
   }, [surahs]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        await fetchVariants();
-        setLoad(true);
-      } catch (error) {
-        console.error("Failed to load surahs:", error);
-        setLoad(true);
-      }
-    };
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       await fetchVariants();
+  //       setLoad(true);
+  //     } catch (error) {
+  //       console.error("Failed to load surahs:", error);
+  //       setLoad(true);
+  //     }
+  //   };
 
-    loadData();
-  }, [fetchVariants, surahs.length]);
+  //   loadData();
+  // }, [fetchVariants, surahs.length]);
 
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
