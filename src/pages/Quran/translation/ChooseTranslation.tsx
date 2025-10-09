@@ -2,21 +2,17 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import styles from "./ChooseTranslation.module.css";
 import { useSurahListStore } from "../../../hooks/useSurahListStore";
 import { Check } from "lucide-react";
-// import { useEffect } from "react";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const ChooseTranslation: React.FC = () => {
   const {
     selectedVariant,
     setSelectedVariant,
-    // fetchVariants,
     variants,
     loading,
   } = useSurahListStore();
   const { translations } = useTranslationsStore();
-  // useEffect(() => {
-  //   fetchVariants();
-  // }, [fetchVariants]);
+
 
   return (
     <PageWrapper showBackButton={true} navigateTo="/quran">

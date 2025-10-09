@@ -9,6 +9,7 @@ import { Share } from "../../../../components/share/Share";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
 import { type QaItem } from "../../../../hooks/useHistoryStore";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
+
 export const HistoryDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { translations } = useTranslationsStore();

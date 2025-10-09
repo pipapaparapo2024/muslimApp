@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { quranApi } from "../api/api";
 import { trackButtonClick } from "../api/analytics";
+import { useGeoStore } from "./useGeoStore";
 
 export interface PrayerSetting {
   id: string;
@@ -99,13 +100,12 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
       updatePrayerSettings: async (settings: PrayerSetting[]) => {
         set({ isLoading: true, error: null });
-        if (settings.length === 0) {
-          throw new Error("Cannot update empty prayer settings array");
-        } else console.log("все работает за*бись");
+
         try {
           if (settings.length === 0) {
             throw new Error("Cannot update empty prayer settings array");
           }
+
           const response = await quranApi.post(`/api/v1/prayers/settings`, {
             praySettings: settings.map((setting) => ({
               id: setting.id,
@@ -119,12 +119,20 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           const data = response.data;
           console.log("updatePrayerSettings:", response);
 
-          // ИСПРАВЛЕНО: сохраняем обновленные настройки
           if (data.status === "ok" && data.data?.praySettings) {
             set({
               prayerSetting: data.data.praySettings,
               isLoading: false,
             });
+
+            // 🔥 После обновления настроек — обновляем молитвы
+            const geoStore = useGeoStore.getState();
+            if (geoStore.coords) {
+              await get().fetchPrayers(
+                geoStore.coords.lat,
+                geoStore.coords.lon
+              );
+            }
           } else {
             throw new Error("Failed to update prayer settings");
           }
