@@ -53,12 +53,18 @@ export const useHomeLogic = () => {
         const device = getPlatform();
         const tgUser = window?.Telegram?.WebApp?.initDataUnsafe?.user;
         const hasTelegramPremium = tgUser?.is_premium === true;
-        trackButtonClick("user", "session_start", {
-          device,
-          country,
-          langcode,
-          hasTelegramPremium,
-        });
+        const sessionStarted = localStorage.getItem("sessionStarted");
+
+        if (!sessionStarted) {
+          trackButtonClick("user", "session_start", {
+            device,
+            country,
+            langcode,
+            hasTelegramPremium,
+          });
+          localStorage.setItem("sessionStarted", "true");
+        }
+
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           loadTranslations(userLanguage);
