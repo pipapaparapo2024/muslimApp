@@ -3,11 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
-import {
-  Share2,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react";
+import { Share2, ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
@@ -64,7 +60,6 @@ export const History: React.FC = () => {
     navigate(`/qna/history/${promisId}`);
   };
 
-
   if (isLoading || loading) {
     return (
       <PageWrapper navigateTo="/qna" showBackButton>
@@ -115,11 +110,7 @@ export const History: React.FC = () => {
           className={styles.paginationContainer}
         >
           <ul className={styles.pagination}>
-            <li
-              className={`${styles.pageItem} ${
-                !pagination.hasPrev ? styles.disabled : ""
-              }`}
-            >
+            <li className={`${!pagination.hasPrev ? styles.disabled : ""}`}>
               <button
                 className={styles.pageButton}
                 onClick={async () => {
@@ -146,11 +137,7 @@ export const History: React.FC = () => {
               ))}
             </li>
 
-            <li
-              className={`${styles.pageItem} ${
-                !pagination.hasNext ? styles.disabled : ""
-              }`}
-            >
+            <li className={` ${!pagination.hasNext ? styles.disabled : ""}`}>
               <button
                 className={styles.pageButton}
                 onClick={async () => {
