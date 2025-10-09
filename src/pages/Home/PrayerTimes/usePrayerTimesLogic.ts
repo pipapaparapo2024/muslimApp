@@ -32,8 +32,8 @@ export interface UsePrayerTimesLogicReturn {
 
 export const usePrayerTimesLogic = ({
   prayers,
-  fetchPrayers,
-  geoCoords,
+  // fetchPrayers,
+  // geoCoords,
   is24Hour,
 }: UsePrayerTimesLogicProps): UsePrayerTimesLogicReturn => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,11 +49,11 @@ export const usePrayerTimesLogic = ({
   }, []);
 
   // Загрузка молитв при изменении геопозиции
-  useEffect(() => {
-    if (geoCoords) {
-      fetchPrayers(geoCoords.lat, geoCoords.lon);
-    }
-  }, [geoCoords]);
+  // useEffect(() => {
+  //   if (geoCoords) {
+  //     fetchPrayers(geoCoords.lat, geoCoords.lon);
+  //   }
+  // }, [geoCoords]);
 
   const formatTime = (date: Date): string => {
     if (!(date instanceof Date) || isNaN(date.getTime())) {

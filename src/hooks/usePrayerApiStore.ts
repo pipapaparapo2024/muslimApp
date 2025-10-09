@@ -117,7 +117,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           });
 
           const data = response.data;
-          console.log("updatePrayerSettings:", response);
 
           if (data.status === "ok" && data.data?.praySettings) {
             set({
@@ -125,7 +124,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
               isLoading: false,
             });
 
-            // 🔥 После обновления настроек — обновляем молитвы
             const geoStore = useGeoStore.getState();
             if (geoStore.coords) {
               await get().fetchPrayers(
