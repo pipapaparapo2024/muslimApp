@@ -50,6 +50,7 @@ export const useTranslationsStore = create<TranslationsStore>()(
 
           // Выбираем переводы по языку
           let selectedTranslations: Translations | null = null;
+          console.log("languagelanguage",language)
           if (language === "en") {
             selectedTranslations = parsedTranslations.en?.translation || null;
           } else if (language === "ar") {
