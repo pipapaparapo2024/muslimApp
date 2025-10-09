@@ -17,7 +17,7 @@ export const History: React.FC = () => {
     loading,
     isLoadingMore,
     pagination,
-    loadPrevHistory
+    loadPrevHistory,
   } = useHistoryStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -76,6 +76,7 @@ export const History: React.FC = () => {
       </PageWrapper>
     );
   }
+  console.log("pagination.hasnext", pagination.hasNext);
 
   const hasHistory = history.some((day) => day.qa && day.qa.length > 0);
   if (!hasHistory) return <HistoryEmpty />;
@@ -178,7 +179,6 @@ export const History: React.FC = () => {
               <button
                 className={styles.pageButton}
                 onClick={async () => {
-                  console.log("pagination.hasnext",pagination.hasNext)
                   if (pagination.hasNext) {
                     await loadMoreHistory();
                   }
