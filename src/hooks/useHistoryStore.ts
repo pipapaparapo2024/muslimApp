@@ -72,6 +72,12 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
           },
         }
       );
+      console.log("historyScaner", response.data.history || [], {
+        page: page,
+        hasNext: response.data.hasNext,
+        hasPrev: response.data.hasPrev,
+        pageAmount: response.data.pageAmount || 0,
+      });
 
       set({
         history: response.data.history || [],
@@ -119,7 +125,7 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
       );
 
       set(() => ({
-        history: (response.data.history || []),
+        history: response.data.history || [],
         pagination: {
           page: nextPage,
           hasNext: response.data.hasNext || false,
@@ -196,8 +202,6 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-
-      console.log("Single history item response:", response.data);
 
       const item = response.data.item || response.data;
 
