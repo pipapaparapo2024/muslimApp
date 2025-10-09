@@ -30,7 +30,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { country, langcode } = useGeoStore();
-  const {  translations } = useTranslationsStore();
+  const { translations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -67,6 +67,7 @@ export const useHomeLogic = () => {
 
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
+          console.log("userLanguage", userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }

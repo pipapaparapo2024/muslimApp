@@ -60,7 +60,6 @@ export const useWelcomeLogic = () => {
         await fetchFromIpApi();
         const locationData = getLocationData();
 
-        // 2. Отправляем настройки пользователя
         await sendUserSettings({
           city: locationData.city,
           countryName: locationData.country,
