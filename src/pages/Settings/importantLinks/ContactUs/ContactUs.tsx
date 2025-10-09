@@ -1,5 +1,5 @@
 import React from "react";
-import { PageWrapper } from "../../../shared/PageWrapper";
+import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./ContactUs.module.css";
 import { MessageCircle } from "lucide-react";
 
