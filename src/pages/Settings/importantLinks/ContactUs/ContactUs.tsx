@@ -32,7 +32,7 @@ export const ContactUs: React.FC = () => {
         </div>
 
         <button onClick={openBotChat} className={styles.contactButton}>
-          <MessageCircle size={18} className="mr-2" />
+          <MessageCircle size={20} strokeWidth={1.5} />
           Chat with Support
         </button>
       </div>
