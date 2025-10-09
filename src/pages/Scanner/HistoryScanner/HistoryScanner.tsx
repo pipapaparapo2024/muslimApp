@@ -6,7 +6,7 @@ import {
   historyUtils,
 } from "../../../hooks/useHistoryScannerStore";
 import { HistoryScannerEmpty } from "./historyScannerEmpty/HistoryScannerEmpty";
-import { Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
 import {
@@ -34,8 +34,8 @@ export const HistoryScanner: React.FC = () => {
   }, []);
 
   const groupedHistory = history ? historyUtils.groupByDate(history) : [];
-  console.log("hasNext",hasNext)
-  console.log("hasPrev",hasPrev)
+  console.log("hasNext", hasNext);
+  console.log("hasPrev", hasPrev);
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
@@ -114,7 +114,7 @@ export const HistoryScanner: React.FC = () => {
                   </div>
                 </div>
 
-                {scan.haramProducts && scan.haramProducts.length > 0 && (
+                {scan.haramProducts?.length > 0 && (
                   <div className={styles.scanAnalysis}>
                     <div className={styles.scanTitle}>
                       {translations?.analysisResult}
@@ -163,66 +163,48 @@ export const HistoryScanner: React.FC = () => {
           </div>
         ))}
       </div>
-      ываыаываывраиылавр
+
+      {/* === ПАГИНАЦИЯ как в History === */}
       {totalPages > 1 && (
-        <nav
+        <div
           aria-label="Навигация по страницам"
           className={styles.paginationContainer}
         >
-          <ul className={styles.pagination}>
-            {/* Кнопка "Предыдущая" */}
-            <li
-              className={`${styles.pageItem} ${
-                !hasPrev ? styles.disabled : ""
-              }`}
-            >
-              <button
-                className={styles.pageButton}
-                onClick={async () => {
-                  if (hasPrev) {
-                    await fetchHistory(currentPage - 1);
-                  }
-                }}
-                disabled={!hasPrev}
-              >
-                ◀
-              </button>
-            </li>
+          <button
+            className={`${styles.pageButton} ${
+              !hasPrev ? styles.disabled : ""
+            }`}
+            onClick={async () => {
+              if (hasPrev) await fetchHistory(currentPage - 1);
+            }}
+            disabled={!hasPrev}
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-            {/* Точки между кнопками */}
-            <li className={styles.pageDots}>
-              {Array.from({ length: totalPages }).map((_, index) => (
-                <span
-                  key={index}
-                  className={`${styles.dot} ${
-                    currentPage === index + 1 ? styles.activeDot : ""
-                  }`}
-                >
-                  •
-                </span>
-              ))}
-            </li>
+          <div className={styles.pagination}>
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <div
+                key={index}
+                className={`${styles.dot} ${
+                  currentPage === index + 1 ? styles.activeDot : ""
+                }`}
+              ></div>
+            ))}
+          </div>
 
-            {/* Кнопка "Следующая" */}
-            <li
-              className={`${styles.pageItem} ${
-                !hasNext ? styles.disabled : ""
-              }`}
-            >
-              <button
-                className={styles.pageButton}
-                onClick={async () => {
-                  if (hasNext) {
-                    await fetchHistory(currentPage + 1);
-                  }
-                }}
-                disabled={!hasNext}
-              >
-                ▶
-              </button>
-            </li>
-          </ul>
-        </nav>
+          <button
+            className={`${styles.pageButton} ${
+              !hasNext ? styles.disabled : ""
+            }`}
+            onClick={async () => {
+              if (hasNext) await fetchHistory(currentPage + 1);
+            }}
+            disabled={!hasNext}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
       )}
     </PageWrapper>
   );

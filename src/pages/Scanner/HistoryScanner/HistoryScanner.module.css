@@ -71,35 +71,30 @@
 .paginationContainer {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  align-items: center; /* <-- центровка по вертикали */
+  gap: var(--numbers-8);
+  margin-top: var(--numbers-16);
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  list-style: none;
-  padding: 0;
-  gap: 12px;
-}
-
-.pageItem {
-  display: flex;
-  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .pageButton {
-  border: 1px solid #d0d0d0;
-  background-color: white;
-  color: #007bff;
-  padding: 6px 10px;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: var(--bg-app);
+  color: var(--text);
+  border: none;
   cursor: pointer;
   transition: 0.2s;
-}
-
-.pageButton:hover:not(:disabled) {
-  background-color: #007bff;
-  color: white;
+  border-radius: 50%;
 }
 
 .pageButton:disabled {
@@ -107,19 +102,16 @@
   cursor: not-allowed;
 }
 
-.pageDots {
-  display: flex;
-  gap: 6px;
-}
-
 .dot {
-  font-size: 22px;
-  color: #c0c0c0;
-  transition: color 0.3s;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #c0c0c0;
+  transition: background-color 0.3s;
 }
 
 .activeDot {
-  color: #007bff;
+  background-color: var(--color-background-semantic-solid-brand);
 }
 
 .disabled {
