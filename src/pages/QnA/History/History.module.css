@@ -79,7 +79,8 @@
 }
 
 .dot {
-  font-size: 22px;
+  width: 6px;
+  height: 6px;
   color: #c0c0c0;
   transition: color 0.3s;
 }

@@ -122,14 +122,12 @@ export const History: React.FC = () => {
           </button>
 
           <ul className={styles.pagination}>
-            {Array.from({ length: pagination.pageAmount }).map((_,index) => (
+            {Array.from({ length: pagination.pageAmount }).map((_, index) => (
               <li
                 className={`${styles.dot} ${
                   pagination.page === index + 1 ? styles.activeDot : ""
-                } ${styles.pageDots}`}
-              >
-                1
-              </li>
+                }`}
+              ></li>
             ))}
           </ul>
 
