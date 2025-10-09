@@ -36,11 +36,6 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
   }, [fetchUserData]);
 
   const handleHistoryClick = () => {
-    if ((text = "/qna/history")) {
-      trackButtonClick("qa", "history_button");
-    } else {
-      trackButtonClick("food_scan", "history_button");
-    }
     navigate(text);
   };
 
@@ -50,7 +45,17 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
 
   return (
     <div className={styles.header}>
-      <button className={styles.button} onClick={handleHistoryClick}>
+      <button
+        className={styles.button}
+        onClick={() => {
+          if ((text = "/qna/history")) {
+            trackButtonClick("qa", "history_button");
+          } else {
+            trackButtonClick("food_scan", "history_button");
+          }
+          handleHistoryClick();
+        }}
+      >
         <Clock size={20} strokeWidth={1.5} />
         <span>{translations?.history}</span>
       </button>
