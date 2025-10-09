@@ -156,7 +156,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
         const selectedVariant = variants[0];
         set({ selectedVariant });
         // Немедленно загружаем суры для выбранного варианта
-        // await get().fetchSurahs(selectedVariant.id);
+        await get().fetchSurahs(selectedVariant.id);
       }
     } catch (error) {
       const message =
