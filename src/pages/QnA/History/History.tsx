@@ -97,10 +97,6 @@ export const History: React.FC = () => {
           </div>
         ))}
 
-        <div className={styles.paginationInfo}>
-          {pagination.page < pagination.pageAmount && translations?.page}
-          {pagination.page} {pagination.pageAmount}
-        </div>
       </div>
       {pagination.pageAmount > 1 && (
         <div

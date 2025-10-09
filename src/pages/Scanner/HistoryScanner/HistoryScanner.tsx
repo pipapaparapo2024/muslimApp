@@ -163,6 +163,7 @@ export const HistoryScanner: React.FC = () => {
           </div>
         ))}
       </div>
+      ываыаываывраиылавр
       {totalPages > 1 && (
         <nav
           aria-label="Навигация по страницам"
