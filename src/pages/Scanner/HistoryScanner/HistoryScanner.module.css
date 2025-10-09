@@ -71,7 +71,7 @@
 .paginationContainer {
   display: flex;
   justify-content: center;
-  align-items: center; /* <-- центровка по вертикали */
+  align-items: center; 
   gap: var(--numbers-8);
   margin-top: var(--numbers-16);
 }
@@ -84,17 +84,12 @@
 }
 
 .pageButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
   background-color: var(--bg-app);
   color: var(--text);
   border: none;
+  height: 24px;
   cursor: pointer;
   transition: 0.2s;
-  border-radius: 50%;
 }
 
 .pageButton:disabled {

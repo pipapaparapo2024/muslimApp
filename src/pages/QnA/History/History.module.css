@@ -68,15 +68,9 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
-
-.pageDots {
-  display: flex;
-  gap: 6px;
-}
-
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: #c0c0c0;
   transition: color 0.3s;
@@ -84,4 +78,8 @@
 
 .activeDot {
   background-color: var(--color-background-semantic-solid-brand);
+}
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
