@@ -96,7 +96,7 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
-ываываываыва
+        ываываываыва
       </div>
       {pagination.pageAmount > 1 && (
         <div
@@ -134,7 +134,7 @@ export const History: React.FC = () => {
             onClick={async () => {
               if (pagination.hasNext) {
                 await loadMoreHistory();
-                console.log("history",history)
+                console.log("history", history);
               }
             }}
             disabled={!pagination.hasNext}
