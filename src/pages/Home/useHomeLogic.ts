@@ -7,8 +7,10 @@ import { trackButtonClick } from "../../api/analytics";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { getPlatform } from "./QiblaCompass/QiblaCompass";
 import { useGeoStore } from "../../hooks/useGeoStore";
+
 const SENSOR_PERMISSION_STATUS = "sensorPermissionStatus";
 const VPN_WARNING_SHOWN = "vpnWarningShown";
+const TRANSLATIONS_LOADED = "translationsLoaded"; // Флаг загрузки переводов
 
 export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
   try {
@@ -30,7 +32,7 @@ export const fetchLanguageFromBackend = async (): Promise<Language | null> => {
 export const useHomeLogic = () => {
   const navigate = useNavigate();
   const { country, langcode } = useGeoStore();
-  const { translations } = useTranslationsStore();
+  const {  loadTranslations } = useTranslationsStore();
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [initializationError, setInitializationError] = useState<string | null>(
@@ -48,7 +50,7 @@ export const useHomeLogic = () => {
   });
 
   useEffect(() => {
-    const initializeLanguage = async () => {
+    const initializeApp = async () => {
       try {
         const device = getPlatform();
         const tgUser = window?.Telegram?.WebApp?.initDataUnsafe?.user;
@@ -65,12 +67,24 @@ export const useHomeLogic = () => {
           localStorage.setItem("sessionStarted", "true");
         }
 
+        // 1. Получаем язык пользователя
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
+          
+          // 2. Загружаем переводы только если они еще не загружены
+          const translationsLoaded = localStorage.getItem(TRANSLATIONS_LOADED);
+          if (!translationsLoaded || translationsLoaded !== userLanguage) {
+            console.log("🚀 Загружаем переводы при инициализации приложения");
+            await loadTranslations(userLanguage);
+            localStorage.setItem(TRANSLATIONS_LOADED, userLanguage);
+          } else {
+            console.log("✅ Переводы уже загружены для языка:", userLanguage);
+          }
         }
 
+        // 3. Показываем VPN предупреждение если нужно
         const vpnWarningShown = localStorage.getItem(VPN_WARNING_SHOWN);
         if (!vpnWarningShown) {
           setShowVpnWarning(true);
@@ -90,8 +104,8 @@ export const useHomeLogic = () => {
       }
     };
 
-    initializeLanguage();
-  }, []);
+    initializeApp();
+  }, [loadTranslations, country, langcode]);
 
   // Функция для скрытия предупреждения о VPN
   const handleCloseVpnWarning = useCallback(() => {
@@ -121,7 +135,8 @@ export const useHomeLogic = () => {
     setOrientationListenerActive(false);
     localStorage.removeItem(SENSOR_PERMISSION_STATUS);
     localStorage.removeItem("userHeading");
-    alert(translations?.permissionResetSuccess);
+    // Используем хардкод или получаем перевод из хранилища
+    alert("Permission reset successfully");
   }, []);
 
   const requestSensorPermission = useCallback(async () => {
@@ -154,7 +169,7 @@ export const useHomeLogic = () => {
   const handleCompassClick = useCallback(
     async (currentPermission: string) => {
       if (currentPermission === "denied") {
-        alert(translations?.sensorPermissionDeniedMessage);
+        alert("Sensor permission denied. Please reset permissions in settings.");
         return;
       }
 
@@ -174,7 +189,7 @@ export const useHomeLogic = () => {
               navigate("/qibla", { state: { activeTab: "compass" } });
             } else {
               setSensorPermission("denied");
-              alert(translations?.sensorPermissionRequired);
+              alert("Sensor permission is required to use the compass.");
             }
           } else {
             setSensorPermission("granted");
@@ -183,7 +198,7 @@ export const useHomeLogic = () => {
         } catch (err) {
           console.error("Sensor permission error:", err);
           setSensorPermission("denied");
-          alert(translations?.sensorPermissionError);
+          alert("Error requesting sensor permission.");
         } finally {
           setIsRequestingPermission(false);
         }
@@ -208,7 +223,7 @@ export const useHomeLogic = () => {
     showVpnWarning,
     handleCloseVpnWarning,
     handleOpenVpnWarning,
-    handleResetVpnWarning, // Добавлена в возвращаемый объект
+    handleResetVpnWarning,
     requestSensorPermission,
     resetSensorPermission,
     handleCompassClick,
