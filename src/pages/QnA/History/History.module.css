@@ -48,17 +48,16 @@
   display: flex;
   justify-content: center;
   align-items: center; 
-  width: 100%;
+  gap: 20px;
   margin-top: var(--numbers-16);
 }
 
 .pagination {
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center;  */
-  /* list-style: none; */
-  /* padding: 0; */
-  /* gap: 12px; */
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  list-style: none;
+  gap: 12px;
 }
 
 .pageButton {
