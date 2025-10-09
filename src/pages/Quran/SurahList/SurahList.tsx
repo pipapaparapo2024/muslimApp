@@ -155,7 +155,6 @@ export const SurahList: React.FC = () => {
         setSearchResults([]);
         setCurrentResultIndex(-1);
         setShowSearchNavigation(false);
-        // 📊 Аналитика: Ошибка поиска
       } finally {
         setIsSearching(false);
       }
@@ -216,8 +215,8 @@ export const SurahList: React.FC = () => {
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
   const handleSurahClick = (surah: Surah) => {
-    trackButtonClick("quran","click_chapters",surah.name)
     setSelectedSurah(surah);
+    trackButtonClick("quran","click_chapters",surah.name)
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
     });
