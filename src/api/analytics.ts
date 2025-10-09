@@ -38,13 +38,13 @@ export const trackButtonClick = async (
   }
 
   const eventData = {
-    eventName: eventName,
+    eventName,
     eventTimestamp: new Date().toISOString(),
-    eventType: eventType,
+    eventType,
     id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-    payload: payload,
-    sessionId: sessionId,
-    userId: userId,
+    payload: payload ? JSON.stringify(payload) : "{}", 
+    sessionId,
+    userId: userId ?? 0,
   };
 
   try {
