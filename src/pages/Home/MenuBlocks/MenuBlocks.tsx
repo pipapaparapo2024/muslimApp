@@ -90,9 +90,9 @@ export const MenuBlocks: React.FC = () => {
             </div>
           </div>
           {language === "ar" ? (
-            <ChevronLeft size={24} className={styles.menuArrow} />
+            <ChevronLeft size={24} />
           ) : (
-            <ChevronRight size={24} className={styles.menuArrow} />
+            <ChevronRight size={24} />
           )}
         </div>
       ))}

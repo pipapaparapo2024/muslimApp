@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
-import { Share2, ChevronDown, Loader } from "lucide-react";
+import { Share2, ChevronDown, Loader, ChevronRight, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
@@ -153,7 +153,7 @@ export const History: React.FC = () => {
                 }}
                 disabled={!pagination.hasPrev}
               >
-                ◀
+                <ChevronLeft size={24} className={styles.menuArrow} />
               </button>
             </li>
 
@@ -186,7 +186,7 @@ export const History: React.FC = () => {
                 }}
                 disabled={!pagination.hasNext}
               >
-                ▶
+                <ChevronRight size={24} />
               </button>
             </li>
           </ul>

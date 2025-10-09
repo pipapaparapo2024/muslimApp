@@ -136,9 +136,9 @@
 
 .pageButton {
   border: 1px solid #d0d0d0;
-  background-color: white;
-  color: #007bff;
-  padding: 6px 10px;
+  background-color: var(--color-background-semantic-solid-brand);
+  color: var(--text);
+  padding: var(--numbers-8) ;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.2s;
@@ -166,5 +166,5 @@
 }
 
 .activeDot {
-  color: #007bff;
+  color:  var(--color-background-semantic-solid-brand);
 }
