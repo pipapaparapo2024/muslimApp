@@ -118,8 +118,8 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
         }
       );
 
-      set((state) => ({
-        history: [...state.history, ...(response.data.history || [])],
+      set(() => ({
+        history: (response.data.history || []),
         pagination: {
           page: nextPage,
           hasNext: response.data.hasNext || false,
