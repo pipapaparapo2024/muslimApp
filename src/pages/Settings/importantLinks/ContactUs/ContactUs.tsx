@@ -3,7 +3,7 @@ import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./ContactUs.module.css";
 import { MessageCircle } from "lucide-react";
 
-const BOT_USERNAME = "@QiblaGuidebot"; 
+const BOT_USERNAME = "QiblaGuidebot"; 
 
 export const ContactUs: React.FC = () => {
   const openBotChat = () => {
