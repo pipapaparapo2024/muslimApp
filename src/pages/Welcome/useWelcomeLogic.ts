@@ -33,7 +33,7 @@ export const useWelcomeLogic = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  // const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
+  const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
     const [isInitialized, setIsInitialized] = useState(false);
 
@@ -53,26 +53,26 @@ export const useWelcomeLogic = () => {
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
   
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     try {
-  //       // 1. Получаем геолокацию
-  //       await fetchFromIpApi();
-  //       const locationData = getLocationData();
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // 1. Получаем геолокацию
+        await fetchFromIpApi();
+        const locationData = getLocationData();
 
-  //       // 2. Отправляем настройки пользователя
-  //       await sendUserSettings({
-  //         city: locationData.city,
-  //         countryName: locationData.country,
-  //         langcode: langcode,
-  //         timeZone: locationData.timeZone,
-  //       });
-  //     } catch (error) {
-  //       console.error("Initialization error:", error);
-  //     }
-  //   };
-  //   initializeApp();
-  // }, []);
+        // 2. Отправляем настройки пользователя
+        await sendUserSettings({
+          city: locationData.city,
+          countryName: locationData.country,
+          langcode: langcode,
+          timeZone: locationData.timeZone,
+        });
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
+    };
+    initializeApp();
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
