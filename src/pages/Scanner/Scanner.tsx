@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { Camera, TriangleAlert, Wallet } from "lucide-react";
@@ -12,7 +12,7 @@ import { useTranslationsStore } from "../../hooks/useTranslations";
 import { trackButtonClick } from "../../api/analytics";
 
 export const Scanner: React.FC = () => {
-  const { requestsLeft, hasPremium, fetchUserData } = usePremiumStore();
+  const { requestsLeft, hasPremium } = usePremiumStore();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const [selectedRequests, setSelectedRequests] = useState("10");
@@ -20,9 +20,6 @@ export const Scanner: React.FC = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
 
   const showAskButton =
     hasPremium || (requestsLeft != null && requestsLeft > 0);
