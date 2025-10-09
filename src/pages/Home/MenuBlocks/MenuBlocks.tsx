@@ -16,8 +16,11 @@ import settings from "../../../assets/icons/setting.svg";
 export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { friends } = useFriendsStore();
+  const { friends, fetchFriends } = useFriendsStore();
   const { translations } = useTranslationsStore();
+  useEffect(() => {
+    fetchFriends();
+  }, []);
   {
     console.log("language", language);
   }

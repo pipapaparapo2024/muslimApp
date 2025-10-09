@@ -7,11 +7,10 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { trackButtonClick } from "../../api/analytics";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 export const WelcomeFriends: React.FC = () => {
-  const { referralLink, fetchReferralLink,fetchFriends } = useFriendsStore();
+  const { referralLink, fetchReferralLink } = useFriendsStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const { translations } = useTranslationsStore();
   useEffect(() => {
-    fetchFriends();
     fetchReferralLink();
   }, []);
   useEffect(() => {
