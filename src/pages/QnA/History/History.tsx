@@ -153,7 +153,7 @@ export const History: React.FC = () => {
                 }}
                 disabled={!pagination.hasPrev}
               >
-                <ChevronLeft size={24} className={styles.menuArrow} />
+                <ChevronLeft size={24} />
               </button>
             </li>
 
@@ -184,7 +184,7 @@ export const History: React.FC = () => {
                     await loadMoreHistory();
                   }
                 }}
-                disabled={!pagination.hasNext}
+                // disabled={!pagination.hasNext}
               >
                 <ChevronRight size={24} />
               </button>
