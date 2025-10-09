@@ -8,6 +8,7 @@ export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 const LANGUAGE_KEY = "preferred-language";
+
 const arabId = "7b64a96d-1dc9-4cd0-b3f0-59cbfbc9fdf7";
 const enId = "1e5a0c2e-8e6b-4e76-8fc0-2b0f5a933b4a";
 
@@ -22,15 +23,16 @@ export const applyLanguageStyles = (lang: Language): void => {
 export const useLanguage = () => {
   const { coords } = useGeoStore();
   const { fetchPrayers } = usePrayerApiStore();
-  const { loadTranslations } = useTranslationsStore();
+  const { translations, loadTranslations } = useTranslationsStore();
 
   const [language, setLanguage] = useState<Language>(
     (localStorage.getItem(LANGUAGE_KEY) as Language) || "en"
   );
-  const [isLoadingLanguage, setIsLoadingLanguage] = useState(true);
+  const [isChanging, setIsChanging] = useState(false);
 
+  // 🔹 Загружаем язык с бэкенда при старте (основной источник)
   useEffect(() => {
-    const initLanguage = async () => {
+    const fetchLanguageFromBackend = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) return;
@@ -39,28 +41,27 @@ export const useLanguage = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const backendLang = response.data.data.language.languageCode as Language;
+        const backendLanguage = response.data.data.language.languageCode as Language;
 
-        if (backendLang && SUPPORTED_LANGUAGES.includes(backendLang)) {
-          applyLanguageStyles(backendLang);
-          setLanguage(backendLang);
-          localStorage.setItem(LANGUAGE_KEY, backendLang);
-          await loadTranslations(backendLang);
+        if (backendLanguage && SUPPORTED_LANGUAGES.includes(backendLanguage)) {
+          setLanguage(backendLanguage);
+          applyLanguageStyles(backendLanguage);
+          localStorage.setItem(LANGUAGE_KEY, backendLanguage);
+          await loadTranslations(backendLanguage);
         }
-      } catch (e) {
-        console.error("Error loading backend language:", e);
-      } finally {
-        setIsLoadingLanguage(false);
+      } catch (error) {
+        console.error("Error fetching language:", error);
       }
     };
 
-    initLanguage();
-  }, []);
+    fetchLanguageFromBackend();
+  }, [loadTranslations]);
 
+  // 🔹 Меняем язык вручную (по действию пользователя)
   const changeLanguage = async (newLang: Language) => {
     if (newLang === language) return;
 
-    setIsLoadingLanguage(true);
+    setIsChanging(true);
     try {
       applyLanguageStyles(newLang);
       localStorage.setItem(LANGUAGE_KEY, newLang);
@@ -79,15 +80,17 @@ export const useLanguage = () => {
       if (coords) fetchPrayers(coords.lat, coords.lon);
       await loadTranslations(newLang);
     } catch (error) {
-      console.error("Language switch error:", error);
+      console.error("Error changing language:", error);
     } finally {
-      setIsLoadingLanguage(false);
+      setIsChanging(false);
     }
   };
 
   return {
     language,
     changeLanguage,
-    isLoadingLanguage,
+    languageLabel:
+      language === "ar" ? translations?.arabic : translations?.english,
+    isChanging,
   };
 };
