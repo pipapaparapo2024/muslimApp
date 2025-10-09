@@ -189,7 +189,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           break;
 
         case "rejected":
-          alert(translations?.paymentRejected);
+          alert(translations?.paymentError);
           break;
 
         case "not_connected":
