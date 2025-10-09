@@ -161,7 +161,7 @@ export const History: React.FC = () => {
                     await loadMoreHistory();
                   }
                 }}
-                // disabled={!pagination.hasNext}
+                disabled={!pagination.hasNext}
               >
                 <ChevronRight size={24} />
               </button>

@@ -100,18 +100,22 @@
 
 .paginationContainer {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: center; /* центрирует всё содержимое по горизонтали */
+  align-items: center; /* центрирует по вертикали */
+  width: 100%;
   margin-top: var(--numbers-16);
 }
 
 .pagination {
   display: flex;
   align-items: center;
+  justify-content: center; /* <-- добавляем это */
   list-style: none;
   padding: 0;
   gap: 12px;
+  margin: 0 auto; /* <-- гарантирует центрирование внутри родителя */
 }
+
 
 .pageItem {
   display: flex;
