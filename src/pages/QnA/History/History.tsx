@@ -3,7 +3,11 @@ import React, { useEffect, useState } from "react";
 import styles from "./History.module.css";
 import { useHistoryStore } from "../../../hooks/useHistoryStore";
 import { HistoryEmpty } from "./historyEmpty/HistoryEmpty";
-import { Share2, ChevronDown, Loader, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Share2,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LoadingSpinner } from "../../../components/LoadingSpinner/LoadingSpinner";
@@ -15,7 +19,6 @@ export const History: React.FC = () => {
     fetchHistory,
     loadMoreHistory,
     loading,
-    isLoadingMore,
     pagination,
     loadPrevHistory,
   } = useHistoryStore();
@@ -61,13 +64,6 @@ export const History: React.FC = () => {
     navigate(`/qna/history/${promisId}`);
   };
 
-  const handleLoadMore = async () => {
-    try {
-      await loadMoreHistory();
-    } catch (error) {
-      console.error("Error loading more history:", error);
-    }
-  };
 
   if (isLoading || loading) {
     return (
@@ -107,25 +103,6 @@ export const History: React.FC = () => {
             ))}
           </div>
         ))}
-
-        {pagination.hasNext && (
-          <div className={styles.loadMoreContainer}>
-            <button
-              className={styles.loadMoreButton}
-              onClick={handleLoadMore}
-              disabled={isLoadingMore}
-            >
-              {isLoadingMore ? (
-                <Loader size={20} className={styles.spinner} />
-              ) : (
-                <>
-                  <ChevronDown size={20} />
-                  {translations?.loadMore}
-                </>
-              )}
-            </button>
-          </div>
-        )}
 
         <div className={styles.paginationInfo}>
           {pagination.page < pagination.pageAmount && translations?.page}

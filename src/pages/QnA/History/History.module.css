@@ -40,16 +40,6 @@
 }
 
 
-
-
-
-
-
-
-
-
-/* Добавьте в History.module.css */
-
 .loadMoreContainer {
   display: flex;
   justify-content: center;
@@ -106,15 +96,6 @@
   margin-bottom: 16px;
 }
 
-/* Адаптивность для мобильных устройств */
-@media (max-width: 480px) {
-  .loadMoreButton {
-    padding: 10px 20px;
-    font-size: 13px;
-    min-width: 110px;
-  }
-}
-
 .paginationContainer {
   display: flex;
   align-items: center;
@@ -136,6 +117,7 @@
 }
 
 .pageButton {
+  background-color: var(--bg-app);
   color: var(--text);
   border: none;
   cursor: pointer;
@@ -159,5 +141,5 @@
 }
 
 .activeDot {
-  color:  var(--color-background-semantic-solid-brand);
+  color: var(--color-background-semantic-solid-brand);
 }
