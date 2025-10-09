@@ -72,12 +72,7 @@ export const useHistoryStore = create<SearchHistoryState>((set, get) => ({
           },
         }
       );
-      console.log("historyScaner", response.data.history || [], {
-        page: page,
-        hasNext: response.data.hasNext,
-        hasPrev: response.data.hasPrev,
-        pageAmount: response.data.pageAmount || 0,
-      });
+
 
       set({
         history: response.data.history || [],

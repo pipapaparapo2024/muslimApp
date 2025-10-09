@@ -63,7 +63,15 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
           },
         }
       );
-
+      console.log(
+        "historyScan",
+        response.data.data.history,
+        page,
+        response.data.data.pageAmount,
+        response.data.data.hasNext,
+        response.data.data.hasPrev,
+        false
+      );
       set({
         history: response.data.data.history,
         currentPage: page,
@@ -94,7 +102,7 @@ export const useHistoryScannerStore = create<HistoryState>()((set, get) => ({
       );
 
       set({ isLoading: false });
-      console.log("fetchHistoryItem",response)
+      console.log("fetchHistoryItem", response);
       if (response.data.item) {
         return response.data.item;
       } else {
