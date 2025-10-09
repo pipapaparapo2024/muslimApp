@@ -24,7 +24,7 @@ export const ContactUs: React.FC = () => {
   };
 
   return (
-    <PageWrapper showBackButton>
+    <PageWrapper showBackButton  navigateTo="/settings">
       <div className={styles.contactContainer}>
         <h2 className={styles.title}>Contact Us</h2>
         <p className={styles.text}>
