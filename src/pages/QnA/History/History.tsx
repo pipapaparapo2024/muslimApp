@@ -109,21 +109,21 @@ export const History: React.FC = () => {
           aria-label="Навигация по страницам"
           className={styles.paginationContainer}
         >
-          <ul className={styles.pagination}>
-            <li className={`${!pagination.hasPrev ? styles.disabled : ""}`}>
-              <button
-                className={styles.pageButton}
-                onClick={async () => {
-                  if (pagination.hasPrev) {
-                    await loadPrevHistory();
-                  }
-                }}
-                disabled={!pagination.hasPrev}
-              >
-                <ChevronLeft size={24} />
-              </button>
-            </li>
+          <button
+            className={`${styles.pageButton} ${
+              !pagination.hasNext ? styles.disabled : ""
+            }`}
+            onClick={async () => {
+              if (pagination.hasPrev) {
+                await loadPrevHistory();
+              }
+            }}
+            disabled={!pagination.hasPrev}
+          >
+            <ChevronLeft size={24} />
+          </button>
 
+          <ul className={styles.pagination}>
             <li className={styles.pageDots}>
               {Array.from({ length: pagination.pageAmount }).map((_, index) => (
                 <span
@@ -136,21 +136,21 @@ export const History: React.FC = () => {
                 </span>
               ))}
             </li>
-
-            <li className={` ${!pagination.hasNext ? styles.disabled : ""}`}>
-              <button
-                className={styles.pageButton}
-                onClick={async () => {
-                  if (pagination.hasNext) {
-                    await loadMoreHistory();
-                  }
-                }}
-                disabled={!pagination.hasNext}
-              >
-                <ChevronRight size={24} />
-              </button>
-            </li>
           </ul>
+
+          <button
+            className={`${styles.pageButton}  ${
+              !pagination.hasNext ? styles.disabled : ""
+            }`}
+            onClick={async () => {
+              if (pagination.hasNext) {
+                await loadMoreHistory();
+              }
+            }}
+            disabled={!pagination.hasNext}
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       )}
     </PageWrapper>
