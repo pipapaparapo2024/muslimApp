@@ -34,7 +34,8 @@ export const HistoryScanner: React.FC = () => {
   }, []);
 
   const groupedHistory = history ? historyUtils.groupByDate(history) : [];
-
+  console.log("hasNext",hasNext)
+  console.log("hasPrev",hasPrev)
   const formatDateWithTranslation = (dateString: string) => {
     const date = new Date(dateString);
 
