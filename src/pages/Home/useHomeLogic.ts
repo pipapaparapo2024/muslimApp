@@ -67,7 +67,6 @@ export const useHomeLogic = () => {
 
         const userLanguage = await fetchLanguageFromBackend();
         if (userLanguage) {
-          console.log("userLanguage", userLanguage);
           applyLanguageStyles(userLanguage);
           localStorage.setItem("preferred-language", userLanguage);
         }

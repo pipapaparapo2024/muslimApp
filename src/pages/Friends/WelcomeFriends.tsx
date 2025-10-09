@@ -7,13 +7,13 @@ import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { trackButtonClick } from "../../api/analytics";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 export const WelcomeFriends: React.FC = () => {
-  const { referralLink, fetchReferralLink } = useFriendsStore();
+  const { referralLink, fetchReferralLink,fetchFriends } = useFriendsStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const { translations } = useTranslationsStore();
   useEffect(() => {
+    fetchFriends();
     fetchReferralLink();
   }, []);
-
   useEffect(() => {
     const preloadImage = (src: string): Promise<void> => {
       return new Promise((resolve) => {
