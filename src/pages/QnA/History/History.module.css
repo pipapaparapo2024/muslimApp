@@ -43,17 +43,20 @@
 .paginationContainer {
   display: flex;
   justify-content: center;
-  /* align-items: center;  */
-  gap: var(--numbers-4);
+  align-items: center;
+  gap: var(--numbers-8);
   margin-top: var(--numbers-16);
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
   list-style: none;
-  gap: 12px;
+  gap: 8px;
+  margin: 0;       
+  padding: 0;
+  height: 24px;    /* задаем фиксированную высоту, чтобы совпадала с кнопками */
 }
 
 .pageButton {
