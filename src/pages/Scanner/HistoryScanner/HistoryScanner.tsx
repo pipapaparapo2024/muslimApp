@@ -17,7 +17,15 @@ import {
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 
 export const HistoryScanner: React.FC = () => {
-  const { history, isLoading, fetchHistory } = useHistoryScannerStore();
+  const {
+    history,
+    isLoading,
+    fetchHistory,
+    totalPages,
+    hasNext,
+    hasPrev,
+    currentPage,
+  } = useHistoryScannerStore();
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
 
@@ -34,9 +42,13 @@ export const HistoryScanner: React.FC = () => {
     const lang = translations?.lang || "en";
 
     if (lang === "ar") {
-      return `${date.getDate()} ${translations?.[getMonthKey(date.getMonth())]} ${date.getFullYear()}`;
+      return `${date.getDate()} ${
+        translations?.[getMonthKey(date.getMonth())]
+      } ${date.getFullYear()}`;
     } else {
-      return `${translations?.[getMonthKey(date.getMonth())]} ${date.getDate()}, ${date.getFullYear()}`;
+      return `${
+        translations?.[getMonthKey(date.getMonth())]
+      } ${date.getDate()}, ${date.getFullYear()}`;
     }
   };
 
@@ -135,11 +147,7 @@ export const HistoryScanner: React.FC = () => {
                     )}`}
                   >
                     {getStatusIcon(scan.engType, 16)}
-                    {
-                      translations?.[
-                        getStatusTranslationKey(scan.engType)
-                      ]
-                    }
+                    {translations?.[getStatusTranslationKey(scan.engType)]}
                   </div>
                   <button
                     onClick={(event) => handleShare(event, scan.id)}
@@ -154,6 +162,66 @@ export const HistoryScanner: React.FC = () => {
           </div>
         ))}
       </div>
+      {totalPages > 1 && (
+        <nav
+          aria-label="Навигация по страницам"
+          className={styles.paginationContainer}
+        >
+          <ul className={styles.pagination}>
+            {/* Кнопка "Предыдущая" */}
+            <li
+              className={`${styles.pageItem} ${
+                !hasPrev ? styles.disabled : ""
+              }`}
+            >
+              <button
+                className={styles.pageButton}
+                onClick={async () => {
+                  if (hasPrev) {
+                    await fetchHistory(currentPage - 1);
+                  }
+                }}
+                disabled={!hasPrev}
+              >
+                ◀
+              </button>
+            </li>
+
+            {/* Точки между кнопками */}
+            <li className={styles.pageDots}>
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <span
+                  key={index}
+                  className={`${styles.dot} ${
+                    currentPage === index + 1 ? styles.activeDot : ""
+                  }`}
+                >
+                  •
+                </span>
+              ))}
+            </li>
+
+            {/* Кнопка "Следующая" */}
+            <li
+              className={`${styles.pageItem} ${
+                !hasNext ? styles.disabled : ""
+              }`}
+            >
+              <button
+                className={styles.pageButton}
+                onClick={async () => {
+                  if (hasNext) {
+                    await fetchHistory(currentPage + 1);
+                  }
+                }}
+                disabled={!hasNext}
+              >
+                ▶
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
     </PageWrapper>
   );
 };
