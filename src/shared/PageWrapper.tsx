@@ -18,17 +18,7 @@ export const PageWrapper: React.FC<PageProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const tg = window.Telegram?.WebApp;
-  // useEffect(() => {
-  //   const initializeApp = async () => {
-  //     try {
-  //       localStorage.setItem("appInitialized", "true");
-  //     } catch (error) {
-  //       console.error("Initialization error:", error);
-  //     }
-  //   };
 
-  //   initializeApp();
-  // }, []);
   const handleBack = () => {
     navigate(navigateTo);
   };

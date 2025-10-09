@@ -18,9 +18,9 @@ export const MenuBlocks: React.FC = () => {
   const { language, } = useLanguage();
   const { friends, fetchFriends } = useFriendsStore();
   const { translations } = useTranslationsStore();
-  // useEffect(() => {
-  //   fetchFriends();
-  // }, []);
+  useEffect(() => {
+    fetchFriends();
+  }, []);
 
   const menuItems = [
     {

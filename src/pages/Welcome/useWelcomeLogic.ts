@@ -9,23 +9,35 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 interface Step {
-  title: string |undefined;
-  desc: string |undefined;
+  title: string | undefined;
+  desc: string | undefined;
   image: string;
 }
 
 export const useWelcomeLogic = () => {
   const navigate = useNavigate();
-  const {translations}=useTranslationsStore()
+  const { translations } = useTranslationsStore();
   const steps: Step[] = [
     {
-      title:translations?.prayerReminders,
+      title: translations?.prayerReminders,
       desc: translations?.stayOnTrack,
       image: prayerRemindersImage,
     },
-    { title:translations?.readTheQuran , desc:translations?.accessQuran , image: quranImage },
-    { title:translations?.scanYourFood , desc:translations?.checkHalal , image: scannerImage },
-    { title:translations?.trustedAnswers , desc:translations?.receiveAnswers , image: qnaImage },
+    {
+      title: translations?.readTheQuran,
+      desc: translations?.accessQuran,
+      image: quranImage,
+    },
+    {
+      title: translations?.scanYourFood,
+      desc: translations?.checkHalal,
+      image: scannerImage,
+    },
+    {
+      title: translations?.trustedAnswers,
+      desc: translations?.receiveAnswers,
+      image: qnaImage,
+    },
   ];
 
   const [step, setStep] = useState(0);
@@ -35,7 +47,7 @@ export const useWelcomeLogic = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
-    const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const {
     isAuthenticated,
@@ -49,10 +61,10 @@ export const useWelcomeLogic = () => {
       if (isAuthenticated && wasLogged) {
         navigate("/home", { replace: true });
       }
-      setIsInitialized(true); 
+      setIsInitialized(true);
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
-  
+
   useEffect(() => {
     const initializeApp = async () => {
       try {

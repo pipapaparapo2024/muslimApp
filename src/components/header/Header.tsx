@@ -35,9 +35,6 @@ export const Header: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, []);
-
-  useEffect(() => {
     updateFormattedDate();
   }, []);
 

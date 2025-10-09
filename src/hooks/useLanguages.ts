@@ -45,7 +45,7 @@ export const useLanguage = () => {
           applyLanguageStyles(backendLang);
           setLanguage(backendLang);
           localStorage.setItem(LANGUAGE_KEY, backendLang);
-          await loadTranslations(backendLang);
+          // await loadTranslations(backendLang);
         }
       } catch (e) {
         console.error("Error loading backend language:", e);
