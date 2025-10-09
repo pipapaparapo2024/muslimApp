@@ -138,6 +138,7 @@ export const History: React.FC = () => {
             onClick={async () => {
               if (pagination.hasNext) {
                 await loadMoreHistory();
+                console.log("history",history)
               }
             }}
             disabled={!pagination.hasNext}
