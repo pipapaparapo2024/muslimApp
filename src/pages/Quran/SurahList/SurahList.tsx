@@ -60,7 +60,7 @@ export const SurahList: React.FC = () => {
     };
 
     loadData();
-  }, [fetchVariants, surahs.length]);
+  }, []);
 
   // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
