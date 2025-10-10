@@ -13,6 +13,9 @@ export default defineConfig({
   define: {
     "process.env": {},
   },
+   css: {
+    postcss: './postcss.config.js'
+  },
   server: {
     host: true,
     allowedHosts: ["islamapp.myfavouritegames.org"],
