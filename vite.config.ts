@@ -1,17 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import svgr from "vite-plugin-svgr";
+import path from "path";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   define: {
     "process.env": {},
   },
   server: {
-    host: true, // Для доступа с мобильных устройств в одной сети
-    allowedHosts: [
-      "b5608ad21f16.ngrok-free.app", // Разрешить ваш текущий домен ngrok
-      ".ngrok-free.app",
-      "islamapp.myfavouritegames.org", // Разрешить все поддомены ngrok (на случай перезапуска)
-    ],
+    host: true,
+    allowedHosts: ["islamapp.myfavouritegames.org"],
   },
 });
