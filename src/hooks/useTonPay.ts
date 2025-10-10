@@ -53,7 +53,9 @@ export const useTonPay = () => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`🔍 Проверка TON оплаты (${attempt}/${maxAttempts})`);
-        const response = await quranApi.get(`/api/v1/payments/ton/${payload}/check`);
+        const response = await quranApi.get(
+          `/api/v1/payments/ton/${payload}/check`
+        );
         const status = response.data.data.orderStatus;
 
         if (status === "success") {
@@ -84,7 +86,9 @@ export const useTonPay = () => {
   /**
    * 💳 Основной процесс оплаты TON
    */
-  const payWithTon = async (params: TonPayParams): Promise<TonPaymentResponse> => {
+  const payWithTon = async (
+    params: TonPayParams
+  ): Promise<TonPaymentResponse> => {
     try {
       console.log("💎 TON оплата запущена...", params);
 
@@ -102,23 +106,37 @@ export const useTonPay = () => {
       const merchantWallet = await getTonWallet();
 
       // 4️⃣ Создаём инвойс
-      const invoiceResponse = await quranApi.post("/api/v1/payments/ton/invoice", {
-        priceId: params.productId,
-        userWallet: userAddress,
-      });
+      const invoiceResponse = await quranApi.post(
+        "/api/v1/payments/ton/invoice",
+        {
+          priceId: params.productId,
+          userWallet: userAddress,
+        }
+      );
 
       const { payload, payloadBOC } = invoiceResponse.data.data;
       const amountNano = Math.floor(params.amount * 1e9).toString();
 
       // 5️⃣ Формируем транзакцию
+      // const transaction = {
+      //   validUntil: Math.floor(Date.now() / 1000) + 300,
+      //   network: CHAIN.MAINNET,
+      //   messages: [
+      //     {
+      //       address: merchantWallet,
+      //       amount: amountNano,
+      //       payload: payloadBOC,
+      //     },
+      //   ],
+      // };
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
         network: CHAIN.MAINNET,
         messages: [
           {
             address: merchantWallet,
-            amount: amountNano,
-            payload: payloadBOC,
+            amount: String(amountNano), // обязательно строка!
+            payload: payloadBOC ? btoa(payloadBOC) : undefined, // перекодировка в base64
           },
         ],
       };
