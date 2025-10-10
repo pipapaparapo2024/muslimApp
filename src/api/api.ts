@@ -29,69 +29,47 @@ quranApi.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor с refresh token
+let isRefreshing = false;
+
 quranApi.interceptors.response.use(
-  (response) => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[API Response]", response.status, response.config.url);
-    }
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (process.env.NODE_ENV === "development") {
-      console.error("[API Error]", error.response?.status, error.config.url);
-    }
-
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const response = await quranApi.post("/api/v1/user/auth/refresh");
+        const newToken = response.data.data.accessToken;
 
-        console.log("accessToken", response.data.data.accessToken);
-        if (!response.data.data.accessToken) {
-          throw new Error("Refresh failed: no accessToken in response");
-        }
-        console.log("response.data.data.accessToken",response.data.data.accessToken)
-        localStorage.setItem("accessToken", response.data.data.accessToken);
+        if (!newToken) throw new Error("No accessToken in refresh response");
 
-        originalRequest.headers.Authorization = `Bearer ${response.data.data.accessToken}`;
+        localStorage.setItem("accessToken", newToken);
+        quranApi.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
-        // Обновляем дефолтный заголовок
-        quranApi.defaults.headers.common.Authorization = `Bearer ${response.data.data.accessToken}`;
-
+        isRefreshing = false;
         return quranApi(originalRequest);
       } catch (refreshError) {
-        console.error("❌ Refresh token failed:", refreshError);
-
-        // Очищаем токены
+        isRefreshing = false;
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-
-        // Закрываем бот
-        if (window.Telegram?.WebApp) {
-          window.Telegram.WebApp.showAlert(
-            "Сессия истекла. Перезапустите бота."
-          );
-          setTimeout(() => window.Telegram?.WebApp.close(), 1500);
-        } else {
-          window.location.href = "/login";
-        }
-
+        window.Telegram?.WebApp?.showAlert?.("Сессия истекла. Перезапустите бота.");
+        setTimeout(() => window.Telegram?.WebApp?.close(), 1500);
         return Promise.reject(refreshError);
       }
-    }
-
-    // Обработка 500
-    if (error.response?.status === 500) {
-      window.Telegram?.WebApp?.showAlert?.("Ошибка сервера. Попробуйте позже");
     }
 
     return Promise.reject(error);
   }
 );
+
 
 export function isErrorWithMessage(
   error: unknown
