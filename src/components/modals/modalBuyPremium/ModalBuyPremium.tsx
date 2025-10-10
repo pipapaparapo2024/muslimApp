@@ -79,14 +79,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     const tonCurrency = getPriceByProductId(option.product.id, "TON");
     const starsCurrency = getPriceByProductId(option.product.id, "XTR");
 
-    console.log("🔄 getPrices for option:", {
-      optionLabel,
-      productId: option.product.id,
-      productTitle: option.product.title,
-      tonCurrency,
-      starsCurrency,
-    });
-
     return {
       ton: tonCurrency?.priceAmount || 1,
       stars: starsCurrency?.priceAmount || 1,
@@ -115,12 +107,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       !prices.productId ||
       !prices.currencyId
     ) {
-      console.log("❌ Missing required data:", {
-        productId: prices.productId,
-        currencyId: prices.currencyId,
-        selectedRequests: selectedRequests,
-        premiumOptionsCount: premiumOptions.length,
-      });
       return;
     }
 
@@ -155,7 +141,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       onSelectRequests(premiumOptions[0].label);
     }
   }, [isOpen, premiumOptions, selectedRequests, onSelectRequests]);
-
 
   if (!isOpen) return null;
 
@@ -225,7 +210,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           </button>
         </div>
 
-        <p className={styles.modalDescription}>{translations?.premiumDescription}</p>
+        <p className={styles.modalDescription}>
+          {translations?.premiumDescription}
+        </p>
 
         <div className={styles.options}>
           {premiumOptions.map((option) => (
