@@ -108,7 +108,7 @@ export const useTonPay = () => {
       });
 
       const { payload, payloadBOC } = invoiceResponse.data.data;
-      const amountNano = Math.floor(params.amount * 1e9).toString();
+      const amountNano = Math.floor(params.amount).toString();
 
       console.log("transactiontransaction",{
             address: merchantWallet,
