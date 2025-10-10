@@ -78,7 +78,7 @@ export const useTonPay = () => {
    */
   const getTonWallet = async (): Promise<string> => {
     const response = await quranApi.get("/api/v1/payments/ton/wallet");
-    console.log("response getTonWallet",)
+    console.log("response getTonWallet",response)
     return response.data.data.wallet;
   };
 
