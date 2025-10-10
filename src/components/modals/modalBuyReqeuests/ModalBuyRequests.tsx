@@ -128,15 +128,18 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           break;
 
         case "insufficient_funds":
-          alert(translations?.insufficientStars);
+          // alert(translations?.insufficientStars);
+          alert("insufficient_funds");
           break;
 
         default:
-          alert(translations?.paymentError);
+          // alert(translations?.paymentError);
+          alert("ошибка оплаты");
       }
     } catch (error: any) {
       console.error("Stars payment error for requests:", error);
-      alert(translations?.paymentError);
+      // alert(translations?.paymentError);
+      alert("ошибка оплаты");
     } finally {
       setIsProcessingStars(false);
     }
@@ -174,23 +177,27 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
       switch (result.status) {
         case "success":
-          alert(translations?.paymentSuccess);
+          // alert(translations?.paymentSuccess);
+          alert("success");
           onClose();
           break;
 
         case "rejected":
-          alert(translations?.paymentRejected);
+          // alert(translations?.paymentRejected);
+          alert("rejected");
           break;
 
         case "not_connected":
           break;
 
         default:
-          alert(translations?.paymentError);
+          // alert(translations?.paymentError);
+          alert("ошибка оплаты");
       }
     } catch (error: any) {
       console.error("TON payment error for requests:", error);
-      alert(translations?.paymentError);
+      // alert(translations?.paymentError);
+      alert("ошибка оплаты");
     } finally {
       setIsProcessingTon(false);
     }
