@@ -85,9 +85,13 @@ export const useLanguage = () => {
     }
   };
 
+  // 🟢 Добавляем читаемую метку языка
+  const languageLabel = language === "ar" ? "العربية" : "English";
+
   return {
     language,
     changeLanguage,
     isLoadingLanguage,
+    languageLabel,
   };
 };
