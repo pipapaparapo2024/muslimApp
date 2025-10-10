@@ -11,7 +11,7 @@ export default defineConfig({
     allowedHosts: [
       "b5608ad21f16.ngrok-free.app", // Разрешить ваш текущий домен ngrok
       ".ngrok-free.app",
-      "islam_app.myfavouritegames.org", // Разрешить все поддомены ngrok (на случай перезапуска)
+      "islamapp.myfavouritegames.org", // Разрешить все поддомены ngrok (на случай перезапуска)
     ],
   },
 });
