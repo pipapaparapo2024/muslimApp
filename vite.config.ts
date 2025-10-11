@@ -17,7 +17,6 @@ export default defineConfig({
     postcss: './postcss.config.сjs', 
   },
   build: {
-    cssCodeSplit: true,
     sourcemap: false,
     minify: 'esbuild',
   },

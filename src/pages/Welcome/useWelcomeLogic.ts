@@ -72,16 +72,48 @@ export const useWelcomeLogic = () => {
         await fetchFromIpApi();
         const locationData = getLocationData();
 
-        await sendUserSettings({
+        const userSettings = {
           city: locationData.city,
           countryName: locationData.country,
           langcode: langcode,
           timeZone: locationData.timeZone,
-        });
+        };
+
+        // 2. Пробуем трижды отправить настройки
+        const maxRetries = 3;
+        let attempt = 0;
+        let success = false;
+        let lastError: any = null;
+
+        while (attempt < maxRetries && !success) {
+          try {
+            await sendUserSettings(userSettings);
+            success = true;
+          } catch (error) {
+            lastError = error;
+            attempt++;
+            console.warn(
+              `Attempt ${attempt} failed to send user settings`,
+              error
+            );
+
+            // небольшая пауза между попытками (например, 1 секунда)
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+        }
+
+        if (!success) {
+          console.error(
+            "All attempts to send user settings failed:",
+            lastError
+          );
+          throw new Error("Failed to send user settings after 3 attempts");
+        }
       } catch (error) {
         console.error("Initialization error:", error);
       }
     };
+
     initializeApp();
   }, []);
 
