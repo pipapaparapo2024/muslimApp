@@ -13,12 +13,9 @@ export default defineConfig({
   define: {
     "process.env": {},
   },
-  css: {
-    postcss: './postcss.config.сjs', 
-  },
+
   build: {
-    cssCodeSplit: true,
-    sourcemap: false,
+    sourcemap: true,
     minify: 'esbuild',
   },
   server: {
