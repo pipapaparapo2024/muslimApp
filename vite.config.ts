@@ -14,18 +14,12 @@ export default defineConfig({
     "process.env": {},
   },
   css: {
-    postcss: './postcss.config.js',
-    devSourcemap: false
+    postcss: './postcss.config.сjs', 
   },
   build: {
     cssCodeSplit: true,
     sourcemap: false,
     minify: 'esbuild',
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
   },
   server: {
     host: true,
