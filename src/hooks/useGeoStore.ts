@@ -31,6 +31,7 @@ export interface LocationData {
   city: string | null;
   country: string | null;
   timeZone: string | null;
+  langcode: string | null;
 }
 
 interface GeoState {
@@ -82,9 +83,20 @@ export const useGeoStore = create<GeoState>()(
           }
         }
 
-        // Если есть кэш, проверяем, не изменился ли IP
+        // ✅ Если кэш актуален (менее 5 минут) — используем его
         if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
           console.log("🗃 Используем кэшированные данные геолокации");
+          set({
+            ipData: cached,
+            coords: cached.location,
+            city: cached.city,
+            country: cached.country?.name,
+            langcode: cached.langcode,
+            timeZone: cached.timeZone,
+            isLoading: false,
+            error: null,
+          });
+          return;
         }
 
         set({ isLoading: true, error: null });
@@ -99,37 +111,25 @@ export const useGeoStore = create<GeoState>()(
             throw new Error("API returned success: false");
           }
 
-          // Проверяем, изменился ли IP (значит, новый VPN)
-          const ipChanged = !cached || cached.ip !== data.ip;
-
-          if (ipChanged) {
-            console.log("🌐 IP изменился → обновляем данные геолокации");
-          } else {
-            console.log(
-              "🟢 IP не изменился, но обновляем данные для надёжности"
-            );
-          }
-
           const city =
             data.city || data.region || data.country?.name || "Unknown";
           const countryName = data.country?.name || "Unknown";
-          const countryCode = data.country?.code || "Unknown";
-          const langcode = countryCode || "EN"; // ← всегда ставим новый код
+          const countryCode = data.country?.code?.toUpperCase() || "EN";
+          const langcode = countryCode; // ✅ теперь всегда обновляется по стране
 
-          // Сохраняем обновлённые данные в localStorage
-          localStorage.setItem(
-            "ipDataCache",
-            JSON.stringify({
-              ...data,
-              city,
-              country: { name: countryName, code: countryCode },
-              langcode,
-              timestamp: Date.now(),
-            })
-          );
+          const normalized = {
+            ...data,
+            city,
+            country: { name: countryName, code: countryCode },
+            langcode,
+            timestamp: Date.now(),
+          };
+
+          // ✅ сохраняем в localStorage
+          localStorage.setItem("ipDataCache", JSON.stringify(normalized));
           localStorage.setItem("lastGeoRequest", Date.now().toString());
 
-          // Обновляем store
+          // ✅ обновляем store
           set({
             ipData: data,
             coords: data.location,
@@ -139,6 +139,13 @@ export const useGeoStore = create<GeoState>()(
             timeZone: data.timeZone,
             isLoading: false,
             error: null,
+          });
+
+          console.log("🌍 Геоданные обновлены:", {
+            city,
+            countryName,
+            langcode,
+            timeZone: data.timeZone,
           });
         } catch (err: unknown) {
           const message = isErrorWithMessage(err)
@@ -173,7 +180,7 @@ export const useGeoStore = create<GeoState>()(
           city: state.city,
           country: state.country,
           timeZone: state.timeZone,
-          langcode: state.langcode, 
+          langcode: state.langcode,
         };
       },
     }),

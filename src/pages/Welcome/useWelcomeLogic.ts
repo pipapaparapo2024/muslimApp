@@ -47,7 +47,7 @@ export const useWelcomeLogic = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { fetchFromIpApi, getLocationData, langcode } = useGeoStore();
+  const { fetchFromIpApi, getLocationData } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -70,53 +70,53 @@ export const useWelcomeLogic = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // 1. Получаем геолокацию
-        await fetchFromIpApi();
+        console.log("🚀 Инициализация приложения...");
+
+        await fetchFromIpApi(); 
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         const locationData = getLocationData();
+
+        console.log("📍 Получены данные локации:", locationData);
 
         const userSettings = {
           city: locationData.city,
           countryName: locationData.country,
-          langcode: langcode,
+          langcode: locationData.langcode, // ✅ теперь корректно
           timeZone: locationData.timeZone,
         };
 
-        // 2. Пробуем трижды отправить настройки
+        // 3️⃣ Пробуем отправить настройки (до 3 раз)
         const maxRetries = 3;
         let attempt = 0;
         let success = false;
-        let lastError: any = null;
 
         while (attempt < maxRetries && !success) {
           try {
+            console.log(`📤 Попытка #${attempt + 1} отправить настройки`);
             await sendUserSettings(userSettings);
             success = true;
           } catch (error) {
-            lastError = error;
             attempt++;
-            console.warn(
-              `Attempt ${attempt} failed to send user settings`,
-              error
-            );
-
+            console.warn(`⚠️ Ошибка при отправке (#${attempt}):`, error);
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
-        if (
-          locationData.coords?.lat !== undefined &&
-          locationData.coords?.lon !== undefined
-        ) {
+
+        // 4️⃣ Загружаем молитвы по координатам
+        if (locationData.coords?.lat && locationData.coords?.lon) {
           fetchPrayers(locationData.coords.lat, locationData.coords.lon);
         }
+
+        // 5️⃣ Проверка финального результата
         if (!success) {
-          console.error(
-            "All attempts to send user settings failed:",
-            lastError
-          );
-          throw new Error("Failed to send user settings after 3 attempts");
+          throw new Error("Не удалось отправить настройки после 3 попыток");
         }
+
+        console.log("✅ Инициализация завершена успешно");
       } catch (error) {
-        console.error("Initialization error:", error);
+        console.error("❌ Ошибка инициализации приложения:", error);
       }
     };
 
