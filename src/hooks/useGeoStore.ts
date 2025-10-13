@@ -15,7 +15,7 @@ export interface IpData {
     name: string;
   };
   location: {
-    lat: number;
+    lat: number ;
     lon: number;
   };
   timeZone: string;

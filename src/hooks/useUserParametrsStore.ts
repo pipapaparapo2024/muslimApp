@@ -31,7 +31,7 @@ interface UserParametersState {
 
 export const useUserParametersStore = create<UserParametersState>()(
   persist(
-    (set, ) => ({
+    (set) => ({
       wasLogged: null,
       settingsSent: false,
       isLoading: false,
@@ -61,6 +61,8 @@ export const useUserParametersStore = create<UserParametersState>()(
             langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };
+
+          console.log("Перед отправкой userSettings.langcode:", locationData.langcode);
 
           console.log("Отправляем настройки пользователя:", settingsData);
 

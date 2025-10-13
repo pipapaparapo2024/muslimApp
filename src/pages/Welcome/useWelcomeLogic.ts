@@ -8,6 +8,7 @@ import qnaImage from "../../assets/image/get.png";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useTranslationsStore } from "../../hooks/useTranslations";
+import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 interface Step {
   title: string | undefined;
   desc: string | undefined;
@@ -15,6 +16,7 @@ interface Step {
 }
 
 export const useWelcomeLogic = () => {
+  const { fetchPrayers } = usePrayerApiStore();
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
   const steps: Step[] = [
@@ -100,7 +102,12 @@ export const useWelcomeLogic = () => {
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
-
+        if (
+          locationData.coords?.lat !== undefined &&
+          locationData.coords?.lon !== undefined
+        ) {
+          fetchPrayers(locationData.coords.lat, locationData.coords.lon);
+        }
         if (!success) {
           console.error(
             "All attempts to send user settings failed:",
