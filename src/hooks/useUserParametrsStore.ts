@@ -41,12 +41,6 @@ export const useUserParametersStore = create<UserParametersState>()(
       setWasLogged: (value) => set({ wasLogged: value }),
 
       sendUserSettings: async (locationData) => {
-        const lastRequest = localStorage.getItem(LAST_SETTINGS_REQUEST);
-        if (lastRequest && Date.now() - parseInt(lastRequest) < 10000) {
-          console.log("Слишком частый запрос настроек, пропускаем");
-          return;
-        }
-
         set({ isLoading: true, error: null });
 
         try {
@@ -63,7 +57,6 @@ export const useUserParametersStore = create<UserParametersState>()(
           };
 
           console.log("Перед отправкой userSettings.langcode:", locationData.langcode);
-
           console.log("Отправляем настройки пользователя:", settingsData);
 
           const response = await quranApi.post(
