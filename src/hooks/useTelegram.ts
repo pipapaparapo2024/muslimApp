@@ -26,15 +26,11 @@ export const useTelegram = () => {
 
     const authenticate = async () => {
       try {
-        console.log("Отправляем запрос на аутентификацию...");
-
         let initDataToSend = WebApp.initData;
         if (!initDataToSend) {
           console.log("initData отсутствует, используем 'hello world'");
           initDataToSend = "hello world";
         }
-
-        console.log("InitData:", initDataToSend);
 
         const response = await quranApi.post<AuthResponse>(
           "/api/v1/user/auth/",
