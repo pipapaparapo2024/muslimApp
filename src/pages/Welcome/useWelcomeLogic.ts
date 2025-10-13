@@ -71,23 +71,18 @@ export const useWelcomeLogic = () => {
     const initializeApp = async () => {
       try {
         console.log("🚀 Инициализация приложения...");
-
         await fetchFromIpApi(); 
-
         await new Promise((resolve) => setTimeout(resolve, 100));
-
         const locationData = getLocationData();
 
         console.log("📍 Получены данные локации:", locationData);
-
         const userSettings = {
           city: locationData.city,
           countryName: locationData.country,
-          langcode: locationData.langcode, // ✅ теперь корректно
+          langcode: locationData.langcode, 
           timeZone: locationData.timeZone,
         };
 
-        // 3️⃣ Пробуем отправить настройки (до 3 раз)
         const maxRetries = 3;
         let attempt = 0;
         let success = false;
@@ -103,13 +98,12 @@ export const useWelcomeLogic = () => {
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
-
-        // 4️⃣ Загружаем молитвы по координатам
+        
         if (locationData.coords?.lat && locationData.coords?.lon) {
+          console.log("молитвы..........")
           fetchPrayers(locationData.coords.lat, locationData.coords.lon);
         }
 
-        // 5️⃣ Проверка финального результата
         if (!success) {
           throw new Error("Не удалось отправить настройки после 3 попыток");
         }

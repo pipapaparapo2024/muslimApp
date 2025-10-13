@@ -72,32 +72,32 @@ export const useGeoStore = create<GeoState>()(
       fetchFromIpApi: async () => {
         console.log("🔄 Проверяем геоданные...");
 
-        const cachedData = localStorage.getItem("ipDataCache");
-        let cached: any = null;
+        // const cachedData = localStorage.getItem("ipDataCache");
+        // let cached: any = null;
 
-        if (cachedData) {
-          try {
-            cached = JSON.parse(cachedData);
-          } catch {
-            cached = null;
-          }
-        }
+        // if (cachedData) {
+        //   try {
+        //     cached = JSON.parse(cachedData);
+        //   } catch {
+        //     cached = null;
+        //   }
+        // }
 
         // ✅ Если кэш актуален (менее 5 минут) — используем его
-        if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
-          console.log("🗃 Используем кэшированные данные геолокации");
-          set({
-            ipData: cached,
-            coords: cached.location,
-            city: cached.city,
-            country: cached.country?.name,
-            langcode: cached.langcode,
-            timeZone: cached.timeZone,
-            isLoading: false,
-            error: null,
-          });
-          return;
-        }
+        // if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
+        //   console.log("🗃 Используем кэшированные данные геолокации");
+        //   set({
+        //     ipData: cached,
+        //     coords: cached.location,
+        //     city: cached.city,
+        //     country: cached.country?.name,
+        //     langcode: cached.langcode,
+        //     timeZone: cached.timeZone,
+        //     isLoading: false,
+        //     error: null,
+        //   });
+        //   return;
+        // }
 
         set({ isLoading: true, error: null });
 
