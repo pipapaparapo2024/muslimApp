@@ -69,12 +69,6 @@ export const useGeoStore = create<GeoState>()(
       isInitialized: false,
 
       fetchFromIpApi: async () => {
-        const lastGeoRequest = localStorage.getItem("lastGeoRequest");
-        if (lastGeoRequest && Date.now() - parseInt(lastGeoRequest) < 30000) {
-          console.log("Недавно уже запрашивали геоданные, пропускаем");
-          return;
-        }
-
         console.log("🔄 Запрашиваем геоданные с API...");
         set({ isLoading: true, error: null });
 

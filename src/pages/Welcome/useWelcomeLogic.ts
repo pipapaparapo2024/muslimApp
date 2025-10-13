@@ -97,7 +97,6 @@ export const useWelcomeLogic = () => {
               error
             );
 
-            // небольшая пауза между попытками (например, 1 секунда)
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
