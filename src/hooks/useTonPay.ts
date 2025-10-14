@@ -5,7 +5,7 @@ import { quranApi } from "../api/api";
 export interface TonPayParams {
   amount: number;
   type: "premium" | "requests";
-  duration?: string;
+  duration?: string |number;
   quantity?: number;
   productId?: string;
 }

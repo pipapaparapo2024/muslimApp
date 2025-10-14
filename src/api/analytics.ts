@@ -13,24 +13,45 @@ const getTelegramUserId = (): string | number | null => {
   return user?.id || null;
 };
 
+const getEventId = (): string => {
+  const today = new Date();
+  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+
+  // получаем последний день, когда использовался счётчик
+  const lastDate = sessionStorage.getItem("event_counter_date");
+  let counter = 0;
+
+  if (lastDate === dateStr) {
+    counter = Number(sessionStorage.getItem("event_counter") || 0);
+  }
+
+  counter += 1;
+  sessionStorage.setItem("event_counter", counter.toString());
+  sessionStorage.setItem("event_counter_date", dateStr);
+
+  return `evt_${dateStr}_${counter}`;
+};
+
+
 export const trackButtonClick = async (
   eventType: string,
   eventName: string,
-  payload?: {}
+  payload?: Record<string, any>
 ) => {
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
+  const eventId = getEventId();
 
   if (window?.Telegram?.WebApp?.trackEvent) {
     try {
       window.Telegram.WebApp.trackEvent(eventType, {
-        eventName: eventName,
+        eventName,
         eventTimestamp: new Date().toISOString(),
-        eventType: eventType,
-        id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-        payload: payload,
-        sessionId: sessionId,
-        userId: userId,
+        eventType,
+        id: eventId,
+        payload,
+        sessionId,
+        userId,
       });
     } catch (err) {
       console.warn("⚠️ Ошибка при отправке в Telegram аналитику:", err);
@@ -41,8 +62,8 @@ export const trackButtonClick = async (
     eventName,
     eventTimestamp: new Date().toISOString(),
     eventType,
-    id: `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-    payload: payload ? JSON.stringify(payload) : "{}", 
+    id: eventId,
+    payload: payload ?? {}, 
     sessionId,
     userId: userId ?? 0,
   };
