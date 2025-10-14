@@ -226,7 +226,7 @@ export const SurahList: React.FC = () => {
     setSelectedSurah(surah);
     const name = await getTranslatedName(surah.name);
     console.log("surah_name_translated", name);
-    trackButtonClick("quran", "click_chapters", { surah_name: name });
+    trackButtonClick("quran", "click_chapters", { chapters_name: name });
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
     });

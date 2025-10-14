@@ -55,7 +55,7 @@ export const DataTime: React.FC = () => {
   };
 
   const handleSelect = (formatKey: string) => {
-    trackButtonClick("date_format", "date_format", formatKey);
+    trackButtonClick("date_format", "date_format", { date_format: formatKey });
     setSelectedDateFormat(formatKey);
   };
 

@@ -201,7 +201,7 @@ export const useSurahListStore = create<SurahListState>((set, get) => ({
       surahs: [],
     });
     trackButtonClick("quaran", "use_translation", {
-      variant_name: variant.name,
+      translation_name: variant.name,
     });
     get().fetchSurahs(variant.id);
   },

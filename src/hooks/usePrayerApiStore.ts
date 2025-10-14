@@ -151,17 +151,13 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
             // 🔹 Отправляем аналитику в зависимости от состояния
             if (newHasSelected) {
-              trackButtonClick(
-                "prayer_times",
-                "click_show_on_main_screen",
-                prayer.name
-              );
+              trackButtonClick("prayer_times", "click_show_on_main_screen", {
+                prayer_name: prayer.name,
+              });
             } else {
-              trackButtonClick(
-                "prayer_times",
-                "click_show_off_main_screen",
-                prayer.name
-              );
+              trackButtonClick("prayer_times", "click_show_off_main_screen", {
+                prayer_name: prayer.name,
+              });
             }
 
             return { ...prayer, hasSelected: newHasSelected };
@@ -181,17 +177,13 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
             const newHasSelected = !prayer.hasTelegramNotification;
 
             if (newHasSelected) {
-              trackButtonClick(
-                "prayer_times",
-                "click_on_tg_notifications",
-                prayer.name
-              );
+              trackButtonClick("prayer_times", "click_on_tg_notifications", {
+                prayer_name: prayer.name,
+              });
             } else {
-              trackButtonClick(
-                "prayer_times",
-                "click_off_tg_notifications",
-                prayer.name
-              );
+              trackButtonClick("prayer_times", "click_off_tg_notifications", {
+                prayer_name: prayer.name,
+              });
             }
 
             return { ...prayer, hasTelegramNotification: newHasSelected };
