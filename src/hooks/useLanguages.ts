@@ -3,7 +3,6 @@ import { quranApi } from "../api/api";
 import { useGeoStore } from "./useGeoStore";
 import { useTranslationsStore } from "./useTranslations";
 import { usePrayerApiStore } from "./usePrayerApiStore";
-
 export const SUPPORTED_LANGUAGES = ["en", "ar"] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 

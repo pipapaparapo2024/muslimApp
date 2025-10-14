@@ -6,6 +6,7 @@ import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 import enIcon from "../../../assets/icons/united-king.svg";
 import arIcon from "../../../assets/icons/saudi-arab.svg";
+
 interface LanguageModalProps {
   isOpen?: boolean;
   onClose?: () => void;

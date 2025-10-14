@@ -9,6 +9,7 @@ import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
+import { fetchLanguageFromBackend } from "../Home/useHomeLogic";
 interface Step {
   title: string | undefined;
   desc: string | undefined;
@@ -18,7 +19,7 @@ interface Step {
 export const useWelcomeLogic = () => {
   const { fetchPrayers } = usePrayerApiStore();
   const navigate = useNavigate();
-  const { translations } = useTranslationsStore();
+  const { translations, loadTranslations } = useTranslationsStore();
   const steps: Step[] = [
     {
       title: translations?.prayerReminders,
@@ -71,7 +72,7 @@ export const useWelcomeLogic = () => {
     const initializeApp = async () => {
       try {
         console.log("🚀 Инициализация приложения...");
-        await fetchFromIpApi(); 
+        await fetchFromIpApi();
         await new Promise((resolve) => setTimeout(resolve, 100));
         const locationData = getLocationData();
 
@@ -79,7 +80,7 @@ export const useWelcomeLogic = () => {
         const userSettings = {
           city: locationData.city,
           countryName: locationData.country,
-          langcode: locationData.langcode, 
+          langcode: locationData.langcode,
           timeZone: locationData.timeZone,
         };
 
@@ -98,10 +99,14 @@ export const useWelcomeLogic = () => {
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
-        
+
         if (locationData.coords?.lat && locationData.coords?.lon) {
-          console.log("молитвы..........")
+          console.log("молитвы..........");
           fetchPrayers(locationData.coords.lat, locationData.coords.lon);
+        }
+        const lang = await fetchLanguageFromBackend();
+        if (lang) {
+          await loadTranslations(lang);
         }
 
         if (!success) {
