@@ -268,8 +268,6 @@
 //   );
 // };
 
-
-
 import React from "react";
 import styles from "./ModalBuyPremium.module.css";
 import ton from "../../../assets/icons/ton.svg";
@@ -280,6 +278,7 @@ import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 
 interface BuyPremiumModalProps {
   isOpen: boolean;
@@ -294,6 +293,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   selectedRequests,
   onSelectRequests,
 }) => {
+  const userAddress = useTonAddress();
+  const [tonConnectUI] = useTonConnectUI();
   const { translations } = useTranslationsStore();
   const { fetchUserData } = usePremiumStore();
   const { getProductsByType, getPriceByProductId } = usePrices();
@@ -318,8 +319,12 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const prices = selectedOption
     ? {
-        ton: getPriceByProductId(selectedOption.product.id, "TON")?.priceAmount || 1,
-        stars: getPriceByProductId(selectedOption.product.id, "XTR")?.priceAmount || 1,
+        ton:
+          getPriceByProductId(selectedOption.product.id, "TON")?.priceAmount ||
+          1,
+        stars:
+          getPriceByProductId(selectedOption.product.id, "XTR")?.priceAmount ||
+          1,
         productId: selectedOption.product.id,
         currencyId: getPriceByProductId(selectedOption.product.id, "XTR")?.id,
         days: selectedOption.days,
@@ -334,6 +339,12 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
   const handleTonPurchase = async () => {
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
+
+    if (!userAddress) {
+      await tonConnectUI.openModal();
+      return;
+    }
+
     setIsProcessingTon(true);
     try {
       const result = await payWithTon({
@@ -342,7 +353,16 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
         duration: prices.days,
         productId: prices.productId,
       });
-      if (result.status === "success") await fetchUserData();
+
+      if (result.status === "success") {
+        alert(translations?.paymentAccepted);
+        await fetchUserData();
+      } else if (result.status === "rejected") {
+        alert(translations?.transactionRejected);
+      }
+    } catch (error) {
+      console.error("TON payment error:", error);
+      alert("Ошибка оплаты, попробуйте позже.");
     } finally {
       setIsProcessingTon(false);
       onClose();
@@ -350,7 +370,13 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   };
 
   const handleStarsPurchase = async () => {
-    if (isProcessingTon || isProcessingStars || !prices.productId || !prices.currencyId) return;
+    if (
+      isProcessingTon ||
+      isProcessingStars ||
+      !prices.productId ||
+      !prices.currencyId
+    )
+      return;
     setIsProcessingStars(true);
     try {
       const result = await payWithStars({
@@ -369,7 +395,9 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{translations?.goPremium}</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className={styles.options}>
@@ -401,5 +429,3 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     </div>
   );
 };
-
-

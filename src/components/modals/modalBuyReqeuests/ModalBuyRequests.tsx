@@ -281,7 +281,6 @@
 //   );
 // };
 
-
 import React from "react";
 import styles from "./ModalBuyRequests.module.css";
 import ton from "../../../assets/icons/ton.svg";
@@ -292,6 +291,7 @@ import { usePrices } from "../../../hooks/usePrices";
 import { useStarsPay } from "../../../hooks/useStarsPay";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; 
 
 interface BuyRequestsModalProps {
   isOpen: boolean;
@@ -306,6 +306,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   selectedRequests,
   onSelectRequests,
 }) => {
+  const userAddress = useTonAddress();
+  const [tonConnectUI] = useTonConnectUI();
   const { translations } = useTranslationsStore();
   const { fetchUserData } = usePremiumStore();
   const { getProductsByType, getPriceByProductId } = usePrices();
@@ -331,8 +333,12 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   const prices = selectedOption
     ? {
-        ton: getPriceByProductId(selectedOption.product.id, "TON")?.priceAmount || 1,
-        stars: getPriceByProductId(selectedOption.product.id, "XTR")?.priceAmount || 1,
+        ton:
+          getPriceByProductId(selectedOption.product.id, "TON")?.priceAmount ||
+          1,
+        stars:
+          getPriceByProductId(selectedOption.product.id, "XTR")?.priceAmount ||
+          1,
         productId: selectedOption.product.id,
         currencyId: getPriceByProductId(selectedOption.product.id, "XTR")?.id,
         quantity: selectedOption.quantity,
@@ -347,6 +353,13 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
   const handleTonPurchase = async () => {
     if (isProcessingTon || isProcessingStars || !prices.productId) return;
+
+    // ✅ Проверка кошелька
+    if (!userAddress) {
+      await tonConnectUI.openModal(); // открываем TonConnect
+      return;
+    }
+
     setIsProcessingTon(true);
     try {
       const result = await payWithTon({
@@ -355,7 +368,16 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
         quantity: prices.quantity,
         productId: prices.productId,
       });
-      if (result.status === "success") await fetchUserData();
+
+      if (result.status === "success") {
+        alert(translations?.paymentAccepted);
+        await fetchUserData();
+      } else if (result.status === "rejected") {
+        alert(translations?.transactionRejected);
+      }
+    } catch (error) {
+      console.error("TON payment error:", error);
+      alert("Ошибка оплаты, попробуйте позже.");
     } finally {
       setIsProcessingTon(false);
       onClose();
@@ -363,7 +385,13 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   };
 
   const handleStarsPurchase = async () => {
-    if (isProcessingTon || isProcessingStars || !prices.productId || !prices.currencyId) return;
+    if (
+      isProcessingTon ||
+      isProcessingStars ||
+      !prices.productId ||
+      !prices.currencyId
+    )
+      return;
     setIsProcessingStars(true);
     try {
       const result = await payWithStars({
@@ -382,7 +410,9 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2>{translations?.buyRequests}</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <div className={styles.options}>

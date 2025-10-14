@@ -7,7 +7,6 @@ import { TableRequestsHistory } from "../../components/TableRequestsHistory/Tabl
 import { useNavigate } from "react-router-dom";
 import analyze from "../../assets/image/scan.png";
 import styles from "./Scanner.module.css";
-import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { trackButtonClick } from "../../api/analytics";
 
@@ -17,9 +16,6 @@ export const Scanner: React.FC = () => {
   const navigate = useNavigate();
   const [selectedRequests, setSelectedRequests] = useState("10");
   const { translations } = useTranslationsStore();
-  const userAddress = useTonAddress();
-  const [tonConnectUI] = useTonConnectUI();
-
 
   const showAskButton =
     hasPremium || (requestsLeft != null && requestsLeft > 0);
@@ -28,10 +24,6 @@ export const Scanner: React.FC = () => {
     if (showAskButton) {
       navigate("/scanner/camera");
     } else {
-      if (!userAddress) {
-        await tonConnectUI.openModal();
-        return;
-      }
       trackButtonClick("food_scan", "click_buy_requests");
       setShowModal(true);
     }

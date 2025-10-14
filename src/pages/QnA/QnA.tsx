@@ -9,7 +9,6 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
 import { trackButtonClick } from "../../api/analytics";
-import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react"; // Добавляем импорт
 import { useTranslationsStore } from "../../hooks/useTranslations";
 
 export const QnA: React.FC = () => {
@@ -21,8 +20,6 @@ export const QnA: React.FC = () => {
   const [question, setQuestion] = useState("");
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
-  const userAddress = useTonAddress();
-  const [tonConnectUI] = useTonConnectUI();
 
   useEffect(() => {
     const img = new Image();
@@ -60,12 +57,6 @@ export const QnA: React.FC = () => {
   };
 
   const handleBuyRequestsClick = async () => {
-    
-    if (!userAddress) {
-      await tonConnectUI.openModal();
-      return;
-    }
-    
     trackButtonClick("qa", "click_buy_requests");
     setShowModal(true);
   };
