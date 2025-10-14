@@ -6,8 +6,8 @@ import { useDataTimeStore } from "../../hooks/useDataTimeStore";
 import { useNavigate } from "react-router-dom";
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { trackButtonClick } from "../../api/analytics";
-import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 import { useTranslationsStore } from "../../hooks/useTranslations";
+
 export const Header: React.FC = () => {
   const { translations } = useTranslationsStore();
   const { formattedDate, updateFormattedDate } = useDataTimeStore();
@@ -16,11 +16,6 @@ export const Header: React.FC = () => {
   const [selectedRequests, setSelectedRequests] = useState("10");
   const navigate = useNavigate();
   const { city, country } = useGeoStore();
-
-  const userAddress = useTonAddress();
-  const [tonConnectUI] = useTonConnectUI();
-
-  const [isConnecting, setIsConnecting] = useState(false);
 
   const getButtonText = () => {
     if (!hasPremium) return translations?.buyPremium;
@@ -42,20 +37,8 @@ export const Header: React.FC = () => {
     return styles.DaysLeftPrem;
   };
 
-  const handlePremiumButtonClick = async () => {
+  const handlePremiumButtonClick = () => {
     trackButtonClick("main", "click_buy_premium");
-    if (!userAddress) {
-      try {
-        setIsConnecting(true);
-        await tonConnectUI.openModal();
-      } catch (error) {
-        console.error("Wallet connection error:", error);
-      } finally {
-        setIsConnecting(false);
-      }
-      return;
-    }
-
     setShowModal(true);
   };
 
@@ -82,7 +65,6 @@ export const Header: React.FC = () => {
       <button
         className={getButtonClassName()}
         onClick={handlePremiumButtonClick}
-        disabled={isConnecting}
       >
         <svg
           width="20"
@@ -112,16 +94,14 @@ export const Header: React.FC = () => {
           </defs>
         </svg>
 
-        {isConnecting ? translations?.connecting : getButtonText()}
+        {getButtonText()}
       </button>
 
       <BuyPremiumModal
         isOpen={showModal}
         onClose={handleModalClose}
         selectedRequests={selectedRequests}
-        onSelectRequests={(value) => {
-          setSelectedRequests(value);
-        }}
+        onSelectRequests={setSelectedRequests}
       />
     </div>
   );
