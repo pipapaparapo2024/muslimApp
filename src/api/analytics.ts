@@ -41,7 +41,7 @@ export const trackButtonClick = async (
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
   const eventId = getEventId();
-  const {promo} = useTelegram();
+  const {} = useTelegram();
   if (window?.Telegram?.WebApp?.trackEvent) {
     try {
       window.Telegram.WebApp.trackEvent(eventType, {
