@@ -14,23 +14,24 @@ const getTelegramUserId = (): string | number | null => {
 };
 
 const getEventId = (): string => {
-  const today = new Date();
-  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ""); 
+  const now = Date.now();
+  const baseDate = new Date("2025-01-01T00:00:00Z").getTime();
+  const delta = now - baseDate;
 
   const lastDate = sessionStorage.getItem("event_counter_date");
+  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   let counter = 0;
 
-  if (lastDate === dateStr) {
+  if (lastDate === todayStr) {
     counter = Number(sessionStorage.getItem("event_counter") || 0);
   }
 
   counter += 1;
   sessionStorage.setItem("event_counter", counter.toString());
-  sessionStorage.setItem("event_counter_date", dateStr);
+  sessionStorage.setItem("event_counter_date", todayStr);
 
-  return `evt_${dateStr}_${counter}`;
+  return `evt_${delta}_${counter}`;
 };
-
 
 export const trackButtonClick = async (
   eventType: string,
@@ -62,7 +63,7 @@ export const trackButtonClick = async (
     eventTimestamp: new Date().toISOString(),
     eventType,
     id: eventId,
-    payload: payload ?? {}, 
+    payload: payload ?? {},
     sessionId,
     userId: userId ?? 0,
   };
