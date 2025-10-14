@@ -7,6 +7,7 @@ interface AuthResponse {
   data: {
     accessToken: string;
     wasLogged: boolean;
+    promo: string;
   };
   status: string;
 }
