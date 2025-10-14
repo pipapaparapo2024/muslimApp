@@ -7,6 +7,7 @@ import {
 } from "../../../hooks/useSurahListStore";
 import { PageWrapper } from "../../../shared/PageWrapper";
 import quaran from "../../../assets/icons/quaran1.svg";
+import translate from "translate";
 import {
   ChevronDown,
   ChevronLeft,
@@ -62,7 +63,6 @@ export const SurahList: React.FC = () => {
     loadData();
   }, []);
 
-  // Обработчик скролла для показа/скрытия кнопки "Наверх"
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -163,7 +163,15 @@ export const SurahList: React.FC = () => {
     const timeoutId = setTimeout(handleSearch, 300);
     return () => clearTimeout(timeoutId);
   }, [localSearchQuery, searchInSurahs]);
-
+  async function getTranslatedName(arabicName: string): Promise<string> {
+    try {
+      const en = await translate(arabicName, { from: "ar", to: "en" });
+      return en;
+    } catch (err) {
+      console.error("Ошибка перевода:", err);
+      return arabicName;
+    }
+  }
   // Навигация по результатам поиска
   const navigateSearchResults = useCallback(
     (direction: "next" | "prev") => {
@@ -214,9 +222,11 @@ export const SurahList: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showSearchNavigation, searchResults, navigateSearchResults]);
 
-  const handleSurahClick = (surah: Surah) => {
+  const handleSurahClick = async (surah: Surah) => {
     setSelectedSurah(surah);
-    trackButtonClick("quran", "click_chapters", surah.name);
+    const name = await getTranslatedName(surah.name);
+    console.log("surah_name_translated", name);
+    trackButtonClick("quran", "click_chapters", { surah_name: name });
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
     });
