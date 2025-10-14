@@ -50,24 +50,24 @@ export const Friends: React.FC = () => {
     try {
 
       await claimTotalReward();
-      alert(translations?.rewardClaimed);
+      // alert(translations?.rewardClaimed);
 
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении награды:", error);
-      alert(translations?.rewardClaimError);
+      // alert(translations?.rewardClaimError);
     }
   };
 
   const handleGetPremiumReward = async () => {
     try {
       await claimPurchasedReward();
-      alert(translations?.premiumUnlocked);
+      // alert(translations?.premiumUnlocked);
 
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении премиум награды:", error);
-      alert(translations?.premiumUnlockError);
+      // alert(translations?.premiumUnlockError);
     }
   };
   const sortedFriends = [...friends].sort((a, b) => {
