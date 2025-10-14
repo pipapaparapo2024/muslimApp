@@ -149,7 +149,7 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
     if (isOpen && requestOptions.length > 0) {
       onSelectRequests(requestOptions[0].label);
     }
-  }, [isOpen, requestOptions]);
+  }, []);
 
   if (!isOpen) return null;
 

@@ -140,7 +140,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     if (isOpen && premiumOptions.length > 0) {
       onSelectRequests(premiumOptions[0].label);
     }
-  }, [isOpen, premiumOptions]);
+  }, []);
 
   if (!isOpen) return null;
 
