@@ -20,7 +20,6 @@ export const Header: React.FC = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
 
-  // ✅ Добавляем проверку статуса подключения
   const [isConnecting, setIsConnecting] = useState(false);
 
   const getButtonText = () => {

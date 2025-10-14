@@ -15,9 +15,8 @@ const getTelegramUserId = (): string | number | null => {
 
 const getEventId = (): string => {
   const today = new Date();
-  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+  const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ""); 
 
-  // получаем последний день, когда использовался счётчик
   const lastDate = sessionStorage.getItem("event_counter_date");
   let counter = 0;
 
