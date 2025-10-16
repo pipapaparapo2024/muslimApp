@@ -90,12 +90,12 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
   const prices = selectedRequests
     ? getPrices(selectedRequests)
     : {
-        ton: 0,
-        stars: 0,
-        quantity: 0,
-        productId: null,
-        currencyId: null,
-      };
+      ton: 0,
+      stars: 0,
+      quantity: 0,
+      productId: null,
+      currencyId: null,
+    };
 
   const handleStarsPurchase = async () => {
     if (
@@ -231,9 +231,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           {requestOptions.map((option) => (
             <div
               key={option.label}
-              className={`${styles.option} ${
-                selectedRequests === option.label ? styles.selected : ""
-              }`}
+              className={`${styles.option} ${selectedRequests === option.label ? styles.selected : ""
+                }`}
               onClick={() => handleOptionSelect(option.label)}
             >
               <div>{option.label}</div>
@@ -244,9 +243,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
 
         <div className={styles.priceBlocks}>
           <div
-            className={`${styles.priceBlock} ${styles.tonBlock} ${
-              isProcessingTon ? styles.processing : ""
-            }`}
+            className={`${styles.priceBlock} ${styles.tonBlock} ${isProcessingTon ? styles.processing : ""
+              }`}
             onClick={handleTonPurchase}
           >
             <div className={styles.priceText}>
@@ -263,9 +261,8 @@ export const BuyRequestsModal: React.FC<BuyRequestsModalProps> = ({
           </div>
 
           <div
-            className={`${styles.priceBlock} ${styles.starsBlock} ${
-              isProcessingStars ? styles.processing : ""
-            }`}
+            className={`${styles.priceBlock} ${styles.starsBlock} ${isProcessingStars ? styles.processing : ""
+              }`}
             onClick={handleStarsPurchase}
           >
             <div className={styles.priceText}>
