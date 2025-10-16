@@ -70,7 +70,6 @@ export const useUserParametersStore = create<UserParametersState>()(
             {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
               },
             }
           );

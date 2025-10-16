@@ -57,7 +57,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-     это хом
+
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
@@ -97,9 +97,8 @@ export const Home: React.FC = () => {
 
             {/* Контент блока с возможным размытием */}
             <div
-              className={`${styles.prayerTimesQiblaContent} ${
-                showVpnWarning ? styles.blurred : ""
-              }`}
+              className={`${styles.prayerTimesQiblaContent} ${showVpnWarning ? styles.blurred : ""
+                }`}
             >
               <PrayerTimes />
 
@@ -108,10 +107,9 @@ export const Home: React.FC = () => {
                   {translations?.faceTheKaaba}
                   {sensorPermission === "prompt" ? (
                     <div
-                      className={`${styles.permissionButton} ${
-                        sensorPermission === "prompt" &&
+                      className={`${styles.permissionButton} ${sensorPermission === "prompt" &&
                         styles.permissionButtonPusle
-                      }`}
+                        }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         requestSensorPermission && requestSensorPermission();

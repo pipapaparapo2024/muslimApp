@@ -101,7 +101,6 @@ export const useWelcomeLogic = () => {
         }
 
         if (locationData.coords?.lat && locationData.coords?.lon) {
-          console.log("молитвы..........");
           fetchPrayers(locationData.coords.lat, locationData.coords.lon);
         }
         const lang = await fetchLanguageFromBackend();
