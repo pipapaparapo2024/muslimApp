@@ -48,7 +48,6 @@ export const useUserParametersStore = create<UserParametersState>()(
           if (!token) {
             throw new Error("No access token available");
           }
-
           const settingsData: UserSettings = {
             cityName: locationData.city || "Unknown",
             countryName: locationData.countryName || "Unknown",
@@ -57,7 +56,8 @@ export const useUserParametersStore = create<UserParametersState>()(
           };
           const accessToken = localStorage.getItem("accessToken");
           console.log("Settings accessToken", accessToken);
-
+          
+          console.log("settings token",token)
           console.log(
             "Перед отправкой userSettings.langcode:",
             locationData.langcode

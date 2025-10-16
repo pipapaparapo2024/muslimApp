@@ -46,6 +46,7 @@ export const useTelegram = () => {
         localStorage.setItem("accessToken", accessToken);
         setWasLogged(wasLogged);
         setPromo(promo);
+        console.log("auth token",accessToken)
         console.log("promo",promo)
         if (accessToken) {
           quranApi.defaults.headers.common[
