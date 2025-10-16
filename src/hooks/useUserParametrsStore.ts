@@ -55,8 +55,13 @@ export const useUserParametersStore = create<UserParametersState>()(
             langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };
+          const accessToken = localStorage.getItem("accessToken");
+          console.log("accessToken", accessToken);
 
-          console.log("Перед отправкой userSettings.langcode:", locationData.langcode);
+          console.log(
+            "Перед отправкой userSettings.langcode:",
+            locationData.langcode
+          );
           console.log("Отправляем настройки пользователя:", settingsData);
 
           const response = await quranApi.post(

@@ -12,7 +12,7 @@ quranApi.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
-
+  console.log("Interseptop Token",accessToken)
   if (WebApp.initData) {
     config.headers["X-Telegram-Init-Data"] = WebApp.initData;
   }
