@@ -17,7 +17,6 @@ export const useTelegram = () => {
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [wasLogged, setWasLogged] = useState<boolean | null>(null);
-  const [promo, setPromo] = useState<string | null>(null);
   const [responseData, setResponseData] = useState<AuthResponse>();
 
   useEffect(() => {
@@ -42,12 +41,10 @@ export const useTelegram = () => {
         );
 
         setResponseData(response.data);
-        const { accessToken, wasLogged,promo } = response.data.data;
+        const { accessToken, wasLogged } = response.data.data;
         localStorage.setItem("accessToken", accessToken);
         setWasLogged(wasLogged);
-        setPromo(promo);
         console.log("auth token",accessToken)
-        console.log("promo",promo)
         if (accessToken) {
           quranApi.defaults.headers.common[
             "Authorization"
@@ -83,7 +80,6 @@ export const useTelegram = () => {
   return {
     isAuthenticated,
     wasLogged,
-    promo,
     isLoading,
     error,
     webApp: WebApp,
