@@ -164,9 +164,9 @@
 }
 
 .waitingModal {
-  background: #fff;
-  padding: 20px 30px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: bold;
+  background: var(--bg-surface);
+  padding: var(--numbers-20) var(--numbers-24);
+  border-radius: var(--roundings-medium);
+  font-size: var(--numbers-16);
+  font-weight: var(--font-600);
 }
