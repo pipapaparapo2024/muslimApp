@@ -105,6 +105,7 @@ export const useWelcomeLogic = () => {
         }
         const lang = await fetchLanguageFromBackend();
         if (lang) {
+          
           await loadTranslations(lang);
         }
 

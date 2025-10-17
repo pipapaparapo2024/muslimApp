@@ -104,14 +104,6 @@ export const useTranslationsStore = create<TranslationsStore>()(
       },
       
       loadTranslations: async (language: Language) => {
-        const { shouldReloadTranslations, translations: currentTranslations } = get();
-        
-        // Проверяем необходимость перезагрузки
-        if (!shouldReloadTranslations(language) && currentTranslations) {
-          console.log("🌐 Используем кешированные переводы для языка:", language);
-          return currentTranslations;
-        }
-
         set({ isLoading: true, error: null });
         
         try {
