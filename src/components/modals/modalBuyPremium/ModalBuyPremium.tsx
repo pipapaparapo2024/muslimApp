@@ -435,7 +435,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       {/* Модальное окно ожидания */}
       {isWaitingConfirmation && (
         <div className={styles.waitingOverlay}>
-          <div className={styles.waitingModal}>Пожалуйста, подождите...</div>
+          <div className={styles.waitingModal}>{translations?.pleaseWait}</div>
         </div>
       )}
     </div>
