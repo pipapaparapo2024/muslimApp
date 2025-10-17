@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useTonConnectUI, useTonAddress, CHAIN } from "@tonconnect/ui-react";
 import { quranApi } from "../api/api";
-
+import { usePremiumStore } from "../hooks/usePremiumStore";
 export interface TonPayParams {
   amount: number;
   type: "premium" | "requests";
@@ -19,6 +19,8 @@ export interface TonPaymentResponse {
 export const useTonPay = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
+  const { fetchUserData } = usePremiumStore();
+  const [isWaitingConfirmation, setIsWaitingConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const inProgressRef = useRef(false);
 
@@ -26,6 +28,7 @@ export const useTonPay = () => {
     payload: string,
     maxAttempts = 20
   ): Promise<TonPaymentResponse> => {
+    setIsWaitingConfirmation(true); // показываем модальное окно
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`🔍 Проверка подтверждения (${attempt}/${maxAttempts})`);
@@ -35,6 +38,7 @@ export const useTonPay = () => {
         const status = response.data.data.orderStatus;
 
         if (status === "success") {
+          await fetchUserData();
           return { status: "success", data: response.data };
         }
         if (["failed", "rejected"].includes(status)) {
@@ -147,7 +151,8 @@ export const useTonPay = () => {
       };
     } finally {
       inProgressRef.current = false;
-      setTimeout(() => setIsProcessing(false), 1500);
+      setIsProcessing(false);
+      setIsWaitingConfirmation(false);
     }
   };
 
@@ -155,6 +160,7 @@ export const useTonPay = () => {
     payWithTon,
     connectedAddress: userAddress,
     isConnected: !!userAddress,
+    isWaitingConfirmation,
     isProcessing,
   };
 };
