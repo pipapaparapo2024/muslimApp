@@ -1,5 +1,4 @@
 import { quranApi } from "./api";
-import { useTelegram } from "../hooks/useTelegram";
 const getSessionId = (): string => {
   if (!sessionStorage.getItem("telegram_session_id")) {
     const sessionId = `session_${Date.now()}_${Math.random().toString(36)}`;
@@ -41,7 +40,6 @@ export const trackButtonClick = async (
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
   const eventId = getEventId();
-  const {} = useTelegram();
   if (window?.Telegram?.WebApp?.trackEvent) {
     try {
       window.Telegram.WebApp.trackEvent(eventType, {
