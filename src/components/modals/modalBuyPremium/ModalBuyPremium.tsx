@@ -92,13 +92,13 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
   const prices = selectedRequests
     ? getPrices(selectedRequests)
     : {
-        ton: 0,
-        stars: 0,
-        duration: "",
-        productId: null,
-        days: 0,
-        currencyId: null,
-      };
+      ton: 0,
+      stars: 0,
+      duration: "",
+      productId: null,
+      days: 0,
+      currencyId: null,
+    };
 
   const handleStarsPurchase = async () => {
     if (
@@ -218,9 +218,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           {premiumOptions.map((option) => (
             <div
               key={option.label}
-              className={`${styles.option} ${
-                selectedRequests === option.label ? styles.selected : ""
-              }`}
+              className={`${styles.option} ${selectedRequests === option.label ? styles.selected : ""
+                }`}
               onClick={() => handleOptionSelect(option.label)}
             >
               <div>{option.label}</div>
@@ -231,9 +230,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
         <div className={styles.priceBlocks}>
           <div
-            className={`${styles.priceBlock} ${styles.tonBlock} ${
-              isProcessingTon ? styles.processing : ""
-            }`}
+            className={`${styles.priceBlock} ${styles.tonBlock} ${isProcessingTon ? styles.processing : ""
+              }`}
             onClick={handleTonPurchase}
           >
             <div className={styles.priceText}>
@@ -250,9 +248,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           </div>
 
           <div
-            className={`${styles.priceBlock} ${styles.starsBlock} ${
-              isProcessingStars ? styles.processing : ""
-            }`}
+            className={`${styles.priceBlock} ${styles.starsBlock} ${isProcessingStars ? styles.processing : ""
+              }`}
             onClick={handleStarsPurchase}
           >
             <div className={styles.priceText}>

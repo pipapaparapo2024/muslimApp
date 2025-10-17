@@ -43,13 +43,13 @@ export const trackButtonClick = async (
   if (window?.Telegram?.WebApp?.trackEvent) {
     try {
       window.Telegram.WebApp.trackEvent(eventType, {
-        eventName,
-        eventTimestamp: new Date().toISOString(),
-        eventType,
-        id: eventId,
-        payload,
-        sessionId,
-        userId,
+        Id: eventId,
+        UserId: userId,
+        SessionId: sessionId,
+        EventType: eventType,
+        EventName: eventName,
+        EventTimestamp: new Date().toISOString(),
+        Payload: payload,
       });
     } catch (err) {
       console.warn("⚠️ Ошибка при отправке в Telegram аналитику:", err);
@@ -57,13 +57,13 @@ export const trackButtonClick = async (
   }
 
   const eventData = {
-    eventName,
-    eventTimestamp: new Date().toISOString(),
-    eventType,
-    id: eventId,
-    payload: payload ?? {},
-    sessionId,
-    userId: userId ?? 0,
+    Id: eventId,
+    UserId: userId,
+    SessionId: sessionId,
+    EventType: eventType,
+    EventName: eventName,
+    EventTimestamp: new Date().toISOString(),
+    Payload: payload,
   };
 
   try {
