@@ -20,9 +20,8 @@ export const useTonPay = () => {
   const userAddress = useTonAddress();
   const [tonConnectUI] = useTonConnectUI();
   const [isProcessing, setIsProcessing] = useState(false);
-  const inProgressRef = useRef(false); // для защиты от быстрых повторных кликов
+  const inProgressRef = useRef(false);
 
-  // ⏳ Проверка подтверждения транзакции
   const waitForConfirmation = async (
     payload: string,
     maxAttempts = 20
@@ -30,7 +29,9 @@ export const useTonPay = () => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`🔍 Проверка подтверждения (${attempt}/${maxAttempts})`);
-        const response = await quranApi.get(`/api/v1/payments/ton/${payload}/check`);
+        const response = await quranApi.get(
+          `/api/v1/payments/ton/${payload}/check`
+        );
         const status = response.data.data.orderStatus;
 
         if (status === "success") {
@@ -61,7 +62,9 @@ export const useTonPay = () => {
   const getTonWallet = async () => {
     try {
       if (!userAddress) {
-        console.log("🔒 Пользователь не подключён — открываем модальное окно TON Connect");
+        console.log(
+          "🔒 Пользователь не подключён — открываем модальное окно TON Connect"
+        );
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
@@ -69,14 +72,21 @@ export const useTonPay = () => {
       return response.data.data.wallet;
     } catch (err: any) {
       console.error("TON wallet error:", err);
-      return { status: err?.message?.includes("Rejected") ? "rejected" : "error", error: err };
+      return {
+        status: err?.message?.includes("Rejected") ? "rejected" : "error",
+        error: err,
+      };
     }
   };
 
   // 💸 Основная функция оплаты
-  const payWithTon = async (params: TonPayParams): Promise<TonPaymentResponse> => {
+  const payWithTon = async (
+    params: TonPayParams
+  ): Promise<TonPaymentResponse> => {
     if (inProgressRef.current) {
-      console.warn("⚠️ Оплата уже обрабатывается, повторный вызов заблокирован");
+      console.warn(
+        "⚠️ Оплата уже обрабатывается, повторный вызов заблокирован"
+      );
       return { status: "error", error: "Payment already in progress" };
     }
 
@@ -89,19 +99,19 @@ export const useTonPay = () => {
         return { status: "not_connected" };
       }
 
-      // 🔗 Открытие TON кошелька (только один раз)
-      window.Telegram?.WebApp?.openTelegramLink("https://t.me/wallet/start?startapp=tonconnect");
-
       const merchantWallet = await getTonWallet();
       if (typeof merchantWallet !== "string") {
         return { status: "error", error: "Merchant wallet not available" };
       }
 
       // 🧾 Создание инвойса
-      const invoiceResponse = await quranApi.post("/api/v1/payments/ton/invoice", {
-        priceId: params.productId,
-        userWallet: userAddress,
-      });
+      const invoiceResponse = await quranApi.post(
+        "/api/v1/payments/ton/invoice",
+        {
+          priceId: params.productId,
+          userWallet: userAddress,
+        }
+      );
 
       const { payload, payloadBOC } = invoiceResponse.data.data;
       const amount = params.amount.toString();
@@ -131,10 +141,13 @@ export const useTonPay = () => {
       return await waitForConfirmation(payload);
     } catch (err: any) {
       console.error("TON payment error:", err);
-      return { status: err?.message?.includes("Rejected") ? "rejected" : "error", error: err };
+      return {
+        status: err?.message?.includes("Rejected") ? "rejected" : "error",
+        error: err,
+      };
     } finally {
       inProgressRef.current = false;
-      setIsProcessing(false);
+      setTimeout(() => setIsProcessing(false), 1500);
     }
   };
 

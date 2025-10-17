@@ -177,9 +177,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
           alert(translations?.paymentError);
           break;
 
-        case "not_connected":
-          break;
-
         default:
       }
     } catch (error: any) {
