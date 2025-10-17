@@ -38,10 +38,9 @@ export const Friends: React.FC = () => {
     if (!referralLink) return;
     trackButtonClick("friends", "click_invite_friends");
 
-    const shareText = "Присоединяйся к нашему крутому приложению! 🚀";
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
-    )}&text=${encodeURIComponent(shareText)}`;
+    )}`;
 
     window.open(shareUrl, "_blank");
   };
@@ -50,24 +49,18 @@ export const Friends: React.FC = () => {
     try {
 
       await claimTotalReward();
-      // alert(translations?.rewardClaimed);
-
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении награды:", error);
-      // alert(translations?.rewardClaimError);
     }
   };
 
   const handleGetPremiumReward = async () => {
     try {
       await claimPurchasedReward();
-      // alert(translations?.premiumUnlocked);
-
       await fetchBonusesStatus();
     } catch (error) {
       console.error("Ошибка при получении премиум награды:", error);
-      // alert(translations?.premiumUnlockError);
     }
   };
   const sortedFriends = [...friends].sort((a, b) => {

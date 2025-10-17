@@ -1,6 +1,5 @@
 import { Routes, Route } from "react-router-dom";
 import { useTheme } from "./hooks/useTheme";
-import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { Home } from "./pages/Home/Home";
 import { Welcome } from "./pages/Welcome/Welcome";
 import { Friends } from "./pages/Friends/Friends";
@@ -91,7 +90,6 @@ export const App: React.FC = () => {
   }
   return (
     <div>
-      <TonConnectUIProvider manifestUrl="https://islamapp.myfavouritegames.org/ton/manifest.json">
         <Routes>
           <Route path="/welcomeFriends" element={<WelcomeFriends />} />
           <Route path="/friends" element={<Friends />} />
@@ -136,7 +134,6 @@ export const App: React.FC = () => {
           <Route path="/qna/shareHistory/:id" element={<ShareStory />} />
           <Route path="*" element={<PageWrapper>404 Not Found</PageWrapper>} />
         </Routes>
-      </TonConnectUIProvider>
     </div>
   );
 };

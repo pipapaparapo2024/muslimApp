@@ -5,11 +5,14 @@ import { App } from "./App";
 
 import "./styles/global.css";
 import "./styles/languages.css";
-
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
+const manifestUrl = "https://t.me/QiblaGuidebot/startapp"
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <Suspense fallback={<div>Loading...</div>}>
-      <App />
-    </Suspense>
-  </BrowserRouter>
+  <TonConnectUIProvider manifestUrl={manifestUrl}>
+    <BrowserRouter>
+      <Suspense fallback={<div>Loading...</div>}>
+        <App />
+      </Suspense>
+    </BrowserRouter>
+  </TonConnectUIProvider>
 );
