@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { isErrorWithMessage, quranApi } from "../api/api";
-
+import { type AuthResponse } from "./useTelegram";
+import WebApp from "@twa-dev/sdk";
 const LAST_SETTINGS_REQUEST = "lastSettingsRequest";
 const LANGUAGE_KEY = "preferred-language";
-
 interface UserSettings {
   cityName: string;
   countryName: string;
@@ -54,22 +54,24 @@ export const useUserParametersStore = create<UserParametersState>()(
             langCode: locationData.langcode,
             timeZone: locationData.timeZone || "UTC",
           };
-          const accessToken = localStorage.getItem("accessToken");
-          console.log("Settings accessToken", accessToken);
-          
-          console.log("settings token",token)
-          console.log(
-            "Перед отправкой userSettings.langcode:",
-            locationData.langcode
-          );
-          console.log("Отправляем настройки пользователя:", settingsData);
+          let initDataToSend = WebApp.initData;
 
+          console.log("Settings accessToken", token);
+          console.log("Отправляем настройки пользователя:", settingsData);
+          const responseAuth = await quranApi.post<AuthResponse>(
+            "/api/v1/user/auth/",
+            {
+              initData: initDataToSend,
+            }
+          );
+          const { accessToken } = responseAuth.data.data;
           const response = await quranApi.post(
             "/api/v1/settings/all",
             settingsData,
             {
               headers: {
                 "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
               },
             }
           );

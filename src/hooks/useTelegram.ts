@@ -3,7 +3,7 @@ import WebApp from "@twa-dev/sdk";
 import axios from "axios";
 import { quranApi } from "../api/api";
 
-interface AuthResponse {
+export interface AuthResponse {
   data: {
     accessToken: string;
     promo: string;
