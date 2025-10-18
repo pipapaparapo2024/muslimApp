@@ -197,9 +197,12 @@ export const useTonPay = () => {
         userAddress,
         payload,
       });
-
       // Отправляем транзакцию
       console.log("🔄 Отправляем транзакцию в блокчейн...");
+      console.log("🔍 Merchant wallet:", merchantWalletResult);
+      console.log("💰 Amount in nanoTON:", amount);
+      console.log("payloadBOC",payloadBOC);
+      console.log("---------------------------------------------")
       console.log("данные которые передаются в sendTransaction", {
         network: CHAIN.MAINNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
