@@ -24,7 +24,6 @@ export const useTonPay = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const inProgressRef = useRef(false);
 
-  // Добавляем проверку готовности TON Connect
   const isTonConnectReady = useRef(false);
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export const useTonPay = () => {
 
   const waitForConfirmation = async (
     payload: string,
-    maxAttempts = 25 // Увеличиваем количество попыток
+    maxAttempts = 20
   ): Promise<TonPaymentResponse> => {
     setIsWaitingConfirmation(true);
 
@@ -221,9 +220,9 @@ export const useTonPay = () => {
     } catch (err: any) {
       console.error("❌ TON payment error:", err);
 
-      // Детальная обработка различных ошибок
+      // Улучшенная обработка ошибок
       let status: TonPaymentResponse["status"] = "error";
-      let errorMessage = err?.message || "Unknown error";
+      let errorMessage = "Transaction failed. Please try again.";
 
       if (err?.message?.includes("Rejected") || err?.code === "USER_REJECTED") {
         status = "rejected";
@@ -239,6 +238,28 @@ export const useTonPay = () => {
         errorMessage = "Network error, please check connection";
       }
 
+      if (err?.message?.includes("Rejected") || err?.code === "USER_REJECTED") {
+        status = "rejected";
+        errorMessage = "Transaction was cancelled";
+      } else if (err?.message?.includes("Not connected") || !userAddress) {
+        status = "not_connected";
+        errorMessage = "Please connect your wallet first";
+      } else if (err?.response?.status === 400) {
+        status = "server_error";
+        errorMessage = "Server error. Please try again later.";
+      } else if (
+        err?.message?.includes("Network") ||
+        err?.message?.includes("timeout")
+      ) {
+        status = "error";
+        errorMessage = "Network error. Check your connection.";
+      } else if (
+        err?.message?.includes("payload") ||
+        err?.message?.includes("Invalid")
+      ) {
+        status = "error";
+        errorMessage = "Invalid transaction data";
+      }
       return {
         status,
         error: {
