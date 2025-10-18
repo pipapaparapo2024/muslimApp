@@ -200,10 +200,20 @@ export const useTonPay = () => {
 
       // Отправляем транзакцию
       console.log("🔄 Отправляем транзакцию в блокчейн...");
-
+      console.log("данные которые передаются в sendTransaction", {
+        network: CHAIN.MAINNET,
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: merchantWalletResult,
+            amount,
+            payload: payloadBOC,
+          },
+        ],
+      });
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.MAINNET,
-        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 минут
+        validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
             address: merchantWalletResult,
@@ -220,9 +230,9 @@ export const useTonPay = () => {
     } catch (err: any) {
       console.error("❌ TON payment error:", err);
 
-      // Улучшенная обработка ошибок
+      // Детальная обработка различных ошибок
       let status: TonPaymentResponse["status"] = "error";
-      let errorMessage = "Transaction failed. Please try again.";
+      let errorMessage = err?.message || "Unknown error";
 
       if (err?.message?.includes("Rejected") || err?.code === "USER_REJECTED") {
         status = "rejected";
@@ -238,28 +248,6 @@ export const useTonPay = () => {
         errorMessage = "Network error, please check connection";
       }
 
-      if (err?.message?.includes("Rejected") || err?.code === "USER_REJECTED") {
-        status = "rejected";
-        errorMessage = "Transaction was cancelled";
-      } else if (err?.message?.includes("Not connected") || !userAddress) {
-        status = "not_connected";
-        errorMessage = "Please connect your wallet first";
-      } else if (err?.response?.status === 400) {
-        status = "server_error";
-        errorMessage = "Server error. Please try again later.";
-      } else if (
-        err?.message?.includes("Network") ||
-        err?.message?.includes("timeout")
-      ) {
-        status = "error";
-        errorMessage = "Network error. Check your connection.";
-      } else if (
-        err?.message?.includes("payload") ||
-        err?.message?.includes("Invalid")
-      ) {
-        status = "error";
-        errorMessage = "Invalid transaction data";
-      }
       return {
         status,
         error: {
