@@ -1,7 +1,12 @@
-import { useState, useRef } from "react";
-import { useTonConnectUI, useTonAddress, CHAIN } from "@tonconnect/ui-react";
+import { useState, useRef, useEffect } from "react";
+import {
+  useTonConnectUI,
+  useTonAddress,
+  CHAIN,
+} from "@tonconnect/ui-react";
 import { quranApi } from "../api/api";
 import { usePremiumStore } from "../hooks/usePremiumStore";
+
 export interface TonPayParams {
   amount: number;
   type: "premium" | "requests";
@@ -24,11 +29,29 @@ export const useTonPay = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const inProgressRef = useRef(false);
 
+  useEffect(() => {
+    const initTonConnect = async () => {
+      try {
+        const manifest = {
+          url: "https://islamapp.myfavouritegames.org/tonconnect.json",
+          name: "QiblaGuidebot",
+          iconUrl: "https://islamapp.myfavouritegames.org/api/v1/bot/img/ava.png",
+        };
+
+        console.log("TON Connect initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize TON Connect:", error);
+      }
+    };
+
+    initTonConnect();
+  }, []);
+
   const waitForConfirmation = async (
     payload: string,
     maxAttempts = 20
   ): Promise<TonPaymentResponse> => {
-    setIsWaitingConfirmation(true); // показываем модальное окно
+    setIsWaitingConfirmation(true);
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`🔍 Проверка подтверждения (${attempt}/${maxAttempts})`);
@@ -62,13 +85,10 @@ export const useTonPay = () => {
     return { status: "error", error: "Confirmation timeout" };
   };
 
-  // 🔑 Получение адреса кошелька продавца
   const getTonWallet = async () => {
     try {
       if (!userAddress) {
-        console.log(
-          "🔒 Пользователь не подключён — открываем модальное окно TON Connect"
-        );
+        console.log("🔒 Пользователь не подключён — открываем модальное окно TON Connect");
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
@@ -83,14 +103,11 @@ export const useTonPay = () => {
     }
   };
 
-  // 💸 Основная функция оплаты
   const payWithTon = async (
     params: TonPayParams
   ): Promise<TonPaymentResponse> => {
     if (inProgressRef.current) {
-      console.warn(
-        "⚠️ Оплата уже обрабатывается, повторный вызов заблокирован"
-      );
+      console.warn("⚠️ Оплата уже обрабатывается, повторный вызов заблокирован");
       return { status: "error", error: "Payment already in progress" };
     }
 
@@ -108,7 +125,6 @@ export const useTonPay = () => {
         return { status: "error", error: "Merchant wallet not available" };
       }
 
-      // 🧾 Создание инвойса
       const invoiceResponse = await quranApi.post(
         "/api/v1/payments/ton/invoice",
         {
@@ -126,7 +142,6 @@ export const useTonPay = () => {
         hasPayload: !!payload,
       });
 
-      // 🚀 Отправка транзакции
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.MAINNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
@@ -141,7 +156,6 @@ export const useTonPay = () => {
 
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
-      // ⏳ Ждём подтверждения
       return await waitForConfirmation(payload);
     } catch (err: any) {
       console.error("TON payment error:", err);

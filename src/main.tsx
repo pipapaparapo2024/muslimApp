@@ -6,7 +6,7 @@ import { App } from "./App";
 import "./styles/global.css";
 import "./styles/languages.css";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
-const manifestUrl = "https://t.me/QiblaGuidebot/startapp"
+const manifestUrl = "https://islamapp.myfavouritegames.org/tonconnect.json"
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <TonConnectUIProvider manifestUrl={manifestUrl}>
     <BrowserRouter>
