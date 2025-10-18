@@ -1,9 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import {
-  useTonConnectUI,
-  useTonAddress,
-  CHAIN,
-} from "@tonconnect/ui-react";
+import { useState, useRef } from "react";
+import { useTonConnectUI, useTonAddress, CHAIN } from "@tonconnect/ui-react";
 import { quranApi } from "../api/api";
 import { usePremiumStore } from "../hooks/usePremiumStore";
 
@@ -28,24 +24,6 @@ export const useTonPay = () => {
   const [isWaitingConfirmation, setIsWaitingConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const inProgressRef = useRef(false);
-
-  // 🔥 ВАЖНО: Добавьте этот useEffect для инициализации TON Connect
-  useEffect(() => {
-    const initTonConnect = async () => {
-      try {
-        // const manifestUrl = "https://islamapp.myfavouritegames.org/tonconnect-manifest.json";
-        
-        // Устанавливаем манифест для TON Connect
-        await tonConnectUI.connector.restoreConnection();
-        
-        console.log("TON Connect initialized successfully");
-      } catch (error) {
-        console.error("Failed to initialize TON Connect:", error);
-      }
-    };
-
-    initTonConnect();
-  }, [tonConnectUI]);
 
   const waitForConfirmation = async (
     payload: string,
@@ -88,7 +66,9 @@ export const useTonPay = () => {
   const getTonWallet = async () => {
     try {
       if (!userAddress) {
-        console.log("🔒 Пользователь не подключён — открываем модальное окно TON Connect");
+        console.log(
+          "🔒 Пользователь не подключён — открываем модальное окно TON Connect"
+        );
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
@@ -107,7 +87,7 @@ export const useTonPay = () => {
     params: TonPayParams
   ): Promise<TonPaymentResponse> => {
     if (inProgressRef.current) {
-      console.warn("⚠️ Оплата уже обрабатывается, повторный вызов заблокирован");
+      console.warn("⚠️ Оплата уже обрабатывается");
       return { status: "error", error: "Payment already in progress" };
     }
 
@@ -116,6 +96,13 @@ export const useTonPay = () => {
 
     try {
       if (!userAddress) {
+        console.log("🔒 Открываем модальное окно TON Connect");
+        await tonConnectUI.openModal();
+        return { status: "not_connected" };
+      }
+
+      // Проверяем подключение кошелька
+      if (!tonConnectUI.connected) {
         await tonConnectUI.openModal();
         return { status: "not_connected" };
       }
@@ -123,6 +110,11 @@ export const useTonPay = () => {
       const merchantWallet = await getTonWallet();
       if (typeof merchantWallet !== "string") {
         return { status: "error", error: "Merchant wallet not available" };
+      }
+
+      // Добавляем валидацию параметров
+      if (!params.productId) {
+        return { status: "error", error: "Product ID is required" };
       }
 
       const invoiceResponse = await quranApi.post(
@@ -139,7 +131,8 @@ export const useTonPay = () => {
       console.log("📦 Данные транзакции:", {
         merchantAddress: merchantWallet,
         amount,
-        hasPayload: !!payload,
+        productId: params.productId,
+        userAddress,
       });
 
       const result = await tonConnectUI.sendTransaction({
@@ -155,13 +148,21 @@ export const useTonPay = () => {
       });
 
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
-
       return await waitForConfirmation(payload);
     } catch (err: any) {
       console.error("TON payment error:", err);
+
+      // Более детальная обработка ошибок
+      let status: TonPaymentResponse["status"] = "error";
+      if (err?.message?.includes("Rejected")) {
+        status = "rejected";
+      } else if (err?.message?.includes("Not connected")) {
+        status = "not_connected";
+      }
+
       return {
-        status: err?.message?.includes("Rejected") ? "rejected" : "error",
-        error: err,
+        status,
+        error: err?.response?.data || err?.message || err,
       };
     } finally {
       inProgressRef.current = false;
