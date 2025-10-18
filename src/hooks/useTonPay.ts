@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   useTonConnectUI,
   useTonAddress,
@@ -29,23 +29,23 @@ export const useTonPay = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const inProgressRef = useRef(false);
 
-  // useEffect(() => {
-  //   const initTonConnect = async () => {
-  //     try {
-  //       const manifest = {
-  //         url: "https://islamapp.myfavouritegames.org/tonconnect.json",
-  //         name: "QiblaGuidebot",
-  //         iconUrl: "https://islamapp.myfavouritegames.org/api/v1/bot/img/ava.png",
-  //       };
+  // 🔥 ВАЖНО: Добавьте этот useEffect для инициализации TON Connect
+  useEffect(() => {
+    const initTonConnect = async () => {
+      try {
+        // const manifestUrl = "https://islamapp.myfavouritegames.org/tonconnect-manifest.json";
+        
+        // Устанавливаем манифест для TON Connect
+        await tonConnectUI.connector.restoreConnection();
+        
+        console.log("TON Connect initialized successfully");
+      } catch (error) {
+        console.error("Failed to initialize TON Connect:", error);
+      }
+    };
 
-  //       console.log("TON Connect initialized successfully");
-  //     } catch (error) {
-  //       console.error("Failed to initialize TON Connect:", error);
-  //     }
-  //   };
-
-  //   initTonConnect();
-  // }, []);
+    initTonConnect();
+  }, [tonConnectUI]);
 
   const waitForConfirmation = async (
     payload: string,
