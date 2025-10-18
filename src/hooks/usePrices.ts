@@ -37,7 +37,6 @@ export const usePrices = () => {
       const response = await quranApi.get<PricesResponse>(
         "/api/v1/payments/prices/"
       );
-      console.log("response",response)
       if (response.data?.data?.prices) {
         setPrices(response.data.data.prices);
       } else {
@@ -99,17 +98,11 @@ export const usePrices = () => {
     currencyType: string = "TON"
   ): PriceCurrency | null => {
     const product = prices.find((item) => item.id === productId);
-    console.log("getPriceByProductId - searching for:", {
-      productId,
-      currencyType,
-      foundProduct: product,
-    });
     if (!product) return null;
 
     const currency = product.currency.find(
       (curr) => curr.priceType.toUpperCase() === currencyType.toUpperCase()
     );
-    console.log("currency",currency)
     return currency ? currency : null;
   };
 
