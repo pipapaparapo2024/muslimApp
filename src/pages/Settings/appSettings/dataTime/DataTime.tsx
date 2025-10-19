@@ -1,10 +1,10 @@
 import React from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./DataTime.module.css";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
-import { useGeoStore } from "../../../../hooks/useGeoStore";
+import { Check } from "lucide-react";
+// import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
-import { useLanguage } from "../../../../hooks/useLanguages";
+// import { useLanguage } from "../../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../../api/analytics";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
@@ -29,8 +29,8 @@ const DATE_FORMATS = [
 ];
 
 export const DataTime: React.FC = () => {
-  const { ipData } = useGeoStore();
-  const { language } = useLanguage();
+  // const { ipData } = useGeoStore();
+  // const { language } = useLanguage();
   const {
     is24Hour,
     isAutoTime,
@@ -92,7 +92,7 @@ export const DataTime: React.FC = () => {
           </label>
 
           {/* Time zone */}
-          <div className={styles.toggleItem}>
+          {/* <div className={styles.toggleItem}>
             <span className={styles.showMain}> {translations?.timeZone}</span>
             <div className={styles.timeZone}>
               <span className={styles.timeZoneValue}>{ipData?.timeZone}</span>
@@ -102,7 +102,7 @@ export const DataTime: React.FC = () => {
                 <ChevronRight size={24} />
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
