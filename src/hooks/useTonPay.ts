@@ -209,18 +209,26 @@ export const useTonPay = () => {
       console.log("- payloadBOC:", payloadBOC?.substring(0, 50) + "...");
       console.log("- Пользователь подключен:", !!userAddress);
       console.log(" перед запуском sendTransaction");
-      
-      const result = await tonConnectUI.sendTransaction({
-        network: CHAIN.MAINNET,
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages: [
-          {
-            address: merchantWalletResult,
-            amount,
-            payload: payloadBOC,
-          },
-        ],
-      });
+
+      const result = await tonConnectUI.sendTransaction(
+        {
+          network: CHAIN.MAINNET,
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [
+            {
+              address: merchantWalletResult,
+              amount,
+              payload: payloadBOC,
+            },
+          ],
+        },
+        {
+          // Добавьте эти опции для Telegram Mini Apps
+          modals: ["before", "success", "error"],
+          twaReturnUrl: `https://t.me/QiblaGuidebot?startapp=payment_success`,
+          returnStrategy: "back",
+        }
+      );
 
       console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
@@ -228,7 +236,25 @@ export const useTonPay = () => {
       return await waitForConfirmation(payload);
     } catch (err: any) {
       console.error("❌ TON payment error:", err);
-
+      if (
+        err?.message?.includes("Technical error") ||
+        err?.code === "TELEGRAM_BLOCKED"
+      ) {
+        return {
+          status: "error",
+          error: {
+            message: "Telegram blocked wallet connection",
+            instructions: [
+              "Tap 'Open in Browser' in Telegram menu",
+              "Or try these steps:",
+              "1. Open link in external browser",
+              "2. Connect wallet in browser",
+              "3. Return to Telegram after payment",
+            ],
+            code: "TELEGRAM_BLOCKED",
+          },
+        };
+      }
       // Детальная обработка различных ошибок
       let status: TonPaymentResponse["status"] = "error";
       let errorMessage = err?.message || "Unknown error";
