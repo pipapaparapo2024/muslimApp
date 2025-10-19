@@ -148,6 +148,9 @@ export const useTonPay = () => {
       console.log("🚀 Начинаем процесс оплаты TON");
 
       // Проверяем подключение
+      console.log("Проверяем подключение");
+      console.log("userAddress", userAddress);
+      console.log("!tonConnectUI.connected", !tonConnectUI.connected);
       if (!userAddress || !tonConnectUI.connected) {
         console.log("🔒 Открываем модальное окно TON Connect");
         await tonConnectUI.openModal();
@@ -201,8 +204,8 @@ export const useTonPay = () => {
       console.log("🔄 Отправляем транзакцию в блокчейн...");
       console.log("🔍 Merchant wallet:", merchantWalletResult);
       console.log("💰 Amount in nanoTON:", amount);
-      console.log("payloadBOC",payloadBOC);
-      console.log("---------------------------------------------")
+      console.log("payloadBOC", payloadBOC);
+      console.log("---------------------------------------------");
       console.log("данные которые передаются в sendTransaction", {
         network: CHAIN.MAINNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
