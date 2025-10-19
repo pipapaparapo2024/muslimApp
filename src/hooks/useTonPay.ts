@@ -217,6 +217,7 @@ export const useTonPay = () => {
           },
         ],
       });
+      console.log(" перед sendTransaction");
       const result = await tonConnectUI.sendTransaction({
         network: CHAIN.MAINNET,
         validUntil: Math.floor(Date.now() / 1000) + 300,
