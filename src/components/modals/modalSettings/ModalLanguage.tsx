@@ -62,10 +62,10 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
       isMounted = false;
     };
   }, [isOpen, isLoaded, languages]);
-
   const handleSelect = (lang: Language) => {
+    console.log("lang", lang)
     trackButtonClick("settings", "select_language_in_modal", {
-      language_name: String(lang),
+      language_name: lang,
     });
     onLanguageChange?.(lang);
 
@@ -98,9 +98,8 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
             languages.map((lang) => (
               <div
                 key={lang.code}
-                className={`${styles.optionBlock} ${
-                  currentLanguage === lang.code ? styles.selected : ""
-                }`}
+                className={`${styles.optionBlock} ${currentLanguage === lang.code ? styles.selected : ""
+                  }`}
                 onClick={() => handleSelect(lang.code)}
                 role="button"
                 tabIndex={0}

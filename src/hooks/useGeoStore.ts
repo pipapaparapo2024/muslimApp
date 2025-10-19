@@ -72,33 +72,6 @@ export const useGeoStore = create<GeoState>()(
       fetchFromIpApi: async () => {
         console.log("🔄 Проверяем геоданные...");
 
-        // const cachedData = localStorage.getItem("ipDataCache");
-        // let cached: any = null;
-
-        // if (cachedData) {
-        //   try {
-        //     cached = JSON.parse(cachedData);
-        //   } catch {
-        //     cached = null;
-        //   }
-        // }
-
-        // ✅ Если кэш актуален (менее 5 минут) — используем его
-        // if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
-        //   console.log("🗃 Используем кэшированные данные геолокации");
-        //   set({
-        //     ipData: cached,
-        //     coords: cached.location,
-        //     city: cached.city,
-        //     country: cached.country?.name,
-        //     langcode: cached.langcode,
-        //     timeZone: cached.timeZone,
-        //     isLoading: false,
-        //     error: null,
-        //   });
-        //   return;
-        // }
-
         set({ isLoading: true, error: null });
 
         try {
@@ -115,7 +88,7 @@ export const useGeoStore = create<GeoState>()(
             data.city || data.region || data.country?.name || "Unknown";
           const countryName = data.country?.name || "Unknown";
           const countryCode = data.country?.code?.toUpperCase() || "EN";
-          const langcode = countryCode; // ✅ теперь всегда обновляется по стране
+          const langcode = countryCode; 
 
           const normalized = {
             ...data,
@@ -125,7 +98,6 @@ export const useGeoStore = create<GeoState>()(
             timestamp: Date.now(),
           };
 
-          // ✅ сохраняем в localStorage
           localStorage.setItem("ipDataCache", JSON.stringify(normalized));
           localStorage.setItem("lastGeoRequest", Date.now().toString());
 
@@ -141,12 +113,6 @@ export const useGeoStore = create<GeoState>()(
             error: null,
           });
 
-          console.log("🌍 Геоданные обновлены:", {
-            city,
-            countryName,
-            langcode,
-            timeZone: data.timeZone,
-          });
         } catch (err: unknown) {
           const message = isErrorWithMessage(err)
             ? err.message

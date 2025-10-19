@@ -10,6 +10,8 @@ import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { usePrayerApiStore } from "../../hooks/usePrayerApiStore";
 import { fetchLanguageFromBackend } from "../Home/useHomeLogic";
+import { trackButtonClick } from "../../api/analytics";
+import { useLanguage } from "../../hooks/useLanguages";
 interface Step {
   title: string | undefined;
   desc: string | undefined;
@@ -42,13 +44,13 @@ export const useWelcomeLogic = () => {
       image: qnaImage,
     },
   ];
-
+  const { language } = useLanguage();
   const [step, setStep] = useState(0);
   const [fade, setFade] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { fetchFromIpApi, getLocationData } = useGeoStore();
+  const { fetchFromIpApi, getLocationData, country, langcode } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -83,11 +85,26 @@ export const useWelcomeLogic = () => {
           langcode: locationData.langcode,
           timeZone: locationData.timeZone,
         };
+        const telegramUser = window?.Telegram?.WebApp?.initDataUnsafe?.user;
+        const prem = telegramUser?.is_premium;
+        console.log("prem", prem);
+        const userAgent = navigator.userAgent;
+        let deviceType = "desktop";
+        if (/Mobile|Android|iPhone|iPad|iPod/i.test(userAgent)) {
+          deviceType = "mobile";
+        } else if (/Tablet|iPad/i.test(userAgent)) {
+          deviceType = "tablet";
+        }
+        trackButtonClick("user", "session_start", {
+          device: { deviceType },
+          country: { country, langcode },
+          language: { language },
+          has_telegram_premium: { prem },
+        });
 
         const maxRetries = 3;
         let attempt = 0;
         let success = false;
-
         while (attempt < maxRetries && !success) {
           try {
             console.log(`📤 Попытка #${attempt + 1} отправить настройки`);
@@ -105,7 +122,6 @@ export const useWelcomeLogic = () => {
         }
         const lang = await fetchLanguageFromBackend();
         if (lang) {
-          
           await loadTranslations(lang);
         }
 
