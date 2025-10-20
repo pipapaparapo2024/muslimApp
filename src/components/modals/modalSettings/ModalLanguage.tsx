@@ -65,7 +65,7 @@ export const ModalLanguage: React.FC<LanguageModalProps> = ({
   const handleSelect = (lang: Language) => {
     console.log("lang", lang)
     trackButtonClick("settings", "select_language_in_modal", {
-      language_name: String(lang),
+      language_name: lang,
     });
     onLanguageChange?.(lang);
 
