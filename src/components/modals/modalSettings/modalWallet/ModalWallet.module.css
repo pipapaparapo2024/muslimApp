@@ -1,0 +1,70 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+  opacity: 0;
+  backdrop-filter: blur(var(--numbers-2));
+  animation: fadeIn 0.3s forwards;
+}
+
+.modal {
+  background: var(--bg-surface);
+  max-width: 350px;
+  width: 100%;
+  padding: var(--numbers-16);
+  margin: 0px var(--numbers-8) var(--numbers-36) var(--numbers-8);
+  color: var(--color-text-primary);
+  border-radius: var(--roundings-big);
+  padding: var(--numbers-20);
+  transform: translateY(100%);
+  animation: slideUp 0.3s forwards;
+  animation-delay: 0.1s;
+  margin-bottom: var(--numbers-24);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  font-size: var(--numbers-20);
+  font-weight: var(--font-600);
+  color: var(--text);
+  letter-spacing: var(--letter-spacing-tighter);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: var(--numbers-24);
+  cursor: pointer;
+  color: var(--color-icon-secondary);
+  padding: var(--numbers-8);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.walletDisconnect {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  background-color: var(--bg-app);
+  border: none;
+  width: 100%;
+  line-height: 1;
+  padding: var(--numbers-16);
+  font-weight: var(--font-500);
+  font-size: var(--numbers-16);
+  border-radius: var(--roundings-medium);
+  color: var(--text);
+}

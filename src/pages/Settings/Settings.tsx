@@ -22,14 +22,17 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
-import { WalletConnectButton } from "../../components/buttonWallet/WalletConnectButton";
+import { ModalWallet } from "../../components/modals/modalSettings/modalWallet/ModalWallet";
+import { useTonAddress } from "@tonconnect/ui-react";
 
 export const Settings: React.FC = () => {
+  const userAddress = useTonAddress();
   const { translations } = useTranslationsStore();
   const navigate = useNavigate();
   const { prayers } = usePrayerApiStore();
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const { i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
@@ -155,8 +158,9 @@ export const Settings: React.FC = () => {
               )}
             </div>
           </div>
+
           {/* Wallet */}
-          <div className={styles.settingItem}>
+          <div className={styles.settingItem} onClick={() => setIsWalletModalOpen(true)}>
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Wallet strokeWidth={1.5} color="var(--color-icon-secondary)" />
@@ -164,7 +168,13 @@ export const Settings: React.FC = () => {
               <div className={styles.title}>{translations?.wallet}</div>
             </div>
             <div className={styles.settingItemRight}>
-              <div className={styles.description}><WalletConnectButton /></div>
+
+              <div className={styles.description}>{userAddress ? translations?.disconnect : translations?.connect}</div>
+              {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )}
             </div>
           </div>
         </div>
@@ -269,6 +279,9 @@ export const Settings: React.FC = () => {
           changeTheme(theme);
         }}
       />
-    </PageWrapper>
+      <ModalWallet
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)} />
+    </PageWrapper >
   );
 };
