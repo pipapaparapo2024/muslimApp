@@ -27,7 +27,7 @@
   padding: var(--numbers-16);
   margin: 0px var(--numbers-8) var(--numbers-36) var(--numbers-8);
   color: var(--color-text-primary);
-  border-radius: var(--roundings-big); /* 22px */
+  border-radius: var(--roundings-big); 
   padding: var(--numbers-20);
   transform: translateY(100%);
   animation: slideUp 0.3s forwards;

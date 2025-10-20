@@ -67,11 +67,9 @@
 }
 
 .walletDisconnect {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  text-align: center;
-  justify-content: center;
+  display: block;                
+  width: 100%;                  
+  text-align: center;           
   background-color: var(--bg-app);
   border: none;
   line-height: 1;
@@ -80,4 +78,5 @@
   font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
   color: var(--text);
+  cursor: pointer;
 }
