@@ -155,6 +155,7 @@ export const Settings: React.FC = () => {
             </div>
           </div>
         </div>
+        <WalletConnectButton />
 
         {/* === Important Links === */}
         <div className={styles.section}>
@@ -211,7 +212,6 @@ export const Settings: React.FC = () => {
             </div>
           </div>
           {/*Wallet */}
-          <WalletConnectButton />
           {/* Contact Us */}
           <div
             className={styles.settingItem}
