@@ -36,7 +36,7 @@ jobs:
 
       # 6. Архивируем dist
       - name: Archive frontend build
-        run: zip -r frontend_dist.zip muslimApp/dist
+        run: zip -r frontend_dist.zip dist
 
       # 7. Копируем архив на сервер
       - name: Upload frontend archive to server
