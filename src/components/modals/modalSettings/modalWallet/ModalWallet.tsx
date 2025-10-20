@@ -49,7 +49,7 @@ export const ModalWallet: React.FC<WalletModalProps> = ({
                     onClick={userAddress ? handleDisconnect : handleConnect}
                     className={styles.walletDisconnect}
                 >
-                    {userAddress ? translations?.disconnect : translations?.connect}
+                    {userAddress ? translations?.disconnect : translations?.connect} {translations?.wallet}
                 </div>
             </div>
         </div>
