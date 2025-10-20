@@ -1,7 +1,9 @@
-
 .walletDisconnect {
-  background-color: var(--desk-text);
+  background-color: var(--bg-app);
   border: none;
+  padding: var(--number-2) var(--number-8);
+  font-weight: var(--font-500);
+  font-size: var(--numbers-16);
   border-radius: var(--roundings-medium);
   color: var(--text);
 }
