@@ -1,0 +1,8 @@
+/* .wallet-connected{
+
+} */
+
+.walletDisconnect{
+    padding: var(--numbers-16);
+    color: var(--deks-text);
+}

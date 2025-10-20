@@ -1,7 +1,9 @@
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
-
+import styles from './WalletConnectButton.module.css'
+import { useTranslationsStore } from "../../hooks/useTranslations";
 export const WalletConnectButton = () => {
     const userAddress = useTonAddress();
+    const { translations } = useTranslationsStore()
     const [tonConnectUI] = useTonConnectUI();
 
     const handleConnect = async () => {
@@ -20,35 +22,17 @@ export const WalletConnectButton = () => {
         }
     };
 
-    // Форматируем адрес для отображения
-    const formatAddress = (address: string) => {
-        return `${address.slice(0, 4)}...${address.slice(-4)}`;
-    };
-
     if (userAddress) {
         return (
             <div className="wallet-connected">
-                <span className="wallet-address">
-                    {formatAddress(userAddress)}
-                </span>
                 <button
-                    onClick={handleDisconnect}
-                    className="wallet-disconnect-btn"
+                    onClick={userAddress ? handleDisconnect : handleConnect}
+                    className={styles.walletDisconnect}
                     type="button"
                 >
-                    Отключить
+                    {userAddress ? translations?.disconnect : translations?.connect}
                 </button>
             </div>
         );
     }
-
-    return (
-        <button
-            onClick={handleConnect}
-            className="wallet-connect-btn"
-            type="button"
-        >
-            Подключить кошелек
-        </button>
-    );
 };

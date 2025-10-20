@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
+import { WalletConnectButton } from "../../components/buttonWallet/WalletConnectButton";
 
 export const Settings: React.FC = () => {
   const { translations } = useTranslationsStore();
@@ -153,24 +154,6 @@ export const Settings: React.FC = () => {
               )}
             </div>
           </div>
-
-           {/* Wallet */}
-          <div className={styles.settingItem} onClick={openThemeModal}>
-            <div className={styles.settingItemLeft}>
-              <div className={styles.iconWrapper}>
-                <Sun strokeWidth={1.5} color="var(--color-icon-secondary)" />
-              </div>
-              <div className={styles.title}> {translations?.theme}</div>
-            </div>
-            <div className={styles.settingItemRight}>
-              <div className={styles.description}>{translations?.wallet}</div>
-              {language === "ar" ? (
-                <ChevronLeft size={24} />
-              ) : (
-                <ChevronRight size={24} />
-              )}
-            </div>
-          </div>
         </div>
 
         {/* === Important Links === */}
@@ -227,7 +210,8 @@ export const Settings: React.FC = () => {
               )}
             </div>
           </div>
-
+          {/*Wallet */}
+          <WalletConnectButton />
           {/* Contact Us */}
           <div
             className={styles.settingItem}
