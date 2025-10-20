@@ -2,7 +2,10 @@
 
 } */
 
-.walletDisconnect{
-    padding: var(--numbers-16);
-    color: var(--deks-text);
+.walletDisconnect {
+  background-color: var(--bg-surface);
+  border: none;
+  border-radius: var(--roundings-medium);
+  padding: var(--numbers-16);
+  color: var(--deks-text);
 }
