@@ -95,12 +95,16 @@ export const useWelcomeLogic = () => {
         } else if (/Tablet|iPad/i.test(userAgent)) {
           deviceType = "tablet";
         }
-        trackButtonClick("user", "session_start", {
-          device: { deviceType },
-          country: { country, langcode },
-          language: { language },
-          has_telegram_premium: { prem },
-        });
+        trackButtonClick(
+          "user",
+          "session_start",
+          JSON.stringify({
+            device: { deviceType },
+            country: { country, langcode },
+            language: { language },
+            has_telegram_premium: { prem },
+          })
+        );
 
         const maxRetries = 3;
         let attempt = 0;
