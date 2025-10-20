@@ -47,12 +47,12 @@ jobs:
 
       # 8. Копируем архив на сервер
       - name: Upload frontend archive to server
-        run: scp -o StrictHostKeyChecking=no -i my_key.pem frontend_dist.zip ubuntu@54.70.95.26:/home/ubuntu/is_backend/
+        run: scp -o StrictHostKeyChecking=no -i my_key.pem frontend_dist.zip ubuntu@ec2-44-246-129-76.us-west-2.compute.amazonaws.com:/home/ubuntu/is_backend/
 
       # 9. Разархивируем фронт на сервере и удаляем архив
       - name: Extract frontend on server
         run: |
-          ssh -o StrictHostKeyChecking=no -i my_key.pem ubuntu@54.70.95.26 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i my_key.pem ubuntu@ec2-44-246-129-76.us-west-2.compute.amazonaws.com << 'EOF'
             cd /home/ubuntu/is_backend
             unzip -o frontend_dist.zip
             rm frontend_dist.zip
