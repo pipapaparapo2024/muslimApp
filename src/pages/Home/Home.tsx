@@ -60,7 +60,7 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       {/* <WalletConnectButton/> */}
-      sfgdfgd
+      sfgdfgdSDFSDF
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
