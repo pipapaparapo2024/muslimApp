@@ -57,6 +57,10 @@ export const Settings: React.FC = () => {
     setIsThemeModalOpen(true);
   };
 
+  const openWalletModal = () => {
+    setIsThemeModalOpen(true);
+  };
+
   const navigateTo = (path: string) => {
     navigate(path);
   };
@@ -160,7 +164,7 @@ export const Settings: React.FC = () => {
           </div>
 
           {/* Wallet */}
-          <div className={styles.settingItem} onClick={() => setIsWalletModalOpen(true)}>
+          <div className={styles.settingItem} onClick={openWalletModal}>
             <div className={styles.settingItemLeft}>
               <div className={styles.iconWrapper}>
                 <Wallet strokeWidth={1.5} color="var(--color-icon-secondary)" />
