@@ -14,6 +14,12 @@
   animation: fadeIn 0.3s forwards;
 }
 
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
 .modal {
   background: var(--bg-surface);
   max-width: 350px;
@@ -29,6 +35,12 @@
   margin-bottom: var(--numbers-24);
 }
 
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+  }
+}
+
 .modalHeader {
   display: flex;
   justify-content: space-between;
@@ -41,6 +53,7 @@
   font-weight: var(--font-600);
   color: var(--text);
   letter-spacing: var(--letter-spacing-tighter);
+
 }
 
 .closeButton {
@@ -56,11 +69,11 @@
 .walletDisconnect {
   display: flex;
   align-items: center;
+  width: 100%;
   text-align: center;
   justify-content: center;
   background-color: var(--bg-app);
   border: none;
-  width: 100%;
   line-height: 1;
   padding: var(--numbers-16);
   font-weight: var(--font-500);
