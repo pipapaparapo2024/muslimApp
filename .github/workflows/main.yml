@@ -37,7 +37,6 @@ jobs:
       # 6. Архивируем dist
       - name: Archive frontend build
         run: |
-          cd muslimApp
           zip -r frontend_dist.zip dist
 
       # 7. Создаем временный файл с приватным ключом
