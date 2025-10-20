@@ -19,6 +19,7 @@ export const ModalWallet: React.FC<WalletModalProps> = ({
     const handleConnect = async () => {
         try {
             await tonConnectUI.openModal();
+            onClose?.();
         } catch (error) {
             console.error("Failed to open wallet modal:", error);
         }
@@ -27,6 +28,7 @@ export const ModalWallet: React.FC<WalletModalProps> = ({
     const handleDisconnect = async () => {
         try {
             await tonConnectUI.disconnect();
+            onClose?.();
         } catch (error) {
             console.error("Failed to disconnect wallet:", error);
         }
