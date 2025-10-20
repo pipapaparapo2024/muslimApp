@@ -25,7 +25,7 @@ export const WalletConnectButton = () => {
 
 
     return (
-        <button
+        <div
             onClick={userAddress ? handleDisconnect : handleConnect}
             className={styles.walletDisconnect}
             type="button"
