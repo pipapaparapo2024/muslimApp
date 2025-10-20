@@ -5,6 +5,7 @@
   justify-content: center;
   background-color: var(--bg-app);
   border: none;
+  line-height: 1;
   padding: var(--numbers-4) var(--numbers-8);
   font-weight: var(--font-500);
   font-size: var(--numbers-16);
