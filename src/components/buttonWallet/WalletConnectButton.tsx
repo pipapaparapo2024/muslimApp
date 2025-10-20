@@ -1,6 +1,7 @@
 import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
 import styles from './WalletConnectButton.module.css'
 import { useTranslationsStore } from "../../hooks/useTranslations";
+
 export const WalletConnectButton = () => {
     const userAddress = useTonAddress();
     const { translations } = useTranslationsStore()
@@ -22,17 +23,17 @@ export const WalletConnectButton = () => {
         }
     };
 
-    if (userAddress) {
-        return (
-            <div className="wallet-connected">
-                <button
-                    onClick={userAddress ? handleDisconnect : handleConnect}
-                    className={styles.walletDisconnect}
-                    type="button"
-                >
-                    {userAddress ? translations?.disconnect : translations?.connect}
-                </button>
-            </div>
-        );
-    }
+
+    return (
+        <div className="wallet-connected">
+            <button
+                onClick={userAddress ? handleDisconnect : handleConnect}
+                className={styles.walletDisconnect}
+                type="button"
+            >
+                {userAddress ? translations?.disconnect : translations?.connect}
+            </button>
+        </div>
+    );
+
 };

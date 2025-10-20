@@ -18,6 +18,7 @@ import {
   MessageCircle,
   Shield,
   Sun,
+  Wallet,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
@@ -154,8 +155,24 @@ export const Settings: React.FC = () => {
               )}
             </div>
           </div>
+          {/* Wallet */}
+          <div className={styles.settingItem} onClick={openThemeModal}>
+            <div className={styles.settingItemLeft}>
+              <div className={styles.iconWrapper}>
+                <Wallet strokeWidth={1.5} color="var(--color-icon-secondary)" />
+              </div>
+              <div className={styles.title}>{translations?.wallet}</div>
+            </div>
+            <div className={styles.settingItemRight}>
+              <div className={styles.description}><WalletConnectButton /></div>
+              {/* {language === "ar" ? (
+                <ChevronLeft size={24} />
+              ) : (
+                <ChevronRight size={24} />
+              )} */}
+            </div>
+          </div>
         </div>
-        <WalletConnectButton />
 
         {/* === Important Links === */}
         <div className={styles.section}>
