@@ -12,7 +12,7 @@ import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
 import { trackButtonClick } from "../../api/analytics";
-import { WalletConnectButton } from "../../components/buttonWallet/buttonWallet";
+// import { WalletConnectButton } from "../../components/buttonWallet/buttonWallet";
 
 export const Home: React.FC = () => {
   const {
@@ -60,6 +60,7 @@ export const Home: React.FC = () => {
     <PageWrapper>
       <Header />
       {/* <WalletConnectButton/> */}
+      sfgdfgd
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
