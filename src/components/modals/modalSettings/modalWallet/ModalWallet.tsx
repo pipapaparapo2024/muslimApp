@@ -3,12 +3,12 @@ import styles from "./ModalWallet.module.css"
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 
-interface LanguageModalProps {
+interface WalletModalProps {
     isOpen?: boolean;
     onClose?: () => void;
 }
 
-export const ModalWallet: React.FC<LanguageModalProps> = ({
+export const ModalWallet: React.FC<WalletModalProps> = ({
     isOpen,
     onClose,
 }) => {

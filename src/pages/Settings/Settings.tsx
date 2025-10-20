@@ -58,7 +58,7 @@ export const Settings: React.FC = () => {
   };
 
   const openWalletModal = () => {
-    setIsThemeModalOpen(true);
+    setIsWalletModalOpen(true);
   };
 
   const navigateTo = (path: string) => {
