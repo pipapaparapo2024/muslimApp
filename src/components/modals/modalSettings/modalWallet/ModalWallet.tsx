@@ -15,7 +15,8 @@ export const ModalWallet: React.FC<WalletModalProps> = ({
     const userAddress = useTonAddress();
     const [tonConnectUI] = useTonConnectUI();
     const { translations } = useTranslationsStore();
-
+    console.log("ModalWallet render - isOpen:", isOpen);
+    console.log("ModalWallet render - userAddress:", userAddress);
     const handleConnect = async () => {
         try {
             await tonConnectUI.openModal();

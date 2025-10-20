@@ -20,7 +20,6 @@ import {
   Sun,
   Wallet,
 } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { trackButtonClick } from "../../api/analytics";
 import { ModalWallet } from "../../components/modals/modalSettings/modalWallet/ModalWallet";
 import { useTonAddress } from "@tonconnect/ui-react";
@@ -33,18 +32,12 @@ export const Settings: React.FC = () => {
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState(false);
   const [isThemeModalOpen, setIsThemeModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  const { i18n } = useTranslation();
   const { rawTheme, changeTheme, themeLabel } = useTheme();
   const { language, changeLanguage, languageLabel } = useLanguage();
-
+  // Добавьте этот useEffect для отладки
   useEffect(() => {
-    console.log("Current language:", i18n.language);
-    console.log(
-      "HTML dir attribute:",
-      document.documentElement.getAttribute("dir")
-    );
-    console.log("HTML classes:", document.documentElement.className);
-  }, [i18n.language]);
+    console.log("isWalletModalOpen state:", isWalletModalOpen);
+  }, [isWalletModalOpen]);
 
   // Обработчики с аналитикой
   const openLanguageModal = () => {
