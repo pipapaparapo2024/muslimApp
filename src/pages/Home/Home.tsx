@@ -13,7 +13,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
 import { trackButtonClick } from "../../api/analytics";
 import { WalletConnectButton } from "../../components/buttonWallet/buttonWallet";
-//sfgdfgdf
+
 export const Home: React.FC = () => {
   const {
     sensorPermission,
@@ -59,7 +59,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      <WalletConnectButton/>
+      {/* <WalletConnectButton/> */}
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
