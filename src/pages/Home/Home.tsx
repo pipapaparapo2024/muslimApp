@@ -12,6 +12,7 @@ import { useHomeLogic } from "./useHomeLogic";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
 import { trackButtonClick } from "../../api/analytics";
+import { WalletConnectButton } from "../../components/buttonWallet/buttonWallet";
 export const Home: React.FC = () => {
   const {
     sensorPermission,
@@ -57,6 +58,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
+      <WalletConnectButton/>
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
