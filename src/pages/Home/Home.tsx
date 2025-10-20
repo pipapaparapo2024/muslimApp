@@ -13,6 +13,7 @@ import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { TriangleAlert, X } from "lucide-react";
 import { trackButtonClick } from "../../api/analytics";
 import { WalletConnectButton } from "../../components/buttonWallet/buttonWallet";
+
 export const Home: React.FC = () => {
   const {
     sensorPermission,
