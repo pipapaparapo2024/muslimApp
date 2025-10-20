@@ -25,15 +25,13 @@ export const WalletConnectButton = () => {
 
 
     return (
-        <div className="wallet-connected">
-            <button
-                onClick={userAddress ? handleDisconnect : handleConnect}
-                className={styles.walletDisconnect}
-                type="button"
-            >
-                {userAddress ? translations?.disconnect : translations?.connect}
-            </button>
-        </div>
+        <button
+            onClick={userAddress ? handleDisconnect : handleConnect}
+            className={styles.walletDisconnect}
+            type="button"
+        >
+            {userAddress ? translations?.disconnect : translations?.connect}
+        </button>
     );
 
 };

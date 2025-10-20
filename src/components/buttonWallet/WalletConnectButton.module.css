@@ -1,11 +1,7 @@
-/* .wallet-connected{
-
-} */
 
 .walletDisconnect {
-  background-color: var(--bg-surface);
+  background-color: var(--desk-text);
   border: none;
   border-radius: var(--roundings-medium);
-  padding: var(--numbers-16);
-  color: var(--deks-text);
+  color: var(--text);
 }
