@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Посмотрим структуру репозитория для отладки
+      # 2. Посмотрим структуру репозитория
       - name: List repo files
         run: ls -la
 
@@ -34,12 +34,30 @@ jobs:
         working-directory: .
         run: npm run build
 
-      # 6. Копируем готовый билд на сервер
-      - name: Upload frontend build to server
+      # 6. Архивируем dist
+      - name: Archive frontend build
+        run: zip -r frontend_dist.zip muslimApp/dist
+
+      # 7. Копируем архив на сервер
+      - name: Upload frontend archive to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ec2-54-70-95-26.us-west-2.compute.amazonaws.com
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "muslimApp/dist/*"    # <-- путь к dist на Actions
-          target: "/home/ubuntu/is_backend/dist"
+          source: "frontend_dist.zip"
+          target: "/home/ubuntu/is_backend/"
+
+      # 8. Разархивируем на сервере и удаляем архив
+      - name: Extract frontend on server
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Unzip frontend on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@ec2-54-70-95-26.us-west-2.compute.amazonaws.com << 'EOF'
+            cd /home/ubuntu/is_backend
+            unzip -o frontend_dist.zip
+            rm frontend_dist.zip
+          EOF
