@@ -1,4 +1,6 @@
 .walletDisconnect {
+  display: flex;
+  align-items: center;
   background-color: var(--bg-app);
   border: none;
   padding:  var(--numbers-4) var(--numbers-8);
