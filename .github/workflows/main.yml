@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,28 +14,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Устанавливаем Node.js
+      # 2. Посмотрим структуру репозитория для отладки
+      - name: List repo files
+        run: ls -la
+
+      # 3. Устанавливаем Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3. Устанавливаем зависимости фронта
-      - name: Install dependencies
-        working-directory: muslimApp
+      # 4. Устанавливаем зависимости фронта
+      - name: Install frontend dependencies
+        working-directory: .
         run: npm ci
 
-      # 4. Собираем фронт
-      - name: Build project
-        working-directory: muslimApp
+      # 5. Собираем фронт
+      - name: Build frontend
+        working-directory: .
         run: npm run build
 
-      # 5. Копируем готовый билд на сервер
-      - name: Upload build to server
+      # 6. Копируем готовый билд на сервер
+      - name: Upload frontend build to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ec2-54-70-95-26.us-west-2.compute.amazonaws.com
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "muslimApp/dist/*"
+          source: "muslimApp/dist/*"    # <-- путь к dist на Actions
           target: "/home/ubuntu/is_backend/dist"
