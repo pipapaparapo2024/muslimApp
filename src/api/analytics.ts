@@ -35,7 +35,7 @@ const getEventId = (): string => {
 export const trackButtonClick = async (
   eventType: string,
   eventName: string,
-  payload?: Record<string, any>
+  payload?: string | Record<string, any>
 ) => {
   const userId = getTelegramUserId();
   const sessionId = getSessionId();
