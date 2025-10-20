@@ -55,7 +55,7 @@ export const Home: React.FC = () => {
       </PageWrapper>
     );
   }
-
+  console.log("sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss")
   return (
     <PageWrapper>
       <Header />
