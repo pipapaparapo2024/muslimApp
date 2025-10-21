@@ -201,7 +201,7 @@ export const useScannerStore = create<ScannerState>()(
 
           setScanResult(historyItem);
           addToHistory(historyItem);
-          setShowAnalyzing(false); // Важно: убираем показ analyzing
+          setShowAnalyzing(false); 
 
           if (responseData.verdict === ProductStatus.NEEDS_INFO) {
             WebApp.showAlert(

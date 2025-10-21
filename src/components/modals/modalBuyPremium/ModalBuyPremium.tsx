@@ -32,7 +32,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
     loading: pricesLoading,
   } = usePrices();
   const { fetchUserData } = usePremiumStore();
-  const { payWithTon, isConnected,isWaitingConfirmation } = useTonPay();
+  const { payWithTon, isConnected, isWaitingConfirmation } = useTonPay();
   const { payWithStars } = useStarsPay();
   const [isProcessingTon, setIsProcessingTon] = React.useState(false);
   const [isProcessingStars, setIsProcessingStars] = React.useState(false);
@@ -114,6 +114,8 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
 
       switch (result.status) {
         case "success":
+          fetchUserData();
+          alert(translations?.paymentSuccess);
           break;
 
         case "insufficient_funds":
