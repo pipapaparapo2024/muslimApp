@@ -22,6 +22,8 @@ export const Header: React.FC = () => {
     if (!premiumDaysLeft) return translations?.premiumActive;
     if (premiumDaysLeft > 0) {
       return `${premiumDaysLeft} ${translations?.daysLeft}`;
+    } else if (premiumDaysLeft == 0) {
+      return translations?.lastDay;
     } else {
       return translations?.buyPremium;
     }

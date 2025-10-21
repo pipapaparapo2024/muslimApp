@@ -25,7 +25,12 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
 
   const getStatusText = () => {
     if (isLoading) return translations?.loading;
-    if (hasPremium) return `${premiumDaysLeft} ${translations?.daysLeft}`;
+    if (hasPremium) {
+      if (premiumDaysLeft ? premiumDaysLeft > 0)
+        return `${premiumDaysLeft} ${translations?.daysLeft}`;
+      else if (premiumDaysLeft == 0)
+        return `${translations?.lastDay}`
+    }
     if (requestsLeft != null && requestsLeft > 0)
       return `${requestsLeft} ${translations?.requests}`;
     return translations?.noRequests;
