@@ -10,14 +10,11 @@ export const AnalyzingIngredient: React.FC = () => {
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
   useEffect(() => {
-    // Если появилась ошибка - переходим на страницу ошибки
     if (error) {
-      console.log("Error occurred, navigating to /scanner/notScanned");
       navigate("/scanner/notScanned");
     }
   }, [error, navigate]);
 
-  // Если уже есть результат, не показываем analyzing
   if (scanResult) {
     return null;
   }

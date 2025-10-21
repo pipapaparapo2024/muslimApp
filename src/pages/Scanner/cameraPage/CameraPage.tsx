@@ -77,7 +77,7 @@ export const CameraPage: React.FC = () => {
         const file = new File([blob], "scanned-image.png", {
           type: "image/png",
         });
-        trackButtonClick("food_scan","click_scan_picture")
+        trackButtonClick("food_scan", "click_scan_picture")
         navigate("/scanner/analyze");
 
         setTimeout(async () => {

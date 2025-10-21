@@ -4,6 +4,7 @@ import WebApp from "@twa-dev/sdk";
 import { quranApi } from "../api/api";
 import { isErrorWithMessage } from "../api/api";
 import { AxiosError } from "axios";
+import { trackButtonClick } from "../api/analytics";
 
 export const ProductStatus = {
   HALAL: "halal",
@@ -135,7 +136,7 @@ export const useScannerStore = create<ScannerState>()(
         setLoading(true);
         setShowAnalyzing(true);
         setError(null);
-        setScanResult(null); 
+        setScanResult(null);
         setMinLoadingTimePassed(false);
 
         setTimeout(() => setMinLoadingTimePassed(true), 2000);
@@ -184,7 +185,9 @@ export const useScannerStore = create<ScannerState>()(
             haramProducts: responseData.haramProducts,
             date: date,
           };
-          console.log("scanResult",scanResult)
+          trackButtonClick("food_scan", "use_scan", {
+            engType: responseData.engType,
+          });
           const historyItem: HistoryItem = {
             id: responseData.id,
             date: date,
@@ -202,7 +205,6 @@ export const useScannerStore = create<ScannerState>()(
             );
           }
         } catch (error) {
-          console.error("Error in processImage:", error);
           clearTimeout(maxProcessingTimeout);
           setShowAnalyzing(false);
 

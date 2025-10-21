@@ -6,6 +6,7 @@ import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import styles from "./AnalyzingPromise.module.css";
 import analyz from "../../../assets/image/check.png";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
+import { trackButtonClick } from "../../../api/analytics";
 export const AnalyzingPromise: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,9 +22,9 @@ export const AnalyzingPromise: React.FC = () => {
 
     const processQuestion = async () => {
       try {
+        trackButtonClick("qa", "use_qa", { question: question })
         const id = await askQuestion(question);
 
-        // Обновляем данные пользователя (кол-во запросов и т.д.)
         await fetchUserData();
         navigate(`/qna/history/${id}`);
       } catch (error) {
