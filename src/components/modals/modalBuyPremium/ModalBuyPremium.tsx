@@ -44,11 +44,6 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
       .map((product) => {
         const days = product.revardAmount;
         let label = product.title;
-        // if (days === 7) label = `1 ${t("week")}`;
-        // else if (days === 30) label = `1 ${t("month")}`;
-        // else if (days === 365) label = `1 ${t("year")}`;
-        // else label = `${days} ${t("days")}`;
-
         return {
           label,
           days,

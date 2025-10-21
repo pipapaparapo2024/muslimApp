@@ -145,17 +145,10 @@ export const useTonPay = () => {
     setIsProcessing(true);
 
     try {
-      console.log("🚀 Начинаем процесс оплаты TON");
-
-      // Проверяем подключение
-      console.log("Проверяем подключение");
-      console.log("userAddress", userAddress);
-      console.log("!tonConnectUI.connected", !tonConnectUI.connected);
       if (!userAddress || !tonConnectUI.connected) {
         console.log("🔒 Открываем модальное окно TON Connect");
         await tonConnectUI.openModal();
 
-        // Ждем 3 секунды для подключения
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         if (!userAddress) {
@@ -174,8 +167,6 @@ export const useTonPay = () => {
       if (!params.productId) {
         return { status: "error", error: "Product ID is required" };
       }
-
-      console.log("📦 Создаем инвойс для продукта:", params.productId);
 
       // Создаем инвойс
       const invoiceResponse = await quranApi.post(
@@ -200,17 +191,7 @@ export const useTonPay = () => {
         userAddress,
         payload,
       });
-      // Отправляем транзакцию
-      console.log("🔄 Отправляем транзакцию в блокчейн...");
-      console.log("Проверка перед sendTransaction:");
-      console.log("- tonConnectUI доступен:", !!tonConnectUI);
-      console.log("- Кошелек мерчанта:", merchantWalletResult);
-      console.log("- Сумма:", amount);
-      console.log("- payloadBOC:", payloadBOC?.substring(0, 50) + "...");
-      console.log("- Пользователь подключен:", !!userAddress);
-      console.log(" перед запуском sendTransaction");
-
-      const result = await tonConnectUI.sendTransaction(
+      await tonConnectUI.sendTransaction(
         {
           network: CHAIN.MAINNET,
           validUntil: Math.floor(Date.now() / 1000) + 300,
@@ -223,14 +204,11 @@ export const useTonPay = () => {
           ],
         },
         {
-          // Добавьте эти опции для Telegram Mini Apps
           modals: ["before", "success", "error"],
           twaReturnUrl: `https://t.me/QiblaGuidebot?startapp=payment_success`,
           returnStrategy: "back",
         }
       );
-
-      console.log("✅ Транзакция отправлена, BOC:", result.boc);
 
       // Ждем подтверждения
       return await waitForConfirmation(payload);

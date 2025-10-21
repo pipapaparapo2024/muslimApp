@@ -1,5 +1,6 @@
 import { quranApi } from "../api/api";
-
+import { usePremiumStore } from "../hooks/usePremiumStore";
+import { useTranslationsStore } from "./useTranslations";
 export interface StarsPayParams {
   productId?: string;
   currencyId?: string;
@@ -13,13 +14,15 @@ export interface StarsPaymentResponse {
 }
 
 export const useStarsPay = () => {
+  const { fetchUserData } = usePremiumStore();
+  const {translations} = useTranslationsStore();
   const payWithStars = async (
     params: StarsPayParams
   ): Promise<StarsPaymentResponse> => {
     try {
-      console.log("params.productId",params.productId)
+      console.log("params.productId", params.productId);
       const response = await quranApi.post("/api/v1/payments/stars/invoice", {
-        priceId: params.productId, 
+        priceId: params.productId,
       });
 
       if (response.data.data.url) {
@@ -28,10 +31,9 @@ export const useStarsPay = () => {
             window.Telegram.WebApp.openInvoice(
               response.data.data.url,
               (status: string) => {
-                // Обработка результата оплаты
                 if (status === "paid") {
-                  console.log("Payment successful");
-                  // Можно добавить дополнительную логику здесь
+                  fetchUserData();
+                  alert(translations?.paymentSuccess);
                 } else if (status === "failed") {
                   console.log("Payment failed");
                 } else if (status === "cancelled") {
