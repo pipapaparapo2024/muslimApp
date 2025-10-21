@@ -22,7 +22,7 @@ export const AnalyzingPromise: React.FC = () => {
 
     const processQuestion = async () => {
       try {
-        trackButtonClick("qa", "use_qa", { question: question })
+        trackButtonClick("qa", "use_qa", JSON.stringify({ question: question }))
         const id = await askQuestion(question);
 
         await fetchUserData();

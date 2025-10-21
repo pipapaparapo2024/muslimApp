@@ -185,9 +185,13 @@ export const useScannerStore = create<ScannerState>()(
             haramProducts: responseData.haramProducts,
             date: date,
           };
-          trackButtonClick("food_scan", "use_scan", {
-            engType: responseData.engType,
-          });
+          trackButtonClick(
+            "food_scan",
+            "use_scan",
+            JSON.stringify({
+              engType: responseData.engType,
+            })
+          );
           const historyItem: HistoryItem = {
             id: responseData.id,
             date: date,
