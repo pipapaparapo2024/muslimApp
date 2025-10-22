@@ -71,7 +71,7 @@ export const SettingPrayerTimes: React.FC = () => {
   };
 
   const handleInfoClick = (prayer: any) => {
-    trackButtonClick("prayer_times", "click_info", prayer.name)
+    trackButtonClick("prayer_times", "click_info", JSON.stringify({ prayer_name: prayer.name }));
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
   };
@@ -81,15 +81,21 @@ export const SettingPrayerTimes: React.FC = () => {
     setSelectedPrayer(null);
   };
 
-  const handleToggleSelection = async (id: string) => {
+  const handleToggleSelection = async (prayer: any) => {
+    const actionType = prayer.hasSelected ? "click_show_off_main_screen" : "click_show_on_main_screen";
+    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.name }));
+    
     setLocalLoading(true);
-    await togglePrayerSelection(id);
+    await togglePrayerSelection(prayer.id);
     setLocalLoading(false);
   };
 
-  const handleToggleNotification = async (id: string) => {
+  const handleToggleNotification = async (prayer: any) => {
+    const actionType = prayer.hasTelegramNotification ? "click_off_all_tg_notifications" : "click_on_all_tg_notifications";
+    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.name }));
+    
     setLocalLoading(true);
-    await togglePrayerNotification(id);
+    await togglePrayerNotification(prayer.id);
     setLocalLoading(false);
   };
 
@@ -198,9 +204,7 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasSelected}
-                    onChange={() =>
-                      handleToggleSelection(prayer.id)
-                    }
+                    onChange={() => handleToggleSelection(prayer)}
                     className={styles.toggleInput}
                     disabled={localLoading}
                   />
@@ -212,9 +216,7 @@ export const SettingPrayerTimes: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={prayer.hasTelegramNotification}
-                    onChange={() =>
-                      handleToggleNotification(prayer.id)
-                    }
+                    onChange={() => handleToggleNotification(prayer)}
                     className={styles.toggleInput}
                     disabled={!prayer.hasSelected || localLoading}
                   />
