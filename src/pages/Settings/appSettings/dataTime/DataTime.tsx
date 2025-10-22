@@ -2,9 +2,7 @@ import React from "react";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./DataTime.module.css";
 import { Check } from "lucide-react";
-// import { useGeoStore } from "../../../../hooks/useGeoStore";
 import { useDataTimeStore } from "../../../../hooks/useDataTimeStore";
-// import { useLanguage } from "../../../../hooks/useLanguages";
 import { trackButtonClick } from "../../../../api/analytics";
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
 
@@ -29,8 +27,6 @@ const DATE_FORMATS = [
 ];
 
 export const DataTime: React.FC = () => {
-  // const { ipData } = useGeoStore();
-  // const { language } = useLanguage();
   const {
     is24Hour,
     isAutoTime,
@@ -55,7 +51,7 @@ export const DataTime: React.FC = () => {
   };
 
   const handleSelect = (formatKey: string) => {
-    trackButtonClick("date_format", "date_format", { date_format: formatKey });
+    trackButtonClick("date_format", "date_format", JSON.stringify({ date_format: formatKey }));
     setSelectedDateFormat(formatKey);
   };
 
@@ -90,19 +86,6 @@ export const DataTime: React.FC = () => {
             />
             <span className={styles.toggleSlider}></span>
           </label>
-
-          {/* Time zone */}
-          {/* <div className={styles.toggleItem}>
-            <span className={styles.showMain}> {translations?.timeZone}</span>
-            <div className={styles.timeZone}>
-              <span className={styles.timeZoneValue}>{ipData?.timeZone}</span>
-              {language === "ar" ? (
-                <ChevronLeft size={24} />
-              ) : (
-                <ChevronRight size={24} />
-              )}
-            </div>
-          </div> */}
         </div>
       </div>
 
@@ -113,15 +96,13 @@ export const DataTime: React.FC = () => {
           {DATE_FORMATS.map((format) => (
             <div
               key={format.key}
-              className={`${styles.dateOption} ${
-                selectedDateFormat === format.key ? styles.selected : ""
-              }`}
+              className={`${styles.dateOption} ${selectedDateFormat === format.key ? styles.selected : ""
+                }`}
               onClick={() => handleSelect(format.key)}
             >
               <div
-                className={`${styles.dateText} ${
-                  selectedDateFormat === format.key ? styles.selectedDate : ""
-                }`}
+                className={`${styles.dateText} ${selectedDateFormat === format.key ? styles.selectedDate : ""
+                  }`}
               >
                 {format.value}
               </div>

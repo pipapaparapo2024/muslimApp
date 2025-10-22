@@ -226,7 +226,7 @@ export const SurahList: React.FC = () => {
     setSelectedSurah(surah);
     const name = await getTranslatedName(surah.name);
     console.log("surah_name_translated", name);
-    trackButtonClick("quran", "click_chapters", { chapters_name: name });
+    trackButtonClick("quran", "click_chapters", JSON.stringify({ chapters_name: name }));
     navigate(`/quran/${surah.id}`, {
       state: { surah, variantId: selectedVariant?.id },
     });
@@ -336,9 +336,8 @@ export const SurahList: React.FC = () => {
                       resultRefs.current.set(surah.number, el);
                     }
                   }}
-                  className={`${styles.surahItem} ${
-                    isSearchResult ? styles.searchResult : ""
-                  } ${isCurrentResult ? styles.highlightedResult : ""}`}
+                  className={`${styles.surahItem} ${isSearchResult ? styles.searchResult : ""
+                    } ${isCurrentResult ? styles.highlightedResult : ""}`}
                   onClick={() => handleSurahClick(surah)}
                 >
                   <div className={styles.blockNameNumber}>

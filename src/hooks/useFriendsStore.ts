@@ -148,9 +148,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   claimTotalReward: async () => {
     try {
       set({ loading: true, error: null });
-      trackButtonClick("friends", "click_get_reward", {
-        reward_name: "requests",
-      });
+      trackButtonClick(
+        "friends",
+        "click_get_reward",
+        JSON.stringify({
+          reward_name: "requests",
+        })
+      );
 
       await quranApi.post("api/v1/referal/bonuses/total/revard", {});
 
@@ -172,9 +176,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   claimPurchasedReward: async () => {
     try {
       set({ loading: true, error: null });
-      trackButtonClick("friends", "click_get_reward", {
-        reward_name: "premium",
-      });
+      trackButtonClick(
+        "friends",
+        "click_get_reward",
+        JSON.stringify({
+          reward_name: "premium",
+        })
+      );
 
       await quranApi.post("/referal/bonuses/purchased/revard", {});
 
