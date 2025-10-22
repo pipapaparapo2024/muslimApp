@@ -29,7 +29,7 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
   ];
 
   const handleSelect = (theme: "light" | "dark" | "system") => {
-    trackButtonClick("settings", "select_theme_in_modal", {
+    trackButtonClick("settings", "use_theme", {
       theme_name: theme,
     });
 
