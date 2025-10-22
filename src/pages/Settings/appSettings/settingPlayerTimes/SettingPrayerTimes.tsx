@@ -45,33 +45,33 @@ export const SettingPrayerTimes: React.FC = () => {
   const handleSelectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(true);
-    trackButtonClick("prayer_times","click_on_show_all_prayer_times");
+    trackButtonClick("prayer_times", "click_on_show_all_prayer_times");
     setLocalLoading(false);
   };
 
   const handleDeselectAll = async () => {
     setLocalLoading(true);
     await setAllPrayersSelected(false);
-    trackButtonClick("prayer_times","click_off_show_all_prayer_times");
+    trackButtonClick("prayer_times", "click_off_show_all_prayer_times");
     setLocalLoading(false);
   };
 
   const handleEnableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(true);
-    trackButtonClick("prayer_times","click_on_get_all_tg_notifications");
+    trackButtonClick("prayer_times", "click_on_get_all_tg_notifications");
     setLocalLoading(false);
   };
 
   const handleDisableAllNotifications = async () => {
     setLocalLoading(true);
     await setAllNotifications(false);
-    trackButtonClick("prayer_times","click_off_get_all_tg_notifications");
+    trackButtonClick("prayer_times", "click_off_get_all_tg_notifications");
     setLocalLoading(false);
   };
 
   const handleInfoClick = (prayer: any) => {
-    trackButtonClick("prayer_times","click_info",prayer.name)
+    trackButtonClick("prayer_times", "click_info", prayer.name)
     setSelectedPrayer(prayer);
     setIsModalOpen(true);
   };
@@ -101,8 +101,8 @@ export const SettingPrayerTimes: React.FC = () => {
   const allNotificationsEnabled =
     prayerSetting.length > 0
       ? prayerSetting
-          .filter((prayer) => prayer.hasSelected)
-          .every((prayer) => prayer.hasTelegramNotification)
+        .filter((prayer) => prayer.hasSelected)
+        .every((prayer) => prayer.hasTelegramNotification)
       : false;
 
   const handleToggleAllPrayers = async () => {
@@ -227,6 +227,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
         {selectedPrayer && (
           <ModalPrayer
+            settings={false}
             isOpen={isModalOpen}
             onRequestClose={handleCloseModal}
             prayer={selectedPrayer}

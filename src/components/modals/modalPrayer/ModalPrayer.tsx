@@ -4,19 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { type Prayers } from "../../../hooks/usePrayerApiStore";
 import { Pen } from "lucide-react";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
+
 interface ModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
   prayer: Prayers;
+  settings?: boolean;
 }
 
 export const ModalPrayer: React.FC<ModalProps> = ({
   isOpen,
   onRequestClose,
   prayer,
+  settings = true,
 }) => {
   const navigate = useNavigate();
-const {translations}=useTranslationsStore();
+  const { translations } = useTranslationsStore();
   if (!isOpen || !prayer) return null;
 
   return (
@@ -30,8 +33,7 @@ const {translations}=useTranslationsStore();
         </div>
 
         <p className={styles.modalDescription}>{prayer.description}</p>
-
-        <div className={styles.prayerTime}>
+        {settings && <div className={styles.prayerTime}>
           <button
             className={styles.editButton}
             onClick={() => navigate("/settings/prayerTimes")}
@@ -41,7 +43,8 @@ const {translations}=useTranslationsStore();
             </div>
             {translations?.settings}
           </button>
-        </div>
+        </div>}
+
       </div>
     </div>
   );

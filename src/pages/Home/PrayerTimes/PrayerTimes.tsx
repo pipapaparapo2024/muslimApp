@@ -82,12 +82,11 @@ export const PrayerTimes: React.FC = () => {
             <div
               key={prayer.id}
               onClick={() => {
-                trackButtonClick("main","click_prayer_times")
+                trackButtonClick("main", "click_prayer_times")
                 handlePrayerClick(prayer);
               }}
-              className={`${styles.prayerCard} ${
-                isNear ? styles.nearPrayer : ""
-              } ${isPassed ? styles.passedPrayer : ""}`}
+              className={`${styles.prayerCard} ${isNear ? styles.nearPrayer : ""
+                } ${isPassed ? styles.passedPrayer : ""}`}
             >
               {isNear && (
                 <div className={styles.countdownBanner}>
