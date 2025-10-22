@@ -56,7 +56,7 @@ export const Home: React.FC = () => {
   return (
     <PageWrapper>
       <Header />
-      ggggggggggggggggggggggggggg
+      gggggggggggggggggggggggggggggg
       {isLoading && (
         <div className={styles.loadingContainer}>
           <LoadingSpinner />
