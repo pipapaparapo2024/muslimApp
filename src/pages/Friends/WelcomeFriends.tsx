@@ -41,11 +41,11 @@ export const WelcomeFriends: React.FC = () => {
   const shareViaTelegram = () => {
     if (!referralLink) return;
 
-    trackButtonClick("friends","click_invite_friends")
-    const shareText = "Join any cool app!🚀";
+    trackButtonClick("friends", "click_invite_friends")
+
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(
       referralLink
-    )}&text=${encodeURIComponent(shareText)}`;
+    )}`;
 
     window.open(shareUrl, "_blank");
   };
