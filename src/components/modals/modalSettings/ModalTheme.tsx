@@ -29,9 +29,9 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
   ];
 
   const handleSelect = (theme: "light" | "dark" | "system") => {
-    trackButtonClick("settings", "use_theme", {
+    trackButtonClick("settings", "use_theme", JSON.stringify({
       theme_name: theme,
-    });
+    }));
 
     onThemeChange?.(theme);
     onClose?.();
@@ -54,9 +54,8 @@ export const ModalTheme: React.FC<ThemeModalProps> = ({
           {themes.map((theme) => (
             <div
               key={theme.id}
-              className={`${styles.option} ${
-                currentTheme === theme.id ? styles.selected : ""
-              }`}
+              className={`${styles.option} ${currentTheme === theme.id ? styles.selected : ""
+                }`}
               onClick={() =>
                 handleSelect(theme.id as "light" | "dark" | "system")
               }

@@ -54,6 +54,7 @@ export const TableRequestsHistory: React.FC<ClickHistory> = ({ text }) => {
         className={styles.button}
         onClick={() => {
           handleHistoryClick();
+          console.log("textttttt",text)
           if ((text = "/qna/history")) {
             trackButtonClick("qa", "history_button");
           } else {
