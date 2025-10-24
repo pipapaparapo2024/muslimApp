@@ -3,7 +3,7 @@ import { useScannerStore } from "../../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
 import styles from "./AnalyzingIngredient.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
-import analyz from "../../../assets/image/check.png";
+import analyz from "../../../assets/icons/search.png";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const AnalyzingIngredient: React.FC = () => {
   const { error, scanResult } = useScannerStore(); // Добавляем scanResult

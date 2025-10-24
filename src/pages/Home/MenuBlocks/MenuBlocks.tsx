@@ -7,11 +7,11 @@ import { useFriendsStore } from "../../../hooks/useFriendsStore";
 import { trackButtonClick } from "../../../api/analytics";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 
-import Quaran from "../../../assets/icons/quaran1.svg";
-import apple from "../../../assets/icons/Applee.svg";
-import church from "../../../assets/icons/Churchh.svg";
-import muslim from "../../../assets/icons/islam.svg";
-import settings from "../../../assets/icons/setting.svg";
+import Quaran from "../../../assets/icons/Quaran.png";
+import apple from "../../../assets/icons/Apple.png";
+import church from "../../../assets/icons/Church.png";
+import muslim from "../../../assets/icons/Friends.png";
+import settings from "../../../assets/icons/Gear.png";
 
 export const MenuBlocks: React.FC = () => {
   const navigate = useNavigate();
