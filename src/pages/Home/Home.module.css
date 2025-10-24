@@ -1,19 +1,16 @@
 .prayerTimesQiblaContainer {
-  position: relative; /* Важно для позиционирования модалки */
+  position: relative; 
   border-radius: var(--roundings-medium);
   padding: var(--numbers-16);
   box-shadow: 0 var(--numbers-2) var(--numbers-8) rgba(0, 0, 0, 0.07);
   background-color: var(--bg-surface);
-  min-height: 400px; /* Минимальная высота для центрирования */
 }
 
-/* Контент блока, который будет размываться */
 .prayerTimesQiblaContent {
   position: relative;
   z-index: 1;
 }
 
-/* Модалка теперь позиционируется относительно prayerTimesQiblaContainer */
 .vpnWarningOverlay {
   border-radius: var(--roundings-medium);
   position: absolute; 
