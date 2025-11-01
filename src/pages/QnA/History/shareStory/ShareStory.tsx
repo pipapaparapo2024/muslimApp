@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ShareStory.module.css";
-import message from "../../../../assets/image/storyshare.png";
 import backgroundImg from "../../../../assets/image/background.png";
 
 import { useTranslationsStore } from "../../../../hooks/useTranslations";
@@ -30,21 +29,7 @@ export const ShareStory: React.FC = () => {
       if (!id) return;
 
       try {
-        const preloadImage = (src: string): Promise<void> => {
-          return new Promise((resolve) => {
-            const img = new Image();
-            img.src = src;
-            img.onload = () => resolve();
-            img.onerror = () => {
-              console.warn(`Failed to load image: ${src}`);
-              resolve();
-            };
-          });
-        };
-
         const item = await getHistoryItem(id);
-        await preloadImage(message);
-
         setCurrentItem(item);
         setIsLoaded(true);
       } catch (error) {
@@ -123,11 +108,6 @@ export const ShareStory: React.FC = () => {
           />
 
           <div className={styles.messageContainer}>
-            <img
-              src={message}
-              className={styles.messageImage}
-              alt="Message background"
-            />
             <div className={styles.blockMessages}>
               <div className={styles.blockMessageUser}>
                 <div className={styles.nickName}> {translations?.you}</div>

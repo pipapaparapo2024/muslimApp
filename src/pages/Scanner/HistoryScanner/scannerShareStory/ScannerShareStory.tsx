@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./ScannerShareStory.module.css";
-import message from "../../../../assets/image/storyshare.png";
 import backgroundImg from "../../../../assets/image/background.png";
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import { LoadingSpinner } from "../../../../components/LoadingSpinner/LoadingSpinner";
@@ -29,22 +28,6 @@ export const ScannerShareStory: React.FC = () => {
   const { translations } = useTranslationsStore();
 
   useEffect(() => {
-    const preloadImages = (): Promise<void[]> => {
-      const imagePromises = [message, backgroundImg].map((src) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.src = src;
-          img.onload = () => resolve();
-          img.onerror = () => {
-            console.warn(`Failed to load image: ${src}`);
-            resolve();
-          };
-        });
-      });
-
-      return Promise.all(imagePromises);
-    };
-
     const loadItem = async () => {
       if (!id) return;
 
@@ -54,7 +37,6 @@ export const ScannerShareStory: React.FC = () => {
       }
 
       try {
-        await preloadImages();
         setIsLoaded(true);
       } catch (err) {
         console.error("Error during image preloading:", err);
@@ -131,13 +113,6 @@ export const ScannerShareStory: React.FC = () => {
           />
 
           <div className={styles.imageContainer}>
-            <img
-              src={message}
-              alt="Message background"
-              className={styles.foregroundImage}
-              crossOrigin="anonymous"
-            />
-
             <div className={styles.blockScan}>
               <div
                 className={`${styles.accessBlock} ${getStatusClassName(
