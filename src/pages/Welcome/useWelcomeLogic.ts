@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
-import prayerRemindersImage from "../../assets/image/watch.svg";
+import prayerRemindersImage from "../../assets/image/watch.png";
 import quranImage from "../../assets/image/quran.svg";
 import scannerImage from "../../assets/image/products.svg";
 import qnaImage from "../../assets/image/quran2.svg";
