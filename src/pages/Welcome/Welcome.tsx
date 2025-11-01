@@ -79,7 +79,7 @@ export const Welcome: React.FC = () => {
               {steps[step].desc}
             </div>
           </div>
-
+            
           {/* Картинка */}
           <div
             className={styles.welcomeImage}
@@ -89,6 +89,7 @@ export const Welcome: React.FC = () => {
               transition: "opacity 0.3s ease, transform 0.3s ease",
             }}
           >
+
             <img src={steps[step].image} alt={steps[step].title} />
           </div>
 
