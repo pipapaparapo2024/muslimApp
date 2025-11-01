@@ -53,28 +53,23 @@ export const useWelcomeLogic = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { fetchFromIpApi, getLocationData, country, langcode } = useGeoStore();
   const { sendUserSettings } = useUserParametersStore();
-  const [
-    isInitialized,
-    {
-      /*setIsInitialized*/
-    },
-  ] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const {
-    // isAuthenticated,
-    // isLoading: isAuthLoading,
+    isAuthenticated,
+    isLoading: isAuthLoading,
     error: authError,
-    // wasLogged,
+    wasLogged,
   } = useTelegram();
 
-  // useEffect(() => {
-  //   if (!isAuthLoading) {
-  //     if (isAuthenticated && wasLogged) {
-  //       navigate("/home", { replace: true });
-  //     }
-  //     setIsInitialized(true);
-  //   }
-  // }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
+  useEffect(() => {
+    if (!isAuthLoading) {
+      // if (isAuthenticated && wasLogged) {
+      //   navigate("/home", { replace: true });
+      // }
+      setIsInitialized(true);
+    }
+  }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
 
   useEffect(() => {
     const initializeApp = async () => {
