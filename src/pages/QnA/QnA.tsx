@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./QnA.module.css";
 import { PageWrapper } from "../../shared/PageWrapper";
-import thinkPerson from "../../assets/image/get.png";
+import thinkPerson from "../../assets/image/secondQuran.png";
 import { usePremiumStore } from "../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";

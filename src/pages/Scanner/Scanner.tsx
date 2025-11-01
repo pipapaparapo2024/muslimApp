@@ -5,7 +5,7 @@ import { Camera, TriangleAlert, Wallet } from "lucide-react";
 import { BuyRequestsModal } from "../../components/modals/modalBuyReqeuests/ModalBuyRequests";
 import { TableRequestsHistory } from "../../components/TableRequestsHistory/TableRequestsHistory";
 import { useNavigate } from "react-router-dom";
-import analyze from "../../assets/image/scan.png";
+import analyze from "../../assets/image/product.png";
 import styles from "./Scanner.module.css";
 import { useTranslationsStore } from "../../hooks/useTranslations";
 import { trackButtonClick } from "../../api/analytics";

@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTelegram } from "../../hooks/useTelegram";
-import prayerRemindersImage from "../../assets/image/playeR.png";
-import quranImage from "../../assets/image/read.png";
-import scannerImage from "../../assets/image/scan.png";
-import qnaImage from "../../assets/image/get.png";
+import prayerRemindersImage from "../../assets/image/watchPrayers.png";
+import quranImage from "../../assets/image/quaran.png";
+import scannerImage from "../../assets/image/product.png";
+import qnaImage from "../../assets/image/secondQuran.png";
+
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";
 import { useTranslationsStore } from "../../hooks/useTranslations";

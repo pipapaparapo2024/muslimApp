@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { PageWrapper } from "../../shared/PageWrapper";
 import styles from "./WelcomeFriends.module.css";
-import friendsImage from "../../assets/image/Friiends.png";
+import friendsImage from "../../assets/image/letterTg.png";
 import { LoadingSpinner } from "../../components/LoadingSpinner/LoadingSpinner";
 import { useFriendsStore } from "../../hooks/useFriendsStore";
 import { trackButtonClick } from "../../api/analytics";

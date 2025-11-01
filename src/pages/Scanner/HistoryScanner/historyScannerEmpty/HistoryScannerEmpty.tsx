@@ -1,6 +1,6 @@
 import { PageWrapper } from "../../../../shared/PageWrapper";
 import styles from "./HistoryScannerEmpty.module.css";
-import emptyscan from "../../../../assets/image/scanempty.png";
+import emptyscan from "../../../../assets/image/empty.png";
 import React, { useEffect, useState } from "react";
 import { usePremiumStore } from "../../../../hooks/usePremiumStore";
 import { Wallet } from "lucide-react";

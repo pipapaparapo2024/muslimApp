@@ -3,10 +3,10 @@ import { useScannerStore } from "../../../hooks/useScannerStore";
 import { useNavigate } from "react-router-dom";
 import styles from "./AnalyzingIngredient.module.css";
 import { PageWrapper } from "../../../shared/PageWrapper";
-import analyz from "../../../assets/icons/search.png";
+import analyz from "../../../assets/image/loop.png";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 export const AnalyzingIngredient: React.FC = () => {
-  const { error, scanResult } = useScannerStore(); // Добавляем scanResult
+  const { error, scanResult } = useScannerStore(); 
   const navigate = useNavigate();
   const { translations } = useTranslationsStore();
   useEffect(() => {
