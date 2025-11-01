@@ -4,7 +4,7 @@ import { PageWrapper } from "../../../shared/PageWrapper";
 import { useQnAStore } from "../../../hooks/useQnAStore";
 import { usePremiumStore } from "../../../hooks/usePremiumStore";
 import styles from "./AnalyzingPromise.module.css";
-import analyz from "../../../assets/image/loop.png";
+import analyz from "../../../assets/image/lamp.png";
 import { useTranslationsStore } from "../../../hooks/useTranslations";
 import { trackButtonClick } from "../../../api/analytics";
 export const AnalyzingPromise: React.FC = () => {
