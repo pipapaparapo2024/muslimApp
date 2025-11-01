@@ -4,7 +4,7 @@ import { useTelegram } from "../../hooks/useTelegram";
 import prayerRemindersImage from "../../assets/image/watch.svg";
 import quranImage from "../../assets/image/quran.svg";
 import scannerImage from "../../assets/image/products.svg";
-import qnaImage from "../../assets/image/quran.svg";
+import qnaImage from "../../assets/image/quran2.svg";
 
 import { useGeoStore } from "../../hooks/useGeoStore";
 import { useUserParametersStore } from "../../hooks/useUserParametrsStore";

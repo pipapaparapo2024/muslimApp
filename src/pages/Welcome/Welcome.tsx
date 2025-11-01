@@ -20,7 +20,6 @@ export const Welcome: React.FC = () => {
   } = useWelcomeLogic();
   const { isAuthenticated, wasLogged } = useTelegram();
   const { translations } = useTranslationsStore();
-  // Показываем лоадер пока проверяем аутентификацию
   if (!isInitialized) {
     return (
       <PageWrapper>
@@ -28,7 +27,6 @@ export const Welcome: React.FC = () => {
       </PageWrapper>
     );
   }
-  // Показываем ошибку если что-то пошло не так
   if (error) {
     return (
       <PageWrapper>
@@ -46,7 +44,6 @@ export const Welcome: React.FC = () => {
     );
   }
 
-  // Показываем лоадер при загрузке изображений
   if (!isLoaded) {
     return (
       <PageWrapper showBackButton={true}>
@@ -55,7 +52,6 @@ export const Welcome: React.FC = () => {
     );
   }
 
-  // Основной рендер
   if (!isAuthenticated && !wasLogged) {
     return (
       <PageWrapper>
