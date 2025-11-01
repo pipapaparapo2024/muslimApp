@@ -62,14 +62,14 @@ export const useWelcomeLogic = () => {
     wasLogged,
   } = useTelegram();
 
-  useEffect(() => {
-    if (!isAuthLoading) {
-      if (isAuthenticated && wasLogged) {
-        navigate("/home", { replace: true });
-      }
-      setIsInitialized(true);
-    }
-  }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
+  // useEffect(() => {
+  //   if (!isAuthLoading) {
+  //     if (isAuthenticated && wasLogged) {
+  //       navigate("/home", { replace: true });
+  //     }
+  //     setIsInitialized(true);
+  //   }
+  // }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
 
   useEffect(() => {
     const initializeApp = async () => {
