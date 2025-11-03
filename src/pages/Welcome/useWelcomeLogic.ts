@@ -64,10 +64,9 @@ export const useWelcomeLogic = () => {
 
   useEffect(() => {
     if (!isAuthLoading) {
-      console.log("/home")
-      // if (isAuthenticated && wasLogged) {
-      //   navigate("/home", { replace: true });
-      // }
+      if (isAuthenticated && wasLogged) {
+        navigate("/home", { replace: true });
+      }
       setIsInitialized(true);
     }
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
