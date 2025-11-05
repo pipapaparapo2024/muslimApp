@@ -4,6 +4,8 @@ import axios from "axios";
 import { isErrorWithMessage } from "../api/api";
 
 export interface IpData {
+  country_name: string;
+  country_code: string;
   success: boolean;
   ip: string;
   type: string;
@@ -18,6 +20,8 @@ export interface IpData {
     lat: number;
     lon: number;
   };
+  latitude: number;
+  longitude: number;
   timeZone: string;
   asn?: {
     number: number;
@@ -75,9 +79,7 @@ export const useGeoStore = create<GeoState>()(
         set({ isLoading: true, error: null });
 
         try {
-          const response = await axios.get<IpData>(
-            "https://api.my-ip.io/v2/ip.json"
-          );
+          const response = await axios.get<IpData>("https://ipapi.co/json/");
           const data = response.data;
 
           if (!data.success) {
@@ -86,9 +88,9 @@ export const useGeoStore = create<GeoState>()(
 
           const city =
             data.city || data.region || data.country?.name || "Unknown";
-          const countryName = data.country?.name || "Unknown";
-          const countryCode = data.country?.code?.toUpperCase() || "EN";
-          const langcode = countryCode; 
+          const countryName = data.country_name || "Unknown";
+          const countryCode = data.country_code || "EN";
+          const langcode = countryCode;
 
           const normalized = {
             ...data,
@@ -100,11 +102,14 @@ export const useGeoStore = create<GeoState>()(
 
           localStorage.setItem("ipDataCache", JSON.stringify(normalized));
           localStorage.setItem("lastGeoRequest", Date.now().toString());
-
+          const location = {
+            lat: data.latitude,
+            lon: data.longitude,
+          };
           // ✅ обновляем store
           set({
             ipData: data,
-            coords: data.location,
+            coords: location,
             city,
             country: countryName,
             langcode,
@@ -112,7 +117,6 @@ export const useGeoStore = create<GeoState>()(
             isLoading: false,
             error: null,
           });
-
         } catch (err: unknown) {
           const message = isErrorWithMessage(err)
             ? err.message
