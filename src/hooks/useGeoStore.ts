@@ -75,22 +75,44 @@ export const useGeoStore = create<GeoState>()(
 
       fetchFromIpApi: async () => {
         console.log("🔄 Проверяем геоданные...");
-
         set({ isLoading: true, error: null });
 
         try {
-          const response = await axios.get<IpData>("https://ipapi.co/json/");
-          const data = response.data;
-
-          if (!data.success) {
-            throw new Error("API returned success: false");
+          // 1️⃣ Проверяем, доступен ли Telegram WebApp API
+          const tg = (window as any).Telegram?.WebApp;
+          if (tg?.initDataUnsafe?.user) {
+            console.log(
+              "📍 Telegram WebApp найден, пробуем взять геолокацию..."
+            );
+            if (tg.requestLocation) {
+              tg.requestLocation();
+            }
           }
 
-          const city =
-            data.city || data.region || data.country?.name || "Unknown";
-          const countryName = data.country_name || "Unknown";
-          const countryCode = data.country_code || "EN";
+          let response;
+          try {
+            response = await axios.get("https://ipapi.co/json/", {
+              timeout: 5000,
+            });
+            console.log("✅ Получены данные с ipapi.co");
+          } catch (err) {
+            console.warn(
+              "⚠️ ipapi.co не отвечает, пробуем fallback ipwho.is",
+              err
+            );
+            response = await axios.get("https://ipwho.is/", { timeout: 5000 });
+          }
+
+          const data = response.data;
+          const city = data.city || data.region || "Unknown";
+          const countryName = data.country_name || data.country || "Unknown";
+          const countryCode =
+            data.country_code || data.country_code_iso2 || "EN";
           const langcode = countryCode;
+          const location = {
+            lat: data.latitude || data.lat,
+            lon: data.longitude || data.lon,
+          };
 
           const normalized = {
             ...data,
@@ -100,29 +122,29 @@ export const useGeoStore = create<GeoState>()(
             timestamp: Date.now(),
           };
 
+          // Кэшируем
           localStorage.setItem("ipDataCache", JSON.stringify(normalized));
           localStorage.setItem("lastGeoRequest", Date.now().toString());
-          const location = {
-            lat: data.latitude,
-            lon: data.longitude,
-          };
-          // ✅ обновляем store
+
+          // Обновляем store
           set({
             ipData: data,
             coords: location,
             city,
             country: countryName,
             langcode,
-            timeZone: data.timeZone,
+            timeZone: data.timezone || data.timeZone || "Europe/Moscow",
             isLoading: false,
             error: null,
           });
-        } catch (err: unknown) {
-          const message = isErrorWithMessage(err)
-            ? err.message
-            : "Fail to get location";
-          console.error("❌ Ошибка получения геоданных:", message, err);
-          set({ error: message, isLoading: false });
+
+          console.log("📍 Геолокация успешно определена:", normalized);
+        } catch (err: any) {
+          console.error("❌ Ошибка получения геоданных:", err?.message || err);
+          set({
+            error: err?.message || "Fail to get location",
+            isLoading: false,
+          });
         }
       },
 
