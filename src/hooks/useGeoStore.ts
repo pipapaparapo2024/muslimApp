@@ -77,36 +77,15 @@ export const useGeoStore = create<GeoState>()(
         set({ isLoading: true, error: null });
 
         try {
-          // 1️⃣ Проверяем, доступен ли Telegram WebApp API
-          const tg = (window as any).Telegram?.WebApp;
-          if (tg?.initDataUnsafe?.user) {
-            console.log(
-              "📍 Telegram WebApp найден, пробуем взять геолокацию..."
-            );
-            if (tg.requestLocation) {
-              tg.requestLocation();
-            }
-          }
-
-          let response;
-          try {
-            response = await axios.get("https://ipapi.co/json/", {
-              timeout: 5000,
-            });
-            console.log("✅ Получены данные с ipapi.co");
-          } catch (err) {
-            console.warn(
-              "⚠️ ipapi.co не отвечает, пробуем fallback ipwho.is",
-              err
-            );
-            response = await axios.get("https://ipwho.is/", { timeout: 5000 });
-          }
+          const response = await axios.get("https://ipwho.is/", {
+            timeout: 5000,
+          });
+          console.log("✅ Получены данные с ipwho.co");
 
           const data = response.data;
-          const city = data.city || data.region || "Unknown";
-          const countryName = data.country_name || data.country || "Unknown";
-          const countryCode =
-            data.country_code || data.country_code_iso2 || "EN";
+          const city = data.city || data.region;
+          const countryName = data.country;
+          const countryCode = data.country_code;
           const langcode = countryCode;
           const location = {
             lat: data.latitude || data.lat,
@@ -117,7 +96,7 @@ export const useGeoStore = create<GeoState>()(
             ...data,
             city,
             country: { name: countryName, code: countryCode },
-            langcode,
+            countryCode,
             timestamp: Date.now(),
           };
 
