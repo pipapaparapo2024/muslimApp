@@ -103,15 +103,6 @@ export const useGeoStore = create<GeoState>()(
           // Кэшируем
           localStorage.setItem("ipDataCache", JSON.stringify(normalized));
           localStorage.setItem("lastGeoRequest", Date.now().toString());
-
-          console.log("ipdata:", {
-            ipData: data,
-            coords: location,
-            city,
-            country: countryName,
-            langcode,
-            timeZone: data.timezone.id,
-          });
           // Обновляем store
           set({
             ipData: data,
