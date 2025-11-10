@@ -231,7 +231,7 @@ export const BuyPremiumModal: React.FC<BuyPremiumModalProps> = ({
             <div className={styles.priceText}>
               <img src={ton} alt="TON" width="24" height="24" />
               <div className={styles.priceValueTon}>
-                {(prices.ton * 0.00000001).toFixed(2)}
+                {(prices.ton * 0.000000001).toFixed(2)}
               </div>
             </div>
             {!isConnected && !isProcessingTon && (
