@@ -13,6 +13,7 @@
 .editIcon {
   cursor: pointer;
   color: #A8A29E;
+  animation: pulse 1.5s infinite;
 }
 
 .subtitle {
@@ -99,7 +100,17 @@
     box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
   }
 }
-
+@keyframes pulsePen {
+  0% {
+    box-shadow: 0 0 0 0 #A8A29E;
+  }
+  50% {
+    box-shadow: 0 0 0 6px #A8A29E;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #A8A29E;
+  }
+}
 .passedPrayer {
   opacity: 0.6;
 }
@@ -118,3 +129,4 @@
   padding: 2px 6px;
   border-radius: 10px;
 }
+
