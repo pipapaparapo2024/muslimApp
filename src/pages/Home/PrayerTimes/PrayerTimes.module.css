@@ -18,13 +18,13 @@
 
 @keyframes glowPen {
   0% {
-    filter: drop-shadow(0 0 0px #A8A29E);
+    filter: drop-shadow(0 0 0px var(--color-background-semantic-solid-brand));
   }
   50% {
-    filter: drop-shadow(0 0 10px #A8A29E);
+    filter: drop-shadow(0 0 10px var(--color-background-semantic-solid-brand));
   }
   100% {
-    filter: drop-shadow(0 0 0px #A8A29E);
+    filter: drop-shadow(0 0 0px var(--color-background-semantic-solid-brand));
   }
 }
 
