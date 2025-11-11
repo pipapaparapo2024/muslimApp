@@ -13,23 +13,21 @@
 .editIcon {
   cursor: pointer;
   color: #A8A29E;
-  animation: pulsePen 1.5s infinite ease-in-out;
+  animation: glowPen 1.5s infinite ease-in-out;
 }
 
-@keyframes pulsePen {
+@keyframes glowPen {
   0% {
-    transform: scale(1);
-    opacity: 1;
+    filter: drop-shadow(0 0 0px #A8A29E);
   }
   50% {
-    transform: scale(1.2);
-    opacity: 0.8;
+    filter: drop-shadow(0 0 10px #A8A29E);
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    filter: drop-shadow(0 0 0px #A8A29E);
   }
 }
+
 
 .subtitle {
   color: var(--desk-text);
