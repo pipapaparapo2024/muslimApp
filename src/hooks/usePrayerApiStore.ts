@@ -73,7 +73,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-          console.log("fetchPrayerSettings",response.data.data.praySettings)
           if (
             response.data.status == "ok" &&
             response.data.data?.praySettings
@@ -151,7 +150,6 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
           if (prayer.id === id) {
             const newHasSelected = !prayer.hasSelected;
 
-            // 🔹 Отправляем аналитику в зависимости от состояния
             if (newHasSelected) {
               trackButtonClick("prayer_times", "click_show_on_main_screen", {
                 prayer_name: prayer.name,
@@ -229,7 +227,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         prayers: state.prayers,
-        prayerSetting: state.prayerSetting, // ← ДОБАВЬТЕ сохранение настроек
+        prayerSetting: state.prayerSetting,
       }),
     }
   )
