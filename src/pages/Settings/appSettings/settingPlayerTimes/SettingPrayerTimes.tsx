@@ -92,7 +92,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
   const handleToggleNotification = async (prayer: any) => {
     const actionType = prayer.hasTelegramNotification ? "click_off_tg_notifications" : "click_on_tg_notifications";
-    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.name }));
+    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.englishName }));
     
     setLocalLoading(true);
     await togglePrayerNotification(prayer.id);

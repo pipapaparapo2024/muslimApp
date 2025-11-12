@@ -7,6 +7,7 @@ import { useGeoStore } from "./useGeoStore";
 export interface PrayerSetting {
   id: string;
   name: string;
+  englishName: string;
   description: string;
   hasSelected: boolean;
   hasTelegramNotification: boolean;
