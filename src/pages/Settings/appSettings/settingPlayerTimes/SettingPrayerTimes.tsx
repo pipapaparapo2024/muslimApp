@@ -83,7 +83,7 @@ export const SettingPrayerTimes: React.FC = () => {
 
   const handleToggleSelection = async (prayer: any) => {
     const actionType = prayer.hasSelected ? "click_show_off_main_screen" : "click_show_on_main_screen";
-    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.name }));
+    trackButtonClick("prayer_times", actionType, JSON.stringify({ prayer_name: prayer.englishName }));
     
     setLocalLoading(true);
     await togglePrayerSelection(prayer.id);

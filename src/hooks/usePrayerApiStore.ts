@@ -73,7 +73,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
 
         try {
           const response = await quranApi.get(`/api/v1/prayers/settings`, {});
-
+          console.log("fetchPrayerSettings",response.data.data.praySettings)
           if (
             response.data.status == "ok" &&
             response.data.data?.praySettings
@@ -108,6 +108,7 @@ export const usePrayerApiStore = create<PrayerApiStore>()(
             praySettings: settings.map((setting) => ({
               id: setting.id,
               name: setting.name,
+              englishName: setting.englishName,
               description: setting.description,
               hasSelected: setting.hasSelected,
               hasTelegramNotification: setting.hasTelegramNotification,
