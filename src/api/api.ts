@@ -1,6 +1,6 @@
 import axios from "axios";
 import WebApp from "@twa-dev/sdk";
-
+import { trackButtonClick } from "./analytics";
 // Создаём экземпляр API
 export const quranApi = axios.create({
   baseURL: "https://islamapp.myfavouritegames.org",
@@ -30,10 +30,32 @@ quranApi.interceptors.request.use((config) => {
 
 let isRefreshing = false;
 
+// Функция для отправки аналитики об ошибках
+const trackErrorEvent = async (error: any, requestConfig: any) => {
+  const errorPayload = {
+    code: error.response?.status || 0,
+    error: error.message || "Unknown error",
+    url: requestConfig?.url,
+    method: requestConfig?.method?.toUpperCase(),
+    responseData: error.response?.data
+  };
+
+  await trackButtonClick(
+    "error",
+    "api_request_failed",
+    errorPayload
+  );
+};
+
 quranApi.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Отправляем аналитику об ошибке
+    if (error.response?.status !== 401) { // Не отправляем для 401 ошибок, т.к. они обрабатываются отдельно
+      await trackErrorEvent(error, originalRequest);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -57,6 +79,13 @@ quranApi.interceptors.response.use(
         return quranApi(originalRequest);
       } catch (refreshError) {
         isRefreshing = false;
+        
+        // Отправляем аналитику об ошибке refresh token
+        await trackErrorEvent(refreshError, {
+          url: "/api/v1/user/auth/refresh",
+          method: "post"
+        });
+
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         window.Telegram?.WebApp?.showAlert?.("Сессия истекла. Перезапустите бота.");
@@ -68,7 +97,6 @@ quranApi.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 
 export function isErrorWithMessage(
   error: unknown
