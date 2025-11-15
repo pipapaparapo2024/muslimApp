@@ -32,19 +32,11 @@ let isRefreshing = false;
 
 // Функция для отправки аналитики об ошибках
 const trackErrorEvent = async (error: any, requestConfig: any) => {
-  const errorPayload = {
+  await trackButtonClick("error", "api_request_failed", {
     code: error.response?.status || 0,
     error: error.message || "Unknown error",
     url: requestConfig?.url,
-    method: requestConfig?.method?.toUpperCase(),
-    responseData: error.response?.data
-  };
-
-  await trackButtonClick(
-    "error",
-    "api_request_failed",
-    errorPayload
-  );
+  });
 };
 
 quranApi.interceptors.response.use(
@@ -53,7 +45,8 @@ quranApi.interceptors.response.use(
     const originalRequest = error.config;
 
     // Отправляем аналитику об ошибке
-    if (error.response?.status !== 401) { // Не отправляем для 401 ошибок, т.к. они обрабатываются отдельно
+    if (error.response?.status !== 401) {
+      // Не отправляем для 401 ошибок, т.к. они обрабатываются отдельно
       await trackErrorEvent(error, originalRequest);
     }
 
@@ -79,16 +72,18 @@ quranApi.interceptors.response.use(
         return quranApi(originalRequest);
       } catch (refreshError) {
         isRefreshing = false;
-        
+
         // Отправляем аналитику об ошибке refresh token
         await trackErrorEvent(refreshError, {
           url: "/api/v1/user/auth/refresh",
-          method: "post"
+          method: "post",
         });
 
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.Telegram?.WebApp?.showAlert?.("Сессия истекла. Перезапустите бота.");
+        window.Telegram?.WebApp?.showAlert?.(
+          "Сессия истекла. Перезапустите бота."
+        );
         setTimeout(() => window.Telegram?.WebApp?.close(), 1500);
         return Promise.reject(refreshError);
       }
