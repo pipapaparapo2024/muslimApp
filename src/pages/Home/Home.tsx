@@ -62,7 +62,7 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {error && <div className={styles.errorContainer}>{error}gfdgdgdfgdf</div>}
+      {error && <div className={styles.errorContainer}>{error}</div>}
 
       {!isLoading && !error && (
         <>
