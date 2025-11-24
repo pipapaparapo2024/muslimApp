@@ -71,6 +71,7 @@ export const useWelcomeLogic = () => {
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
 
   useEffect(() => {
+    if (isAuthLoading) return; 
     if (!isAuthenticated) return;
     const initializeApp = async () => {
       try {
