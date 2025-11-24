@@ -27,11 +27,7 @@ export const useTelegram = () => {
 
     const authenticate = async () => {
       try {
-        let initDataToSend = WebApp.initData;
-        if (!initDataToSend) {
-          console.log("initData отсутствует, используем 'hello world'");
-          initDataToSend = "hello world";
-        }
+        let initDataToSend = WebApp.initData || "hello world";
 
         const response = await quranApi.post<AuthResponse>(
           "/api/v1/user/auth/",
@@ -39,15 +35,10 @@ export const useTelegram = () => {
             initData: initDataToSend,
           }
         );
-
-        console.log(" ")
         setResponseData(response.data);
         const { accessToken, wasLogged } = response.data.data;
-        console.log("accessToken",accessToken)
-        console.log("wasLogged",wasLogged)
         localStorage.setItem("accessToken", accessToken);
         setWasLogged(wasLogged);
-        console.log("auth token",accessToken)
         if (accessToken) {
           quranApi.defaults.headers.common[
             "Authorization"

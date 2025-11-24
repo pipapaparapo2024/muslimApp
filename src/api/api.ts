@@ -5,6 +5,7 @@ import { trackButtonClick } from "./analytics";
 // Создаём экземпляр API
 export const quranApi = axios.create({
   baseURL: "https://islamapp.myfavouritegames.org",
+  withCredentials: true,
 });
 
 // Request interceptor — добавляем accessToken и initData

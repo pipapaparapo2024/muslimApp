@@ -61,7 +61,6 @@ export const useWelcomeLogic = () => {
     error: authError,
     wasLogged,
   } = useTelegram();
-
   useEffect(() => {
     if (!isAuthLoading) {
       if (isAuthenticated && wasLogged) {
@@ -72,6 +71,7 @@ export const useWelcomeLogic = () => {
   }, [isAuthenticated, isAuthLoading, wasLogged, navigate]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const initializeApp = async () => {
       try {
         console.log("🚀 Инициализация приложения...");
@@ -141,7 +141,7 @@ export const useWelcomeLogic = () => {
     };
 
     initializeApp();
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     let isMounted = true;
