@@ -42,6 +42,8 @@ export const useTelegram = () => {
 
         setResponseData(response.data);
         const { accessToken, wasLogged } = response.data.data;
+        console.log("accessToken",accessToken)
+        console.log("wasLogged",wasLogged)
         localStorage.setItem("accessToken", accessToken);
         setWasLogged(wasLogged);
         console.log("auth token",accessToken)

@@ -1,6 +1,7 @@
 import axios from "axios";
 import WebApp from "@twa-dev/sdk";
 import { trackButtonClick } from "./analytics";
+
 // Создаём экземпляр API
 export const quranApi = axios.create({
   baseURL: "https://islamapp.myfavouritegames.org",
@@ -34,7 +35,7 @@ let isRefreshing = false;
 const trackErrorEvent = async (error: any, requestConfig: any) => {
   await trackButtonClick("error", "api_request_failed", {
     code: error.response?.status || 0,
-    error: error.message || "Unknown error",
+    error: error.message,
     url: requestConfig?.url,
   });
 };
