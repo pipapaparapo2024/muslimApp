@@ -80,12 +80,12 @@ export const useWelcomeLogic = () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         const locationData = getLocationData();
 
-        console.log("📍 Получены данные локации:", locationData);
+        console.log("📍 Данные локации:", locationData);
         const userSettings = {
-          city: locationData.city,
-          countryName: locationData.country,
-          langcode: locationData.langcode,
-          timeZone: locationData.timeZone,
+          city: locationData.city || "Unknown",
+          countryName: locationData.country || "Unknown",
+          langcode: locationData.langcode || "en",
+          timeZone: locationData.timeZone || "UTC",
         };
         const telegramUser = window?.Telegram?.WebApp?.initDataUnsafe?.user;
         const prem = telegramUser?.is_premium;

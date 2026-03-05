@@ -52,24 +52,34 @@ const processQueue = (error: any, token: string | null = null) => {
 /**
  * Централизованная функция для ре-аутентификации через /auth/
  */
-const performFullReAuth = async (): Promise<string> => {
+const performFullReAuth = async (): Promise<{ accessToken: string; refreshToken?: string }> => {
   console.log("[API] Attempting full re-auth via /user/auth/...");
   const initData = WebApp.initData || "";
   const response = await quranApi.post("/api/v1/user/auth/", { initData });
-  const newToken = response.data?.data?.accessToken;
-  if (!newToken) throw new Error("No accessToken in auth response");
-  return newToken;
+  const data = response.data?.data;
+  if (!data?.accessToken) throw new Error("No accessToken in auth response");
+  return { accessToken: data.accessToken, refreshToken: data.refreshToken };
 };
 
 /**
  * Централизованная функция для обновления через /refresh/
  */
-const performRefresh = async (): Promise<string> => {
+const performRefresh = async (): Promise<{ accessToken: string; refreshToken?: string }> => {
   console.log("[API] Attempting token refresh via /refresh/...");
-  const response = await quranApi.post("/api/v1/user/auth/refresh");
-  const newToken = response.data?.data?.accessToken;
-  if (!newToken) throw new Error("No accessToken in refresh response");
-  return newToken;
+  const refreshToken = localStorage.getItem("refreshToken");
+  
+  // Если токена нет, сразу выбрасываем ошибку, чтобы перейти к full re-auth
+  if (!refreshToken) {
+    throw new Error("No refreshToken available in localStorage");
+  }
+
+  const response = await quranApi.post("/api/v1/user/auth/refresh", {
+    refreshToken: refreshToken
+  });
+  
+  const data = response.data?.data;
+  if (!data?.accessToken) throw new Error("No accessToken in refresh response");
+  return { accessToken: data.accessToken, refreshToken: data.refreshToken };
 };
 
 // Функция для отправки аналитики об ошибках
@@ -119,14 +129,14 @@ quranApi.interceptors.response.use(
       originalRequest._authAttempted = originalRequest._authAttempted || false;
 
       try {
-        let newToken = "";
+        let tokens: { accessToken: string; refreshToken?: string } = { accessToken: "" };
 
         // ===== ШАГ 1: REFRESH (до 3 попыток, как в запросе) =====
         let refreshSuccess = false;
         while (originalRequest._refreshAttempts < 3 && !refreshSuccess) {
           originalRequest._refreshAttempts++;
           try {
-            newToken = await performRefresh();
+            tokens = await performRefresh();
             refreshSuccess = true;
           } catch (refreshErr) {
             console.warn(`[API] Refresh attempt ${originalRequest._refreshAttempts} failed`);
@@ -136,11 +146,14 @@ quranApi.interceptors.response.use(
 
         // Если refresh прошел успешно
         console.log("[API] Token recovered via refresh");
-        localStorage.setItem("accessToken", newToken);
-        quranApi.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        const { accessToken, refreshToken } = tokens;
+        localStorage.setItem("accessToken", accessToken);
+        if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
-        processQueue(null, newToken);
+        quranApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+        processQueue(null, accessToken);
         isRefreshing = false;
         return quranApi(originalRequest);
 
@@ -154,14 +167,17 @@ quranApi.interceptors.response.use(
           }
           
           originalRequest._authAttempted = true;
-          const newToken = await performFullReAuth();
+          const tokens = await performFullReAuth();
 
           console.log("[API] Session recovered via full re-auth");
-          localStorage.setItem("accessToken", newToken);
-          quranApi.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          const { accessToken, refreshToken } = tokens;
+          localStorage.setItem("accessToken", accessToken);
+          if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
 
-          processQueue(null, newToken);
+          quranApi.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+          processQueue(null, accessToken);
           isRefreshing = false;
           return quranApi(originalRequest);
 

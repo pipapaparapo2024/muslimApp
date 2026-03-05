@@ -76,53 +76,99 @@ export const useGeoStore = create<GeoState>()(
         console.log("🔄 Проверяем геоданные...");
         set({ isLoading: true, error: null });
 
-        try {
-          const response = await axios.get("https://ipwho.is/", {
-            timeout: 5000,
-          });
-          console.log("✅ Получены данные с ipwho.co");
+        const services = [
+          {
+            url: "https://freeipapi.com/api/json",
+            transform: (data: any) => ({
+              city: data.cityName,
+              countryName: data.countryName,
+              countryCode: data.countryCode,
+              latitude: data.latitude,
+              longitude: data.longitude,
+              timezone: { id: data.timeZone },
+              ip: data.ipAddress,
+              type: data.ipVersion === 4 ? "IPv4" : "IPv6",
+            }),
+          },
+          {
+            url: "https://ipapi.co/json/",
+            transform: (data: any) => ({
+              city: data.city,
+              countryName: data.country_name,
+              countryCode: data.country_code,
+              latitude: data.latitude,
+              longitude: data.longitude,
+              timezone: { id: data.timezone },
+              ip: data.ip,
+              type: "IPv4",
+            }),
+          },
+        ];
 
-          const data = response.data;
-          const city = data.city || data.region;
-          const countryName = data.country;
-          const countryCode = data.country_code;
-          const langcode = countryCode;
-          const location = {
-            lat: data.latitude || data.lat,
-            lon: data.longitude || data.lon,
-          };
+        for (const service of services) {
+          try {
+            console.log(`🌐 Пробуем сервис: ${service.url}`);
+            const response = await axios.get(service.url, {
+              timeout: 5000,
+              headers: {
+                Accept: "application/json",
+              },
+            });
 
-          const normalized = {
-            ...data,
-            city,
-            country: { name: countryName, code: countryCode },
-            countryCode,
-            timestamp: Date.now(),
-          };
+            if (response.data) {
+              const data = service.transform(response.data);
+              console.log("✅ Получены данные геолокации");
 
-          // Кэшируем
-          localStorage.setItem("ipDataCache", JSON.stringify(normalized));
-          localStorage.setItem("lastGeoRequest", Date.now().toString());
-          // Обновляем store
-          set({
-            ipData: data,
-            coords: location,
-            city,
-            country: countryName,
-            langcode,
-            timeZone: data.timezone.id,
-            isLoading: false,
-            error: null,
-          });
+              const city = data.city;
+              const countryName = data.countryName;
+              const countryCode = data.countryCode;
+              const langcode = countryCode;
+              const location = {
+                lat: data.latitude,
+                lon: data.longitude,
+              };
 
-          console.log("📍 Геолокация успешно определена:", normalized);
-        } catch (err: any) {
-          console.error("❌ Ошибка получения геоданных:", err?.message || err);
-          set({
-            error: err?.message || "Fail to get location",
-            isLoading: false,
-          });
+              const normalized = {
+                ...data,
+                city,
+                country: { name: countryName, code: countryCode },
+                countryCode,
+                timestamp: Date.now(),
+              };
+
+              // Кэшируем
+              localStorage.setItem("ipDataCache", JSON.stringify(normalized));
+              localStorage.setItem("lastGeoRequest", Date.now().toString());
+
+              // Обновляем store
+              set({
+                ipData: data as any,
+                coords: location,
+                city,
+                country: countryName,
+                langcode,
+                timeZone: data.timezone.id,
+                isLoading: false,
+                error: null,
+                isInitialized: true,
+              });
+
+              console.log("📍 Геолокация успешно определена:", normalized);
+              return; // Успешно выходим
+            }
+          } catch (err: any) {
+            console.warn(`⚠️ Ошибка сервиса ${service.url}:`, err?.message);
+            // Пробуем следующий сервис
+          }
         }
+
+        // Если все сервисы провалились
+        console.error("❌ Все сервисы геолокации недоступны");
+        set({
+          error: "Fail to get location from all services",
+          isLoading: false,
+          isInitialized: true, // Помечаем как инициализированное, чтобы не висеть бесконечно
+        });
       },
 
       setCoords: (coords) => set({ coords }),

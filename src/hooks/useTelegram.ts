@@ -6,6 +6,7 @@ import { quranApi } from "../api/api";
 export interface AuthResponse {
   data: {
     accessToken: string;
+    refreshToken: string;
     promo: string;
     wasLogged: boolean;
   };
@@ -36,8 +37,11 @@ export const useTelegram = () => {
           }
         );
         setResponseData(response.data);
-        const { accessToken, wasLogged } = response.data.data;
+        const { accessToken, refreshToken, wasLogged } = response.data.data;
         localStorage.setItem("accessToken", accessToken);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
         setWasLogged(wasLogged);
         if (accessToken) {
           quranApi.defaults.headers.common[
