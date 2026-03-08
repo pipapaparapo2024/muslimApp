@@ -13,6 +13,7 @@ export const getStatusTranslationKey = (status: ProductStatusType): string => {
   return translationMap[status];
 };
 
+
 export const getStatusIcon = (status: ProductStatusType, size: number = 24): React.ReactElement => {
   switch (status) {
     case "halal":

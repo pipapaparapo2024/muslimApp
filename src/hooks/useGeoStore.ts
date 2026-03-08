@@ -103,6 +103,35 @@ export const useGeoStore = create<GeoState>()(
               type: "IPv4",
             }),
           },
+          {
+            url: "https://ip-api.com/json/?fields=status,country,countryCode,city,lat,lon,timezone",
+            transform: (data: any) => {
+              if (data.status !== "success") throw new Error("ip-api.com returned non-success");
+              return {
+                city: data.city ?? "",
+                countryName: data.country ?? "",
+                countryCode: data.countryCode ?? "",
+                latitude: data.lat,
+                longitude: data.lon,
+                timezone: { id: data.timezone ?? "UTC" },
+                ip: "",
+                type: "IPv4",
+              };
+            },
+          },
+          {
+            url: "https://get.geojs.io/v1/ip/geo.json",
+            transform: (data: any) => ({
+              city: data.city ?? "",
+              countryName: data.country ?? "",
+              countryCode: data.country_code ?? "",
+              latitude: parseFloat(data.latitude) || 0,
+              longitude: parseFloat(data.longitude) || 0,
+              timezone: { id: data.timezone ?? "UTC" },
+              ip: data.ip ?? "",
+              type: "IPv4",
+            }),
+          },
         ];
 
         for (const service of services) {
